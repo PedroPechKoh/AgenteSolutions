@@ -1,6 +1,5 @@
 import React from 'react';
-import ApplianceForm from './components/ApplianceForm'; // <--- Importamos el componente
-
+import ApplianceForm from './components/ApplianceForm'; 
 function App() {
   return (
     <div>
