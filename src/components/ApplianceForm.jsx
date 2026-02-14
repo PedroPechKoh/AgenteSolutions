@@ -1,101 +1,38 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
-const ApplianceForm = () => {
-  // Estado para guardar los datos
-  const [formData, setFormData] = useState({
-    property_id: 1, // Usamos la Casa #1 que creaste en Tinker
-    type: '',
-    brand: '',
-    model: '',
-    image: null // Aquí va el archivo real
-  });
+function ApplianceForm() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [mensaje, setMensaje] = useState('');
 
-  const [message, setMessage] = useState('');
-
-  // Maneja los textos (Tipo, Marca, Modelo)
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  // Maneja la selección de la FOTO
-  const handleFileChange = (e) => {
-    setFormData({
-      ...formData,
-      image: e.target.files[0] // Guardamos el archivo
-    });
-  };
-
-  // Envía todo al Backend
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    
-    // Para enviar fotos, es OBLIGATORIO usar "FormData"
-    const data = new FormData();
-    data.append('property_id', formData.property_id);
-    data.append('type', formData.type);
-    data.append('brand', formData.brand);
-    data.append('model', formData.model);
-    if (formData.image) {
-      data.append('image', formData.image);
-    }
-
     try {
-      // Petición al servidor Laravel (Puerto 8000)
-      const response = await axios.post('http://localhost:8000/api/appliances', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const res = await axios.post('http://127.0.0.1:8000/api/login-rapido', {
+        email,
+        password
       });
       
-      setMessage('✅ ¡Electrodoméstico guardado con éxito!');
-      console.log(response.data);
+      const { user_name, role_id } = res.data;
+      setMensaje(`¡Bienvenido ${user_name}! Tu nivel es: ${role_id}`);
+      
     } catch (error) {
-      console.error(error);
-      setMessage('❌ Error al guardar. Revisa la consola (F12).');
+      setMensaje('Error: Usuario no encontrado o datos incorrectos');
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '20px auto', padding: '20px', border: '1px solid #ccc' }}>
-      <h3>Nuevo Electrodoméstico</h3>
-      <form onSubmit={handleSubmit}>
-        
-        <div style={{ marginBottom: '10px' }}>
-          <input 
-            type="text" name="type" placeholder="Tipo (ej: Aire Acondicionado)" 
-            onChange={handleChange} required style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '10px' }}>
-          <input 
-            type="text" name="brand" placeholder="Marca" 
-            onChange={handleChange} required style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '10px' }}>
-          <input 
-            type="text" name="model" placeholder="Modelo" 
-            onChange={handleChange} required style={{ width: '100%', padding: '8px' }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '15px' }}>
-          <label>Foto del equipo:</label>
-          <input type="file" onChange={handleFileChange} accept="image/*" />
-        </div>
-
-        <button type="submit" style={{ width: '100%', padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none' }}>
-          Guardar
-        </button>
-
+    <div style={{ padding: '20px', textAlign: 'center' }}>
+      <h2>Login Agente Solutions</h2>
+      <form onSubmit={handleLogin}>
+        <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} /><br /><br />
+        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} /><br /><br />
+        <button type="submit">Entrar</button>
       </form>
-      {message && <p style={{ marginTop: '10px', textAlign: 'center' }}>{message}</p>}
+      {mensaje && <h3>{mensaje}</h3>}
     </div>
   );
-};
+}
 
 export default ApplianceForm;
