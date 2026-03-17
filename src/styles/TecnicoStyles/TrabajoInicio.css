@@ -1,0 +1,287 @@
+/* MANTENER TUS ESTILOS DE SIDEBAR Y HEADER ANTERIORES */
+
+/* CONTENEDOR GRIS DE DETALLES */
+.tt-main-card {
+  background-color: #636363;
+  border-radius: 40px;
+  padding: 30px;
+  width: 100%;
+  position: relative;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* GRUPO DE BURBUJAS SUPERIOR */
+.tt-top-info-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.tt-bubble-info {
+  background-color: #d1d1d1;
+  border-radius: 20px;
+  padding: 5px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+}
+
+.tt-bubble-info span {
+  font-size: 8px;
+  font-weight: 900;
+  color: #000;
+}
+
+.tt-bubble-info strong {
+  font-size: 11px;
+  color: #000;
+}
+
+/* LAYOUT DE DETALLE */
+.tt-detail-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 30px;
+  flex: 1;
+}
+
+.tt-label-pill {
+  background-color: #d1d1d1;
+  border-radius: 20px;
+  padding: 6px 20px;
+  font-size: 10px;
+  font-weight: 900;
+  color: #000;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.tt-description-box {
+  background-color: #d1d1d1;
+  border-radius: 30px;
+  height: 200px;
+  margin-bottom: 15px;
+}
+
+.tt-dates-container {
+  display: flex;
+  gap: 15px;
+}
+
+/* EQUIPO DE TRABAJO Y SCROLLBAR */
+.tt-team-container {
+  background-color: #d1d1d1;
+  border-radius: 30px;
+  height: 250px;
+  display: flex;
+  padding: 10px;
+  position: relative;
+}
+
+.tt-team-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 15px;
+}
+
+.tt-custom-scrollbar {
+  width: 12px;
+  background-color: #000; /* La barra negra de tu imagen */
+  border-radius: 10px;
+  margin-left: 5px;
+}
+
+.tt-member-card {
+  background-color: #8c8c8c;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.tt-member-avatar {
+  background-color: #d1d1d1;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+}
+
+.tt-member-data p {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+/* BOTONES DE ACCIÓN */
+.tt-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.tt-btn-action {
+  border: none;
+  border-radius: 25px;
+  padding: 12px 45px;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 18px;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.tt-btn-action.orange { background-color: #f26624; }
+.tt-btn-action.purple { background-color: #5d5eb3; }
+
+/* Círculo del botón volver */
+.tt-back-circle {
+  border: 2px solid black;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tt-container {
+  display: flex;
+  height: 100vh;
+  font-family: 'Arial Black', Gadget, sans-serif;
+  background-color: white;
+}
+
+/* SIDEBAR */
+.tt-sidebar {
+  width: 260px;
+  background-color: #6b6b6b;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 15px; 
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* LOGO: Arriba a la izquierda */
+.logo-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Logo a la izquierda */
+  margin-bottom: 20px;
+}
+
+.main-logo {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+}
+
+.tt-slogan {
+  color: white;
+  font-size: 8px;
+  border-top: 1px solid white;
+  margin-top: 5px;
+  padding-top: 2px;
+  text-align: center;
+  width: 100%;
+  max-width: 180px;
+}
+
+/* NAVBAR: Posición más baja */
+.tt-nav {
+  width: 100%;
+  margin-top: 140px; /* <--- Esto baja el menú lo suficiente */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tt-nav-btn {
+  width: 100%;
+  background-color: #bcbcbc;
+  border-radius: 25px;
+  padding: 12px 15px;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #FFFFFF !important;
+  font-weight: 900;
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.tt-nav-btn.active {
+  background-color: #f26624 !important;
+}
+
+/* CONTENIDO PRINCIPAL */
+.tt-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 40px;
+}
+
+.tt-orange-bar {
+  height: 8px;
+  background-color: #f26624;
+  width: 100%;
+}
+
+.tt-body {
+  padding: 30px 50px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* BUSCADOR CON LUPA MÁS ADENTRO */
+.tt-search-container {
+  align-self: center;
+  width: 75%;
+  position: relative;
+  margin-bottom: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.tt-search-input {
+  width: 100%;
+  background-color: #d1d1d1;
+  height: 48px;
+  border-radius: 30px;
+  border: none;
+  padding-left: 25px;
+  padding-right: 65px; /* Más espacio a la derecha para la lupa */
+  box-shadow: inset 0 4px 4px rgba(0,0,0,0.2);
+  font-size: 16px;
+}
+
+.tt-search-icon {
+  position: absolute;
+  right: 40px; /* <--- Aumentamos de 20px a 35px para meterla más adentro */
+  top: 50%;
+  transform: translateY(-50%);
+  color: black;
+  cursor: pointer;
+}   
