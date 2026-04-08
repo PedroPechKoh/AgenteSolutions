@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo3.png'; 
+// 👇 1. IMPORTAMOS EL COMPONENTE DE LA CAMPANITA 👇
+// (Ajusta los '../' dependiendo de en qué carpeta esté este archivo Header.jsx)
+import NotificationBell from '../Shared/NotificationBell'; 
 
 const Header = ({ rolTexto = "USUARIO" }) => {
   const { user, logoutGlobal } = useAuth();
@@ -26,13 +29,16 @@ const Header = ({ rolTexto = "USUARIO" }) => {
         </h2>
       </div>
 
-      <div className="user-controls">
-        <button className="icon-btn">⚙️</button>
+      {/* 👇 2. ALINEAMOS LOS CONTROLES CON FLEXBOX 👇 */}
+      <div className="user-controls" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+        
+        {/* 👇 3. INYECTAMOS LA CAMPANITA AQUÍ 👇 */}
+        <NotificationBell />
 
         <div style={{ position: "relative" }}>
           <button
             className="icon-btn"
-            style={{ padding: 0, overflow: "hidden" }}
+            style={{ padding: 0, overflow: "hidden", display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%' }}
             onClick={() => setMenuAbierto(!menuAbierto)}
           >
             {user?.profile_picture ? (
@@ -42,7 +48,7 @@ const Header = ({ rolTexto = "USUARIO" }) => {
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             ) : (
-              "👤"
+              <span style={{ fontSize: '1.5rem' }}>👤</span>
             )}
           </button>
 

@@ -110,6 +110,7 @@ const ClientRegister = () => {
                 className="custom-input"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
+                style={{ paddingLeft: "55px" }}
                 required
               />
             </div>
@@ -135,6 +136,7 @@ const ClientRegister = () => {
                 className="custom-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                style={{ paddingLeft: "55px" }}
                 required
               />
             </div>
@@ -146,6 +148,7 @@ const ClientRegister = () => {
                 className="custom-input"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                style={{ paddingLeft: "55px" }}
                 required
               />
             </div>
@@ -160,6 +163,7 @@ const ClientRegister = () => {
                 className="custom-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                style={{ paddingLeft: "55px" }}
                 required
               />
               <button
@@ -178,6 +182,7 @@ const ClientRegister = () => {
                 className="custom-input"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                style={{ paddingLeft: "55px" }}
                 required
               />
               <button

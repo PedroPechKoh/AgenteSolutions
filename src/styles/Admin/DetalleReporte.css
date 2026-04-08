@@ -1,0 +1,392 @@
+/* Layout Base */
+.rep-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background: #f4f4f4;
+  overflow: hidden;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Sidebar Estático */
+.rep-sidebar {
+  width: 280px;
+  background: #1a1a1a;
+  color: white;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh; /* Aseguramos que mida exactamente la pantalla */
+  box-sizing: border-box; /* Para que el padding no desborde la caja */
+}
+
+.side-logo { width: 100%; cursor: pointer; margin-bottom: 25px; flex-shrink: 0; }
+
+/* 👇 AQUÍ ESTÁ LA MAGIA 👇 */
+.side-info {
+  flex-grow: 1; /* Toma todo el espacio sobrante del medio */
+  overflow-y: auto; /* Agrega scroll si la info es muy larga */
+  margin-bottom: 20px; /* Separación con el botón de abajo */
+  padding-right: 10px; /* Un respirito para el texto */
+  
+  /* Ocultamos la barra de scroll visualmente para que se vea limpio */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.side-info::-webkit-scrollbar {
+  display: none;
+}
+
+.id-badge { background: #ff8800; color: white; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; }
+.side-info h2 { font-size: 1.3rem; margin: 15px 0; color: #ff8800; }
+.side-hr { border: 0; border-top: 1px solid #333; margin: 20px 0; }
+
+/* Clasificación UI */
+.rep-clasificacion { margin: 20px 0; background: #2a2a2a; padding: 15px; border-radius: 8px; }
+.rep-clasificacion label { display: block; font-size: 0.7rem; color: #888; margin-bottom: 8px; letter-spacing: 1px; }
+
+.tipo-tag { display: inline-block; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; width: 100%; text-align: center; }
+.casa-regular { background: #4a90e2; color: white; }
+.mansión { background: #f5a623; color: white; }
+.departamento { background: #50e3c2; color: #1a1a1a; }
+
+.extra-depto-info { border-top: 1px solid #444; padding-top: 10px; margin-top: 10px; }
+.extra-depto-info p { font-size: 0.8rem !important; margin: 3px 0 !important; color: #bbb !important; }
+
+.btn-regresar {
+  margin-top: auto; /* Empuja el botón al fondo */
+  flex-shrink: 0; /* Evita que el botón se aplaste */
+  background: transparent;
+  border: 1px solid #ff8800;
+  padding: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-regresar:hover { background: #ff8800; color: white; }
+
+/* Contenido Principal con Scroll */
+.rep-main-content {
+  flex-grow: 1;
+  overflow-y: auto; /* PERMITE EL DESPLAZAMIENTO HACIA ABAJO */
+  padding: 40px;
+}
+
+.main-banner {
+  width: 100%;
+  height: 250px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 40px;
+}
+.main-banner img { width: 100%; height: 100%; object-fit: cover; }
+.banner-text { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; padding: 20px 30px; }
+
+/* Secciones y Tablas */
+.seccion-bloque { margin-bottom: 50px; }
+.seccion-header { border-left: 5px solid #ff8800; padding-left: 20px; margin-bottom: 25px; }
+.subseccion-caja { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 20px; }
+.sub-titulo { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+.nota-tecnica { font-size: 0.85rem; color: #ff8800; font-weight: bold; }
+
+.tabla-inventario { width: 100%; border-collapse: collapse; }
+.tabla-inventario th { background: #f9f9f9; padding: 12px; text-align: left; font-size: 0.75rem; color: #888; border-bottom: 2px solid #eee; }
+.tabla-inventario td { padding: 12px; border-bottom: 1px solid #f1f1f1; font-size: 0.9rem; }
+.col-cant { font-weight: bold; color: #ff8800; text-align: center; background: #fff8f0; }
+.txt-center { text-align: center; }
+/* Botón Generar Cotización */
+.btn-cotizacion {
+  width: 100%;
+  background: #ff8800;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: background 0.3s ease;
+}
+
+.btn-cotizacion:hover {
+  background: #e67a00;
+}
+
+/* Modal Estilos (Reutilizando clases de levantamientos para consistencia) */
+.lev-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 2000;
+}
+
+.lev-modal-form {
+  background: white;
+  width: 500px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+}
+
+.lev-modal-header.orange {
+  background: #ff8800;
+  color: white;
+  padding: 15px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.lev-form-grid {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.full-width { grid-column: span 2; }
+
+.lev-field label {
+  display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #333;
+}
+
+.lev-field input, .lev-field textarea {
+  width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;
+}
+
+.lev-footer-form {
+  grid-column: span 2;
+  display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;
+}
+
+.lev-btn-cancel { background: #eee; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+.lev-btn-save.orange-btn { background: #ff8800; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+.close-x { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+/* Card del Modal */
+.cot-modal-card {
+  background: white;
+  width: 650px;
+  max-width: 95%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  animation: modalSlideUp 0.3s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Header */
+.cot-modal-header {
+  background: #1a1a1a;
+  color: white;
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-content { display: flex; align-items: center; gap: 15px; }
+.header-icon { font-size: 1.8rem; background: #ff8800; padding: 10px; border-radius: 12px; }
+.cot-modal-header h3 { margin: 0; font-size: 1.2rem; }
+.cot-modal-header p { margin: 2px 0 0; font-size: 0.8rem; color: #aaa; }
+
+/* Tabs */
+.cot-tabs-selector {
+  display: flex;
+  background: #f8f9fa;
+  padding: 5px;
+  margin: 20px 25px 0;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.cot-tabs-selector button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  color: #666;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+.cot-tabs-selector button.active {
+  background: white;
+  color: #ff8800;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Form y Cuerpo */
+.cot-modal-body { padding: 25px; min-height: 300px; }
+.cot-form { display: flex; flex-direction: column; gap: 15px; }
+.cot-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+.cot-field label { display: block; font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 6px; }
+.cot-field input, .cot-field textarea {
+  width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 8px; font-size: 0.95rem; outline: none;
+}
+.cot-field input:focus { border-color: #ff8800; }
+
+/* Dropzone (Carga de Archivo) */
+.cot-dropzone {
+  display: flex;
+  height: 250px;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.cot-dropzone:hover { border-color: #ff8800; background: #fff9f2; }
+.dropzone-content { text-align: center; color: #777; }
+.upload-icon { font-size: 3rem; display: block; margin-bottom: 10px; }
+
+/* Preview */
+.cot-preview-box { border: 1px solid #eee; border-radius: 12px; overflow: hidden; }
+.preview-header { 
+  background: #f8f9fa; padding: 10px 15px; display: flex; 
+  justify-content: space-between; align-items: center; font-size: 0.8rem;
+}
+.preview-header button { color: #d9534f; border: none; background: none; cursor: pointer; text-decoration: underline; }
+.preview-content { height: 250px; overflow-y: auto; background: #444; display: flex; justify-content: center; }
+.preview-content img { max-width: 100%; height: auto; }
+
+/* Footer */
+.cot-modal-footer {
+  padding: 20px 25px;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.btn-secundario { background: #e0e0e0; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.btn-primario { background: #ff8800; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+/*Diseño de los datos del Reporte*/
+/* =========================================
+   DISEÑO DE LAS SECCIONES Y TABLAS
+   ========================================= */
+
+.reporte-flujo {
+  padding: 20px;
+  color: #333; /* Color base más oscuro para mejor lectura */
+}
+
+/* El bloque blanco principal de cada área */
+.seccion-bloque {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Sombra elegante */
+  border-left: 6px solid #ff7f00; /* Línea lateral naranja corporativa */
+}
+
+.seccion-header h3 {
+  font-size: 1.6rem;
+  color: #1a1a1a;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sec-desc {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 25px;
+}
+
+/* La caja gris clarito de cada subsección */
+.subseccion-caja {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.sub-titulo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+.sub-titulo h4 {
+  margin: 0;
+  color: #2c3e50; /* Un gris/azul oscuro */
+  font-size: 1.2rem;
+}
+
+/* Estilo tipo "Píldora" para la nota */
+.nota-tecnica {
+  font-size: 0.85rem;
+  color: #d86c00;
+  font-weight: 600;
+  background: #fff3e0; /* Fondo naranjita claro */
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+/* =========================================
+   LA TABLA DE INVENTARIO
+   ========================================= */
+.tabla-inventario {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden; /* Para que los bordes redondeados se apliquen al header */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.tabla-inventario th {
+  background-color: #2c3e50; /* Cabecera oscura */
+  color: #ffffff;
+  text-align: left;
+  padding: 14px 15px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabla-inventario th.txt-center {
+  text-align: center;
+}
+
+.tabla-inventario td {
+  padding: 14px 15px;
+  color: #444;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 0.95rem;
+}
+
+/* Efecto hover en las filas de la tabla */
+.tabla-inventario tbody tr:hover td {
+  background-color: #fcfcfc;
+}
+
+.tabla-inventario tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-inventario .bold {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Resaltamos la cantidad en naranja y más grande */
+.tabla-inventario .col-cant {
+  text-align: center;
+  font-weight: bold;
+  color: #ff7f00; 
+  font-size: 1.15rem;
+}

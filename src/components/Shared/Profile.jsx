@@ -105,24 +105,17 @@ const Profile = () => {
 
   return (
     <div className="main-container">
-      <div className="top-bar-orange"></div>
-      <div className="top-bar-black"></div>
-      
-      <Header rolTexto="MI PERFIL" />
-
       <div className="profile-page-scrollable-content">
         <div className="profile-card full-screen-card">
           
           <div className="profile-banner" style={{ backgroundImage: user?.cover_picture ? `url(${user.cover_picture})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center'}}>
             <div className="banner-overlay"></div>
-            <button className="btn-back-arrow" onClick={() => navigate(-1)}><ArrowLeft size={30} color="white" /></button>
+            <button className="back-oval-btn" onClick={() => navigate(-1)}>
+              <X size={20} className="close-icon" />
+              <span className="back-text">Regresar</span>
+            </button>
             <div className="banner-logo-wrapper"><img src={logo} alt="Agente Solutions" className="banner-logo" /></div>
             
-            <div className="banner-text">
-              <h2>{nombreCompleto}</h2>
-              <p className="role-badge">{obtenerNombreRol(user?.role_id)}</p>
-            </div>
-
             <button className="btn-edit-cover" onClick={() => coverInputRef.current.click()} disabled={isUploading}>
                <Camera size={20} /> {isUploading ? 'Subiendo...' : 'Cambiar Portada'}
             </button>
@@ -130,20 +123,31 @@ const Profile = () => {
           </div>
 
           <div className="profile-content">
-            <div className="avatar-section">
-              <div className="avatar-wrapper" onClick={() => profileInputRef.current.click()}>
-                {user?.profile_picture ? (
-                  <img src={user.profile_picture} alt="Avatar" className="profile-avatar" />
-                ) : (
-                  <div className="profile-avatar-placeholder">
-                    {user?.first_name ? user.first_name.charAt(0).toUpperCase() : '👤'}
+            <div className="profile-header-info">
+              <div className="profile-header-left">
+                <div className="avatar-section">
+                  <div className="avatar-wrapper" onClick={() => profileInputRef.current.click()}>
+                    {user?.profile_picture ? (
+                      <img src={user.profile_picture} alt="Avatar" className="profile-avatar" />
+                    ) : (
+                      <div className="profile-avatar-placeholder">
+                        {user?.first_name ? user.first_name.charAt(0).toUpperCase() : '👤'}
+                      </div>
+                    )}
+                    <div className="avatar-hover-overlay"><Camera size={40} color="white" /></div>
                   </div>
-                )}
-                <div className="avatar-hover-overlay"><Camera size={40} color="white" /></div>
+                  <input type="file" ref={profileInputRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'profile_picture')} accept="image/*" />
+                </div>
+                
+                <div className="user-info-section">
+                  <h2>{nombreCompleto}</h2>
+                  <span className="role-badge">{obtenerNombreRol(user?.role_id)}</span>
+                </div>
               </div>
-              <input type="file" ref={profileInputRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'profile_picture')} accept="image/*" />
-              
-              <button className="btn-edit-profile" onClick={openModal}>EDITAR DATOS</button>
+
+              <div className="profile-actions-section">
+                <button className="btn-edit-profile" onClick={openModal}>EDITAR DATOS</button>
+              </div>
             </div>
 
             <div className="about-section">

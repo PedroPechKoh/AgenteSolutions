@@ -86,13 +86,16 @@
 .btn-add-photo {
   background-color: #E68A4B;
   border: none;
-  border-radius: 50% 20px 20px 50%; /* Forma ovalada del botón + */
+  /* Mantenemos tu forma ovalada */
+  border-radius: 50% 20px 20px 50%; 
   padding: 5px 25px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 4px rgba(0,0,0,0.2);
+  /* Añadimos un margen a la izquierda si lo sientes muy pegado */
+  margin-left: 0; 
 }
 
 /* Barra de scroll negra a la derecha */
@@ -122,4 +125,19 @@
   border-radius: 10px;
   z-index: 5; /* Prioridad baja para no estorbar */
   pointer-events: none; /* ESTO ES CLAVE: hace que los clics pasen a través de ella */
+}
+/* Si en el JSX usas gallery-top-actions, asegúrate de que tenga esto: */
+.gallery-top-actions {
+  display: flex;
+  justify-content: flex-start; /* Esto lo manda a la izquierda */
+  padding: 10px 40px;         /* Alineado con el padding de .galeria-body */
+  width: 100%;
+}
+
+/* Y ajustamos el contenedor del botón que tenías como .header-right */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: flex-start; /* Cambiar de ser necesario */
 }

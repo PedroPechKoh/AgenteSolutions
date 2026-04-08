@@ -1,21 +1,22 @@
 import React from 'react';
 import '../styles/VistaInicioAdmin.css';
 import { useNavigate } from 'react-router-dom';
-// 👇 1. Importamos tu nueva pieza de Lego
 import Header from './Shared/Header'; 
 
 const VistaInicioAdmin = () => {
   const navigate = useNavigate();
-  // (Ya no necesitamos useAuth ni useState aquí, ¡el Header se encarga de todo!)
 
   const menuItems = [
-    { id: 1, title: 'USUARIOS', icon: '👤' },
-    { id: 2, title: 'PROPIEDADES', icon: '🏠' },
-    { id: 3, title: 'DASHBOARD', icon: '📊' },
-    { id: 4, title: 'LEVANTAMIENTOS', icon: '📋', path: '/registro-propiedades' },
-    { id: 5, title: 'COTIZACIONES', icon: '🧾' },
-    { id: 6, title: 'NOTIFICACIONES', icon: '🔔' },
-    { id: 7, title: 'PRODUCTOS', icon: '📦' },
+    { id: 1, title: 'USUARIOS', icon: '👤',  path: '/usuarios'}, 
+    { id: 2, title: 'PROPIEDADES', icon: '🏠',  path: '/propiedades' },
+    { id: 3, title: 'DASHBOARD', icon: '📊',  path: '/dashboard'},
+    { id: 4, title: 'LEVANTAMIENTOS', icon: '📋', path: '/levantamientos' },
+    { id: 5, title: 'COTIZACIONES', icon: '🧾' , path: '/vista-cotizaciones'},
+    { id: 6, title: 'PRODUCTOS', icon: '📦', path: '/vista-producto' },
+    { id: 7, title: 'BODEGA', icon: '🏭', path: '/bodeguero' },
+    { id: 8, title: 'PERSONALIZAR', icon: '🎨', path: '/customize-login' },
+    
+   
   ];
 
   return (
@@ -23,7 +24,6 @@ const VistaInicioAdmin = () => {
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
-      {/* 👇 2. ¡BOOM! Toda tu barra superior, foto, y menú en una sola línea */}
       <Header rolTexto="ADMINISTRADOR" />
 
       <div className="search-section">

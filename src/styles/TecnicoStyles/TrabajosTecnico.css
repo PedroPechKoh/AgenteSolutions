@@ -17,20 +17,50 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 .tt-orange-bar { height: 6px; background-color: #f26624; width: 100%; }
 
 /* CUERPO Y BUSCADOR */
-.tt-body { padding: 15px 50px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.tt-body { padding: 15px 50px;
+ padding: 20px 0; /* quitamos padding lateral */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  align-items: center; /* centramos contenido */
+ }
 .tt-search-row { margin-bottom: 20px; display: flex; justify-content: center; }
 .tt-search-wrapper { position: relative; width: 70%; }
 .tt-search-input { width: 100%; background-color: #d1d1d1; height: 38px; border-radius: 25px; border: none; padding: 0 50px 0 20px; box-shadow: inset 0 3px 3px rgba(0,0,0,0.2); font-size: 14px; }
 .search-icon-inside { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: black; }
 
 /* TABS PEGADOS A LA TABLA */
-.tt-tabs-outer { display: flex; gap: 5px; margin-bottom: 0; }
-.tt-tab { padding: 8px 22px; border: none; font-weight: 900; font-size: 10px; border-radius: 12px 12px 0 0; cursor: pointer; }
-.tt-tab.active { background-color: #636363; color: white; }
+.tt-tabs-outer {  display: flex;
+  gap: 8px;
+  margin-bottom: 0;
+
+  width: 85%;            /* mismo ancho que la tabla */
+  max-width: 1100px;     /* mismo max-width */
+  margin-left: auto;     /* centrado */
+  margin-right: auto; 
+}
+.section-title-visitas { font-style: italic; font-weight: 900; font-size: 20px; margin: 0; }
+
+.tt-tab { padding: 8px 2px; border: none; font-weight: 900; font-size: 10px; border-radius: 12px 12px 0 0; cursor: pointer; }
+.tt-tab.active { background-color: #636363;
+  color: white;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; }
 .tt-tab.inactive { background-color: transparent; color: black; }
 
 /* TABLA GRIS COMPACTA */
-.tt-table-box { background-color: #636363; border-radius: 0 35px 35px 35px; padding: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.tt-table-box { background-color: #636363;
+  border-radius: 0 35px 35px 35px;
+  padding: 25px 30px;
+  width: 85%;              /* 👈 ancho reducido */
+  max-width: 1100px;       /* 👈 límite en pantallas grandes */
+  margin: 0 auto;          /* 👈 centrado */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 .tt-grid-system { display: grid; grid-template-columns: 100px 1fr 150px; gap: 15px; align-items: center; padding: 0 20px; }
 .tt-col-header { background-color: #d1d1d1; border-radius: 15px; padding: 6px; text-align: center; font-size: 9px; font-weight: 900; }
 
@@ -42,3 +72,234 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 .tt-scroll-area { flex: 1; overflow-y: auto; padding-right: 5px; margin-top: 5px; }
 .tt-scroll-area::-webkit-scrollbar { width: 6px; }
 .tt-scroll-area::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+
+/* --- AGREGADO: BOTÓN DE CHECKLIST Y MODAL --- */
+
+.tt-search-row {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Espacio entre buscador y botón */
+  width: 85%;
+  max-width: 1100px;
+  margin: 0 auto 20px auto;
+}
+
+.btn-open-checklist {
+  background-color: #242d3c; /* Azul oscuro Agente Solutions */
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 0 20px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 900;
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: 0 4px 0px #f26624;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-open-checklist:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0px #f26624;
+}
+
+/* MODAL STYLES */
+.tt-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.tt-modal-content {
+  background: #f1f5f9;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 25px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.tt-modal-header {
+  background: #242d3c;
+  color: white;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tt-modal-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.close-x {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.tt-modal-body {
+  padding: 20px 25px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.checklist-section h4 {
+  color: #f26624;
+  font-size: 12px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.modal-items-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-items-list li {
+  background: white;
+  padding: 8px 15px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #444;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.modal-items-list.equipo li {
+  border-left: 4px solid #242d3c;
+}
+
+.tt-modal-footer {
+  padding: 15px 25px;
+  background: #e2e8f0;
+  text-align: center;
+}
+
+.btn-entendido {
+  background: #f26624;
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  border-radius: 15px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #b94d1a;
+}
+
+.btn-entendido:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #b94d1a;
+}
+
+/* ESTADOS DEL BOTÓN DE RUTA */
+.btn-open-checklist.pendiente { background-color: #f26624; }
+.btn-open-checklist.recibido { background-color: #28a745; box-shadow: 0 4px 0px #1e7e34; }
+
+/* BLOQUEO DE TABLA */
+.tt-table-box.table-locked {
+  opacity: 0.5;
+  filter: grayscale(0.8);
+  position: relative;
+  pointer-events: none; /* Evita cualquier click */
+}
+
+.lock-text { color: #f26624; font-size: 12px; margin-left: 10px; text-transform: uppercase; }
+
+.lock-overlay-msg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 900;
+  z-index: 10;
+}
+
+/* DISEÑO DE CHECKBOX DENTRO DEL MODAL */
+.modal-instruction { font-size: 12px; color: #666; margin-bottom: 15px; }
+
+.items-check-grid { display: flex; flex-direction: column; gap: 8px; }
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  padding: 10px 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.check-item.checked {
+  border-color: #28a745;
+  background: #f0fff4;
+}
+
+.check-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #28a745;
+}
+
+.check-item span { font-size: 13px; font-weight: 700; color: #333; }
+
+/* BOTÓN DE CONFIRMACIÓN */
+.btn-confirmar {
+  width: 100%;
+  padding: 15px;
+  border-radius: 15px;
+  border: none;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.btn-confirmar.disabled { background-color: #ccc; color: #888; cursor: not-allowed; }
+.btn-confirmar.ready { background-color: #28a745; color: white; box-shadow: 0 4px 0 #1e7e34; }
+
+.btn-cancelar-modal {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-weight: 900;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.pills-alert {
+  background: #f26624;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}

@@ -1,132 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
-import '../../styles/TecnicoStyles/TrabajoInicio.css';
-import logo from "../../assets/Logo4.png";
-import { ArrowLeft, Settings, User, Wrench, ClipboardList, FileText } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/TrabajoInicio.css';
+import { User } from 'lucide-react';
 
 const TrabajoInicio = () => {
-  const [navActivo, setNavActivo] = useState('TRABAJOS');
   const navigate = useNavigate();
-  
-  const { id } = useParams();
-  const [servicio, setServicio] = useState(null);
 
-  useEffect(() => {
-    if (id) {
-      axios.get(`http://localhost:8000/api/servicios/${id}`)
-        .then(response => {
-          setServicio(response.data);
-        })
-        .catch(error => console.error("Error trayendo el detalle del trabajo:", error));
-    }
-  }, [id]);
-
-  const formatFecha = (fecha) => {
-    if (!fecha) return 'Pendiente';
-    const date = new Date(fecha);
-    return date.toLocaleDateString('es-MX');
+  const trabajo = {
+    folio: "1234",
+    propiedadId: "JDJF123",
+    fecha: "06-02-2026",
+    fechaInicio: "12-02-2026",
+    fechaVencimiento: "12-02-2026",
+    descripcion: "Sin descripción disponible."
   };
 
-  if (!servicio) {
-    return <div style={{ textAlign: 'center', marginTop: '50px' }}><h2>Cargando detalles del trabajo...</h2></div>;
-  }
+  const equipo = [
+    { id: "12345", area: "ELECTRICISTA" },
+    { id: "67890", area: "PLOMERO" },
+    { id: "54321", area: "TÉCNICO HVAC" },
+    { id: "11223", area: "PINTOR" },
+  ];
 
   return (
-    <div className="tt-container">
-      {/* SIDEBAR */}
-      <aside className="tt-sidebar">
-        <div className="logo-section">
-          <img src={logo} alt="Logo" className="main-logo" />
-        </div>
-        <div className="tt-nav">
-          <button className={`tt-nav-btn ${navActivo === 'TRABAJOS' ? 'active' : ''}`} onClick={() => setNavActivo('TRABAJOS')}>
-            <Wrench size={18} /> <span>TRABAJOS</span>
-          </button>
-          <button className={`tt-nav-btn ${navActivo === 'LEVANTAMIENTO' ? 'active' : ''}`} onClick={() => setNavActivo('LEVANTAMIENTO')}>
-            <ClipboardList size={18} /> <span>LEVANTAMIENTO</span>
-          </button>
-          <button className={`tt-nav-btn ${navActivo === 'COTIZACIONES' ? 'active' : ''}`} onClick={() => setNavActivo('COTIZACIONES')}>
-            <FileText size={18} /> <span>COTIZACIONES</span>
-          </button>
-        </div>
-      </aside>
-
-      <main className="tt-main">
-        <header className="tt-header">
-          <div 
-            style={{display: 'flex', alignItems: 'center', gap: '20px', cursor: 'pointer'}} 
-            onClick={() => navigate(-1)} 
-          >
-            <div className="tt-back-circle">
-              <ArrowLeft size={25} strokeWidth={3} color="black" />
-            </div>
-            <h2 style={{fontStyle: 'italic', fontWeight: 900, fontSize: '30px', margin: 0}}>MARIO</h2>
+    <div className="tt-body-full">
+      <div className="tt-main-card-large">
+        
+        {/* BURBUJAS SUPERIORES - SIN LOGO AQUÍ */}
+        <div className="tt-top-info-group">
+          <div className="tt-bubble-info">
+            <span>FOLIO</span>
+            <strong>{trabajo.folio}</strong>
           </div>
-          <h2 style={{fontStyle: 'italic', fontWeight: 900, fontSize: '30px', margin: 0}}>DETALLES</h2>
-          <div style={{display: 'flex', alignItems: 'center', gap: '20px'}}>
-            <Settings size={30} />
-            <User size={30} />
+          <div className="tt-bubble-info">
+            <span>ID PROPIEDAD</span>
+            <strong>{trabajo.propiedadId}</strong>
           </div>
-        </header>
+          <div className="tt-bubble-info">
+            <span>FECHA</span>
+            <strong>{trabajo.fecha}</strong>
+          </div>
+        </div>
 
-        <div className="tt-orange-bar"></div>
-
-        <div className="tt-body">
-          <div className="tt-main-card">
-            <div className="tt-top-info-group">
-              {servicio.property?.client?.name && (
-                <div className="tt-bubble-info">
-                  <span>PROPIEDAD DE:</span>
-                  <strong>{servicio.property.client.name}</strong>
-                </div>
-              )}
-              <div className="tt-bubble-info"><span>FOLIO</span><strong>{servicio.id}</strong></div>
-              <div className="tt-bubble-info"><span>ID PROPIEDAD:</span><strong>{servicio.property?.custom_curp || servicio.property_id || 'Sin ID'}</strong></div>
-              <div className="tt-bubble-info"><span>FECHA REGISTRO</span><strong>{formatFecha(servicio.created_at)}</strong></div>
+        {/* CONTENIDO PRINCIPAL */}
+        <div className="tt-detail-layout">
+          
+          {/* IZQUIERDA */}
+          <div className="tt-detail-left">
+            <div className="tt-label-pill">DESCRIPCIÓN</div>
+            <div className="tt-description-box">
+              <p>{trabajo.descripcion}</p>
             </div>
 
-            <div className="tt-detail-layout">
-              <div className="tt-detail-left">
-                <div className="tt-label-pill">DESCRIPCIÓN</div>
-                <div className="tt-description-box" style={{ padding: '15px' }}>
-                    <p style={{ margin: 0, fontSize: '14px' }}>{servicio.description}</p>
-                </div>
-                <div className="tt-dates-container">
-                  <div className="tt-bubble-info"><span>FECHA DE INICIO</span><strong>{formatFecha(servicio.scheduled_start)}</strong></div>
-                  <div className="tt-bubble-info"><span>FECHA DE VENCIMIENTO</span><strong>{formatFecha(servicio.scheduled_end)}</strong></div>
-                </div>
+            <div className="tt-dates-row">
+              <div className="tt-bubble-info white-bg">
+                <span>FECHA DE INICIO</span>
+                <strong>{trabajo.fechaInicio}</strong>
               </div>
+              <div className="tt-bubble-info white-bg">
+                <span>FECHA DE VENCIMIENTO</span>
+                <strong>{trabajo.fechaVencimiento}</strong>
+              </div>
+            </div>
+          </div>
 
-              <div className="tt-detail-right">
-                <div className="tt-label-pill">EQUIPO DE TRABAJO</div>
-                <div className="tt-team-container">
-                  <div className="tt-team-scroll">
-                      <div className="tt-member-card">
-                        <div className="tt-member-avatar"><User size={20} /></div>
-                        <div className="tt-member-data">
-                          <p>ID TÉCNICO: {servicio.assigned_to}</p>
-                          <p>AREA: TÉCNICO</p>
-                        </div>
-                      </div>
+          {/* DERECHA */}
+          <div className="tt-detail-right">
+            <div className="tt-label-pill">EQUIPO DE TRABAJO</div>
+            <div className="tt-team-container">
+              <div className="tt-team-scroll">
+                {equipo.map((miembro, index) => (
+                  <div key={index} className="tt-member-card">
+                    <div className="tt-member-avatar">
+                      <User size={22} color="#000" />
+                    </div>
+                    <div className="tt-member-data">
+                      <p>ID: {miembro.id}</p>
+                      <p>ÁREA: {miembro.area}</p>
+                    </div>
                   </div>
-                  <div className="tt-custom-scrollbar"></div>
-                </div>
+                ))}
               </div>
-            </div>
-
-            <div className="tt-footer-actions">
-              <button 
-                className="tt-btn-action orange" 
-                onClick={() => navigate(`/checklist/${servicio.id}`)} 
-              >
-                INICIAR
-              </button>
-              <button className="tt-btn-action purple">AGENDAR</button>
+              {/* Línea negra sólida de scroll */}
+              <div className="tt-black-scroll-line"></div>
             </div>
           </div>
         </div>
-      </main>
+
+        {/* BOTONES DE ACCIÓN */}
+        <div className="tt-footer-actions">
+          <button className="tt-btn-action orange" onClick={() => navigate('/checklist')}>
+            INICIAR
+          </button>
+          <button className="tt-btn-action purple" onClick={() => navigate('/agendar')}>
+            AGENDAR
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

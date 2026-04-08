@@ -1,0 +1,413 @@
+/* =========================================
+   BASE Y ESTRUCTURA GENERAL
+   ========================================= */
+.lev-main-page { 
+    background: #fff; 
+    min-height: 100vh; 
+    position: relative; 
+    font-family: 'Segoe UI', sans-serif; 
+}
+
+.lev-top-bar-orange { 
+    height: 10px; 
+    background: #ff8800; 
+}
+
+.lev-top-bar-black { 
+    height: 40px; 
+    background: #000; 
+    margin-bottom: 10px; 
+}
+
+.lev-container { 
+    padding: 0 50px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+}
+
+/* =========================================
+   HEADER Y BOTONES SUPERIORES
+   ========================================= */
+.lev-header { 
+    padding: 10px 50px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.lev-logo { 
+    height: 50px; 
+}
+
+.lev-btn-add {
+    background: #ff8800; 
+    color: white; 
+    border: none; 
+    padding: 12px 25px;
+    border-radius: 8px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    transition: 0.3s;
+}
+
+.lev-btn-add:hover { 
+    background: #e67a00; 
+    transform: scale(1.02); 
+}
+
+.lev-back-arrow { 
+    position: fixed; 
+    bottom: 30px; 
+    left: 40px; 
+    background: none; 
+    border: none; 
+    font-size: 3.5rem; 
+    cursor: pointer; 
+}
+
+/* =========================================
+   BÚSQUEDA Y PESTAÑAS (TABS)
+   ========================================= */
+.lev-search-box { 
+    position: relative; 
+    width: 80%; 
+    margin: 20px 0; 
+}
+
+.lev-input-search {
+    width: 100%; 
+    padding: 14px 25px; 
+    border-radius: 30px;
+    border: 1px solid #ccc; 
+    background: #f0f0f0; 
+    font-size: 1rem;
+}
+
+.lev-search-icon { 
+    position: absolute; 
+    right: 25px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+}
+
+.lev-tabs { 
+    display: flex; 
+    gap: 20px; 
+    margin-bottom: 25px; 
+}
+
+.lev-tab {
+    padding: 10px 25px; 
+    border: 2px solid #ddd; 
+    background: #f8f8f8;
+    border-radius: 12px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    color: #555;
+}
+
+.lev-tab.active { 
+    border-color: #ff8800; 
+    color: #ff8800; 
+    background: #fff; 
+}
+
+/* =========================================
+   TABLA DE LEVANTAMIENTOS
+   ========================================= */
+.lev-table-wrapper { 
+    width: 100%; 
+    max-height: 400px; 
+    overflow-y: auto; 
+    border-radius: 10px; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+}
+
+.lev-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    background: white; 
+    text-align: center; 
+}
+
+.lev-table th { 
+    background: #222; 
+    color: white; 
+    padding: 15px; 
+    position: sticky; 
+    top: 0; 
+    font-size: 0.85rem; 
+}
+
+.lev-table td { 
+    padding: 15px; 
+    border-bottom: 1px solid #eee; 
+}
+
+.lev-bold { 
+    font-weight: bold; 
+    color: #000; 
+}
+
+.lev-btn-action {
+    background: #333; 
+    color: white; 
+    border: none; 
+    padding: 8px 15px;
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-size: 0.85rem;
+}
+
+.btn-assign {
+    background: #222;
+    color: white;
+}
+
+.btn-assign:hover {
+    background: #ff8800;
+}
+
+/* ESTADOS DE PRIORIDAD Y ASIGNACIÓN */
+.status-pending {
+    color: #cc8800;
+    font-weight: bold;
+    font-size: 0.85rem;
+    background: #fff4e5;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+.status-assigned {
+    color: #0077cc;
+    font-weight: bold;
+    font-size: 0.85rem;
+    background: #e5f2ff;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+/* =========================================
+   MODALES (ESTRUCTURA BASE)
+   ========================================= */
+.lev-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+
+.lev-modal-form { 
+    background: white; 
+    width: 500px; 
+    border-radius: 15px; 
+    overflow: hidden; 
+    animation: slideUp 0.3s ease; 
+}
+
+@keyframes slideUp { 
+    from { transform: translateY(50px); opacity: 0; } 
+    to { transform: translateY(0); opacity: 1; } 
+}
+
+.lev-modal-header { 
+    background: #222; 
+    color: white; 
+    padding: 20px; 
+    display: flex; 
+    justify-content: space-between; 
+}
+
+.lev-modal-header button { 
+    background: none; 
+    border: none; 
+    color: white; 
+    font-size: 1.5rem; 
+    cursor: pointer; 
+}
+
+.lev-modal-body {
+    padding: 25px;
+    background: #ffffff;
+}
+
+.lev-form-grid { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
+
+/* =========================================
+   MODAL DE ASIGNACIÓN (ESPECÍFICOS)
+   ========================================= */
+.lev-modal-header.orange {
+    background: #ff8800;
+    align-items: center;
+}
+
+.lev-modal-header.orange h3 {
+    color: #ffffff; 
+    margin: 0;
+}
+
+.asignar-subtitle {
+    margin-bottom: 20px;
+    padding: 12px;
+    background: #fff4e5; 
+    border-radius: 8px;
+    border-left: 5px solid #ff8800;
+    color: #333333; 
+    font-size: 0.95rem;
+}
+
+.asignar-subtitle strong {
+    color: #000000; 
+}
+
+/* =========================================
+   INPUTS, SELECTS Y ETIQUETAS
+   ========================================= */
+.lev-field { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 5px; 
+}
+
+.lev-field label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #333333 !important; 
+}
+
+.full-width {
+    width: 100% !important;
+}
+
+/* Contenedor relativo para inputs con iconos */
+/* Contenedor relativo para inputs con iconos */
+.lev-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Ocultar SOLAMENTE el icono nativo feo del navegador (sin romper los números) */
+.lev-input-style::-webkit-calendar-picker-indicator {
+    display: none !important;
+    -webkit-appearance: none;
+}
+
+/* Iconos SVG a la derecha de los inputs */
+.lev-input-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%); /* Esto lo centra perfecto */
+    width: 20px;
+    height: 20px;
+    fill: #555555; 
+    pointer-events: none; /* Permite clickear "a través" del icono */
+    transition: fill 0.3s;
+}
+
+.lev-input-style:focus + .lev-input-icon {
+    fill: #ff8800; 
+}
+
+/* Ocultar iconos nativos feos del navegador (fecha y hora) */
+.lev-input-style::-webkit-calendar-picker-indicator,
+.lev-input-style::-webkit-datetime-edit-ampm-field,
+.lev-input-style::-webkit-datetime-edit-minute-field,
+.lev-input-style::-webkit-datetime-edit-hour-field,
+.lev-input-style::-webkit-clear-button {
+    display: none !important;
+    background: none !important;
+    -webkit-appearance: none;
+}
+
+/* Estilo unificado para inputs de texto, selects, date y time */
+.lev-input-style {
+    width: 100%;
+    padding: 12px;
+    padding-right: 45px; /* Espacio para el icono SVG */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-top: 5px;
+    background-color: #f9f9f9;
+    color: #000000;
+    outline: none;
+    cursor: pointer; 
+    transition: all 0.3s;
+}
+
+.lev-input-style:focus {
+    border-color: #ff8800;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(255,136,0,0.2);
+}
+
+/* Iconos SVG a la derecha de los inputs */
+.lev-input-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-10%); 
+    width: 20px;
+    height: 20px;
+    fill: #555555; 
+    pointer-events: none; /* Permite clickear "a través" del icono */
+    transition: fill 0.3s;
+}
+
+.lev-input-style:focus + .lev-input-icon {
+    fill: #ff8800; 
+}
+
+/* =========================================
+   BOTONES DE MODAL (FOOTER)
+   ========================================= */
+.lev-footer-form {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.lev-btn-cancel {
+    background: #e0e0e0;
+    color: #333333;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.lev-btn-cancel:hover {
+    background: #cccccc;
+}
+
+.orange-btn {
+    background: #ff8800 !important;
+    color: #ffffff !important; 
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.orange-btn:hover {
+    background: #e67a00 !important;
+}
+
+.lev-btn-save { 
+    background: #ff8800; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-weight: bold; 
+}

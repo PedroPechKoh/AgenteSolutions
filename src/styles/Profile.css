@@ -13,7 +13,7 @@ html, body {
 
 .profile-page-scrollable-content {
   flex: 1; 
-  padding: 80px 20px 20px 20px;
+  padding: 20px; /* Reducido para que pegue arriba al quitar el header */
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -34,35 +34,66 @@ html, body {
 
 .profile-banner {
   background-color: #6d6e71; 
-  height: 250px; 
+  height: 350px; 
   position: relative;
-  display: flex;
-  align-items: center;
-  padding-left: 280px; 
   border-bottom: 10px solid #ff6600; 
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
-.btn-back-arrow {
+/* BOTÓN REGRESAR ANIMADO PARA PORTADA */
+.back-oval-btn {
     position: absolute;
     top: 25px;
     left: 40px;
-    background-color: rgba(255, 102, 0, 0.8);
-    border: none;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 40px;
+    padding: 0;
+    border-radius: 50px;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #374151;
     cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 10;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 20;
 }
 
-.btn-back-arrow:hover {
-    background-color: #ff6600; 
-    transform: scale(1.1) translateX(-3px); 
+.back-oval-btn .close-icon {
+    min-width: 20px;
+    transition: transform 0.4s ease, color 0.4s ease;
+}
+
+.back-oval-btn .back-text {
+    max-width: 0;
+    opacity: 0;
+    white-space: nowrap;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.back-oval-btn:hover {
+    width: 125px;
+    background-color: #ff6600; /* Naranja dinámico */
+    color: white;
+    box-shadow: 0 6px 15px rgba(255, 102, 0, 0.4);
+}
+
+.back-oval-btn:hover .close-icon {
+    transform: rotate(90deg);
+    color: white;
+}
+
+.back-oval-btn:hover .back-text {
+    max-width: 80px;
+    opacity: 1;
+    margin-left: 8px;
+    color: white;
 }
 
 .banner-logo-wrapper {
@@ -80,55 +111,44 @@ html, body {
   object-fit: contain;
 }
 
-.banner-text h2 {
-  color: #ffffff;
-  font-size: 2.5rem;
-  margin: 0;
-  font-family: 'Arial Black', sans-serif;
-  text-transform: uppercase;
-  line-height: 1.1;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-
-.role-badge {
-  color: #ffffff; 
-  background-color: #ff6600; 
-  font-size: 1.1rem;
-  margin: 10px 0 0 0;
-  font-weight: bold;
-  display: inline-block;
-  padding: 8px 20px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
 .profile-content {
-  padding: 20px 50px 50px 50px;
+  padding: 0 40px 40px 40px;
   position: relative;
 }
 
-.avatar-section {
-  position: absolute;
-  top: -120px; 
-  left: 50px;
+.profile-header-info {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid #f0f2f5;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.profile-header-left {
+  display: flex;
+  align-items: flex-end;
+  gap: 25px;
+}
+
+.avatar-section {
+  position: relative;
+  margin-top: -100px; 
   z-index: 10; 
 }
+
 .avatar-wrapper {
-  width: 200px;
-  height: 200px;
-  border-radius: 20px;
-  border: 8px solid #ffffff; 
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 6px solid #ffffff; 
   background-color: #ff6600;
   overflow: hidden;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 .profile-avatar {
@@ -140,31 +160,60 @@ html, body {
 .profile-avatar-placeholder {
   color: #ffffff;
   font-family: 'Arial Black', sans-serif;
-  font-size: 90px;
+  font-size: 80px;
+}
+
+.user-info-section {
+  padding-bottom: 20px;
+}
+
+.user-info-section h2 {
+  color: #1a1a1a;
+  font-size: 2.2rem;
+  margin: 0 0 10px 0;
+  font-family: 'Segoe UI', Roboto, 'Arial Black', sans-serif;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.role-badge {
+  color: #ffffff; 
+  background-color: #ff6600; 
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.profile-actions-section {
+  padding-bottom: 25px;
 }
 
 .btn-edit-profile {
-  width: 100%;
-  padding: 12px;
   background-color: #ff6600; 
   border: none;
   color: #fff;
-  font-family: 'Arial Black', sans-serif;
-  font-size: 1rem;
+  font-weight: bold;
+  font-size: 0.95rem;
+  padding: 12px 24px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 5px 10px rgba(255, 102, 0, 0.4);
+  box-shadow: 0 4px 6px rgba(255, 102, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btn-edit-profile:hover {
   background-color: #e65c00;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 15px rgba(255, 102, 0, 0.5);
+  transform: translateY(-2px);
 }
 
 .about-section {
-  margin-top: 120px; 
+  margin-top: 10px; 
 }
 
 .about-section h3 {
@@ -218,11 +267,7 @@ html, body {
 
 @media (max-width: 768px) {
   .profile-banner {
-    height: auto;
-    padding: 120px 20px 50px 20px;
-    flex-direction: column;
-    text-align: center;
-    justify-content: center;
+    height: 200px; /* shorter banner on mobile */
   }
 
   .banner-logo-wrapper {
@@ -233,26 +278,46 @@ html, body {
   
   .banner-logo { height: 40px; }
 
-  .banner-text h2 { font-size: 1.8rem; }
+  .profile-header-info {
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 2px solid #f0f2f5;
+  }
+
+  .profile-header-left {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 
   .avatar-section {
-    position: relative;
-    top: -80px;
-    left: 0;
-    margin: 0 auto;
-    width: 180px;
+    margin-top: -80px;
   }
 
   .avatar-wrapper {
-    width: 180px;
-    height: 180px;
+    width: 150px;
+    height: 150px;
+  }
+
+  .user-info-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .profile-actions-section {
+    width: 100%;
+    padding-bottom: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .btn-edit-profile {
+    width: 100%;
+    justify-content: center;
   }
 
   .profile-content {
-    padding: 0 25px 40px 25px;
+    padding: 0 20px 30px 20px;
   }
-
-  .about-section { margin-top: -30px; }
 
   .about-grid {
     grid-template-columns: 1fr; 
@@ -318,6 +383,7 @@ html, body {
   opacity: 0;
   transition: opacity 0.3s ease;
   border-radius: 12px;
+}
 
 .avatar-wrapper:hover .avatar-hover-overlay {
   opacity: 1;
@@ -473,4 +539,4 @@ html, body {
 
 .gm-ui-hover-effect span {
     background-color: #333333 !important; 
-}}
+}

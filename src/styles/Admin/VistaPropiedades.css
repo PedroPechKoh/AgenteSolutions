@@ -1,0 +1,184 @@
+/* --- ESTILOS GENERALES DE LA VISTA DE PROPIEDADES --- */
+.main-container-users {
+    background-color: #ffffff;
+    min-height: 100vh;
+    position: relative;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header y Logo */
+.header-users {
+    padding: 15px 40px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.logo-left {
+    height: 60px;
+}
+
+/* --- BUSCADOR CENTRADO Y LARGO --- */
+.search-container-center {
+    display: flex;
+    justify-content: center;
+    margin: 25px 0;
+}
+
+.search-box {
+    position: relative;
+    width: 75%;
+    max-width: 900px;
+}
+
+.input-grey {
+    width: 100%;
+    padding: 14px 25px;
+    border-radius: 30px;
+    border: 1px solid #ccc;
+    background-color: #e0e0e0; /* Gris de la imagen */
+    font-size: 1rem;
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-icon-black {
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.4rem;
+    color: #333;
+    cursor: pointer;
+}
+
+/* --- BOTONES DE CATEGORÍA (CASAS, MANSIONES, DEPTO) --- */
+.categories-row {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.cat-btn {
+    background: #e0e0e0;
+    border: 2px solid #aaa;
+    border-radius: 12px;
+    padding: 10px 25px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    color: #444;
+}
+
+.btn-icon-small {
+    font-size: 1.2rem;
+}
+
+/* Estado activo (Naranja Agente) */
+.cat-btn.active {
+    border-color: #ff8800;
+    background: #fff;
+    color: #ff8800;
+    box-shadow: 0 4px 8px rgba(255, 136, 0, 0.2);
+}
+
+/* --- TABLA DE PROPIEDADES --- */
+.table-scroll-container {
+    width: 90%;
+    margin: 0 auto;
+    max-height: 420px; /* Carril de deslizamiento vertical */
+    overflow-y: auto;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    text-align: center;
+}
+
+.custom-table th {
+    background: #222; /* Negro sólido */
+    color: white;
+    padding: 15px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.custom-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.bold-text {
+    font-weight: bold;
+    color: #000;
+}
+
+/* Botones de acción dentro de la tabla */
+.actions-btns {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-orange {
+    background: #ff8800;
+    border: none;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: 0.2s;
+}
+
+.btn-orange:hover {
+    background: #e67a00;
+    transform: scale(1.05);
+}
+
+/* --- BOTÓN REGRESAR (FLECHA MINIMALISTA) --- */
+.back-arrow-btn {
+    position: fixed; /* Para que siempre esté visible abajo a la izquierda */
+    bottom: 40px;
+    left: 50px;
+    background: none;
+    border: none;
+    font-size: 4rem;
+    font-weight: 300;
+    cursor: pointer;
+    color: #222;
+    transition: transform 0.2s ease;
+}
+
+.back-arrow-btn:hover {
+    transform: translateX(-10px);
+}
+
+/* Personalización del carril de deslizamiento (Scrollbar) */
+.table-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #ff8800;
+    border-radius: 10px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}

@@ -1,0 +1,192 @@
+/* --- BASE Y ESTRUCTURA --- */
+.cotiz-page { 
+    background-color: #ffffff; 
+    min-height: 100vh; 
+    position: relative; 
+    font-family: Arial, sans-serif;
+    overflow-x: hidden;
+}
+
+.top-bar-orange { height: 10px; background-color: #ff8800; width: 100%; }
+.top-bar-black { height: 40px; background-color: #000; width: 100%; margin-bottom: 10px; }
+
+.cotiz-header { padding: 10px 40px; }
+.logo-top-left { height: 55px; }
+
+/* --- CUERPO PRINCIPAL --- */
+.cotiz-main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 50px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Buscador Estilo Usuarios */
+.cotiz-search-wrapper { width: 100%; max-width: 900px; margin-bottom: 30px; }
+.cotiz-search-bar { position: relative; width: 100%; }
+.cotiz-input-field {
+    width: 100%; 
+    padding: 15px 25px; 
+    border-radius: 30px;
+    border: 1px solid #ccc; 
+    background: #e5e5e5; 
+    font-size: 1rem;
+    outline: none;
+}
+.cotiz-search-icon { 
+    position: absolute; 
+    right: 25px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    font-size: 1.2rem; 
+    color: #555;
+}
+
+/* Filtros */
+.cotiz-tabs-row { display: flex; gap: 15px; margin-bottom: 30px; }
+.cotiz-tab-btn {
+    padding: 12px 25px; 
+    border-radius: 12px; 
+    border: 2px solid #bbb;
+    background: #e8e8e8; 
+    font-weight: bold; 
+    cursor: pointer; 
+    color: #444;
+    transition: all 0.2s ease;
+}
+.cotiz-tab-btn.active { 
+    border-color: #ff8800; 
+    background: #fff; 
+    color: #ff8800; 
+    box-shadow: 0 4px 10px rgba(255,136,0,0.15);
+}
+
+/* --- TABLA --- */
+.cotiz-table-container {
+    width: 95%;
+    max-height: 450px;
+    overflow-y: auto;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+.cotiz-data-table { width: 100%; border-collapse: collapse; text-align: center; background: white; }
+.cotiz-data-table th { 
+    background: #222; 
+    color: white; 
+    padding: 18px; 
+    position: sticky; 
+    top: 0; 
+    font-size: 0.9rem;
+    z-index: 10;
+}
+.cotiz-data-table td { padding: 16px; border-bottom: 1px solid #eee; font-size: 1rem; }
+
+.bold-folio { font-weight: bold; color: #777; }
+.cliente-name { font-weight: bold; color: #000; text-align: left !important; padding-left: 50px !important; }
+.monto-final { color: #1a7e32; font-weight: bold; font-size: 1.1rem; }
+
+.btn-view-detail {
+    background: #ff8800; 
+    color: white; 
+    border: none;
+    padding: 10px 22px; 
+    border-radius: 25px; 
+    font-weight: bold; 
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.btn-view-detail:hover { background: #e67a00; }
+
+/* --- MODAL (FIXED PARA EVITAR DESPLAZAMIENTOS) --- */
+.modal-fixed-overlay {
+    position: fixed; 
+    top: 0; left: 0; 
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 10000; /* Siempre por encima */
+}
+.modal-box-card { 
+    background: white; 
+    width: 90%; 
+    max-width: 700px; 
+    border-radius: 15px; 
+    overflow: hidden; 
+    animation: modalPop 0.3s ease-out;
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header-dark { 
+    background: #222; 
+    color: white; 
+    padding: 20px 30px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+.modal-close-icon { background: none; border: none; color: white; font-size: 2.2rem; cursor: pointer; }
+
+.modal-body-content { padding: 30px; }
+.modal-info-summary { 
+    background: #f4f4f4; 
+    padding: 15px 20px; 
+    border-radius: 10px; 
+    margin-bottom: 20px; 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.modal-items-table { width: 100%; border-collapse: collapse; }
+.modal-items-table th { border-bottom: 2px solid #ff8800; text-align: left; padding: 10px; color: #555; }
+.modal-items-table td { padding: 12px 10px; border-bottom: 1px solid #eee; }
+
+.modal-total-section { text-align: right; margin-top: 25px; color: #ff8800; border-top: 2px solid #eee; padding-top: 10px; }
+
+.modal-footer-btns { background: #f8f8f8; padding: 20px 30px; display: flex; justify-content: flex-end; gap: 15px; }
+.btn-modal-print { background: #333; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.btn-modal-close { background: #aaa; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+
+/* --- EXTRAS --- */
+.back-arrow-fixed { 
+    position: fixed; 
+    bottom: 30px; 
+    left: 40px; 
+    background: none; 
+    border: none; 
+    font-size: 3.5rem; 
+    cursor: pointer; 
+    color: #222;
+}
+.no-data { padding: 50px; color: #999; font-style: italic; }
+
+/* Scrollbar personalizada */
+.cotiz-table-container::-webkit-scrollbar { width: 8px; }
+.cotiz-table-container::-webkit-scrollbar-thumb { background: #ff8800; border-radius: 10px; }
+
+/*Colores del texto de los Modales*/
+/* 1. Forzamos que todo el contenido del modal sea oscuro */
+.modal-body-content { 
+    padding: 30px; 
+    color: #333; /* <--- ESTA ES LA MAGIA */
+}
+
+/* 2. Aseguramos que el resumen (Cliente, Fecha) se lea bien */
+.modal-info-summary p {
+    color: #444;
+    margin: 5px 0;
+}
+
+/* 3. Aseguramos que la descripción de la tabla manual no se pierda */
+.modal-items-table td { 
+    padding: 12px 10px; 
+    border-bottom: 1px solid #eee; 
+    color: #333; /* <--- Texto oscuro para la tabla */
+}

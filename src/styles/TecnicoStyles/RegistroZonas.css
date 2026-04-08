@@ -1,0 +1,244 @@
+/* Layout Principal - Forzamos que se ajuste a la pantalla */
+.rz-body-wrapper {
+  flex: 1;
+  padding: 30px 40px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  /* Restamos la altura estimada del Header para que el contenido no se salga */
+  height: calc(100vh - 100px); 
+  overflow: hidden; 
+}
+
+/* Info Superior */
+.rz-top-info-row {
+  display: flex;
+  justify-content: space-between; /* Esto devuelve los botones a la derecha */
+  align-items: center;
+  margin-bottom: 30px;
+  width: 100%; /* Evita que el encabezado se aplaste */
+}
+.rz-action-buttons {
+  display: flex;
+  gap: 15px; /* Espacio entre Enviar y Agregar */
+}
+
+/* Burbujas y Botones */
+.rz-bubble-info {
+  background-color: #d1d1d1;
+  border-radius: 20px;
+  padding: 8px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 110px;
+}
+
+.rz-btn-main {
+ border: none;
+  border-radius: 25px;
+  padding: 10px 30px;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 0px rgba(0,0,0,0.1);
+}
+
+.orange-gradient { background-color: #f26624; } /* Naranja Enviar */
+.purple-gradient { background-color: #5d5eb3; }
+
+/* --- CONTENEDOR CON SCROLL AUTOMÁTICO --- */
+.rz-scrollable-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  padding-right: 25px; /* Espacio para que la barra no tape las fotos */
+  overflow-y: auto;    /* Solo aparece si el contenido excede la altura */
+}
+
+/* --- ESTILIZACIÓN DE LA BARRA NEGRA SÓLIDA --- */
+
+/* 1. Ancho del carril */
+.rz-scrollable-grid::-webkit-scrollbar {
+  width: 14px; 
+}
+
+/* 2. El carril negro (Track) */
+.rz-scrollable-grid::-webkit-scrollbar-track {
+  background-color: #000; /* Negro sólido según captura */
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* 3. El indicador (Thumb) - Lo que se mueve */
+.rz-scrollable-grid::-webkit-scrollbar-thumb {
+  background-color: #f26624; /* Naranja corporativo */
+  border-radius: 10px;
+  border: 3px solid #000; /* Espacio interno para que luzca como carril */
+}
+
+/* Tarjetas */
+.rz-card-dark {
+  background-color: #636363; /* Gris oscuro */
+  border-radius: 35px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rz-image-holder {
+  width: 100%;
+  height: 180px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.rz-image-holder img { width: 100%; height: 100%; object-fit: cover; }
+
+.rz-zona-pill {
+  background-color: #d1d1d1;
+  color: black;
+  padding: 4px 25px;
+  border-radius: 15px;
+  font-size: 10px;
+  font-weight: 900;
+  font-style: italic;
+  margin-bottom: 5px;
+}
+
+.rz-btn-ver {
+  background-color: #f26624;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 4px 25px;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* Fondo oscuro semi-transparente */
+.rz-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Oscurece el fondo */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Alinea arriba para que no flote en el centro */
+  padding-top: 50px;
+  z-index: 1000;
+}
+
+/* Caja del Modal */
+.rz-modal-content {
+  background-color: #636363; /* Gris oscuro */
+  width: 90%;
+  max-width: 700px;
+  border-radius: 40px;
+  padding: 30px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+}
+
+.rz-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.rz-modal-title {
+  color: white;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 22px;
+}
+
+.rz-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Botones pequeños del modal */
+.rz-btn-action {
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  color: white;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.gray-gradient { background-color: #6b6b6b; }
+
+/* Cuerpo del Modal */
+.rz-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rz-input-group label {
+  color: white;
+  font-weight: 900;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.rz-input-group input {
+  width: 100%;
+  background-color: #d1d1d1;
+  border: none;
+  border-radius: 20px;
+  padding: 12px 20px;
+  font-weight: 700;
+}
+
+/* Área de Carga */
+.rz-upload-container {
+  background-color: #d1d1d1;
+  border-radius: 25px;
+  min-height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 3px dashed #888;
+}
+
+.rz-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.rz-upload-placeholder span {
+  font-weight: 900;
+  color: #666;
+  font-size: 13px;
+}
+
+.rz-btn-upload {
+  background-color: #f26624;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  padding: 6px 20px;
+  font-weight: 900;
+  cursor: pointer;
+}

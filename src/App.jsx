@@ -7,7 +7,29 @@ import VistaInicioAdmin from "./components/VistaInicioAdmin";
 import Profile from "./components/Shared/Profile";
 import Map from "./components/Map";
 import RegistroCliente from "./components/ClientRegister";
+import CustomizeLogin from "./components/CustomizeLogin";
+import AssignServiceForm from "./components/AssignServiceForm";
+import VistaNotificaciones from "./components/Shared/VistaNotificaciones"; // O la ruta donde lo hayas guardado
 
+///Cliente
+import MainLayoutCliente from "./components/VistaCliente/MainLayoutCliente";
+import VistaInicioCliente from "./components/VistaCliente/VistaInicioCliente";
+
+/* ------RUTAS DE LA VISTA DEL ADMIN ------*/
+import DetalleReporte from "./components/admin/DetalleReporte";
+import ProductoDetalleView from "./components/admin/ProductoDetalleView";
+import ProductosView from "./components/admin/ProductosView";
+import VistaCotizaciones from "./components/admin/VistaCotizaciones";
+import VistaDashboard from "./components/admin/VistaDashboard";
+import VistaDetalleCliente from "./components/admin/VistaDetalleCliente";
+import VistaDetallePropiedad from "./components/admin/VistaDetallePropiedad";
+import VistaLevantamientos from "./components/admin/VistaLevantamientos";
+import VistaPropiedades from "./components/admin/VistaPropiedades";
+import VistaUsuarios from "./components/admin/VistaUsuarios";
+import VistaBodeguero from "./components/admin/VistaBodeguero";
+
+
+/* ------RUTAS DE LA VISTA DEL TECNICO ------*/
 import VistaInicioTecnico from "./components/VistaInicioTecnico";
 import TrabajosTecnico from "./components/VistasTecnico/TrabajosTecnico";
 import CheckList from "./components/VistasTecnico/Checklist";
@@ -20,6 +42,13 @@ import TrabajoPropiedad from "./components/VistasTecnico/TrabajosPropiedad";
 import VentaCruzada from "./components/VistasTecnico/VentaCruzada";
 import RegistrarVentaCruzada from "./components/VistasTecnico/RegistrarVentaCruzada";
 
+// 👇 1. IMPORTAMOS AXIOS Y CONFIGURAMOS EL TOKEN GLOBAL 👇
+import axios from "axios";
+
+const token = localStorage.getItem("agente_token");
+if (token) {
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+}
 
 function App() {
   return (
@@ -27,6 +56,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<LoginAgente />} />
+
           <Route
             path="/VistaRoot"
             element={
@@ -35,7 +65,9 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/" element={<LoginAgente />} />
+
+          {/* Se eliminó el Login duplicado que estaba aquí */}
+
           <Route
             path="/VistaTecnico"
             element={
@@ -44,18 +76,37 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/registro-propiedades"
             element={
-              <ProtectedRoute allowedRoles={[0, 1]}>
+              <ProtectedRoute allowedRoles={[0, 1, 3]}>
+                {" "}
+                {/* 👇 ¡Agregamos el 3 aquí! */}
                 <RegisterProperties />
               </ProtectedRoute>
             }
           />
-          <Route path="*" element={<Navigate to="/" replace />} />
+
+          {/* 👇 2. PROTEGEMOS LA RUTA DEL CLIENTE (Rol 3) 👇 */}
+          <Route
+            path="/VistaInicioCliente"
+            element={
+              <ProtectedRoute allowedRoles={[3]}>
+                <VistaInicioCliente />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/MenuCliente"
+            element={
+              <ProtectedRoute allowedRoles={[3]}>
+                <MainLayoutCliente />
+              </ProtectedRoute>
+            }
+          />
 
           {/* ------RUTAS DE LA VISTA DEL TECNICO ------*/}
-
           <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
           <Route path="/Checklist" element={<CheckList />} />
           <Route path="/detalleTrabajo" element={<DetalleTrabajo />} />
@@ -69,9 +120,32 @@ function App() {
             path="/registrar-venta-cruzada"
             element={<RegistrarVentaCruzada />}
           />
+
+          {/* ------RUTAS DE LA VISTA DEL ADMIN ------*/}
+          <Route path="/detalle-reporte/:id" element={<DetalleReporte />} />
+          <Route path="/detalle-producto" element={<ProductoDetalleView />} />
+          <Route path="/vista-producto" element={<ProductosView />} />
+          <Route path="/vista-cotizaciones" element={<VistaCotizaciones />} />
+          <Route path="/dashboard" element={<VistaDashboard />} />
+          <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
+          <Route
+            path="/detalle-propiedad"
+            element={<VistaDetallePropiedad />}
+          />
+          <Route path="/levantamientos" element={<VistaLevantamientos />} />
+          <Route path="/propiedades" element={<VistaPropiedades />} />
+          <Route path="/usuarios" element={<VistaUsuarios />} />
           <Route path="/mi-perfil" element={<Profile />} />
           <Route path="/map" element={<Map />} />
           <Route path="/registro-cliente" element={<RegistroCliente />} />
+          <Route path="/customize-login" element={<CustomizeLogin />} />
+          <Route path="/assign-service" element={<AssignServiceForm />} />
+          <Route path="/bodeguero" element={<VistaBodeguero/>} />
+
+          {/* La redirección por defecto siempre es mejor ponerla al final */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+
+          <Route path="/notificaciones" element={<VistaNotificaciones />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
