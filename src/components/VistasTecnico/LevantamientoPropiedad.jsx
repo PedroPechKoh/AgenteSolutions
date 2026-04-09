@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/LevantamientoPropiedad.css';
+import "../../styles/TecnicoStyles/LevantamientoPropiedad.css";
 
 const LevantamientoPropiedad = () => {
   const navigate = useNavigate();

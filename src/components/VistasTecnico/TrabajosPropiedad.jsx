@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import '../styles/TrabajoPropiedad.css';
+import "../../styles/TecnicoStyles/TrabajoPropiedad.css";
 import { Search, X, MapPin, Phone, User } from 'lucide-react';
 
 const TrabajoPropiedad = () => {

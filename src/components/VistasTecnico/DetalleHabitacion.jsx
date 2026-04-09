@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Importamos el Hook de navegación
-import '../styles/DetalleHabitacion.css';
+import "../../styles/TecnicoStyles/DetalleHabitacion.css";
 import { ArrowLeft, Settings, User, Plus, ImageIcon } from 'lucide-react';
 
 const DetalleHabitacion = ({ habitacionNombre }) => {

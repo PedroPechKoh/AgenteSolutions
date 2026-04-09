@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/TrabajoInicio.css';
+import "../../styles/TecnicoStyles/TrabajoInicio.css";
 import { User } from 'lucide-react';
 
 const TrabajoInicio = () => {

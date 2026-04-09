@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import UniversalSearch from "../Shared/UniversalSearch"; // Ruta ajustada a tu estructura
+import UniversalSearch from "../Shared/UniversalSearch"; 
 import "../../styles/Admin/VistaUsuarios.css";
 import logo from "../../assets/Logo4.png";
 import { X } from "lucide-react";
@@ -23,7 +23,7 @@ const VistaUsuarios = () => {
   const [listaUsuarios, setListaUsuarios] = useState([]);
   const [usuariosFiltrados, setUsuariosFiltrados] = useState([]);
 
-  // 1. CARGA DE DATOS
+  // CARGA DE DATOS
   useEffect(() => {
     const obtenerUsuarios = async () => {
       try {
@@ -48,7 +48,7 @@ const VistaUsuarios = () => {
     obtenerUsuarios();
   }, []);
 
-  // 2. ACCIONES (BLOQUEO Y ELIMINACIÓN)
+  // ACCIONES (BLOQUEO Y ELIMINACIÓN)
   const toggleBloqueo = async (id, rolActual, estaBloqueado) => {
     if (rolActual === 'ROOT') return alert("⚠️ SEGURIDAD: No puedes bloquear al ROOT.");
     const accion = estaBloqueado ? "desbloquear" : "bloquear";
@@ -92,7 +92,6 @@ const VistaUsuarios = () => {
       </header>
 
       <section className="content-area">
-        {/* FILTROS POR ROL */}
         <div className="filter-grid">
           {CATEGORIAS.map((cat) => (
             <div 
@@ -105,7 +104,6 @@ const VistaUsuarios = () => {
           ))}
         </div>
 
-        {/* BUSCADOR UNIVERSAL REUTILIZABLE */}
         <UniversalSearch 
           type="USUARIOS"
           data={listaUsuarios} 
@@ -114,7 +112,6 @@ const VistaUsuarios = () => {
           placeholder="BUSCAR POR NOMBRE, CORREO, ROL O TELÉFONO..."
         />
 
-        {/* TABLA DE USUARIOS */}
         <div className="table-wrapper-scroll">
           <table className="modern-table">
             <thead>

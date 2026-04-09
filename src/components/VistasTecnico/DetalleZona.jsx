@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles/DetalleZona.css';
+import "../../styles/TecnicoStyles/DetalleZona.css";
 import { Plus, Edit3, Trash2, ArrowLeft, Settings, User, Send, X, Home } from 'lucide-react';
 import DetalleHabitacion from './DetalleHabitacion';
 

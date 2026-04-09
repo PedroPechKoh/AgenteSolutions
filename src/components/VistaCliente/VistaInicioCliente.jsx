@@ -6,7 +6,6 @@ import Header from '../Shared/Header';
 const VistaInicioCliente = () => {
   const navigate = useNavigate();
 
-  // Dejamos únicamente los módulos a los que el cliente tiene derecho
   const menuItems = [
     { id: 1, title: 'PROPIEDADES', icon: '🏠',  path: '/propiedades' },
     { id: 2, title: 'LEVANTAMIENTOS', icon: '📋', path: '/levantamientos' },
@@ -18,7 +17,6 @@ const VistaInicioCliente = () => {
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
-      {/* Actualizamos el texto del rol para que el cliente vea quién es */}
       <Header rolTexto="CLIENTE" />
 
       <div className="search-section">

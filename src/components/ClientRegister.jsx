@@ -221,7 +221,6 @@ const ClientRegister = () => {
             </p>
           )}
 
-          {/* Back to Login Link */}
           <div
             style={{
               marginTop: "25px",

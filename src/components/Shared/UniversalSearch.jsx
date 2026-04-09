@@ -8,7 +8,6 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
     const termino = busqueda.toLowerCase();
     
     const filtrados = data.filter((item) => {
-      // 1. Lógica de Filtro por Categoría (Botones)
       let coincideFiltro = true;
       if (type === 'USUARIOS') {
         const rolBuscado = filtroActual === "ROOTS" ? "ROOT" : filtroActual.replace("S", "");
@@ -17,7 +16,6 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
         coincideFiltro = filtroActual === "TODAS" || item.tipo === filtroActual;
       }
 
-      // 2. Lógica de Buscador Universal (Input)
       const coincideBusqueda = Object.values(item).some(valor => 
         String(valor || '').toLowerCase().includes(termino)
       );

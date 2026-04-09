@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/ReporteIndividual.css';
+import "../../styles/TecnicoStyles/ReporteIndividual.css";
 import { Image as ImageIcon } from 'lucide-react';
 
 const ReporteIndividual = () => {

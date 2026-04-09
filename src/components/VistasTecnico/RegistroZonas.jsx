@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles/RegistroZonas.css';
+import "../../styles/TecnicoStyles/RegistroZonas.css";
 import { Plus, Send, X, Save, ImageIcon } from 'lucide-react';
 // Importamos el nuevo componente que creamos antes
 import DetalleZona from './DetalleZona'; 

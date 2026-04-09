@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../styles/VentaCruzada.css';
+import "../../styles/TecnicoStyles/VentaCruzada.css";
 import { Trash2 } from 'lucide-react';
 
 const VentaCruzada = () => {

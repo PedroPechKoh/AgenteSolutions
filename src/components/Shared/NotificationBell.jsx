@@ -25,14 +25,12 @@ const NotificationBell = () => {
     }
   };
 
-  // Cargar al montar el componente (y podríamos poner un setInterval para que busque cada X minutos)
   useEffect(() => {
     if (user) {
       fetchNotifications();
     }
   }, [user]);
 
-  // Cerrar el dropdown si se hace clic fuera de él
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -43,18 +41,14 @@ const NotificationBell = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Marcar como leída y navegar
   const handleNotificationClick = async (notification) => {
     try {
-      // Le decimos a Laravel que ya la leímos
       await axios.put(
         `http://127.0.0.1:8000/api/notifications/${notification.id}/read`,
       );
-      // La quitamos visualmente de la lista
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       setIsOpen(false);
 
-      // Navegamos a la URL que nos mandó Laravel
       if (notification.data.url) {
         navigate(notification.data.url);
       }
@@ -69,7 +63,6 @@ const NotificationBell = () => {
       ref={dropdownRef}
       style={{ position: "relative", marginRight: "20px" }}
     >
-      {/* EL ICONO DE LA CAMPANA */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
@@ -81,7 +74,6 @@ const NotificationBell = () => {
         }}
       >
         <Bell size={24} color="#333" />
-        {/* EL NUMERITO ROJO */}
         {notifications.length > 0 && (
           <span
             style={{
@@ -105,7 +97,6 @@ const NotificationBell = () => {
         )}
       </button>
 
-      {/* EL MENÚ DESPLEGABLE */}
       {isOpen && (
         <div
           style={{
@@ -199,7 +190,6 @@ const NotificationBell = () => {
                 </div>
               ))
             )}
-            {/* BOTÓN DE VER TODAS */}
             <div
               style={{
                 padding: "12px",

@@ -73,7 +73,6 @@ const VistaDetalleCliente = () => {
  const guardarCambios = async (e) => {
     e.preventDefault();
     try {
-      // 👇 AGREGAMOS is_active AL PAQUETE 👇
       const payload = {
         id: cliente.id, 
         first_name: formData.nombre.split(" ")[0] || "",
@@ -116,7 +115,6 @@ const VistaDetalleCliente = () => {
 
       <div className="detalle-main-wrapper">
         
-        {/* 👇 1. EL PERFIL ESTÁ PRIMERO (A LA IZQUIERDA) 👇 */}
         <aside className="cliente-data-card">
           <div className="avatar-header-section">
             <div className="avatar-container-large">
@@ -179,7 +177,6 @@ const VistaDetalleCliente = () => {
           </button>
         </aside>
 
-        {/* 👇 2. LA SECCIÓN DE PROPIEDADES ESTÁ SEGUNDA (A LA DERECHA) 👇 */}
         <main className="propiedades-section">
           <div className="section-header">
             <h3>
@@ -225,7 +222,6 @@ const VistaDetalleCliente = () => {
           </div>
         </main>
 
-      {/* MODAL (SE MANTIENE IGUAL) */}
       {isModalOpen && (
         <div className="modal-overlay-new">
           <div className="modal-card-new">
@@ -295,7 +291,6 @@ const VistaDetalleCliente = () => {
                   />
                 </div>
                 
-                {/* 👇 ESTE ES EL NUEVO CAMPO DE DIRECCIÓN 👇 */}
                 <div className="input-box-new full-width">
                   <label>
                     <MapPin size={14} /> Dirección Particular

@@ -48,7 +48,7 @@ const RegisterProperties = () => {
 
   const [formData, setFormData] = useState({
     client_id: 1,
-    property_name: "", // 👈 NUEVO: Nombre de la propiedad
+    property_name: "", 
     type: "Casa",
     calle: "",
     numero: "",
@@ -59,7 +59,6 @@ const RegisterProperties = () => {
     coordinates: "",
   });
 
-  // 👇 NUEVOS ESTADOS PARA LA FOTO 👇
   const [fotoFile, setFotoFile] = useState(null);
   const [fotoPreview, setFotoPreview] = useState(null);
 
@@ -72,7 +71,6 @@ const RegisterProperties = () => {
   const [isDetecting, setIsDetecting] = useState(false);
   const [contador, setContador] = useState(4);
 
-  // 👇 MANEJADOR DE LA FOTO 👇
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -153,7 +151,6 @@ const RegisterProperties = () => {
     setMensaje("Generando Súper CURP y guardando...");
     setTipoMensaje("");
 
-    // 👇 USAR FORMDATA PARA ENVIAR ARCHIVOS 👇
     const dataToSend = new FormData();
     Object.keys(formData).forEach(key => {
         dataToSend.append(key, formData[key]);
@@ -164,10 +161,10 @@ const RegisterProperties = () => {
     }
 
     try {
-      const token = localStorage.getItem('token'); // Asumiendo que usas token para Laravel
+      const token = localStorage.getItem('token'); 
       
       const res = await axios.post(
-        "http://127.0.0.1:8000/api/registro-propiedad", // Asegúrate que esta ruta apunte al store de PropertyController
+        "http://127.0.0.1:8000/api/registro-propiedad", 
         dataToSend,
       );
       
@@ -203,7 +200,6 @@ const RegisterProperties = () => {
 
           <div className="form-grid">
             
-            {/* 👇 NUEVO: NOMBRE DE PROPIEDAD (Ocupa todo el ancho) 👇 */}
             <div className="input-wrapper" style={{ gridColumn: '1 / -1' }}>
               <label className="input-label">
                 <Type size={18} /> Nombre de la Propiedad:
@@ -218,7 +214,6 @@ const RegisterProperties = () => {
               />
             </div>
 
-            {/* 👇 NUEVO: FOTO DE FACHADA (Ocupa todo el ancho) 👇 */}
             <div className="input-wrapper" style={{ gridColumn: '1 / -1', marginBottom: '10px' }}>
               <label className="input-label">
                 <ImageIcon size={18} /> Foto de la Fachada:
@@ -254,7 +249,6 @@ const RegisterProperties = () => {
               </div>
             </div>
 
-            {/* CAMPOS ORIGINALES */}
             <div className="input-wrapper">
               <label className="input-label">
                 <Home size={18} /> Tipo:
@@ -417,7 +411,6 @@ const RegisterProperties = () => {
 
       {isDetecting && (
          <div className="map-modal-overlay">
-         {/* ... (Tu modal de reloj de arena se queda exactamente igual) ... */}
          <div
            style={{
              backgroundColor: "#ffffff",

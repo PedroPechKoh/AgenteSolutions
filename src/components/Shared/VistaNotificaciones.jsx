@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Bell, CheckCircle, Info } from 'lucide-react';
-// import { useAuth } from '../../context/AuthContext'; // Descomenta si lo usas
 import Header from './Header';
 
 const VistaNotificaciones = () => {
   const [notificaciones, setNotificaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
   
-  // 👇 NUEVO: Estado para controlar qué pestaña está activa
   const [filtroActivo, setFiltroActivo] = useState('todas'); 
   
   const navigate = useNavigate();
@@ -36,11 +34,10 @@ const VistaNotificaciones = () => {
     return new Date(fechaString).toLocaleDateString('es-ES', opciones);
   };
 
-  // 👇 NUEVO: Lógica para filtrar la lista según la pestaña seleccionada
   const notificacionesFiltradas = notificaciones.filter(notif => {
     if (filtroActivo === 'leidas') return notif.read_at !== null;
     if (filtroActivo === 'no_leidas') return notif.read_at === null;
-    return true; // 'todas'
+    return true; 
   });
 
   return (
@@ -53,7 +50,6 @@ const VistaNotificaciones = () => {
           <h2 style={{ color: '#333', margin: 0 }}>Historial de Notificaciones</h2>
         </div>
 
-        {/* 👇 NUEVO: Botones de Pestañas (Filtros) 👇 */}
         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
           {['todas', 'no_leidas', 'leidas'].map((filtro) => (
             <button
@@ -87,7 +83,6 @@ const VistaNotificaciones = () => {
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {notificacionesFiltradas.map((notif) => {
-                // Laravel devuelve read_at como null si no se ha leído
                 const esNueva = notif.read_at === null; 
 
                 return (
@@ -96,7 +91,7 @@ const VistaNotificaciones = () => {
                     style={{ 
                       padding: '20px', 
                       borderBottom: '1px solid #eee',
-                      backgroundColor: esNueva ? '#fffafa' : 'white', // Fondo ligerísimo rojizo si es nueva
+                      backgroundColor: esNueva ? '#fffafa' : 'white', 
                       display: 'flex',
                       gap: '15px',
                       alignItems: 'flex-start',
@@ -107,12 +102,11 @@ const VistaNotificaciones = () => {
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = esNueva ? '#ffe9df' : '#f9f9f9'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = esNueva ? '#fffafa' : 'white'}
                   >
-                    {/* 👇 EL PUNTITO ROJO PARA NO LEÍDAS 👇 */}
                     <div style={{ 
                       width: '12px', 
                       height: '12px', 
                       borderRadius: '50%', 
-                      backgroundColor: esNueva ? '#FF3B30' : 'transparent', // Rojo estilo iPhone
+                      backgroundColor: esNueva ? '#FF3B30' : 'transparent', 
                       marginTop: '6px',
                       flexShrink: 0
                     }} />

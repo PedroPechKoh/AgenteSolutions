@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; // Importamos useState para el modal
-import '../styles/RegistroDetalleHabitacion.css';
+import "../../styles/TecnicoStyles/RegistroDetalleHabitacion.css";
 import { ArrowLeft, Settings, User, Plus, Trash2, X } from 'lucide-react';
 
 const RegistroDetalleHabitacion = ({ habitacionNombre, alVolver }) => {

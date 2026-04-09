@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import '../styles/DetalleTrabajo.css';
+import "../../styles/TecnicoStyles/DetalleTrabajo.css";
 import { User, Image as ImageIcon, CheckCircle } from 'lucide-react';
 
 const DetalleTrabajo = () => {

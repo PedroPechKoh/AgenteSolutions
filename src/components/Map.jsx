@@ -68,7 +68,7 @@ const Map = () => {
           <Marker
             position={miUbicacion}
             icon={{
-              url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' // Icono azul oficial de Google
+              url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' 
             }}
             title="¡Estás aquí!"
           />

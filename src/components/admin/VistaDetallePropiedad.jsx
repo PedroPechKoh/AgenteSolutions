@@ -17,15 +17,13 @@ const VistaDetallePropiedad = () => {
   recamara: ['Aire Acondicionado', 'Ventilador de techo'],
   jardin: ['Bomba de piscina', 'Sistema de riego', 'Iluminación exterior']
 };
-// ... dentro del componente
 const [equiposDisponibles, setEquiposDisponibles] = useState([]);
 
-// Manejador para cuando cambie la zona
 const handleZonaChange = (zona) => {
-  setNuevoServicio({ ...nuevoServicio, zona, equipo: '' }); // Resetear equipo al cambiar zona
+  setNuevoServicio({ ...nuevoServicio, zona, equipo: '' });
   setEquiposDisponibles(equiposPorZona[zona] || []);
 };
-  // --- ESTADOS ---
+  // ESTADOS
   const [mostrarHistorial, setMostrarHistorial] = useState(true);
   const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
   const [mostrarPerfilPropiedad, setMostrarPerfilPropiedad] = useState(false);
@@ -67,7 +65,6 @@ const handleZonaChange = (zona) => {
     <div className="view-container">
       <div className="main-layout-detail">
         
-        {/* COLUMNA IZQUIERDA */}
         <div className="left-column">
           <div className="property-id-header">
             <button className="btn-id-profile" onClick={() => setMostrarPerfilPropiedad(true)}>
@@ -112,7 +109,6 @@ const handleZonaChange = (zona) => {
           </div>
         </div>
 
-        {/* COLUMNA DERECHA */}
         <div className="right-column">
           <div className="action-header-right">
             <button className="btn-add-service-full" onClick={() => setMostrarModalServicio(true)}>
@@ -177,9 +173,6 @@ const handleZonaChange = (zona) => {
         </div>
       </div>
 
-
-
-      {/* MODAL 1: DETALLE DE TRABAJO (Resuelve error reporteSeleccionado) */}
       {reporteSeleccionado && (
         <div className="modal-overlay" onClick={() => setReporteSeleccionado(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -205,7 +198,6 @@ const handleZonaChange = (zona) => {
         </div>
       )}
 
-      {/* MODAL 2: AGREGAR SERVICIO */}
       {mostrarModalServicio && (
         <div className="modal-overlay" onClick={() => setMostrarModalServicio(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
@@ -233,7 +225,7 @@ const handleZonaChange = (zona) => {
   <label><Wrench size={16}/> Equipo afectado (Opcional)</label>
   <select 
     value={nuevoServicio.equipo}
-    disabled={!nuevoServicio.zona} // Deshabilitado si no hay zona
+    disabled={!nuevoServicio.zona} 
     onChange={(e) => setNuevoServicio({...nuevoServicio, equipo: e.target.value})}
   >
     <option value="">{nuevoServicio.zona ? "Seleccionar equipo..." : "Primero selecciona una zona"}</option>

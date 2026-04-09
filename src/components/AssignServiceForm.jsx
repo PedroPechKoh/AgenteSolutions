@@ -51,12 +51,10 @@ const AssignServiceForm = () => {
     console.log("Data ready to send to Laravel:", payload);
 
     try {
-      // Hacemos el POST a la ruta que acabamos de crear
       const response = await axios.post('http://127.0.0.1:8000/api/services/assign', payload);
       alert('¡Servicio asignado correctamente!');
       console.log("Respuesta de Laravel:", response.data);
       
-      // Opcional: Aquí podrías limpiar el formulario o redirigir al usuario
     } catch (error) {
       console.error("Error al guardar:", error);
       alert('Hubo un error al guardar el servicio.');

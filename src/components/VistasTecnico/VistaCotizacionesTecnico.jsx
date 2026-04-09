@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import '../styles/VistaCotizacionesT.css'; 
-
+import "../../styles/TecnicoStyles/VistaCotizacionesT.css";
 const VistaCotizacionesTecnico = () => {
   // --- ESTADOS DE NAVEGACIÓN ---
   const [filtro, setFiltro] = useState('TODAS');

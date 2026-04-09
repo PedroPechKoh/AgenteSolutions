@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Header from "./Shared/Header";
-import "../styles/CustomizeLogin.css"; // 👈 IMPORTANTE: Asegúrate de que la ruta sea correcta
+import "../styles/CustomizeLogin.css";
 
 const CustomizeLogin = () => {
   const navigate = useNavigate();
@@ -95,13 +95,11 @@ const CustomizeLogin = () => {
       <div className="content-wrapper">
         <Header rolTexto="ADMINISTRADOR" />
 
-        {/* CONTENEDOR PRINCIPAL */}
         <div className="customize-wrapper">
           <h2 className="customize-title">PERSONALIZAR PANTALLA DE LOGIN</h2>
 
           <div className="customize-card">
             <div className="customize-grid">
-              {/* --- COLUMNA 1: IMAGEN --- */}
               <div>
                 <span className="customize-section-title">
                   1. IMAGEN DE FONDO
@@ -158,7 +156,6 @@ const CustomizeLogin = () => {
                 </div>
               </div>
 
-              {/* --- COLUMNA 2: COLOR --- */}
               <div>
                 <span className="customize-section-title">
                   2. COLOR PREDETERMINADO
@@ -195,7 +192,6 @@ const CustomizeLogin = () => {
               </div>
             </div>
 
-            {/* --- BOTÓN GIGANTE DE GUARDAR CAMBIOS --- */}
             <div style={{ borderTop: "2px solid #ccc", paddingTop: "20px" }}>
               <button
                 onClick={handleSaveChanges}

@@ -11,11 +11,10 @@ const ProductosView = () => {
   const [viewMode, setViewMode] = useState('LISTA'); 
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
 
-  // 👇 ESTADOS PARA LA BASE DE DATOS 👇
+  // ESTADOS PARA LA BASE DE DATOS 
   const [productosData, setProductosData] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  // 👇 LLAMADA A LA API DE LARAVEL 👇
   useEffect(() => {
     const fetchProductos = async () => {
       try {
@@ -44,13 +43,10 @@ const ProductosView = () => {
     setViewMode('DETALLE');
   };
 
-  // 👇 AJUSTAMOS EL FILTRO A LAS VARIABLES DE LARAVEL 👇
   const productosFiltrados = productosData.filter(prod => {
-    // Filtro por pestañas (Ajustado para que funcione con tu columna 'category')
     const matchesTab = activeTab === 'TODOS' || 
                        (prod.category && prod.category.toUpperCase() === activeTab);
 
-    // Filtro por barra de búsqueda (Busca por modelo, marca o ID)
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = 
       (prod.product_model && prod.product_model.toLowerCase().includes(searchLower)) ||
@@ -122,7 +118,6 @@ const ProductosView = () => {
               </tr>
             </thead>
             <tbody>
-              {/* 👇 MANEJO DE ESTADO DE CARGA 👇 */}
               {cargando ? (
                 <tr>
                   <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#666' }}>

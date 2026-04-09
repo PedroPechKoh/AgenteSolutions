@@ -7,7 +7,6 @@ const MainLayoutCliente = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Configuración de botones exclusiva para Cliente
   const navButtons = [
     { label: 'PROPIEDADES', path: '/inicio', icon: <Home size={18} /> },
     { label: 'SOS', path: '/sos', icon: <Bell size={18} /> },
@@ -17,7 +16,6 @@ const MainLayoutCliente = () => {
 
   return (
     <div className="tt-container">
-      {/* SIDEBAR FIJO */}
       <aside className="tt-sidebar">
         <div className="logo-section">
         </div>
@@ -36,7 +34,6 @@ const MainLayoutCliente = () => {
       </aside>
 
       <main className="tt-main">
-        {/* HEADER FIJO */}
         <header className="tt-header">
           <div className="header-left-group" onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <ArrowLeft size={35} strokeWidth={3} />
@@ -51,7 +48,6 @@ const MainLayoutCliente = () => {
         
         <div className="tt-orange-bar"></div>
 
-        {/* ÁREA DE CONTENIDO DINÁMICO */}
         <div className="tt-body">
           <Outlet />
         </div>

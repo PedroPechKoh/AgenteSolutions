@@ -8,18 +8,16 @@ const ProductoDetalleView = ({ producto, onBack }) => {
   const navigate = useNavigate();
   const [indexUbicacion, setIndexUbicacion] = useState(0);
   
-  // Estados para manejar los datos que vendrán de Laravel
+  // Estados para manejar los datos 
   const [detalleProducto, setDetalleProducto] = useState(null);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    // Si no hay producto, no hacemos nada
     if (!producto) return;
 
     const fetchDetalles = async () => {
       try {
         setCargando(true);
-        // Llamamos a la nueva ruta en Laravel, pasándole la marca y el modelo
         const url = `http://127.0.0.1:8000/api/catalog/details?brand=${encodeURIComponent(producto.brand)}&model=${encodeURIComponent(producto.product_model)}`;
         const respuesta = await axios.get(url);
         
@@ -53,7 +51,6 @@ const ProductoDetalleView = ({ producto, onBack }) => {
     );
   }
 
-  // Si Laravel nos devuelve los datos, los usamos.
   const ubicaciones = detalleProducto?.ubicaciones || [];
   const ubiSeleccionada = ubicaciones[indexUbicacion];
 
@@ -64,7 +61,6 @@ const ProductoDetalleView = ({ producto, onBack }) => {
           <ChevronLeft size={20} /> Volver
         </button>
         <div className="producto-main-title">
-          {/* 👇 Aquí ya usamos product_model para que no salga en blanco 👇 */}
           <h1>{producto.product_model}</h1>
           <span className="badge-id">{producto.id}</span>
         </div>

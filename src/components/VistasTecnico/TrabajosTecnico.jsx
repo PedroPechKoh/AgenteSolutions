@@ -1,7 +1,7 @@
 import React, { useState } from 'react'; // Eliminado useEffect para evitar el error
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import '../styles/TrabajosTecnico.css';
+import "../../styles/TecnicoStyles/TrabajosTecnico.css";
 import { Search, Package, Wrench, CheckCircle2, Lock } from 'lucide-react';
 
 const TrabajosTecnico = () => {

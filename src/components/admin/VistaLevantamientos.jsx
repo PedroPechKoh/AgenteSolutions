@@ -3,14 +3,11 @@ import axios from "axios";
 import "../../styles/Admin/VistaLevantamientos.css";
 import logo from "../../assets/Logo4.png";
 import React, { useState, useEffect, useRef } from "react";
-// 👇 1. IMPORTAMOS EL CONTEXTO PARA SABER QUIÉN ESTÁ LOGUEADO 👇
 import { useAuth } from "../../context/AuthContext";
 
 const VistaLevantamientos = () => {
   const navigate = useNavigate();
-  // Extraemos al usuario desde tu contexto global
   const { user } = useAuth();
-  // Creamos una variable rápida para saber si es cliente (Rol 3)
   const isClient = user?.role_id === 3;
 
   const [tabActual, setTabActual] = useState("PENDIENTES");
@@ -276,7 +273,6 @@ const VistaLevantamientos = () => {
                       <span 
                         className={s.assigned_to && s.status !== 'Reprogramación Solicitada' ? "status-assigned" : "status-pending"}
                         style={{
-                          // Le damos colores dinámicos si es reprogramación o confirmación
                           backgroundColor: s.status === 'Reprogramación Solicitada' ? '#FF9800' : 
                                            s.status === 'Visita Confirmada' ? '#2196F3' : '',
                           color: (s.status === 'Reprogramación Solicitada' || s.status === 'Visita Confirmada') ? 'white' : '',
@@ -293,7 +289,6 @@ const VistaLevantamientos = () => {
                     ) : s.tecnico_nombre} 
                   </td>
                     <td>
-                      {/* 👇 AQUÍ HACEMOS LA SEPARACIÓN DE BOTONES POR ROL 👇 */}
                       {tabActual === 'REALIZADOS' ? (
                       <button 
                         className="lev-btn-action btn-reporte"
@@ -302,7 +297,6 @@ const VistaLevantamientos = () => {
                         👁️ Ver Reporte
                       </button>
                     ) : isClient ? (
-                        /* BOTONES DEL CLIENTE EN PENDIENTES */
                         <button 
                           className="lev-btn-action btn-assign" 
                           style={{ 
@@ -312,21 +306,17 @@ const VistaLevantamientos = () => {
                             border: 'none', color: 'white' 
                           }}
                           onClick={() => {
-                            // Solo abrimos el modal si está programado y no se ha confirmado ni pedido reprogramar
                             if (s.assigned_to && s.status !== 'Reprogramación Solicitada' && s.status !== 'Visita Confirmada') {
                               abrirDetallesCliente(s);
                             }
                           }}
-                          // Deshabilitamos el botón si ya está en revisión o ya se tomó una decisión
                           disabled={!s.assigned_to || s.status === 'Reprogramación Solicitada' || s.status === 'Visita Confirmada'}
                         >
-                          {/* TEXTO DINÁMICO SEGÚN EL ESTATUS */}
                           {s.status === 'Reprogramación Solicitada' ? '⏳ Reprogramando' :
                            s.status === 'Visita Confirmada' ? '✅ Cita Confirmada' :
                            s.assigned_to ? '👁️ Ver Detalles' : '⏳ En revisión'}
                         </button>
                     ) : (
-                        /* BOTONES DEL ADMIN EN PENDIENTES */
                         <button
                           className="lev-btn-action btn-assign"
                           onClick={() => abrirAsignacion(s)}
@@ -358,7 +348,6 @@ const VistaLevantamientos = () => {
         </div>
       </main>
 
-      {/* MODAL DE ASIGNACIÓN CON ICONOS (Solo funciona para Admins) */}
       {mostrarAsignar && !isClient && (
         <div
           className="lev-modal-overlay"
@@ -480,7 +469,6 @@ const VistaLevantamientos = () => {
         <div className="lev-modal-overlay" onClick={() => setModalClientePaso(0)} style={{ zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <div className="lev-modal-form asignar-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px', padding: '30px', textAlign: 'center' }}>
             
-            {/* PASO 1: VER DETALLES Y CONFIRMAR */}
             {modalClientePaso === 1 && (
               <>
                 <h2 style={{ color: '#F26522', marginBottom: '15px' }}>¡Visita Programada!</h2>
@@ -504,7 +492,6 @@ const VistaLevantamientos = () => {
               </>
             )}
 
-            {/* PASO 2: REPROGRAMAR */}
             {modalClientePaso === 2 && (
               <form onSubmit={enviarReprogramacion} style={{ textAlign: 'left' }}>
                 <h2 style={{ color: '#333', marginBottom: '15px', textAlign: 'center' }}>Reprogramar Visita</h2>

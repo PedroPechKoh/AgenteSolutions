@@ -20,10 +20,9 @@ const VistaPropiedades = () => {
   const [listaPropiedades, setListaPropiedades] = useState([]);
   const [propiedadesFiltradas, setPropiedadesFiltradas] = useState([]);
 
-  // --- ESTADOS PARA EL MODAL DE LEVANTAMIENTO ---
   const [mostrarModalServicio, setMostrarModalServicio] = useState(false);
   const [propiedadSeleccionada, setPropiedadSeleccionada] = useState(null);
-  const [pasoModal, setPasoModal] = useState(1); // 1: Formulario, 2: Éxito
+  const [pasoModal, setPasoModal] = useState(1); 
   const [nombreResponsable, setNombreResponsable] = useState("");
 
   useEffect(() => {
@@ -52,11 +51,11 @@ const VistaPropiedades = () => {
     }
   };
 
-  // --- LÓGICA DEL MODAL ---
+  
   const abrirModalParaPropiedad = (propiedad) => {
     setPropiedadSeleccionada(propiedad);
-    setPasoModal(1); // Siempre empezamos en el paso 1
-    setNombreResponsable(""); // Limpiamos el input
+    setPasoModal(1); 
+    setNombreResponsable(""); 
     setMostrarModalServicio(true);
   };
 
@@ -69,7 +68,6 @@ const VistaPropiedades = () => {
         description:
           "Solicitud de visita técnica para registro inicial de la propiedad.",
         priority: "Media",
-        // 👇 ESTA ES LA LÍNEA MÁGICA 👇
         supervisor_name:
           nombreResponsable.trim() !== ""
             ? nombreResponsable
@@ -82,7 +80,7 @@ const VistaPropiedades = () => {
       );
 
       if (respuesta.data.success) {
-        setPasoModal(2); // Pasamos a la pantalla de éxito
+        setPasoModal(2); 
       }
     } catch (error) {
       console.error("Error al reportar:", error);
@@ -92,7 +90,7 @@ const VistaPropiedades = () => {
 
   const cerrarModalYRecargar = () => {
     setMostrarModalServicio(false);
-    navigate("/levantamientos"); // O la ruta donde tengas tu tabla de levantamientos pendientes
+    navigate("/levantamientos"); 
   };
 
   return (
@@ -189,17 +187,16 @@ const VistaPropiedades = () => {
                           justifyContent: "center",
                         }}
                       >
-                        {/* 👇 LÓGICA DINÁMICA DEL BOTÓN 👇 */}
                         {p.has_pending_service ? (
                           <button
                             style={{
-                              backgroundColor: "#e0e0e0", // Gris claro
-                              color: "#888", // Texto gris
+                              backgroundColor: "#e0e0e0", 
+                              color: "#888", 
                               border: "1px solid #ccc",
                               padding: "6px 12px",
                               borderRadius: "4px",
                               fontWeight: "bold",
-                              cursor: "not-allowed", // Cursor de prohibido
+                              cursor: "not-allowed", 
                               fontSize: "0.8rem",
                               display: "flex",
                               alignItems: "center",

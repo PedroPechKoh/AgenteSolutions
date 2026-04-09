@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/logo3.png'; 
-// 👇 1. IMPORTAMOS EL COMPONENTE DE LA CAMPANITA 👇
-// (Ajusta los '../' dependiendo de en qué carpeta esté este archivo Header.jsx)
 import NotificationBell from '../Shared/NotificationBell'; 
 
 const Header = ({ rolTexto = "USUARIO" }) => {
@@ -29,10 +27,8 @@ const Header = ({ rolTexto = "USUARIO" }) => {
         </h2>
       </div>
 
-      {/* 👇 2. ALINEAMOS LOS CONTROLES CON FLEXBOX 👇 */}
       <div className="user-controls" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
         
-        {/* 👇 3. INYECTAMOS LA CAMPANITA AQUÍ 👇 */}
         <NotificationBell />
 
         <div style={{ position: "relative" }}>

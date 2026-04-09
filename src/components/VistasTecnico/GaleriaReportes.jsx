@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/GaleriaReportes.css';
+import "../../styles/TecnicoStyles/GaleriaReportes.css";
 import { Plus } from 'lucide-react';
 
 const GaleriaReportes = () => {

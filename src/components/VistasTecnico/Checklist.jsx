@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/CheckList.css';
+import "../../styles/TecnicoStyles/CheckList.css";
 
 const CheckList = () => {
   const navigate = useNavigate();

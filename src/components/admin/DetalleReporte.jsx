@@ -9,7 +9,6 @@ const DetalleReporte = () => {
   const { id } = useParams();
   const navigate = useNavigate();
     
-  // ESTADOS PARA MODALES Y COTIZACIÓN
   const [mostrarCotizacion, setMostrarCotizacion] = useState(false);
   const [metodoCotizacion, setMetodoCotizacion] = useState('manual');
   
@@ -106,7 +105,6 @@ const DetalleReporte = () => {
 
   return (
     <div className="rep-container">
-      {/* SIDEBAR FIJO (Conectado a la BD) */}
       <aside className="rep-sidebar">
         <img src={logo} alt="Logo Agente" className="side-logo" onClick={() => navigate('/')} />
         
@@ -159,7 +157,6 @@ const DetalleReporte = () => {
         <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER AL LISTADO</button>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL CON SCROLL */}
       <main className="rep-main-content">
         <header className="main-banner">
           <img src={casaImg} alt="Propiedad" />
@@ -216,7 +213,6 @@ const DetalleReporte = () => {
         </section>
       </main>
 
-      {/* MODAL DE COTIZACIÓN PROFESIONAL */}
       {mostrarCotizacion && (
         <div className="lev-modal-overlay" onClick={() => setMostrarCotizacion(false)}>
           <div className="cot-modal-card" onClick={e => e.stopPropagation()}>
@@ -306,7 +302,6 @@ const DetalleReporte = () => {
                         <button onClick={() => { setArchivoPreview(null); setArchivoFisico(null); }}>Eliminar y cambiar</button>
                       </div>
                       <div className="preview-content">
-                        {/* Si es PDF mostramos un ícono, si es imagen la previsualizamos */}
                         {archivoFisico?.type === 'application/pdf' ? (
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
                             <span style={{ fontSize: '4rem', marginBottom: '10px' }}>📄</span>

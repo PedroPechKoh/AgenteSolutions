@@ -12,7 +12,7 @@ const VistaBodeguero = () => {
   const [showModalNuevo, setShowModalNuevo] = useState(false);
   const [filtro, setFiltro] = useState("");
 
-  // --- ESTADOS ---
+  // ESTADOS
   const [inventario, setInventario] = useState([
     { id: 101, nombre: "Foco LED 12W", stock: 45, min: 10, unidad: "pzas", categoria: "Iluminación" },
     { id: 102, nombre: "Cable Calibre 12", stock: 5, min: 15, unidad: "rollos", categoria: "Eléctrico" },
@@ -55,8 +55,6 @@ const VistaBodeguero = () => {
 
   const [historial, setHistorial] = useState([]);
   const [nuevoMaterial, setNuevoMaterial] = useState({ nombre: '', categoria: '', stock: '', unidad: 'pzas' });
-
-  // --- LOGICA DE NEGOCIO ---
 
   const modificarStock = (id, cantidad) => {
     setInventario(prev => prev.map(item => 
@@ -156,7 +154,6 @@ const VistaBodeguero = () => {
       <main className="vb-main">
         <AnimatePresence mode="wait">
           
-          {/* VISTA DESPACHO */}
           {view === 'SOLICITUDES' && (
             <motion.div key="despacho" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="vb-grid">
               {solicitudes.map(s => {
@@ -197,7 +194,6 @@ const VistaBodeguero = () => {
             </motion.div>
           )}
 
-          {/* VISTA INVENTARIO */}
           {view === 'STOCK' && (
             <motion.div key="stock" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="stock-container">
               <div className="inventory-controls">
@@ -229,7 +225,6 @@ const VistaBodeguero = () => {
             </motion.div>
           )}
 
-          {/* VISTA RETORNOS (EQUIPO PRESTADO) */}
           {view === 'RETORNOS' && (
             <motion.div key="retornos" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="stock-container">
               <div className="inventory-card">
@@ -266,7 +261,6 @@ const VistaBodeguero = () => {
             </motion.div>
           )}
 
-          {/* VISTA HISTORIAL */}
           {view === 'HISTORIAL' && (
             <motion.div key="historial" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="stock-container">
               <div className="inventory-card">
@@ -286,7 +280,6 @@ const VistaBodeguero = () => {
         </AnimatePresence>
       </main>
 
-      {/* MODAL NUEVO MATERIAL */}
       <AnimatePresence>
         {showModalNuevo && (
           <div className="modal-overlay" onClick={() => setShowModalNuevo(false)}>

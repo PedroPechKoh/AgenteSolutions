@@ -108,10 +108,9 @@ const VistaCotizaciones = () => {
         </div>
       </main>
 
-      {/* MODAL DETALLE */}
       {cotizacionSeleccionada && (
         <div className="modal-fixed-overlay" onClick={() => setCotizacionSeleccionada(null)}>
-          {/* Añadí maxHeight y overflow para que si el PDF es largo, el modal no se salga de la pantalla */}
+         
           <div className="modal-box-card" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
             
             <div className="modal-header-dark" style={{ flexShrink: 0 }}>
@@ -119,7 +118,6 @@ const VistaCotizaciones = () => {
                 <button className="modal-close-icon" onClick={() => setCotizacionSeleccionada(null)}>&times;</button>
             </div>
             
-            {/* Contenedor scrolleable interno */}
             <div className="modal-body-content" style={{ overflowY: 'auto', flexGrow: 1 }}>
                 
                 <div className="modal-info-summary">
@@ -130,10 +128,8 @@ const VistaCotizaciones = () => {
 
                 {cotizacionSeleccionada.tipo === 'archivo' ? (
                   
-                  /* VISTA DE ARCHIVO (CENTRADA Y AJUSTADA) */
                   <div style={{ position: 'relative', background: '#e0e0e0', padding: '15px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '350px' }}>
                     
-                    {/* BOTÓN PANTALLA COMPLETA */}
                     {cotizacionSeleccionada.archivo_url && (
                       <button 
                         onClick={() => verPantallaCompleta(cotizacionSeleccionada.archivo_url)}
@@ -153,14 +149,12 @@ const VistaCotizaciones = () => {
 
                     {cotizacionSeleccionada.archivo_url ? (
                       cotizacionSeleccionada.archivo_url.endsWith('.pdf') ? (
-                        /* 👇 AQUÍ ES DONDE SUCEDE LA MAGIA DEL PDF 👇 */
                         <iframe 
                           src={cotizacionSeleccionada.archivo_url} 
                           title="Vista previa del documento"
                           style={{ width: '100%', height: '50vh', border: 'none', borderRadius: '4px', background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                         />
                       ) : (
-                        /* IMAGEN CENTRADA */
                         <img 
                           src={cotizacionSeleccionada.archivo_url} 
                           alt="Cotización" 
@@ -174,7 +168,6 @@ const VistaCotizaciones = () => {
 
                 ) : (
                   
-                  /* VISTA MANUAL */
                   <>
                     <table className="modal-items-table">
                       <thead>
@@ -195,7 +188,6 @@ const VistaCotizaciones = () => {
                   </>
                 )}
 
-                {/* EL TOTAL SE MUESTRA SIEMPRE ABAJO (A menos que sea archivo sin precio) */}
                 <div className="modal-total-section">
                   <h3>TOTAL: ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}</h3>
                 </div>
