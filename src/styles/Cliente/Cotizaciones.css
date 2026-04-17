@@ -1,0 +1,112 @@
+/* --- LAYOUT --- */
+.quotes-view-container { padding: 30px; max-width: 1000px; margin: 0 auto; font-family: 'Inter', sans-serif; }
+.quotes-main-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; }
+.header-titles h2 { font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 0; }
+.header-titles p { color: #64748b; font-size: 0.85rem; margin-top: 4px; }
+
+.quotes-tabs-row { display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; }
+.tab-btn { border: none; padding: 10px 18px; border-radius: 9px; font-weight: 800; color: #64748b; background: transparent; cursor: pointer; font-size: 0.7rem; transition: 0.2s; }
+.tab-btn.active { background: white; color: #f97316; box-shadow: 0 4px 10px rgba(0,0,0,0.06); }
+
+/* --- CARDS --- */
+.quote-card-item { background: white; border-radius: 18px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer; border: 1px solid #e2e8f0; transition: 0.3s; }
+.quote-card-item:hover { transform: translateY(-3px); border-color: #cbd5e1; }
+.quote-card-left { display: flex; align-items: center; gap: 16px; }
+.quote-card-icon { width: 44px; height: 44px; border-radius: 12px; background: #fff7ed; color: #f97316; display: flex; align-items: center; justify-content: center; }
+
+/* --- MODAL --- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+.modal-content-wrapper { background: white; border-radius: 28px; overflow: hidden; width: 100%; max-width: 950px; }
+
+/* --- VISTA EXCEL --- */
+.modal-excel-header { background: #1e293b; padding: 25px; color: white; }
+.header-top-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.badge-status { font-size: 0.65rem; font-weight: 900; background: rgba(255,255,255,0.15); padding: 4px 10px; border-radius: 6px; }
+.close-modal-btn { background: none; border: none; color: white; font-size: 1.8rem; cursor: pointer; }
+
+.modal-excel-body { padding: 30px; }
+.excel-table-container { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.excel-table-header { display: grid; grid-template-columns: 2fr 0.5fr 1fr 1fr; background: #f8fafc; padding: 12px; font-weight: 900; font-size: 0.7rem; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+.excel-row { display: grid; grid-template-columns: 2fr 0.5fr 1fr 1fr; padding: 12px; font-size: 0.85rem; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
+.excel-total-row { display: flex; justify-content: space-between; padding: 15px; background: #f8fafc; font-weight: 700; border-bottom: 1px dashed #cbd5e1; }
+.excel-advance-highlight { display: flex; justify-content: space-between; padding: 15px; background: #fff7ed; color: #f97316; font-weight: 900; }
+
+.feedback-section label { display: block; font-size: 0.75rem; font-weight: 800; color: #94a3b8; margin-bottom: 8px; }
+textarea { width: 100%; height: 80px; border: 2px solid #f1f5f9; border-radius: 12px; padding: 15px; resize: none; font-family: inherit; }
+.modal-actions-dynamic { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; margin-top: 25px; }
+.btn-reject-final { background: #f1f5f9; border: none; padding: 16px; border-radius: 14px; font-weight: 800; color: #64748b; cursor: pointer; }
+.btn-accept-final { background: #f97316; border: none; padding: 16px; border-radius: 14px; font-weight: 800; color: white; cursor: pointer; }
+
+/* --- VISTA PAGO AZUL --- */
+.finalizar-pago-container { display: flex; min-height: 550px; }
+.pago-sidebar-info { flex: 0.45; background: #1e293b; padding: 40px; color: white; display: flex; flex-direction: column; }
+.sidebar-title { font-size: 1.8rem; font-weight: 900; font-style: italic; margin-bottom: 10px; }
+.sidebar-desc { font-size: 0.85rem; color: #94a3b8; margin-bottom: 30px; }
+
+.bank-details-box { flex-grow: 1; }
+.detail-item { margin-bottom: 20px; }
+.detail-item label { font-size: 0.6rem; color: #64748b; font-weight: 800; display: block; margin-bottom: 5px; letter-spacing: 1px; }
+.detail-item strong { color: #f8fafc; font-size: 1rem; }
+.copy-field { display: flex; justify-content: space-between; align-items: center; color: #94a3b8; }
+
+.monto-depositar-card { background: #f97316; padding: 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; }
+.monto-labels span { font-weight: 800; font-size: 0.85rem; display: block; }
+.monto-labels small { font-size: 0.65rem; color: rgba(255,255,255,0.8); }
+.monto-valor { font-size: 1.6rem; font-weight: 900; }
+
+.pago-upload-content { flex: 0.55; padding: 50px; display: flex; flex-direction: column; justify-content: center; }
+.step-indicator { color: #f97316; font-weight: 900; font-size: 0.7rem; margin-bottom: 10px; }
+.upload-title { font-size: 1.6rem; font-weight: 800; color: #0f172a; margin-bottom: 25px; }
+
+.upload-dropzone { border: 2px dashed #e2e8f0; background: #f8fafc; padding: 40px; border-radius: 20px; text-align: center; margin-bottom: 20px; }
+.upload-dropzone p { margin-top: 10px; font-size: 0.9rem; color: #1e293b; }
+.file-formats { font-size: 0.75rem; color: #94a3b8; }
+
+.security-note { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: #94a3b8; margin-bottom: 25px; justify-content: center; }
+.btn-enviar-comprobante { background: #e2e8f0; border: none; padding: 18px; border-radius: 16px; font-weight: 800; color: #94a3b8; width: 100%; transition: 0.3s; }
+.btn-enviar-comprobante.active { background: #1e293b; color: white; cursor: pointer; }
+.btn-back-link { background: none; border: none; color: #94a3b8; margin-top: 15px; cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
+/* --- TABS --- */
+.tab-btn { border: none; padding: 10px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; background: transparent; color: #64748b; font-size: 0.75rem; }
+.active-nuevas { background: white !important; color: #f97316 !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.active-aceptadas { background: #16a34a !important; color: white !important; }
+.active-rechazadas { background: #dc2626 !important; color: white !important; }
+
+/* --- CARDS --- */
+.quote-card-item { background: white; border-radius: 18px; padding: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border: 1px solid #e2e8f0; cursor: pointer; }
+.card-aceptadas { border-left: 6px solid #16a34a; }
+.card-rechazadas { border-left: 6px solid #dc2626; }
+.partial-badge { font-size: 0.6rem; background: #f0fdf4; color: #16a34a; padding: 2px 8px; border-radius: 4px; font-weight: 900; margin-top: 4px; display: block; }
+
+/* --- MODAL HEADERS --- */
+.h-nuevas { background: #1e293b; }
+.h-aceptadas { background: #16a34a; }
+.h-rechazadas { background: #dc2626; }
+
+/* --- EXCEL TABLE --- */
+.excel-table-container { border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-top: 20px; }
+.excel-table-header { display: grid; grid-template-columns: 2fr 0.5fr 1fr 1fr; background: #f8fafc; padding: 12px; font-weight: 900; font-size: 0.7rem; color: #64748b; }
+.excel-row { display: grid; grid-template-columns: 2fr 0.5fr 1fr 1fr; padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+.excel-advance-highlight { display: flex; justify-content: space-between; padding: 15px; background: #fff7ed; color: #f97316; font-weight: 800; border-top: 2px dashed #f97316; }
+.excel-pending-highlight { display: flex; justify-content: space-between; padding: 15px; background: #f0fdf4; color: #16a34a; font-weight: 800; border-top: 2px dashed #16a34a; }
+
+/* --- ÁREA DE TEXTO --- */
+.modal-textarea { width: 100%; height: 80px; border: 2px solid #f1f5f9; border-radius: 12px; padding: 12px; font-family: inherit; resize: none; margin-top: 10px; }
+
+/* --- PAGO AZUL --- */
+.finalizar-pago-container { display: flex; min-height: 550px; }
+.pago-sidebar-info { flex: 0.45; background: #1e293b; padding: 40px; color: white; display: flex; flex-direction: column; }
+.sidebar-title { font-size: 1.8rem; font-weight: 900; font-style: italic; margin-bottom: 20px; }
+.monto-depositar-card { background: #f97316; padding: 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.monto-valor { font-size: 1.6rem; font-weight: 900; }
+
+.pago-upload-content { flex: 0.55; padding: 50px; display: flex; flex-direction: column; justify-content: center; }
+.upload-dropzone { border: 2px dashed #e2e8f0; background: #f8fafc; padding: 40px; border-radius: 20px; text-align: center; margin-bottom: 20px; }
+.btn-enviar-comprobante-final { background: #1e293b; color: white; border: none; padding: 18px; border-radius: 15px; font-weight: 800; cursor: pointer; width: 100%; }
+
+/* --- BOTONES MODAL --- */
+.modal-actions-dynamic { display: grid; grid-template-columns: 1fr 1.5fr; gap: 15px; margin-top: 25px; }
+.btn-liquidar-final { grid-column: span 2; background: #16a34a; color: white; padding: 18px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-accept-final { background: #f97316; color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
+.btn-reject-final { background: #f1f5f9; color: #64748b; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
+.status-banner-error { grid-column: span 2; background: #fef2f2; color: #dc2626; padding: 15px; border-radius: 12px; text-align: center; font-weight: 900; border: 1px solid #fecaca; }

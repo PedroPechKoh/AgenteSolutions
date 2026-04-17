@@ -53,8 +53,8 @@ const Profile = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault(); 
     try {
-      const res = await axios.post('http://127.0.0.1:8000/api/update-profile', {
-        user_id: user.id,
+const res = await axios.post('http://127.0.0.1:8000/api/usuarios/update-profile', {
+          id: `u_${user.id}`,
         ...formData
       });
 

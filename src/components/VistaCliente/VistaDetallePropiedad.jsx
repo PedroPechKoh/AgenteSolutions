@@ -16,7 +16,6 @@ const VistaDetallePropiedad = () => {
   // --- ESTADOS DE DATOS (Backend) ---
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [guardando, setGuardando] = useState(false); // NUEVO: Estado para el botón de guardar
 
   // --- ESTADOS DE UI (Modales y Toggles) ---
   const [mostrarHistorial, setMostrarHistorial] = useState(true);
@@ -36,20 +35,19 @@ const VistaDetallePropiedad = () => {
     zona: '', equipo: '', descripcion: '', foto: null
   });
 
-  // --- FUNCIÓN PARA CARGAR/RECARGAR EL TABLERO ---
-  const fetchDashboardData = async () => {
-    try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/propiedades/${id}/dashboard`);
-      setData(response.data);
-    } catch (error) {
-      console.error("Error cargando el dashboard:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // --- EFECTO DE CARGA INICIAL ---
   useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/propiedades/${id}/dashboard`);
+        setData(response.data);
+      } catch (error) {
+        console.error("Error cargando el dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (id) fetchDashboardData();
   }, [id]);
 
@@ -57,38 +55,6 @@ const VistaDetallePropiedad = () => {
   const handleZonaChange = (zona) => {
     setNuevoServicio({ ...nuevoServicio, zona, equipo: '' }); 
     setEquiposDisponibles(equiposPorZona[zona] || []);
-  };
-
-  // --- NUEVA FUNCIÓN: ENVIAR EL REPORTE AL BACKEND ---
-  const enviarNuevoServicio = async (e) => {
-    e.preventDefault();
-    setGuardando(true);
-
-    const formData = new FormData();
-    formData.append('property_id', id);
-    formData.append('zona', nuevoServicio.zona);
-    formData.append('equipo', nuevoServicio.equipo || '');
-    formData.append('descripcion', nuevoServicio.descripcion);
-    
-    if (nuevoServicio.foto) {
-      formData.append('foto', nuevoServicio.foto);
-    }
-
-    try {
-      await axios.post('http://127.0.0.1:8000/api/propiedades/servicios', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      
-      setMostrarModalServicio(false); 
-      setNuevoServicio({ zona: '', equipo: '', descripcion: '', foto: null }); 
-      fetchDashboardData(); // Recargamos para que el contador de "POR HACER" suba a 1
-
-    } catch (error) {
-      console.error("Error al guardar el servicio:", error);
-      alert("Hubo un error al enviar el reporte.");
-    } finally {
-      setGuardando(false);
-    }
   };
 
   // --- RENDERIZADO CONDICIONAL MIENTRAS CARGA ---
@@ -108,11 +74,12 @@ const VistaDetallePropiedad = () => {
         <div className="left-column">
           <div className="property-id-header">
             <button className="btn-id-profile" onClick={() => setMostrarPerfilPropiedad(true)}>
-              <Tag size={16} /> ID REGISTRO: <strong>{propiedad.custom_curp || propiedad.curp || propiedad.id}</strong>
+              <Tag size={16} /> ID REGISTRO: <strong>{propiedad.custom_curp || propiedad.id}</strong>
             </button>
           </div>
 
           <div className="hero-section-compact">
+            {/* Usando el nombre de campo correcto de Laravel: facade_photo_path */}
             <img 
               src={propiedad.facade_photo_path ? `http://127.0.0.1:8000/storage/${propiedad.facade_photo_path}` : 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
               alt="Propiedad" 
@@ -198,9 +165,11 @@ const VistaDetallePropiedad = () => {
               </div>
             </div>
 
-            <button className="btn-orange-small" onClick={() => navigate(`/propiedad/${id}/tablero`)}>
-  Ver tablero detallado
-</button>
+            <div className="tablero-actions-center">
+              <button className="btn-orange-small" onClick={() => navigate('/Tablero')}>
+                Ver tablero detallado
+              </button>
+            </div>
             
             <div className="sprint-footer">
               <div className="sprint-progress-meta">
@@ -264,7 +233,7 @@ const VistaDetallePropiedad = () => {
               <div className="modal-tag">NUEVA SOLICITUD</div>
               <h2>Reportar Problema</h2>
             </div>
-            <form className="modal-body service-form" onSubmit={enviarNuevoServicio}>
+            <form className="modal-body service-form" onSubmit={(e) => { e.preventDefault(); setMostrarModalServicio(false); }}>
               <div className="form-group">
                 <label><Home size={16}/> Zona de la propiedad *</label>
                 <select 
@@ -297,7 +266,7 @@ const VistaDetallePropiedad = () => {
               </div>
               <div className="form-group">
                 <label><MessageSquare size={16}/> Descripción *</label>
-                <textarea required rows="4" placeholder="Describe el problema..." value={nuevoServicio.descripcion} onChange={(e) => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})}></textarea>
+                <textarea required rows="4" placeholder="Describe el problema..." onChange={(e) => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})}></textarea>
               </div>
 
               <div className="form-group">
@@ -316,9 +285,7 @@ const VistaDetallePropiedad = () => {
               </div>
 
               <div className="modal-footer">
-                <button type="submit" className="btn-modal-close" disabled={guardando}>
-                  {guardando ? 'Enviando...' : 'Levantar Reporte'}
-                </button>
+                <button type="submit" className="btn-modal-close">Levantar Reporte</button>
               </div>
             </form>
           </div>
@@ -351,7 +318,7 @@ const VistaDetallePropiedad = () => {
                 <FileText size={20} className="icon-gray" />
                 <div>
                   <span className="profile-label">CURP INMUEBLE</span>
-                  <span className="profile-value highlight-curp">{propiedad.custom_curp || propiedad.curp || 'S/N'}</span>
+                  <span className="profile-value highlight-curp">{propiedad.custom_curp || 'S/N'}</span>
                 </div>
               </div>
               <div className="profile-data-group">

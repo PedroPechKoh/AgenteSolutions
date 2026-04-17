@@ -187,6 +187,22 @@ const VistaPropiedades = () => {
                           justifyContent: "center",
                         }}
                       >
+                        <button
+    style={{
+      backgroundColor: "#2196F3", // Un azul bonito para diferenciarlo
+      color: "white",
+      border: "none",
+      padding: "6px 12px",
+      borderRadius: "4px",
+      fontWeight: "bold",
+      cursor: "pointer",
+      fontSize: "0.8rem",
+    }}
+    title="Ver Tablero de la Propiedad"
+    onClick={() => navigate(`/propiedad/${p.id}`)} // <--- LA MAGIA ESTÁ AQUÍ
+  >
+    VER TABLERO
+  </button>
                         {p.has_pending_service ? (
                           <button
                             style={{

@@ -21,10 +21,9 @@ const Header = ({ rolTexto = "USUARIO" }) => {
       </div>
 
       <div className="center-title-section">
-        <h1 className="welcome-title">BIENVENIDO</h1>
-        <h2 className="welcome-subtitle">
-          {user?.name ? user.name.toUpperCase() : rolTexto}
-        </h2>
+        <h1 className="welcome-title">
+          BIENVENIDO {(user?.first_name || user?.name) ? (user.first_name || user.name).toUpperCase() : rolTexto}
+        </h1>
       </div>
 
       <div className="user-controls" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>

@@ -30,7 +30,7 @@ const VistaInicioTecnico = () => {
           </div>
 
           <div className="menu-card">
-            <div className="card-inner">
+            <div className="card-inner" onClick={() => navigate('/trabajos-asignados')}>
               <div className="icon-placeholder">📋</div>
               <span className="card-title">LEVANTAMIENTO</span>
             </div>
@@ -39,7 +39,7 @@ const VistaInicioTecnico = () => {
           <div className="menu-card">
             <div className="card-inner">
               <div className="icon-placeholder">📄</div>
-              <span className="card-title">TRABAJOS<br/>APROBADOS</span>
+              <span className="card-title">COTIZACIONES</span>
             </div>
           </div>
         </nav>

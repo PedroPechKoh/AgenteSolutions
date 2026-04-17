@@ -1,0 +1,227 @@
+/* --- VISTA PAGO: DISEÑO PROFESIONAL Y EQUILIBRADO --- */
+.page-payment-full {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
+  width: 100%;
+  background-color: #f8fafc; /* Fondo neutro para resaltar la tarjeta */
+}
+
+.payment-content-card {
+  background: white;
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+/* LADO IZQUIERDO: PANEL DE DATOS */
+.payment-side-info {
+  background: #1e293b;
+  padding: 40px 30px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Botón Volver más sutil */
+.btn-back-main {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: 0.3s;
+}
+
+.btn-back-main:hover {
+  background: #f97316;
+  border-color: #f97316;
+}
+
+.payment-header-txt h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.payment-header-txt p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+/* Contenedor de datos bancarios */
+.fiscal-details-container {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fiscal-item { margin-bottom: 18px; }
+.fiscal-item:last-child { margin-bottom: 0; }
+
+.fiscal-item label {
+  display: block;
+  font-size: 0.65rem;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.fiscal-item p {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+/* Fila de CLABE con botón de copiar pequeño */
+.copy-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.copy-box strong {
+  font-size: 1.1rem;
+  color: #f97316;
+  letter-spacing: 0.5px;
+}
+
+.copy-btn-icon {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.copy-btn-icon:hover { background: #f97316; }
+
+/* Monto destacado */
+.payment-total-pill {
+  margin-top: auto;
+  background: #f97316;
+  padding: 18px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.payment-total-pill span { font-size: 0.8rem; font-weight: 700; opacity: 0.9; }
+.payment-total-pill strong { font-size: 1.4rem; font-weight: 800; }
+
+/* LADO DERECHO: ACCIÓN */
+.payment-side-action {
+  padding: 50px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.step-indicator {
+  font-size: 0.75rem;
+  color: #f97316;
+  font-weight: 800;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.payment-side-action h2 {
+  font-size: 1.4rem;
+  color: #1e293b;
+  font-weight: 800;
+  margin-bottom: 25px;
+}
+
+/* Área de subida minimalista */
+.upload-box-area {
+  border: 2px dashed #e2e8f0;
+  border-radius: 16px;
+  padding: 40px 20px;
+  text-align: center;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-box-area:hover {
+  border-color: #f97316;
+  background: #fff7ed;
+}
+
+.upload-circle-icon {
+  color: #94a3b8;
+  margin-bottom: 15px;
+}
+
+.upload-label-content h3 {
+  font-size: 1rem;
+  color: #1e293b;
+  margin-bottom: 5px;
+}
+
+.upload-label-content p {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* Botón de envío */
+.btn-send-payment {
+  margin-top: 30px;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: #f97316;
+  color: white;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+}
+
+.btn-send-payment:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.3);
+}
+
+.btn-send-payment:disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.security-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* RESPONSIVO */
+@media (max-width: 850px) {
+  .payment-content-card { grid-template-columns: 1fr; }
+  .payment-side-info { padding: 30px; }
+}
