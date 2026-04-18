@@ -155,7 +155,7 @@ const TrabajosAsignados = () => {
                             onClick={() => irARegistro(s)}
                           >
                             <LayoutGrid size={18} />
-                            <span>Registrar Zonas</span>
+                            <span>Empezar levantamiento:</span>
                           </button>
 
                           <button

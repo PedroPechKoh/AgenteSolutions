@@ -236,6 +236,19 @@
   box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
 }
 
+.btn-action.zones {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.btn-action.zones:hover {
+  background-color: #2563eb;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
 .btn-action.view {
   background-color: #fff7ed;
   color: #f97316;

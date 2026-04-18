@@ -15,6 +15,41 @@ const DetalleZona = ({ zona, propertyCurp, alVolver }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [nuevaHabitacion, setNuevaHabitacion] = useState("");
 
+  // Opciones de Zona (Editar/Eliminar)
+  const [mostrarOpcionesZona, setMostrarOpcionesZona] = useState(false);
+  const [editandoZonaNombre, setEditandoZonaNombre] = useState(false);
+  const [nuevoNombreZona, setNuevoNombreZona] = useState(zona?.name || "");
+
+  useEffect(() => {
+    setNuevoNombreZona(zona?.name || "");
+  }, [zona]);
+
+  const eliminarZona = async () => {
+    if(window.confirm("¿Estás seguro de eliminar esta zona y todo su contenido?")) {
+      try {
+        await axios.delete(`http://127.0.0.1:8000/api/property-areas/${zona.id}`);
+        alert("Zona eliminada con éxito.");
+        alVolver(); 
+      } catch (error) {
+        console.error(error);
+        alert("Error al eliminar la zona. Verifica la consola.");
+      }
+    }
+  };
+
+  const guardarEdicionZona = async () => {
+    if(!nuevoNombreZona.trim()) return alert("El nombre no puede estar vacío");
+    try {
+      await axios.put(`http://127.0.0.1:8000/api/property-areas/${zona.id}`, { name: nuevoNombreZona });
+      zona.name = nuevoNombreZona.toUpperCase(); // Actualización optimista local
+      setEditandoZonaNombre(false);
+      setMostrarOpcionesZona(false);
+    } catch (error) {
+      console.error(error);
+      alert("Error al editar el nombre de la zona.");
+    }
+  };
+
   // Cargar sub-habitaciones al iniciar
   useEffect(() => {
     if (zona?.id) fetchHabitaciones();
@@ -88,8 +123,50 @@ const DetalleZona = ({ zona, propertyCurp, alVolver }) => {
         {/* TARJETA PRINCIPAL */}
         <div className="dz-main-card">
           <div className="dz-controls-row">
-            <div className="dz-category-tag" style={{ color: 'black' }}>
-              CATEGORIA: <strong>{zona?.name || "SIN NOMBRE"}</strong> <Settings size={14} style={{ marginLeft: '5px' }} />
+            <div className="dz-category-tag" style={{ color: 'black', position: 'relative', display: 'flex', alignItems: 'center' }}>
+              CATEGORIA: 
+              {editandoZonaNombre ? (
+                <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginLeft: '8px' }}>
+                   <input 
+                     value={nuevoNombreZona} 
+                     onChange={e => setNuevoNombreZona(e.target.value.toUpperCase())}
+                     style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '13px', textTransform: 'uppercase', outline: 'none' }}
+                     autoFocus
+                   />
+                   <button onClick={guardarEdicionZona} style={{ padding: '4px 10px', background: '#f26624', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
+                   <button onClick={() => setEditandoZonaNombre(false)} style={{ padding: '4px 10px', background: '#666', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+                </div>
+              ) : (
+                <>
+                  <strong style={{ marginLeft: '8px' }}>{zona?.name || "SIN NOMBRE"}</strong> 
+                  <Settings 
+                    size={16} 
+                    style={{ marginLeft: '8px', cursor: 'pointer', color: '#666' }} 
+                    onClick={() => setMostrarOpcionesZona(!mostrarOpcionesZona)} 
+                  />
+                  
+                  {mostrarOpcionesZona && (
+                    <div style={{ position: 'absolute', top: '100%', right: '0', background: 'white', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', border: '1px solid #eee', borderRadius: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', minWidth: '120px', marginTop: '5px', overflow: 'hidden' }}>
+                      <button 
+                        onClick={() => { setEditandoZonaNombre(true); setMostrarOpcionesZona(false); }} 
+                        style={{ padding: '10px 15px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#333' }}
+                        onMouseOver={(e) => e.target.style.background = '#f9f9f9'}
+                        onMouseOut={(e) => e.target.style.background = 'none'}
+                      >
+                        Editar nombre
+                      </button>
+                      <button 
+                        onClick={eliminarZona} 
+                        style={{ padding: '10px 15px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#e63946' }}
+                        onMouseOver={(e) => e.target.style.background = '#fdf2f2'}
+                        onMouseOut={(e) => e.target.style.background = 'none'}
+                      >
+                        Eliminar zona
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
             
             <div className="dz-actions-group">

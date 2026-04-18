@@ -249,7 +249,8 @@
   margin-bottom: 8px;
 }
 
-.rz-input-group input {
+.rz-input-group input,
+.rz-input-group select {
   width: 100%;
   background-color: #d1d1d1;
   border: none;
