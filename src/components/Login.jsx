@@ -36,10 +36,10 @@ const handleLogin = async (e) => {
     setMensaje("");
 
     try {
-      const res = await axios.post("http://127.0.0.1:8000/api/login", { // O la ruta que tengas en api.php
-        email,
-        password,
-      });
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/login`, {
+    email: email,
+    password: password
+});
 
       // 👇 1. ATRAPAMOS EL NUEVO PAQUETE DEL BACKEND 👇
       const { token, user } = res.data;
