@@ -59,11 +59,10 @@ const ClientRegister = () => {
         navigate("/");
       }, 2000);
     } catch (error) {
-      console.log("Registration error:", error);
-      setMessage("Error: Please check your details or try another email.");
-    } finally {
-      setIsLoading(false);
-    }
+    // Esto hará que el error real de Laravel aparezca en un alert
+    console.error(error.response.data);
+    alert("Error del servidor: " + (error.response.data.error || error.response.data.message || "Error desconocido"));
+}
   };
 
   return (
