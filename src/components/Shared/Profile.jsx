@@ -15,6 +15,9 @@ const Profile = () => {
   const coverInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Nota: Dejé tus variables como first_name y last_name, pero recuerda que 
+  // en tu BD de Railway lo habíamos cambiado a 'name' general. ¡Cuidado con eso al guardar!
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -53,8 +56,8 @@ const Profile = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault(); 
     try {
-const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, {
-          id: `u_${user.id}`,
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, {
+        id: `u_${user.id}`,
         ...formData
       });
 
@@ -75,27 +78,51 @@ const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/upda
     }
   };
 
+  // --- AQUÍ ESTÁ LA MAGIA DE CLOUDINARY ---
   const handleFileUpload = async (event, type) => {
     const file = event.target.files[0];
     if (!file) return;
-    if (!user?.id) return alert("Error: React no tiene el ID.");
+    if (!user?.id) return alert("Error: La sesión no tiene el ID.");
+
+    // Validación rápida de tamaño (Máximo 2MB para no saturar)
+    if (file.size > 2 * 1024 * 1024) {
+      return alert("La imagen es muy pesada. Por favor elige una menor a 2MB.");
+    }
 
     const uploadData = new FormData();
-    uploadData.append('user_id', user.id);
-    uploadData.append(type, file);
+    // Laravel espera recibir el archivo bajo el nombre 'image' según nuestro controlador
+    uploadData.append('image', file); 
+    // Mandamos el 'type' por si luego queremos que Laravel separe fotos de perfil y portadas
+    uploadData.append('type', type); 
 
     try {
       setIsUploading(true);
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/update-photos`, uploadData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      
+      // Obtenemos el token de la sesión
+      const token = localStorage.getItem('token'); 
+
+      // Apuntamos a la ruta exacta que creamos en Laravel
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/upload-profile-picture`, uploadData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}` // Inyectamos el Token de seguridad
+        }
       });
+
+      // Laravel nos devuelve la URL directa de Cloudinary en res.data.url
+      const nuevaUrlNube = res.data.url;
+
+      // Actualizamos el estado global dinámicamente (sirve para perfil o portada)
       loginGlobal({
         ...user, 
-        profile_picture: res.data.profile_picture || user.profile_picture,
-        cover_picture: res.data.cover_picture || user.cover_picture
+        [type]: nuevaUrlNube
       });
+
+      alert(`¡${type === 'profile_picture' ? 'Foto de perfil' : 'Portada'} actualizada con éxito!`);
+
     } catch (error) {
-      console.error(error);
+      console.error("Error al subir a Cloudinary:", error);
+      alert("Error al subir la imagen. Revisa la consola.");
     } finally {
       setIsUploading(false);
     }
