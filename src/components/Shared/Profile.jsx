@@ -4,7 +4,7 @@ import { ArrowLeft, Camera, X } from 'lucide-react';
 import axios from 'axios';
 import Header from './Header'; 
 import { useAuth } from "../../context/AuthContext";
-import logo from "../../assets/logo3.png"; 
+import logo from "../../assets/Logo3.png"; 
 import "../../styles/Profile.css"; 
 
 const Profile = () => {
