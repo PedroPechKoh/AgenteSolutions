@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import logo from '../../assets/logo3.png'; 
+import logo from '../../assets/Logo3.png'; 
 import NotificationBell from '../Shared/NotificationBell'; 
 
 const Header = ({ rolTexto = "USUARIO" }) => {
