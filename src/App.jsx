@@ -56,6 +56,8 @@ import SOSView from "./components/VistaCliente/SOSView";
 import TableroScrum from "./components/VistaCliente/TableroScrum";
 import VistaDetallePropiedadCliente from "./components/VistaCliente/VistaDetallePropiedad";
 
+
+
 const token = localStorage.getItem("agente_token");
 if (token) {
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
