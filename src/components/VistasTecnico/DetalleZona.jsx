@@ -27,7 +27,7 @@ const DetalleZona = ({ zona, propertyCurp, alVolver }) => {
   const eliminarZona = async () => {
     if(window.confirm("¿Estás seguro de eliminar esta zona y todo su contenido?")) {
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/property-areas/${zona.id}`);
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${zona.id}`);
         alert("Zona eliminada con éxito.");
         alVolver(); 
       } catch (error) {
@@ -40,7 +40,7 @@ const DetalleZona = ({ zona, propertyCurp, alVolver }) => {
   const guardarEdicionZona = async () => {
     if(!nuevoNombreZona.trim()) return alert("El nombre no puede estar vacío");
     try {
-      await axios.put(`http://127.0.0.1:8000/api/property-areas/${zona.id}`, { name: nuevoNombreZona });
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${zona.id}`, { name: nuevoNombreZona });
       zona.name = nuevoNombreZona.toUpperCase(); // Actualización optimista local
       setEditandoZonaNombre(false);
       setMostrarOpcionesZona(false);
@@ -58,7 +58,7 @@ const DetalleZona = ({ zona, propertyCurp, alVolver }) => {
   const fetchHabitaciones = async () => {
     try {
       // Llamamos a la nueva ruta que trae áreas hijas
-      const res = await axios.get(`http://127.0.0.1:8000/api/areas/${zona.id}/subareas`);
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${zona.id}/subareas`);
       setHabitaciones(res.data);
     } catch (error) {
       console.error("Error al cargar habitaciones:", error);
@@ -73,7 +73,7 @@ const DetalleZona = ({ zona, propertyCurp, alVolver }) => {
     setGuardando(true);
     try {
       // Guardamos en property_areas apuntando al parent_id
-      await axios.post('http://127.0.0.1:8000/api/property-areas', {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, {
         property_id: zona.property_id,
         parent_id: zona.id, // Esto la convierte en sub-habitación
         name: nuevaHabitacion

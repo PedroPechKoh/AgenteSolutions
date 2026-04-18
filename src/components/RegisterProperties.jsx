@@ -164,7 +164,7 @@ const RegisterProperties = () => {
       const token = localStorage.getItem('token'); 
       
       const res = await axios.post(
-        "http://127.0.0.1:8000/api/registro-propiedad", 
+        `${import.meta.env.VITE_API_BASE_URL}/registro-propiedad`, 
         dataToSend,
       );
       

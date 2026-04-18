@@ -40,7 +40,7 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
 
   const fetchCategorias = async () => {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/api/areas/${habitacion.id}/categories`);
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${habitacion.id}/categories`);
       setCategorias(res.data);
     } catch (error) {
       console.error("Error al cargar categorías:", error);
@@ -53,7 +53,7 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
     if (!nuevaCategoria) return alert("Ingresa el nombre de la categoría.");
     setGuardando(true);
     try {
-      await axios.post('http://127.0.0.1:8000/api/property-categories', {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-categories`, {
         property_area_id: habitacion.id,
         name: nuevaCategoria
       });
@@ -88,7 +88,7 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
     }
 
     try {
-      await axios.post(`http://127.0.0.1:8000/api/property-areas/${habitacion.id}`, formData, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${habitacion.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       alert("Zona actualizada correctamente");

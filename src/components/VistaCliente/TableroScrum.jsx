@@ -44,7 +44,7 @@ const TableroScrum = () => {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/propiedades/${id}/work-orders`);
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/work-orders`);
       setTareasData(transformarTareas(response.data));
     } catch (error) {
       console.error("Error cargando órdenes:", error);
@@ -72,7 +72,7 @@ const TableroScrum = () => {
   const cambiarEstadoTarea = async (nuevoEstadoLaravel) => {
     setProcesandoAccion(true);
     try {
-      await axios.put(`http://127.0.0.1:8000/api/work-orders/${tareaSeleccionada.dbId}/status`, {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/status`, {
         status: nuevoEstadoLaravel
       });
       await fetchOrders(); // Recarga los datos

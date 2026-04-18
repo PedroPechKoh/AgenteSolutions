@@ -56,10 +56,10 @@ const VistaLevantamientos = () => {
     const cargarDatos = async () => {
       try {
         // Solo cargamos los técnicos si NO es cliente (para ahorrar datos)
-        const peticiones = [axios.get("http://127.0.0.1:8000/api/servicios")];
+        const peticiones = [axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios`)];
         if (!isClient) {
           peticiones.push(
-            axios.get("http://127.0.0.1:8000/api/usuarios/tecnicos"),
+            axios.get(`${import.meta.env.VITE_API_BASE_URL}/usuarios/tecnicos`),
           );
         }
 
@@ -105,7 +105,7 @@ const VistaLevantamientos = () => {
       };
 
       const respuesta = await axios.put(
-        `http://127.0.0.1:8000/api/servicios/${servicioSeleccionado.id}/asignar`,
+        `${import.meta.env.VITE_API_BASE_URL}/servicios/${servicioSeleccionado.id}/asignar`,
         payload,
       );
 
@@ -113,7 +113,7 @@ const VistaLevantamientos = () => {
         alert("¡Visita técnica programada con éxito!");
         setMostrarAsignar(false);
 
-        const { data } = await axios.get("http://127.0.0.1:8000/api/servicios");
+        const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios`);
         setServicios(data);
       }
     } catch (error) {
@@ -136,13 +136,13 @@ const VistaLevantamientos = () => {
     try {
       // Aquí llamaremos a Laravel para cambiar el estatus a "Confirmado"
       const respuesta = await axios.put(
-        `http://127.0.0.1:8000/api/servicios/${servicioSeleccionado.id}/confirmar-cliente`,
+        `${import.meta.env.VITE_API_BASE_URL}/servicios/${servicioSeleccionado.id}/confirmar-cliente`,
       );
       if (respuesta.data.success) {
         alert("¡Cita confirmada! El técnico ha sido notificado.");
         setModalClientePaso(0);
         // Recargar tabla
-        const { data } = await axios.get("http://127.0.0.1:8000/api/servicios");
+        const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios`);
         setServicios(data);
       }
     } catch (error) {
@@ -159,14 +159,14 @@ const VistaLevantamientos = () => {
         motivo: motivoReprogramar,
       };
       const respuesta = await axios.put(
-        `http://127.0.0.1:8000/api/servicios/${servicioSeleccionado.id}/solicitar-reprogramacion`,
+        `${import.meta.env.VITE_API_BASE_URL}/servicios/${servicioSeleccionado.id}/solicitar-reprogramacion`,
         payload,
       );
 
       if (respuesta.data.success) {
         alert("Solicitud enviada. El administrador revisará tu nueva fecha.");
         setModalClientePaso(0);
-        const { data } = await axios.get("http://127.0.0.1:8000/api/servicios");
+        const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios`);
         setServicios(data);
       }
     } catch (error) {

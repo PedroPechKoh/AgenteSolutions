@@ -32,7 +32,7 @@ const DetalleReporte = () => {
   useEffect(() => {
     const cargarReporte = async () => {
       try {
-        const respuesta = await axios.get(`http://127.0.0.1:8000/api/servicios/${id}`);
+        const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
         setDatosBD(respuesta.data);
       } catch (error) {
         console.error("Error al cargar el reporte:", error);
@@ -81,7 +81,7 @@ const DetalleReporte = () => {
         data.append('file', archivoFisico);
       }
 
-      await axios.post('http://127.0.0.1:8000/api/cotizaciones', data, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 

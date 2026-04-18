@@ -17,7 +17,7 @@ const VistaCotizaciones = () => {
 
   const cargarCotizaciones = async () => {
     try {
-      const respuesta = await axios.get('http://127.0.0.1:8000/api/cotizaciones');
+      const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
       setCotizaciones(respuesta.data);
     } catch (error) {
       console.error("Error al cargar cotizaciones:", error);

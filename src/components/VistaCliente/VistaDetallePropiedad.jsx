@@ -39,7 +39,7 @@ const VistaDetallePropiedad = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/propiedades/${id}/dashboard`);
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`);
         setData(response.data);
       } catch (error) {
         console.error("Error cargando el dashboard:", error);

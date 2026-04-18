@@ -43,7 +43,7 @@ const VistaDetalleCliente = () => {
     const obtenerPropiedadesDelCliente = async () => {
       try {
         const { data } = await axios.get(
-          `http://127.0.0.1:8000/api/propiedades`
+          `${import.meta.env.VITE_API_BASE_URL}/propiedades`
         );
 
         const idBuscado =
@@ -87,7 +87,7 @@ const VistaDetalleCliente = () => {
         payload.password = formData.password;
       }
 
-      const { data } = await axios.post(`http://127.0.0.1:8000/api/usuarios/update-profile`, payload);
+      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, payload);
 
       setCliente({ ...cliente, ...formData });
       setIsModalOpen(false);

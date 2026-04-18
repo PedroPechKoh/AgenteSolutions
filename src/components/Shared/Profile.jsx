@@ -53,7 +53,7 @@ const Profile = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault(); 
     try {
-const res = await axios.post('http://127.0.0.1:8000/api/usuarios/update-profile', {
+const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, {
           id: `u_${user.id}`,
         ...formData
       });
@@ -86,7 +86,7 @@ const res = await axios.post('http://127.0.0.1:8000/api/usuarios/update-profile'
 
     try {
       setIsUploading(true);
-      const res = await axios.post('http://127.0.0.1:8000/api/update-photos', uploadData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/update-photos`, uploadData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       loginGlobal({

@@ -34,7 +34,7 @@ const RegistroZonas = () => {
 
   const fetchZonas = async () => {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/api/properties/${propertyId}/areas`);
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${propertyId}/areas`);
       setZonas(res.data);
     } catch (error) {
       console.error("Error al cargar zonas:", error);
@@ -66,7 +66,7 @@ const RegistroZonas = () => {
     }
 
     try {
-      await axios.post('http://127.0.0.1:8000/api/property-areas', formData, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

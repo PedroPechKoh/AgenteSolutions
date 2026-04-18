@@ -34,7 +34,7 @@ const TrabajosAsignados = () => {
   const fetchServicios = async () => {
     try {
       const res = await axios.get(
-        `http://127.0.0.1:8000/api/tecnico/${user.id}/servicios`,
+        `${import.meta.env.VITE_API_BASE_URL}/tecnico/${user.id}/servicios`,
       );
       setServicios(res.data);
     } catch (error) {

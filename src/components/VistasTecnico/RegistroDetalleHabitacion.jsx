@@ -33,7 +33,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
 
   const fetchComponentes = async () => {
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/api/areas/${habitacion.id}/components`);
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${habitacion.id}/components`);
       const filtrados = res.data.filter(comp => comp.category === categoriaActiva?.name);
       setComponentes(filtrados);
     } catch (error) {
@@ -128,8 +128,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
     }
 
     const url = modoEdicion 
-      ? `http://127.0.0.1:8000/api/property-components/${idEditando}` 
-      : 'http://127.0.0.1:8000/api/property-components';
+      ? `${import.meta.env.VITE_API_BASE_URL}/property-components/${idEditando}` 
+      : `${import.meta.env.VITE_API_BASE_URL}/property-components`;
 
     try {
       await axios.post(url, formData, {
@@ -148,7 +148,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
   const eliminarComponente = async (id) => {
     if(window.confirm("¿Seguro que deseas eliminar este elemento?")) {
       try {
-        await axios.delete(`http://127.0.0.1:8000/api/property-components/${id}`);
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-components/${id}`);
         fetchComponentes();
       } catch (error) {
         alert("Error al eliminar");

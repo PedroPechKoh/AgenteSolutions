@@ -18,7 +18,7 @@ const ProductoDetalleView = ({ producto, onBack }) => {
     const fetchDetalles = async () => {
       try {
         setCargando(true);
-        const url = `http://127.0.0.1:8000/api/catalog/details?brand=${encodeURIComponent(producto.brand)}&model=${encodeURIComponent(producto.product_model)}`;
+        const url = `${import.meta.env.VITE_API_BASE_URL}/catalog/details?brand=${encodeURIComponent(producto.brand)}&model=${encodeURIComponent(producto.product_model)}`;
         const respuesta = await axios.get(url);
         
         setDetalleProducto(respuesta.data);

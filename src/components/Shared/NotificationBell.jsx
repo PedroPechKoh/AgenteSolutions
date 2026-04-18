@@ -15,7 +15,7 @@ const NotificationBell = () => {
   const fetchNotifications = async () => {
     try {
       const { data } = await axios.get(
-        "http://127.0.0.1:8000/api/notifications/unread",
+        `${import.meta.env.VITE_API_BASE_URL}/notifications/unread`,
       );
       if (data.success) {
         setNotifications(data.notifications);
@@ -44,7 +44,7 @@ const NotificationBell = () => {
   const handleNotificationClick = async (notification) => {
     try {
       await axios.put(
-        `http://127.0.0.1:8000/api/notifications/${notification.id}/read`,
+        `${import.meta.env.VITE_API_BASE_URL}/notifications/${notification.id}/read`,
       );
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       setIsOpen(false);

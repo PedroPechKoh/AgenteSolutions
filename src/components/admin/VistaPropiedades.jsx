@@ -29,7 +29,7 @@ const VistaPropiedades = () => {
     const obtenerPropiedades = async () => {
       try {
         const { data } = await axios.get(
-          "http://127.0.0.1:8000/api/propiedades",
+          `${import.meta.env.VITE_API_BASE_URL}/propiedades`,
         );
         setListaPropiedades(data);
       } catch (error) {
@@ -44,7 +44,7 @@ const VistaPropiedades = () => {
   const eliminarPropiedad = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar esta propiedad?")) return;
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/propiedades/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`);
       setListaPropiedades((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
       alert("Error al eliminar la propiedad.");
@@ -75,7 +75,7 @@ const VistaPropiedades = () => {
       };
 
       const respuesta = await axios.post(
-        "http://127.0.0.1:8000/api/servicios",
+        `${import.meta.env.VITE_API_BASE_URL}/servicios`,
         payload,
       );
 
