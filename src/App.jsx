@@ -56,7 +56,8 @@ import SOSView from "./components/VistaCliente/SOSView";
 import TableroScrum from "./components/VistaCliente/TableroScrum";
 import VistaDetallePropiedadCliente from "./components/VistaCliente/VistaDetallePropiedad";
 
-
+// Le decimos a Laravel que siempre queremos JSON de regreso (Evita el error 'Route [login] not defined')
+axios.defaults.headers.common["Accept"] = "application/json";
 
 const token = localStorage.getItem("agente_token");
 if (token) {
