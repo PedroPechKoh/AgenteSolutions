@@ -42,19 +42,17 @@ const ClientRegister = () => {
     setIsLoading(true);
 
     try {
-      const fullName = `${firstName.trim()} ${lastName.trim()}`;
+ const fullName = `${firstName.trim()} ${lastName.trim()}`;
 
       const res = await axios.post(
-        "http://127.0.0.1:8000/api/public-client-register",
+        `${import.meta.env.VITE_API_BASE_URL}/public-client-register`,
         {
-          first_name: firstName,
-          last_name: lastName,
+          name: fullName, 
           email,
           phone,
           password,
         },
       );
-
       setMessage("Registration successful! Redirecting to Login...");
 
       setTimeout(() => {
