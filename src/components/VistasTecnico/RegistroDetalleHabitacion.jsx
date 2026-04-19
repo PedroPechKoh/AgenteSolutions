@@ -33,7 +33,11 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
 
   const fetchComponentes = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${habitacion.id}/components`);
+      // ✅ INYECTAR TOKEN
+      const token = localStorage.getItem('agente_token');
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${habitacion.id}/components`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       const filtrados = res.data.filter(comp => comp.category === categoriaActiva?.name);
       setComponentes(filtrados);
     } catch (error) {
@@ -71,9 +75,9 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
       observations: item.observations || ''
     });
 
-    // Si ya tenía imagen en la BD, se la mostramos
+    // ✅ CORRECCIÓN: Leemos la ruta directa si existe
     if (item.image_path) {
-      setPreviewImg(`http://127.0.0.1:8000/storage/${item.image_path}`);
+      setPreviewImg(item.image_path); 
     } else {
       setPreviewImg(null);
     }
@@ -132,8 +136,13 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
       : `${import.meta.env.VITE_API_BASE_URL}/property-components`;
 
     try {
+      // ✅ INYECTAR TOKEN JUNTO CON EL FORMDATA
+      const token = localStorage.getItem('agente_token');
       await axios.post(url, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}` 
+        }
       });
       
       setIsModalOpen(false);
@@ -145,10 +154,15 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
       setGuardando(false);
     }
   };
+  
   const eliminarComponente = async (id) => {
     if(window.confirm("¿Seguro que deseas eliminar este elemento?")) {
       try {
-        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-components/${id}`);
+        // ✅ INYECTAR TOKEN AL ELIMINAR
+        const token = localStorage.getItem('agente_token');
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-components/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         fetchComponentes();
       } catch (error) {
         alert("Error al eliminar");
@@ -156,9 +170,10 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
     }
   };
 
+  // ✅ CORRECCIÓN: Armar el array de fotos usando las URLs limpias
   const fotosItem = itemDetalle ? [
-    ...(itemDetalle.image_path ? [`http://127.0.0.1:8000/storage/${itemDetalle.image_path}`] : []),
-    ...(itemDetalle.galleries ? itemDetalle.galleries.map(g => `http://127.0.0.1:8000/storage/${g.image_path}`) : [])
+    ...(itemDetalle.image_path ? [itemDetalle.image_path] : []),
+    ...(itemDetalle.galleries ? itemDetalle.galleries.map(g => g.image_path) : [])
   ] : [];
 
   return (
@@ -282,9 +297,9 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                     {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', width: '100%', height: '100%', justifyContent: 'center', alignContent: 'center' }}>
                         
-                        {/* Mostrar fotos de la BD */}
+                        {/* ✅ CORRECCIÓN: Mostrar fotos limpias de la BD */}
                         {galeriaExistente.map((foto, i) => (
-                           <img key={`ex-${i}`} src={`http://127.0.0.1:8000/storage/${foto.image_path}`} alt={`galeria-bd-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
+                           <img key={`ex-${i}`} src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
                         ))}
 
                         {/* Mostrar fotos recién seleccionadas */}
