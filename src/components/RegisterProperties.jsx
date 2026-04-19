@@ -161,11 +161,19 @@ const RegisterProperties = () => {
     }
 
     try {
-      const token = localStorage.getItem('token'); 
+      // ✅ LEYENDO EL TOKEN CORRECTO
+      const token = localStorage.getItem('agente_token'); 
       
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/registro-propiedad`, 
         dataToSend,
+        {
+          // ✅ INYECTANDO LOS HEADERS NECESARIOS PARA SANCTUM Y ARCHIVOS
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}` 
+          }
+        }
       );
       
       setMensaje(`¡Éxito! CURP Generado: ${res.data.property.custom_curp}`);
