@@ -16,8 +16,6 @@ const Profile = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Nota: Dejé tus variables como first_name y last_name, pero recuerda que 
-  // en tu BD de Railway lo habíamos cambiado a 'name' general. ¡Cuidado con eso al guardar!
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -31,6 +29,7 @@ const Profile = () => {
       case 0: return 'Usuario Root';
       case 1: return 'Administrador';
       case 2: return 'Técnico';
+      case 3: return 'Cliente';
       default: return 'Usuario';
     }
   };
@@ -78,41 +77,38 @@ const Profile = () => {
     }
   };
 
-  // --- AQUÍ ESTÁ LA MAGIA DE CLOUDINARY ---
+  // --- MAGIA DE CLOUDINARY (VERSIÓN FINAL) ---
   const handleFileUpload = async (event, type) => {
     const file = event.target.files[0];
     if (!file) return;
     if (!user?.id) return alert("Error: La sesión no tiene el ID.");
 
-    // Validación rápida de tamaño (Máximo 2MB para no saturar)
-    if (file.size > 2 * 1024 * 1024) {
-      return alert("La imagen es muy pesada. Por favor elige una menor a 2MB.");
+    // Límite ajustado a 10MB (Límite del plan gratuito de Cloudinary)
+    if (file.size > 10 * 1024 * 1024) {
+      return alert("La imagen es muy pesada. Por favor elige una menor a 10MB.");
     }
 
     const uploadData = new FormData();
-    // Laravel espera recibir el archivo bajo el nombre 'image' según nuestro controlador
     uploadData.append('image', file); 
-    // Mandamos el 'type' por si luego queremos que Laravel separe fotos de perfil y portadas
     uploadData.append('type', type); 
 
     try {
       setIsUploading(true);
       
-      // Obtenemos el token de la sesión
-      const token = localStorage.getItem('token'); 
+      // Leemos exactamente tu token personalizado de Railway
+      const token = localStorage.getItem('agente_token'); 
 
-      // Apuntamos a la ruta exacta que creamos en Laravel
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/upload-profile-picture`, uploadData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` // Inyectamos el Token de seguridad
+          'Authorization': `Bearer ${token}` 
         }
       });
 
-      // Laravel nos devuelve la URL directa de Cloudinary en res.data.url
+      // Extraemos la URL de la nube
       const nuevaUrlNube = res.data.url;
 
-      // Actualizamos el estado global dinámicamente (sirve para perfil o portada)
+      // Actualizamos el estado global para que el cambio sea instantáneo en pantalla
       loginGlobal({
         ...user, 
         [type]: nuevaUrlNube
@@ -128,7 +124,7 @@ const Profile = () => {
     }
   };
 
-  const nombreCompleto = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Cargando nombre...';
+  const nombreCompleto = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || user?.name || 'Cargando nombre...';
 
   return (
     <div className="main-container">
@@ -158,7 +154,7 @@ const Profile = () => {
                       <img src={user.profile_picture} alt="Avatar" className="profile-avatar" />
                     ) : (
                       <div className="profile-avatar-placeholder">
-                        {user?.first_name ? user.first_name.charAt(0).toUpperCase() : '👤'}
+                        {user?.first_name ? user.first_name.charAt(0).toUpperCase() : (user?.name ? user.name.charAt(0).toUpperCase() : '👤')}
                       </div>
                     )}
                     <div className="avatar-hover-overlay"><Camera size={40} color="white" /></div>
@@ -193,51 +189,51 @@ const Profile = () => {
       </div>
 
      {isModalOpen && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>
-        &times;
-      </button>
-      
-      <h3 className="modal-title">Editar Perfil</h3>
-      
-      <form onSubmit={handleSaveProfile} className="edit-profile-form">
-        <div className="form-row">
-          <div className="form-group">
-            <label>Nombre(s)</label>
-            <input type="text" required value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
-          </div>
-          <div className="form-group">
-            <label>Apellidos</label>
-            <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
-          </div>
-        </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>Teléfono Celular</label>
-            <input type="tel" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} />
-          </div>
-          <div className="form-group">
-            <label>Fecha de Nacimiento</label>
-            <input type="date" value={formData.birth_date} onChange={(e) => setFormData({...formData, birth_date: e.target.value})} />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Correo Electrónico</label>
-          <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
-        </div>
-
-        <div className="modal-actions">
-          <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>
+            &times;
+          </button>
           
-          <button type="submit" className="btn-save">Guardar Cambios</button>
+          <h3 className="modal-title">Editar Perfil</h3>
+          
+          <form onSubmit={handleSaveProfile} className="edit-profile-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Nombre(s)</label>
+                <input type="text" required value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label>Apellidos</label>
+                <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Teléfono Celular</label>
+                <input type="tel" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label>Fecha de Nacimiento</label>
+                <input type="date" value={formData.birth_date} onChange={(e) => setFormData({...formData, birth_date: e.target.value})} />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Correo Electrónico</label>
+              <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+            </div>
+
+            <div className="modal-actions">
+              <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+              
+              <button type="submit" className="btn-save">Guardar Cambios</button>
+            </div>
+          </form>
         </div>
-      </form>
-    </div>
-  </div>
-)}
+      </div>
+      )}
 
     </div>
   );
