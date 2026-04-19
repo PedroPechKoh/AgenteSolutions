@@ -34,7 +34,13 @@ const RegistroZonas = () => {
 
   const fetchZonas = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${propertyId}/areas`);
+      // ✅ INYECTAMOS EL TOKEN PARA LEER LAS ZONAS
+      const token = localStorage.getItem('agente_token');
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${propertyId}/areas`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setZonas(res.data);
     } catch (error) {
       console.error("Error al cargar zonas:", error);
@@ -66,9 +72,12 @@ const RegistroZonas = () => {
     }
 
     try {
+      // ✅ INYECTAMOS EL TOKEN PARA GUARDAR LA ZONA Y LA IMAGEN
+      const token = localStorage.getItem('agente_token');
       await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}` 
         }
       });
       
@@ -122,9 +131,10 @@ const RegistroZonas = () => {
           {zonas.length > 0 ? zonas.map((zona) => (
             <div key={zona.id} className="rz-card-dark">
               <div className="rz-image-holder">
+                {/* ✅ CORRECCIÓN: Renderizar directo la URL de Cloudinary */}
                 <img 
                   src={zona.image_path 
-                    ? `http://127.0.0.1:8000/storage/${zona.image_path}` 
+                    ? zona.image_path 
                     : "https://images.homify.com/v1452164048/p/photo/image/1227856/3.jpg"
                   } 
                   alt={zona.name} 
