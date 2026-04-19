@@ -131,6 +131,7 @@
 .actions-btns {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 10px;
 }
 
@@ -181,4 +182,62 @@
 
 .table-scroll-container::-webkit-scrollbar-track {
     background: #f1f1f1;
+}
+
+/* --- ESTILOS RESPONSIVOS PARA MOVILES --- */
+@media (max-width: 768px) {
+    .lev-header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 20px !important;
+    }
+    
+    .lev-header .lev-btn-add {
+        width: 100%;
+        text-align: center;
+    }
+
+    .search-box {
+        width: 90%;
+    }
+
+    .categories-row {
+        flex-wrap: wrap;
+        width: 95%;
+        margin: 0 auto 25px auto;
+    }
+
+    .cat-btn {
+        flex: 1 1 calc(50% - 15px);
+        justify-content: center;
+        text-align: center;
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+
+    .table-scroll-container {
+        width: 95%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; 
+    }
+
+    .custom-table {
+        min-width: 800px; /* Fuerza scroll horizontal, evita que se aplaste */
+    }
+
+    .custom-table th, .custom-table td {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    .actions-btns {
+        flex-direction: row; 
+        flex-wrap: wrap;
+    }
+
+    .back-arrow-btn {
+        left: 20px;
+        bottom: 20px;
+        font-size: 3rem;
+    }
 }

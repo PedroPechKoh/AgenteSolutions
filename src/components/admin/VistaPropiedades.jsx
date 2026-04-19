@@ -187,15 +187,7 @@ const VistaPropiedades = () => {
                     </td>
                     <td>{p.direccion || "Sin dirección registrada"}</td>
                     <td>{p.fecha || "S/N"}</td>
-                    <td
-                      className="actions-btns"
-                      style={{
-                        display: "flex",
-                        gap: "5px",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
+                    <td className="actions-btns">
                       <button
                         style={{
                           backgroundColor: "#2196F3",
