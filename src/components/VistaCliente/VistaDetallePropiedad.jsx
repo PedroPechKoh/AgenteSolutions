@@ -80,10 +80,10 @@ const VistaDetallePropiedad = () => {
 
           <div className="hero-section-compact">
             <img 
-  src={propiedad.facade_photo_path ? propiedad.facade_photo_path : 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
-  alt="Propiedad" 
-  className="hero-img" 
-/>
+              src={propiedad.facade_photo_path ? propiedad.facade_photo_path : 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
+              alt="Fachada Propiedad" 
+              className="hero-img" 
+            />
           </div>
 
           <div className="info-card-premium historial-section">
