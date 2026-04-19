@@ -8,7 +8,6 @@ import RegistroDetalleHabitacion from './RegistroDetalleHabitacion';
 import Header from '../Shared/Header';
 
 const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
-// ... existing states ...
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,13 +33,20 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
     if (habitacion?.id) {
       fetchCategorias();
       setDescription(habitacion.description || '');
-      setPreviewImg(habitacion.image_path ? `http://127.0.0.1:8000/storage/${habitacion.image_path}` : null);
+      // ✅ CORRECCIÓN: Leemos la URL directa de Cloudinary
+      setPreviewImg(habitacion.image_path ? habitacion.image_path : null);
     }
   }, [habitacion]);
 
   const fetchCategorias = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${habitacion.id}/categories`);
+      // ✅ INYECTAMOS EL TOKEN
+      const token = localStorage.getItem('agente_token');
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${habitacion.id}/categories`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setCategorias(res.data);
     } catch (error) {
       console.error("Error al cargar categorías:", error);
@@ -53,9 +59,15 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
     if (!nuevaCategoria) return alert("Ingresa el nombre de la categoría.");
     setGuardando(true);
     try {
+      // ✅ INYECTAMOS EL TOKEN
+      const token = localStorage.getItem('agente_token');
       await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-categories`, {
         property_area_id: habitacion.id,
         name: nuevaCategoria
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       setIsModalOpen(false);
       setNuevaCategoria('');
@@ -88,8 +100,13 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
     }
 
     try {
+      // ✅ INYECTAMOS EL TOKEN Y MULTIPART
+      const token = localStorage.getItem('agente_token');
       await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${habitacion.id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
       });
       alert("Zona actualizada correctamente");
       alVolver(); // Volvemos después de guardar
