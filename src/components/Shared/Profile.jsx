@@ -11,10 +11,26 @@ const Profile = () => {
   const { user, loginGlobal } = useAuth();
   const navigate = useNavigate();
 
-  const profileInputRef = useRef(null);
-  const coverInputRef = useRef(null);
+  const cameraRef = useRef(null);
+  const galleryRef = useRef(null);
+  const uploadTargetRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
+
+  const openPhotoMenu = (type) => {
+    uploadTargetRef.current = type;
+    setIsPhotoMenuOpen(true);
+  };
+
+  const selectPhotoSource = (source) => {
+    if (source === 'camera') {
+      cameraRef.current.click();
+    } else {
+      galleryRef.current.click();
+    }
+    setIsPhotoMenuOpen(false);
+  };
   
   const [formData, setFormData] = useState({
     first_name: '',
@@ -139,17 +155,16 @@ const Profile = () => {
             </button>
             <div className="banner-logo-wrapper"><img src={logo} alt="Agente Solutions" className="banner-logo" /></div>
             
-            <button className="btn-edit-cover" onClick={() => coverInputRef.current.click()} disabled={isUploading}>
+            <button className="btn-edit-cover" onClick={() => openPhotoMenu('cover_picture')} disabled={isUploading}>
                <Camera size={20} /> {isUploading ? 'Subiendo...' : 'Cambiar Portada'}
             </button>
-            <input type="file" ref={coverInputRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'cover_picture')} accept="image/*" />
           </div>
 
           <div className="profile-content">
             <div className="profile-header-info">
               <div className="profile-header-left">
                 <div className="avatar-section">
-                  <div className="avatar-wrapper" onClick={() => profileInputRef.current.click()}>
+                  <div className="avatar-wrapper" onClick={() => openPhotoMenu('profile_picture')}>
                     {user?.profile_picture ? (
                       <img src={user.profile_picture} alt="Avatar" className="profile-avatar" />
                     ) : (
@@ -159,7 +174,8 @@ const Profile = () => {
                     )}
                     <div className="avatar-hover-overlay"><Camera size={40} color="white" /></div>
                   </div>
-                  <input type="file" ref={profileInputRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'profile_picture')} accept="image/*" />
+                  <input type="file" ref={cameraRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, uploadTargetRef.current)} accept="image/*" capture="environment" />
+                  <input type="file" ref={galleryRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, uploadTargetRef.current)} accept="image/*" />
                 </div>
                 
                 <div className="user-info-section">
@@ -187,6 +203,25 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+     {isPhotoMenuOpen && (
+      <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
+        <div className="modal-content photo-menu-content" onClick={e => e.stopPropagation()}>
+          <h3 className="modal-title" style={{ color: '#ff6600', borderBottom: '2px solid #EEEEEE' }}>Actualizar Foto</h3>
+          <div className="photo-menu-actions">
+            <button className="btn-menu-action" onClick={() => selectPhotoSource('camera')}>
+              📷 Tomar Foto
+            </button>
+            <button className="btn-menu-action" onClick={() => selectPhotoSource('gallery')}>
+              🖼️ Elegir de la Galería
+            </button>
+            <button className="btn-menu-action btn-menu-cancel" onClick={() => setIsPhotoMenuOpen(false)}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+      )}
 
      {isModalOpen && (
       <div className="modal-overlay">

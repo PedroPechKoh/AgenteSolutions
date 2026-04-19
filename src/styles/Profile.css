@@ -540,3 +540,57 @@ html, body {
 .gm-ui-hover-effect span {
     background-color: #333333 !important; 
 }
+
+/* =========================================
+   ESTILOS MENU FOTOS (TOMAR O GALERIA)
+   ========================================= */
+.photo-menu-content {
+  text-align: center;
+  max-width: 400px;
+  padding: 20px 30px;
+}
+
+.photo-menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.btn-menu-action {
+  background-color: #ffffff;
+  border: 2px solid #e0e0e0;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-menu-action:hover {
+  border-color: #ff6600;
+  color: #ff6600;
+  background-color: #fffaf5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 102, 0, 0.1);
+}
+
+.btn-menu-cancel {
+  border: none;
+  background-color: transparent;
+  color: #888;
+  margin-top: 10px;
+}
+
+.btn-menu-cancel:hover {
+  background-color: transparent;
+  color: #ee0d0d;
+  box-shadow: none;
+  border-color: transparent;
+}
