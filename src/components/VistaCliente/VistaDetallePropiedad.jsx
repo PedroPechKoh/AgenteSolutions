@@ -79,9 +79,10 @@ const VistaDetallePropiedad = () => {
           </div>
 
           <div className="hero-section-compact">
+            {/* ✅ CORRECCIÓN CLAVE: Usamos la URL de Cloudinary directamente, sin 'http://127.0.0.1...' */}
             <img 
               src={propiedad.facade_photo_path ? propiedad.facade_photo_path : 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
-              alt="Fachada Propiedad" 
+              alt="Propiedad" 
               className="hero-img" 
             />
           </div>
