@@ -79,12 +79,11 @@ const VistaDetallePropiedad = () => {
           </div>
 
           <div className="hero-section-compact">
-            {/* Usando el nombre de campo correcto de Laravel: facade_photo_path */}
             <img 
-              src={propiedad.facade_photo_path ? `http://127.0.0.1:8000/storage/${propiedad.facade_photo_path}` : 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
-              alt="Propiedad" 
-              className="hero-img" 
-            />
+  src={propiedad.facade_photo_path ? propiedad.facade_photo_path : 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
+  alt="Propiedad" 
+  className="hero-img" 
+/>
           </div>
 
           <div className="info-card-premium historial-section">
