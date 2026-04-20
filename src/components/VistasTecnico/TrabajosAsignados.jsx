@@ -212,7 +212,7 @@ const TrabajosAsignados = () => {
                       <td>
                         <button
                           className="btn-action view"
-                          onClick={() => verDetalle(s)}
+                          onClick={() => navigate(`/detalle-reporte/${s.id}`)}
                         >
                           <Eye size={18} />
                           <span>Ver detalles</span>
