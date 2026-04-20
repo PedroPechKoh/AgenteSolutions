@@ -167,42 +167,48 @@ const DetalleReporte = () => {
 
         <section className="reporte-flujo">
           {datosBD.secciones && datosBD.secciones.length > 0 ? (
-            datosBD.secciones.map((sec, idx) => (
-              <div key={idx} className="seccion-bloque">
+            datosBD.secciones.filter(sec => sec.subSecciones.length > 0 || sec.descripcion).map((sec, idx) => (
+              <div key={`sec-${idx}`} className="seccion-bloque">
                 <div className="seccion-header">
                   <h3>{sec.titulo}</h3>
-                  <p className="sec-desc">{sec.descripcion}</p>
+                  {sec.descripcion && <p className="sec-desc">{sec.descripcion}</p>}
                 </div>
 
-                {sec.subSecciones.map((sub, sIdx) => (
-                  <div key={sIdx} className="subseccion-caja">
-                    <div className="sub-titulo">
-                      <h4>{sub.nombre}</h4>
-                      <span className="nota-tecnica">Nota: {sub.nota}</span>
-                    </div>
+                {sec.subSecciones && sec.subSecciones.length > 0 ? (
+                  sec.subSecciones.map((sub, sIdx) => (
+                    <div key={`sub-${idx}-${sIdx}`} className="subseccion-caja">
+                      <div className="sub-titulo">
+                        <h4>{sub.nombre}</h4>
+                        <span className="nota-tecnica">Nota: {sub.nota}</span>
+                      </div>
 
-                    <table className="tabla-inventario">
-                      <thead>
-                        <tr>
-                          <th>Categoría</th>
-                          <th>Marca</th>
-                          <th>Modelo</th>
-                          <th className="txt-center">Cant.</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {sub.inventario.map((inv, iIdx) => (
-                          <tr key={iIdx}>
-                            <td className="bold">{inv.categoria}</td>
-                            <td>{inv.marca || '-'}</td>
-                            <td>{inv.modelo || '-'}</td>
-                            <td className="col-cant">{inv.cantidad}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ))}
+                      <div className="table-responsive">
+                        <table className="tabla-inventario">
+                          <thead>
+                            <tr>
+                              <th>Categoría</th>
+                              <th>Marca</th>
+                              <th>Modelo</th>
+                              <th className="txt-center">Cant.</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sub.inventario.map((inv, iIdx) => (
+                              <tr key={`inv-${idx}-${sIdx}-${iIdx}`}>
+                                <td className="bold">{inv.categoria}</td>
+                                <td>{inv.marca || '-'}</td>
+                                <td>{inv.modelo || '-'}</td>
+                                <td className="col-cant">{inv.cantidad}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="no-activos-msg">No se registraron activos/ítems en esta área.</p>
+                )}
               </div>
             ))
           ) : (
