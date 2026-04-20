@@ -65,13 +65,13 @@ const TrabajosAsignados = () => {
     const idValido = propiedad.property_id || propiedad.id;
 
     navigate(`/RegistroZonas/${curpValido}`, { 
-      state: { id: idValido } 
+      state: { id: idValido, servicioId: propiedad.id } 
     });
   };
 
   // Filtros por estatus
-  const pendientes = servicios.filter((s) => s.status !== "completed");
-  const finalizados = servicios.filter((s) => s.status === "completed");
+  const pendientes = servicios.filter((s) => s.status !== "completed" && s.status !== "Finalizado");
+  const finalizados = servicios.filter((s) => s.status === "completed" || s.status === "Finalizado");
 
   const handleRegresar = () => {
     if (window.history.state && window.history.state.idx > 0) {

@@ -82,8 +82,8 @@ const VistaLevantamientos = () => {
   const filtrados = servicios.filter((s) => {
     const coincideTab =
       tabActual === "REALIZADOS"
-        ? s.status === "Finalizado"
-        : s.status !== "Finalizado";
+        ? (s.status === "Finalizado" || s.status === "completed")
+        : (s.status !== "Finalizado" && s.status !== "completed");
     const coincideBusqueda =
       s.title?.toLowerCase().includes(busqueda.toLowerCase()) ||
       s.id.toString().includes(busqueda);

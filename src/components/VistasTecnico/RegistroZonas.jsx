@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Plus, X, Save, ImageIcon, Loader2, ArrowLeft, LayoutGrid } from 'lucide-react';
+import { Plus, X, Save, ImageIcon, Loader2, ArrowLeft, LayoutGrid, CheckCircle } from 'lucide-react';
 import DetalleZona from './DetalleZona'; 
 import Header from '../Shared/Header';
 import "../../styles/TecnicoStyles/RegistroZonas.css";
@@ -12,6 +12,7 @@ const RegistroZonas = () => {
   const navigate = useNavigate();
   
   const propertyId = location.state?.id;
+  const servicioId = location.state?.servicioId;
   const propertyCurp = curp || location.state?.curp || "S/N";
 
   // ESTADOS
@@ -96,6 +97,31 @@ const RegistroZonas = () => {
     }
   };
 
+  const finalizarLevantamiento = async () => {
+    if (!servicioId) return alert("Error: ID del servicio no encontrado.");
+    if (!window.confirm("¿Seguro que deseas FINALIZAR el levantamiento? Pasará a la pestaña de finalizados.")) return;
+    
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/servicios/${servicioId}`, 
+        { status: 'completed' },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}` 
+          }
+        }
+      );
+      alert("¡Levantamiento finalizado con éxito!");
+      navigate(-1);
+    } catch (error) {
+      console.error("Error al finalizar levantamiento:", error);
+      alert("No se pudo finalizar el levantamiento. Intenta de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (zonaSeleccionada) {
     return (
       <DetalleZona 
@@ -118,6 +144,16 @@ const RegistroZonas = () => {
             <button className="rz-btn-main purple-gradient" onClick={() => setModalAbierto(true)}>
               <Plus size={24} strokeWidth={3} /> AGREGAR
             </button>
+            {servicioId && (
+              <button 
+                className="rz-btn-main green-gradient" 
+                onClick={finalizarLevantamiento}
+                disabled={loading}
+              >
+                {loading ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle size={20} />} 
+                FINALIZAR LEVANTAMIENTO
+              </button>
+            )}
           </div>
 
           <div className="rz-bubbles-group">
