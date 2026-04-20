@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "../../styles/TecnicoStyles/RegistroDetalleHabitacion.css"; 
-import { Plus, ArrowLeft, ImageIcon, Loader2, Edit3, Eye, X } from 'lucide-react';
+import { Plus, ArrowLeft, ImageIcon, Loader2, Edit3, Eye, X, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // IMPORTAMOS LA VISTA DEL NIVEL 5
 import RegistroDetalleHabitacion from './RegistroDetalleHabitacion'; 
 import Header from '../Shared/Header';
 
-const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
+const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) => {
+  const navigate = useNavigate();
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -115,6 +117,28 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
       alert("Error al actualizar la zona");
     } finally {
       setActualizando(false);
+    }
+  };
+
+  const finalizarLevantamiento = async () => {
+    if (!servicioId) return alert("Error: ID de servicio no encontrado.");
+    if (!window.confirm("¿Seguro que deseas FINALIZAR todo el levantamiento? Esta propiedad pasará a la pestaña de finalizados.")) return;
+    
+    // Mostramos estado de carga general (aprovechamos actualizando)
+    setActualizando(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/servicios/${servicioId}`, 
+        { status: 'completed' },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      alert("¡Levantamiento finalizado con éxito!");
+      navigate("/trabajos-asignados");
+    } catch (error) {
+       console.error(error);
+       alert("No se pudo finalizar el levantamiento.");
+    } finally {
+       setActualizando(false);
     }
   };
 
@@ -239,10 +263,24 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver }) => {
               </div>
             </div>
 
-            <div className="dh-footer-actions" style={{ flex: 1, height: '100%' }}>
-              <button className="dh-btn-save-3d" onClick={actualizarZona} disabled={actualizando} style={{ width: '100%', height: '80px', borderRadius: '40px' }}>
+            <div className="dh-footer-actions" style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <button className="dh-btn-save-3d" onClick={actualizarZona} disabled={actualizando} style={{ width: '100%', minHeight: '80px', borderRadius: '40px' }}>
                 {actualizando ? <Loader2 className="animate-spin" size={24} /> : 'GUARDAR ZONA'}
               </button>
+              
+              {servicioId && (
+                <button 
+                  onClick={finalizarLevantamiento}
+                  disabled={actualizando}
+                  style={{ 
+                    width: '100%', minHeight: '80px', borderRadius: '40px', background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)', 
+                    color: '#fff', fontWeight: 'bold', fontSize: '13px', fontStyle: 'italic', border: 'none', cursor: 'pointer', 
+                    display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', boxShadow: '0 6px 0px #15803d' 
+                  }}
+                >
+                  <CheckCircle size={22} /> FINALIZAR LEVANTAMIENTO
+                </button>
+              )}
             </div>
           </div>
         </div>

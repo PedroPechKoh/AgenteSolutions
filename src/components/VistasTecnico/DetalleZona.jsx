@@ -5,7 +5,7 @@ import { Plus, Edit3, Trash2, ArrowLeft, Settings, Send, Home, Loader2, DoorOpen
 import DetalleHabitacion from './DetalleHabitacion';
 import Header from '../Shared/Header';
 
-const DetalleZona = ({ zona, propertyCurp, alVolver }) => {
+const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
   // Estados para las SUB-HABITACIONES
   const [habitaciones, setHabitaciones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -99,6 +99,7 @@ const DetalleZona = ({ zona, propertyCurp, alVolver }) => {
           setHabitacionActiva(null);
           fetchHabitaciones();
         }} 
+        servicioId={servicioId}
       />
     );
   }

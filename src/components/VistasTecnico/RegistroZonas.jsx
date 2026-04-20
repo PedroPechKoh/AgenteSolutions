@@ -128,6 +128,7 @@ const RegistroZonas = () => {
         zona={zonaSeleccionada} 
         propertyCurp={propertyCurp}
         alVolver={() => setZonaSeleccionada(null)} 
+        servicioId={servicioId}
       />
     );
   }
