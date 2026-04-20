@@ -226,6 +226,15 @@ const VistaCotizaciones = () => {
                 <div className="modal-total-section">
                   <h3>TOTAL: ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}</h3>
                 </div>
+
+                {cotizacionSeleccionada.observaciones && (
+                  <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: '8px', marginTop: '15px', borderLeft: '4px solid #ff8800' }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', color: '#333' }}>Mensajes / Observaciones:</h4>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#555', whiteSpace: 'pre-wrap' }}>
+                      {cotizacionSeleccionada.observaciones}
+                    </p>
+                  </div>
+                )}
                 
                 {rechazando && (
                   <div style={{ padding: '15px', background: '#ffebee', borderRadius: '8px', marginTop: '15px' }}>
