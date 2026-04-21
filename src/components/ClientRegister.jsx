@@ -101,7 +101,7 @@ const ClientRegister = () => {
             CREAR CUENTA <i class="fas fa-chess-queen-alt    "></i>
           </h2>
 
-          <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+          <div className="form-row-responsive">
             <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
               <User size={20} className="input-icon" />
               <input
@@ -127,7 +127,7 @@ const ClientRegister = () => {
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+          <div className="form-row-responsive">
             <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
               <Mail size={20} className="input-icon" />
               <input
@@ -154,7 +154,7 @@ const ClientRegister = () => {
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "15px", marginBottom: "15px" }}>
+          <div className="form-row-responsive">
             <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
               <Lock size={20} className="input-icon" />
               <input
@@ -171,7 +171,7 @@ const ClientRegister = () => {
                 className="toggle-password-btn"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
@@ -190,7 +190,7 @@ const ClientRegister = () => {
                 className="toggle-password-btn"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
           </div>
