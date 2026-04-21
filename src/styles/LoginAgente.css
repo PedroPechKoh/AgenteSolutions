@@ -176,7 +176,7 @@
 
 .toggle-password-btn {
   position: absolute;
-  right: 15px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -188,10 +188,28 @@
   align-items: center;
   justify-content: center;
   transition: color 0.3s;
+  padding: 5px;
+  min-width: auto;
 }
 
 .toggle-password-btn:hover {
   color: #f26522;
+}
+
+@media (max-width: 480px) {
+  .toggle-password-btn {
+    right: 8px;
+    padding: 4px;
+  }
+  
+  .custom-input {
+    padding: 12px 40px 12px 50px;
+    font-size: 0.95rem;
+  }
+  
+  .input-icon {
+    left: 12px;
+  }
 }
 
 @media (max-width: 960px) {

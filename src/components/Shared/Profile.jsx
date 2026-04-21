@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react'; // Eliminado 'React' ya que en versiones modernas no es necesario si no se usa explícitamente
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, X } from 'lucide-react'; 
+import { Camera, X } from 'lucide-react'; // Eliminado 'ArrowLeft' porque no se usa
 import axios from 'axios';
-import Header from './Header'; 
+// Eliminado 'Header' porque no se usa en el JSX
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo3.png"; 
 import "../../styles/Profile.css"; 
@@ -53,7 +53,8 @@ const Profile = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault(); 
     try {
-      const res = await axios.post('http://127.0.0.1:8000/api/update-profile', {
+      // Eliminamos 'const res =' ya que no usas la respuesta para nada
+      await axios.post('http://127.0.0.1:8000/api/usuarios/update-profile', {
         user_id: user.id,
         ...formData
       });
@@ -70,7 +71,7 @@ const Profile = () => {
       setIsModalOpen(false);
       alert("¡Datos actualizados con éxito!");
     } catch (error) {
-      console.error(error);
+      console.error("Error en handleSaveProfile:", error);
       alert("Hubo un error al actualizar los datos.");
     }
   };
@@ -89,13 +90,15 @@ const Profile = () => {
       const res = await axios.post('http://127.0.0.1:8000/api/update-photos', uploadData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+      
+      // Aquí 'res' SÍ se usa para actualizar las fotos
       loginGlobal({
         ...user, 
         profile_picture: res.data.profile_picture || user.profile_picture,
         cover_picture: res.data.cover_picture || user.cover_picture
       });
     } catch (error) {
-      console.error(error);
+      console.error("Error en handleFileUpload:", error);
     } finally {
       setIsUploading(false);
     }
@@ -158,60 +161,58 @@ const Profile = () => {
                 <div className="data-group"><label>Correo Electrónico</label><p>{user?.email || 'No registrado'}</p></div>
                 <div className="data-group"><label>Teléfono</label><p>{user?.phone_number || 'No registrado'}</p></div>
                 <div className="data-group"><label>Fecha de Nacimiento</label><p>{formatearFecha(user?.birth_date)}</p></div>
-                <div className="data-group"><label>Miembro desde</label><p>{formatearFecha(user?.created_at)}</p></div>
+                <div className="data-grid-item"><label>Miembro desde</label><p>{formatearFecha(user?.created_at)}</p></div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-     {isModalOpen && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>
-        &times;
-      </button>
-      
-      <h3 className="modal-title">Editar Perfil</h3>
-      
-      <form onSubmit={handleSaveProfile} className="edit-profile-form">
-        <div className="form-row">
-          <div className="form-group">
-            <label>Nombre(s)</label>
-            <input type="text" required value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
-          </div>
-          <div className="form-group">
-            <label>Apellidos</label>
-            <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>
+              &times;
+            </button>
+            
+            <h3 className="modal-title">Editar Perfil</h3>
+            
+            <form onSubmit={handleSaveProfile} className="edit-profile-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nombre(s)</label>
+                  <input type="text" required value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Apellidos</label>
+                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Teléfono Celular</label>
+                  <input type="tel" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Fecha de Nacimiento</label>
+                  <input type="date" value={formData.birth_date} onChange={(e) => setFormData({...formData, birth_date: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                <button type="submit" className="btn-save">Guardar Cambios</button>
+              </div>
+            </form>
           </div>
         </div>
-
-        <div className="form-row">
-          <div className="form-group">
-            <label>Teléfono Celular</label>
-            <input type="tel" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} />
-          </div>
-          <div className="form-group">
-            <label>Fecha de Nacimiento</label>
-            <input type="date" value={formData.birth_date} onChange={(e) => setFormData({...formData, birth_date: e.target.value})} />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Correo Electrónico</label>
-          <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
-        </div>
-
-        <div className="modal-actions">
-          <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-          
-          <button type="submit" className="btn-save">Guardar Cambios</button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-
+      )}
     </div>
   );
 };
