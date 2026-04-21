@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom"; 
 import {
   Home,
@@ -12,7 +12,8 @@ import {
   Building,
   Radar,
   Image as ImageIcon,
-  Type
+  Type,
+  Camera
 } from "lucide-react";
 import axios from "axios";
 import {
@@ -61,6 +62,23 @@ const RegisterProperties = () => {
 
   const [fotoFile, setFotoFile] = useState(null);
   const [fotoPreview, setFotoPreview] = useState(null);
+
+  const cameraRef = useRef(null);
+  const galleryRef = useRef(null);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
+
+  const openPhotoMenu = () => {
+    setIsPhotoMenuOpen(true);
+  };
+
+  const selectPhotoSource = (source) => {
+    if (source === 'camera') {
+      cameraRef.current.click();
+    } else {
+      galleryRef.current.click();
+    }
+    setIsPhotoMenuOpen(false);
+  };
 
   const [mensaje, setMensaje] = useState("");
   const [tipoMensaje, setTipoMensaje] = useState("");
@@ -227,23 +245,34 @@ const RegisterProperties = () => {
                 <ImageIcon size={18} /> Foto de la Fachada:
               </label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '5px' }}>
-                <label 
+                <button 
+                    type="button"
+                    onClick={openPhotoMenu}
                     style={{ 
                         backgroundColor: '#333', color: 'white', padding: '8px 15px', 
                         borderRadius: '5px', cursor: 'pointer', fontSize: '0.9rem',
-                        transition: 'background 0.2s'
+                        border: 'none', transition: 'background 0.2s', display: 'flex', alignItems: 'center', gap: '8px'
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#555'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#333'}
                 >
-                    Seleccionar Archivo
-                    <input 
-                        type="file" 
-                        accept="image/jpeg,image/png,image/jpg" 
-                        onChange={handlePhotoChange}
-                        style={{ display: 'none' }} 
-                    />
-                </label>
+                    <Camera size={16} /> Seleccionar Archivo
+                </button>
+                <input 
+                    type="file" 
+                    ref={cameraRef}
+                    accept="image/jpeg,image/png,image/jpg" 
+                    onChange={handlePhotoChange}
+                    capture="environment"
+                    style={{ display: 'none' }} 
+                />
+                <input 
+                    type="file" 
+                    ref={galleryRef}
+                    accept="image/jpeg,image/png,image/jpg" 
+                    onChange={handlePhotoChange}
+                    style={{ display: 'none' }} 
+                />
                 
                 {fotoPreview ? (
                     <img 
@@ -714,6 +743,40 @@ const RegisterProperties = () => {
               </button>
               <button onClick={confirmarUbicacion} className="btn-confirm">
                 <Check size={18} /> Confirmar Ubicación
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isPhotoMenuOpen && (
+        <div className="map-modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
+          <div className="map-modal-content" style={{ maxWidth: '400px', padding: '0', backgroundColor: '#1a1a1a', border: '1px solid #333' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ color: '#F26522', borderBottom: '1px solid #333', margin: 0, padding: '20px', textAlign: 'center', fontSize: '1.2rem' }}>Actualizar Foto</h3>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <button 
+                onClick={() => selectPhotoSource('camera')}
+                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#333'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                📷 Tomar Foto
+              </button>
+              <button 
+                onClick={() => selectPhotoSource('gallery')}
+                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#333'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                🖼️ Elegir de la Galería
+              </button>
+              <button 
+                onClick={() => setIsPhotoMenuOpen(false)}
+                style={{ background: 'transparent', border: 'none', padding: '15px', color: '#a0a0a0', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#333'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                Cancelar
               </button>
             </div>
           </div>

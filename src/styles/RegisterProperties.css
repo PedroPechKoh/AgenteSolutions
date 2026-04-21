@@ -257,7 +257,13 @@
 .btn-confirm:hover { background-color: #d9531e; }
 
 @media (max-width: 768px) {
-  .form-grid { grid-template-columns: 1fr; }
+  .form-card {
+    padding: 20px !important;
+  }
+  .form-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 15px;
+  }
   .location-widget {
     flex-direction: column;
     align-items: flex-start;
