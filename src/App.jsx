@@ -56,6 +56,7 @@ import SOSView from "./components/VistaCliente/SOSView";
 import TableroScrum from "./components/VistaCliente/TableroScrum";
 import VistaDetallePropiedadCliente from "./components/VistaCliente/VistaDetallePropiedad";
 
+import RegisteRoot from "./components/Register"; 
 // Le decimos a Laravel que siempre queremos JSON de regreso (Evita el error 'Route [login] not defined')
 axios.defaults.headers.common["Accept"] = "application/json";
 
@@ -165,6 +166,9 @@ function App() {
            <Route path="/SOSView" element={<SOSView />} />
 <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />           <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
            <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
+
+                      <Route path="/registro" element={<RegisteRoot />} />
+
 
         </Routes>
       </BrowserRouter>
