@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // IMPORTANTE
 import axios from 'axios';
 import '../../styles/Admin/DetalleReporte.css';
 import logo from "../../assets/Logo4.png";
@@ -9,24 +9,24 @@ const DetalleReporte = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // --- ESTADOS DE LA VISTA PRINCIPAL (DATOS DE LEVANTAMIENTO) ---
+    // --- ESTADOS DE LA VISTA PRINCIPAL (LEVANTAMIENTO) ---
     const [datosBD, setDatosBD] = useState(null);
     const [cargando, setCargando] = useState(true);
 
-    // --- ESTADOS DEL COTIZADOR AVANZADO ---
+    // --- ESTADOS DEL COTIZADOR ---
     const [mostrarCotizacion, setMostrarCotizacion] = useState(false);
     const [metodoCotizacion, setMetodoCotizacion] = useState('manual');
     const [archivoPreview, setArchivoPreview] = useState(null);
     const [archivoFisico, setArchivoFisico] = useState(null);
     
-    // Filas dinámicas del cotizador
+    // Tablas dinámicas del cotizador
     const [filasConceptos, setFilasConceptos] = useState([{ descripcion: '', cantidad: 0, precio_u: 0 }]);
     const [filasMateriales, setFilasMateriales] = useState([{ nombre: '', cantidad: 0, costo_u: 0 }]);
     const [herramientasBasicas, setHerramientasBasicas] = useState([{ nombre: '', cantidad: 1 }]);
     const [herramientasEspeciales, setHerramientasEspeciales] = useState([{ nombre: '', cantidad: 1 }]);
     const [observaciones, setObservaciones] = useState('');
 
-    // --- CARGA DE DATOS DESDE LARAVEL ---
+    // --- CARGA DE DATOS DESDE API ---
     useEffect(() => {
         const cargarReporte = async () => {
             try {
@@ -41,7 +41,7 @@ const DetalleReporte = () => {
         cargarReporte();
     }, [id]);
 
-    // --- LÓGICA FUNCIONAL DEL COTIZADOR ---
+    // --- FUNCIONES AUXILIARES DEL COTIZADOR ---
     const agregarFila = (tipo) => {
         if (tipo === 'concepto') setFilasConceptos([...filasConceptos, { descripcion: '', cantidad: 0, precio_u: 0 }]);
         if (tipo === 'material') setFilasMateriales([...filasMateriales, { nombre: '', cantidad: 0, costo_u: 0 }]);
@@ -104,6 +104,7 @@ const DetalleReporte = () => {
         }
     };
 
+    // --- RENDERIZADO DE CARGA ---
     if (cargando) return <div className="loading-screen">Cargando datos del reporte...</div>;
     if (!datosBD) return <div className="loading-screen">Error: Reporte no encontrado.</div>;
 
@@ -115,26 +116,17 @@ const DetalleReporte = () => {
                 <div className="side-info">
                     <span className="id-badge">{datosBD.identificador_curp}</span>
                     <h2>{datosBD.propietario}</h2>
-                    
                     <div className="rep-direccion-box">
                         <p><strong>Dirección:</strong><br/>{datosBD.direccion}</p>
-                        <a 
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(datosBD.direccion)}`} 
-                            target="_blank" rel="noopener noreferrer" className="maps-link"
-                        >
-                            📍 VER EN GOOGLE MAPS
-                        </a>
                     </div>
-
                     <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>
                         + GENERAR COTIZACIÓN
                     </button>
-
                     <hr className="side-hr" />
-                    <p><strong>Técnico Asignado:</strong><br/>{datosBD.tecnico}</p>
-                    <p><strong>Día de visita:</strong><br/>{datosBD.fecha_programada}</p>
+                    <p><strong>Técnico:</strong><br/>{datosBD.tecnico}</p>
+                    <p><strong>Visita:</strong><br/>{datosBD.fecha_programada}</p>
                 </div>
-                <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER AL LISTADO</button>
+                <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER</button>
             </aside>
 
             {/* --- CONTENIDO PRINCIPAL (LEVANTAMIENTO) --- */}
@@ -147,15 +139,16 @@ const DetalleReporte = () => {
                 </header>
 
                 <section className="reporte-flujo">
-                    {datosBD.secciones && datosBD.secciones.length > 0 ? (
-                        datosBD.secciones.filter(sec => sec.subSecciones?.length > 0 || sec.descripcion).map((sec, idx) => (
+                    {/* VALIDACIÓN DE SEGURIDAD PARA EVITAR EL ERROR .MAP */}
+                    {Array.isArray(datosBD.secciones) && datosBD.secciones.length > 0 ? (
+                        datosBD.secciones.map((sec, idx) => (
                             <div key={`sec-${idx}`} className="seccion-bloque">
                                 <div className="seccion-header">
                                     <h3>{sec.titulo}</h3>
                                     {sec.descripcion && <p className="sec-desc">{sec.descripcion}</p>}
                                 </div>
 
-                                {sec.subSecciones?.map((sub, sIdx) => (
+                                {Array.isArray(sec.subSecciones) && sec.subSecciones.map((sub, sIdx) => (
                                     <div key={`sub-${idx}-${sIdx}`} className="subseccion-caja">
                                         <div className="sub-titulo">
                                             <h4>{sub.nombre}</h4>
@@ -173,7 +166,7 @@ const DetalleReporte = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {sub.inventario?.map((inv, iIdx) => (
+                                                    {Array.isArray(sub.inventario) && sub.inventario.map((inv, iIdx) => (
                                                         <tr key={`inv-${idx}-${sIdx}-${iIdx}`}>
                                                             <td className="bold">{inv.categoria}</td>
                                                             <td>{inv.marca || '-'}</td>
@@ -189,12 +182,12 @@ const DetalleReporte = () => {
                             </div>
                         ))
                     ) : (
-                        <div className="empty-state">No hay áreas ni inventario registrado.</div>
+                        <div className="empty-state">No hay áreas ni inventario registrado para esta propiedad.</div>
                     )}
                 </section>
             </main>
 
-            {/* --- MODAL DEL COTIZADOR AVANZADO --- */}
+            {/* --- MODAL DEL COTIZADOR --- */}
             {mostrarCotizacion && (
                 <div className="lev-modal-overlay">
                     <div className="cot-modal-card wide">
@@ -211,18 +204,11 @@ const DetalleReporte = () => {
                         <div className="cot-modal-body dinamico">
                             {metodoCotizacion === 'manual' ? (
                                 <>
-                                    {/* SECCIÓN CONCEPTOS */}
                                     <div className="cot-section">
                                         <h4 className="coti-section-title">1. CONCEPTOS DE SERVICIO</h4>
                                         <table className="coti-table">
                                             <thead>
-                                                <tr>
-                                                    <th>DESCRIPCIÓN</th>
-                                                    <th>CANT.</th>
-                                                    <th>PRECIO U.</th>
-                                                    <th>SUBTOTAL</th>
-                                                    <th></th>
-                                                </tr>
+                                                <tr><th>DESCRIPCIÓN</th><th>CANT.</th><th>PRECIO U.</th><th>SUBTOTAL</th><th></th></tr>
                                             </thead>
                                             <tbody>
                                                 {filasConceptos.map((f, i) => (
@@ -239,18 +225,11 @@ const DetalleReporte = () => {
                                         <button className="btn-add-row" onClick={() => agregarFila('concepto')}>+ Agregar Concepto</button>
                                     </div>
 
-                                    {/* SECCIÓN MATERIALES */}
                                     <div className="cot-section">
-                                        <h4 className="coti-section-title">2. MATERIALES REQUERIDOS</h4>
+                                        <h4 className="coti-section-title">2. MATERIALES</h4>
                                         <table className="coti-table">
                                             <thead>
-                                                <tr>
-                                                    <th>MATERIAL</th>
-                                                    <th>CANT.</th>
-                                                    <th>COSTO U.</th>
-                                                    <th>SUBTOTAL</th>
-                                                    <th></th>
-                                                </tr>
+                                                <tr><th>MATERIAL</th><th>CANT.</th><th>COSTO U.</th><th>SUBTOTAL</th><th></th></tr>
                                             </thead>
                                             <tbody>
                                                 {filasMateriales.map((f, i) => (
@@ -267,14 +246,13 @@ const DetalleReporte = () => {
                                         <button className="btn-add-row" onClick={() => agregarFila('material')}>+ Agregar Material</button>
                                     </div>
 
-                                    {/* SECCIÓN HERRAMIENTAS */}
                                     <div className="cot-grid-tools">
                                         <div className="cot-section half">
                                             <h4 className="coti-section-title">3.1 HERRAMIENTAS BÁSICAS</h4>
                                             {herramientasBasicas.map((h, i) => (
                                                 <div key={i} className="tool-row">
                                                     <input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'basica')} />
-                                                    <button onClick={() => eliminarFila(i, 'basica')}>×</button>
+                                                    <button className="btn-delete-small" onClick={() => eliminarFila(i, 'basica')}>×</button>
                                                 </div>
                                             ))}
                                             <button className="btn-add-tool" onClick={() => agregarFila('basica')}>+</button>
@@ -284,7 +262,7 @@ const DetalleReporte = () => {
                                             {herramientasEspeciales.map((h, i) => (
                                                 <div key={i} className="tool-row">
                                                     <input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'especial')} />
-                                                    <button onClick={() => eliminarFila(i, 'especial')}>×</button>
+                                                    <button className="btn-delete-small" onClick={() => eliminarFila(i, 'especial')}>×</button>
                                                 </div>
                                             ))}
                                             <button className="btn-add-tool" onClick={() => agregarFila('especial')}>+</button>
@@ -292,14 +270,22 @@ const DetalleReporte = () => {
                                     </div>
 
                                     <div className="cot-section">
-                                        <label>Observaciones</label>
-                                        <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} rows="3" />
+                                        <label>Observaciones Adicionales</label>
+                                        <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} rows="3" placeholder="Notas internas..." />
                                     </div>
                                 </>
                             ) : (
                                 <div className="cot-upload-container">
                                     <input type="file" onChange={manejarArchivo} accept="image/*,application/pdf" />
-                                    {archivoPreview && <img src={archivoPreview} className="img-preview" alt="Preview" />}
+                                    {archivoPreview && (
+                                        <div className="preview-box">
+                                            {archivoFisico?.type === 'application/pdf' ? (
+                                                <div className="pdf-placeholder">📄 {archivoFisico.name}</div>
+                                            ) : (
+                                                <img src={archivoPreview} className="img-preview" alt="Vista previa" />
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
