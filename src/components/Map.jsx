@@ -17,13 +17,13 @@ const Map = () => {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "" // API key de Google
+    googleMapsApiKey: "AIzaSyDgyTj0X6kgGoMV8NxQGDp4-Nx0bxJd0Hw" // API key de Google
   });
 
   useEffect(() => {
     const cargarPropiedades = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/map');
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/map`);
         setPropiedades(res.data);
       } catch (error) {
         console.error("Error cargando los marcadores:", error);

@@ -9,7 +9,8 @@ import Map from "./components/Map";
 import RegistroCliente from "./components/ClientRegister";
 import CustomizeLogin from "./components/CustomizeLogin";
 import AssignServiceForm from "./components/AssignServiceForm";
-import VistaNotificaciones from "./components/Shared/VistaNotificaciones"; // O la ruta donde lo hayas guardado
+import VistaNotificaciones from "./components/Shared/VistaNotificaciones"; 
+import RegistroZonas from "./components/VistasTecnico/RegistroZonas";
 
 ///Cliente
 import MainLayoutCliente from "./components/VistaCliente/MainLayoutCliente";
@@ -42,8 +43,22 @@ import TrabajoPropiedad from "./components/VistasTecnico/TrabajosPropiedad";
 import VentaCruzada from "./components/VistasTecnico/VentaCruzada";
 import RegistrarVentaCruzada from "./components/VistasTecnico/RegistrarVentaCruzada";
 
+
+
 // 👇 1. IMPORTAMOS AXIOS Y CONFIGURAMOS EL TOKEN GLOBAL 👇
 import axios from "axios";
+import TrabajosAsignados from "./components/VistasTecnico/TrabajosAsignados";
+import LevantamientoPropiedad from "./components/VistasTecnico/LevantamientoPropiedad";
+import Cotizaciones from "./components/VistaCliente/Cotizaciones";
+
+import Pago from "./components/VistaCliente/Pago";
+import SOSView from "./components/VistaCliente/SOSView";
+import TableroScrum from "./components/VistaCliente/TableroScrum";
+import VistaDetallePropiedadCliente from "./components/VistaCliente/VistaDetallePropiedad";
+
+import RegisteRoot from "./components/Register"; 
+// Le decimos a Laravel que siempre queremos JSON de regreso (Evita el error 'Route [login] not defined')
+axios.defaults.headers.common["Accept"] = "application/json";
 
 const token = localStorage.getItem("agente_token");
 if (token) {
@@ -116,10 +131,11 @@ function App() {
           <Route path="/trabajo-inicio/:id" element={<TrabajoInicio />} />
           <Route path="/trabajo-propiedad/:id" element={<TrabajoPropiedad />} />
           <Route path="/venta-cruzada" element={<VentaCruzada />} />
-          <Route
-            path="/registrar-venta-cruzada"
-            element={<RegistrarVentaCruzada />}
-          />
+          <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
+          <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />
+         <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
+
+
 
           {/* ------RUTAS DE LA VISTA DEL ADMIN ------*/}
           <Route path="/detalle-reporte/:id" element={<DetalleReporte />} />
@@ -128,10 +144,6 @@ function App() {
           <Route path="/vista-cotizaciones" element={<VistaCotizaciones />} />
           <Route path="/dashboard" element={<VistaDashboard />} />
           <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
-          <Route
-            path="/detalle-propiedad"
-            element={<VistaDetallePropiedad />}
-          />
           <Route path="/levantamientos" element={<VistaLevantamientos />} />
           <Route path="/propiedades" element={<VistaPropiedades />} />
           <Route path="/usuarios" element={<VistaUsuarios />} />
@@ -146,6 +158,18 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
 
           <Route path="/notificaciones" element={<VistaNotificaciones />} />
+          <Route path="/trabajos-asignados" element={<TrabajosAsignados />} />
+
+           {/* ------RUTAS DE LA VISTA DEL CLIENTE ------*/}
+           <Route path="/Cotizaciones" element={<Cotizaciones />} />
+           <Route path="/Pago" element={<Pago />} />
+           <Route path="/SOSView" element={<SOSView />} />
+<Route path="/propiedad/:id/tablero" element={<TableroScrum />} />           <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
+           <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
+
+                      <Route path="/registro" element={<RegisteRoot />} />
+
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

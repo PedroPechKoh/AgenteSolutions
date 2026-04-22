@@ -28,7 +28,7 @@ const VistaUsuarios = () => {
   useEffect(() => {
     const obtenerUsuarios = async () => {
       try {
-        const { data } = await axios.get("http://127.0.0.1:8000/api/usuarios");
+        const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/usuarios`);
         const formateados = data.map((u) => ({
           id: u.id,
           nombre: `${u.first_name} ${u.last_name || ""}`.trim(),
@@ -79,7 +79,7 @@ const VistaUsuarios = () => {
     if (!window.confirm(`¿Estás seguro de que deseas ${accion} a este usuario?`)) return;
 
     try {
-      await axios.put(`http://127.0.0.1:8000/api/usuarios/${id}/toggle-bloqueo`);
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}/toggle-bloqueo`);
       setListaUsuarios(prev => prev.map(u => u.id === id ? { 
         ...u, bloqueado: !u.bloqueado, estado: !u.bloqueado ? 'Inactivo' : 'Activo' 
       } : u));
@@ -93,7 +93,7 @@ const VistaUsuarios = () => {
     if (!window.confirm("¿Deseas eliminar este usuario? Esta acción es irreversible.")) return;
 
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/usuarios/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}`);
       setListaUsuarios(prev => prev.filter(u => u.id !== id));
     } catch (error) {
       alert("Hubo un problema al eliminar el usuario.");

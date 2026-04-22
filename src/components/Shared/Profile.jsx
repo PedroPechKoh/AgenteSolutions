@@ -4,17 +4,34 @@ import { Camera, X } from 'lucide-react'; // Eliminado 'ArrowLeft' porque no se 
 import axios from 'axios';
 // Eliminado 'Header' porque no se usa en el JSX
 import { useAuth } from "../../context/AuthContext";
-import logo from "../../assets/logo3.png"; 
+import logo from "../../assets/Logo3.png"; 
 import "../../styles/Profile.css"; 
 
 const Profile = () => {
   const { user, loginGlobal } = useAuth();
   const navigate = useNavigate();
 
-  const profileInputRef = useRef(null);
-  const coverInputRef = useRef(null);
+  const cameraRef = useRef(null);
+  const galleryRef = useRef(null);
+  const uploadTargetRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
+
+  const openPhotoMenu = (type) => {
+    uploadTargetRef.current = type;
+    setIsPhotoMenuOpen(true);
+  };
+
+  const selectPhotoSource = (source) => {
+    if (source === 'camera') {
+      cameraRef.current.click();
+    } else {
+      galleryRef.current.click();
+    }
+    setIsPhotoMenuOpen(false);
+  };
+  
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -28,6 +45,7 @@ const Profile = () => {
       case 0: return 'Usuario Root';
       case 1: return 'Administrador';
       case 2: return 'Técnico';
+      case 3: return 'Cliente';
       default: return 'Usuario';
     }
   };
@@ -53,12 +71,19 @@ const Profile = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault(); 
     try {
+
       // Eliminamos 'const res =' ya que no usas la respuesta para nada
       await axios.post('http://127.0.0.1:8000/api/usuarios/update-profile', {
         user_id: user.id,
+ });
+
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, {
+        id: `u_${user.id}`,
+       
+
         ...formData
       });
-
+console.log("Perfil actualizado:", res.data);
       loginGlobal({
         ...user,
         first_name: formData.first_name,
@@ -76,35 +101,58 @@ const Profile = () => {
     }
   };
 
+  // --- MAGIA DE CLOUDINARY (VERSIÓN FINAL) ---
   const handleFileUpload = async (event, type) => {
     const file = event.target.files[0];
     if (!file) return;
-    if (!user?.id) return alert("Error: React no tiene el ID.");
+    if (!user?.id) return alert("Error: La sesión no tiene el ID.");
+
+    // Límite ajustado a 10MB (Límite del plan gratuito de Cloudinary)
+    if (file.size > 10 * 1024 * 1024) {
+      return alert("La imagen es muy pesada. Por favor elige una menor a 10MB.");
+    }
 
     const uploadData = new FormData();
-    uploadData.append('user_id', user.id);
-    uploadData.append(type, file);
+    uploadData.append('image', file); 
+    uploadData.append('type', type); 
 
     try {
       setIsUploading(true);
-      const res = await axios.post('http://127.0.0.1:8000/api/update-photos', uploadData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
       
+      // Leemos exactamente tu token personalizado de Railway
+      const token = localStorage.getItem('agente_token'); 
+
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/upload-profile-picture`, uploadData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+
       // Aquí 'res' SÍ se usa para actualizar las fotos
+
+
+      // Extraemos la URL de la nube
+      const nuevaUrlNube = res.data.url;
+
+      // Actualizamos el estado global para que el cambio sea instantáneo en pantalla
       loginGlobal({
         ...user, 
-        profile_picture: res.data.profile_picture || user.profile_picture,
-        cover_picture: res.data.cover_picture || user.cover_picture
+        [type]: nuevaUrlNube
       });
+
+      alert(`¡${type === 'profile_picture' ? 'Foto de perfil' : 'Portada'} actualizada con éxito!`);
+
     } catch (error) {
       console.error("Error en handleFileUpload:", error);
+      console.error("Error al subir a Cloudinary:", error);
+      alert("Error al subir la imagen. Revisa la consola.");
     } finally {
       setIsUploading(false);
     }
   };
 
-  const nombreCompleto = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Cargando nombre...';
+  const nombreCompleto = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || user?.name || 'Cargando nombre...';
 
   return (
     <div className="main-container">
@@ -119,27 +167,27 @@ const Profile = () => {
             </button>
             <div className="banner-logo-wrapper"><img src={logo} alt="Agente Solutions" className="banner-logo" /></div>
             
-            <button className="btn-edit-cover" onClick={() => coverInputRef.current.click()} disabled={isUploading}>
+            <button className="btn-edit-cover" onClick={() => openPhotoMenu('cover_picture')} disabled={isUploading}>
                <Camera size={20} /> {isUploading ? 'Subiendo...' : 'Cambiar Portada'}
             </button>
-            <input type="file" ref={coverInputRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'cover_picture')} accept="image/*" />
           </div>
 
           <div className="profile-content">
             <div className="profile-header-info">
               <div className="profile-header-left">
                 <div className="avatar-section">
-                  <div className="avatar-wrapper" onClick={() => profileInputRef.current.click()}>
+                  <div className="avatar-wrapper" onClick={() => openPhotoMenu('profile_picture')}>
                     {user?.profile_picture ? (
                       <img src={user.profile_picture} alt="Avatar" className="profile-avatar" />
                     ) : (
                       <div className="profile-avatar-placeholder">
-                        {user?.first_name ? user.first_name.charAt(0).toUpperCase() : '👤'}
+                        {user?.first_name ? user.first_name.charAt(0).toUpperCase() : (user?.name ? user.name.charAt(0).toUpperCase() : '👤')}
                       </div>
                     )}
                     <div className="avatar-hover-overlay"><Camera size={40} color="white" /></div>
                   </div>
-                  <input type="file" ref={profileInputRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, 'profile_picture')} accept="image/*" />
+                  <input type="file" ref={cameraRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, uploadTargetRef.current)} accept="image/*" capture="environment" />
+                  <input type="file" ref={galleryRef} style={{ display: 'none' }} onChange={(e) => handleFileUpload(e, uploadTargetRef.current)} accept="image/*" />
                 </div>
                 
                 <div className="user-info-section">
@@ -213,6 +261,73 @@ const Profile = () => {
           </div>
         </div>
       )}
+=======
+     {isPhotoMenuOpen && (
+      <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
+        <div className="modal-content photo-menu-content" onClick={e => e.stopPropagation()}>
+          <h3 className="modal-title" style={{ color: '#ff6600', borderBottom: '2px solid #EEEEEE' }}>Actualizar Foto</h3>
+          <div className="photo-menu-actions">
+            <button className="btn-menu-action" onClick={() => selectPhotoSource('camera')}>
+              📷 Tomar Foto
+            </button>
+            <button className="btn-menu-action" onClick={() => selectPhotoSource('gallery')}>
+              🖼️ Elegir de la Galería
+            </button>
+            <button className="btn-menu-action btn-menu-cancel" onClick={() => setIsPhotoMenuOpen(false)}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+      )}
+
+     {isModalOpen && (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>
+            &times;
+          </button>
+          
+          <h3 className="modal-title">Editar Perfil</h3>
+          
+          <form onSubmit={handleSaveProfile} className="edit-profile-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Nombre(s)</label>
+                <input type="text" required value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label>Apellidos</label>
+                <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Teléfono Celular</label>
+                <input type="tel" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label>Fecha de Nacimiento</label>
+                <input type="date" value={formData.birth_date} onChange={(e) => setFormData({...formData, birth_date: e.target.value})} />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Correo Electrónico</label>
+              <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+            </div>
+
+            <div className="modal-actions">
+              <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+              
+              <button type="submit" className="btn-save">Guardar Cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      )}
+
     </div>
   );
 };

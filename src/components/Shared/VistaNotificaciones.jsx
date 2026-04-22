@@ -15,7 +15,7 @@ const VistaNotificaciones = () => {
   useEffect(() => {
     const cargarHistorial = async () => {
       try {
-        const { data } = await axios.get('http://127.0.0.1:8000/api/notifications/all');
+        const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/notifications/all`);
         if (data.success) {
           setNotificaciones(data.notifications);
         }

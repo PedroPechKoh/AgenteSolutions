@@ -1,133 +1,262 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import "../../styles/TecnicoStyles/DetalleZona.css";
-import { Plus, Edit3, Trash2, ArrowLeft, Settings, User, Send, X, Home } from 'lucide-react';
+import { Plus, Edit3, Trash2, ArrowLeft, Settings, Send, Home, Loader2, DoorOpen, LayoutGrid } from 'lucide-react';
 import DetalleHabitacion from './DetalleHabitacion';
+import Header from '../Shared/Header';
 
-const DetalleZona = ({ zonaNombre }) => {
-  // Estados
+const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
+  // Estados para las SUB-HABITACIONES
+  const [habitaciones, setHabitaciones] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+  
   const [habitacionActiva, setHabitacionActiva] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [nuevaHabitacion, setNuevaHabitacion] = useState("");
 
-  const items = [
-    { id: 1, nombre: "HABITACION PRINCIPAL", img: "https://via.placeholder.com/60x40" },
-    { id: 2, nombre: "HABITACION 2", img: "https://via.placeholder.com/60x40" },
-    { id: 3, nombre: "HABITACION 3", img: "https://via.placeholder.com/60x40" },
-  ];
+  // Opciones de Zona (Editar/Eliminar)
+  const [mostrarOpcionesZona, setMostrarOpcionesZona] = useState(false);
+  const [editandoZonaNombre, setEditandoZonaNombre] = useState(false);
+  const [nuevoNombreZona, setNuevoNombreZona] = useState(zona?.name || "");
 
-  // Navegación interna a detalle de habitación
+  useEffect(() => {
+    setNuevoNombreZona(zona?.name || "");
+  }, [zona]);
+
+  const eliminarZona = async () => {
+    if(window.confirm("¿Estás seguro de eliminar esta zona y todo su contenido?")) {
+      try {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${zona.id}`);
+        alert("Zona eliminada con éxito.");
+        alVolver(); 
+      } catch (error) {
+        console.error(error);
+        alert("Error al eliminar la zona. Verifica la consola.");
+      }
+    }
+  };
+
+  const guardarEdicionZona = async () => {
+    if(!nuevoNombreZona.trim()) return alert("El nombre no puede estar vacío");
+    try {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${zona.id}`, { name: nuevoNombreZona });
+      zona.name = nuevoNombreZona.toUpperCase(); // Actualización optimista local
+      setEditandoZonaNombre(false);
+      setMostrarOpcionesZona(false);
+    } catch (error) {
+      console.error(error);
+      alert("Error al editar el nombre de la zona.");
+    }
+  };
+
+  // Cargar sub-habitaciones al iniciar
+  useEffect(() => {
+    if (zona?.id) fetchHabitaciones();
+  }, [zona]);
+
+  const fetchHabitaciones = async () => {
+    try {
+      // Llamamos a la nueva ruta que trae áreas hijas
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${zona.id}/subareas`);
+      setHabitaciones(res.data);
+    } catch (error) {
+      console.error("Error al cargar habitaciones:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const guardarHabitacion = async () => {
+    if (!nuevaHabitacion) return alert("Por favor, ingresa el nombre de la habitación.");
+
+    setGuardando(true);
+    try {
+      // Guardamos en property_areas apuntando al parent_id
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, {
+        property_id: zona.property_id,
+        parent_id: zona.id, // Esto la convierte en sub-habitación
+        name: nuevaHabitacion
+      });
+      
+      setIsModalOpen(false);
+      setNuevaHabitacion("");
+      fetchHabitaciones(); 
+    } catch (error) {
+      console.error("Error al guardar habitación:", error);
+      alert("Hubo un error al registrar la habitación.");
+    } finally {
+      setGuardando(false);
+    }
+  };
+
   if (habitacionActiva) {
     return (
       <DetalleHabitacion 
-        habitacionNombre={habitacionActiva.nombre} 
-        alVolver={() => setHabitacionActiva(null)} 
+        habitacion={habitacionActiva} 
+        propertyCurp={propertyCurp} // Pasamos el curp para no perderlo
+        alVolver={() => {
+          setHabitacionActiva(null);
+          fetchHabitaciones();
+        }} 
+        servicioId={servicioId}
       />
     );
   }
 
   return (
-    <div className="dz-body-wrapper">
-      {/* BURBUJAS SUPERIORES */}
-      <div className="dz-bubbles-container">
-        <div className="dz-info-pill">FOLIO <strong>1234</strong></div>
-        <div className="dz-info-pill">ID PROPIEDAD <strong>JDJF123</strong></div>
-        <div className="dz-info-pill">TECNICO <strong>MARIO</strong></div>
-      </div>
-
-      {/* TARJETA PRINCIPAL */}
-      <div className="dz-main-card">
-        <div className="dz-controls-row">
-          <div className="dz-category-tag">
-            CATEGORIA: <strong>{zonaNombre || "BAÑOS"}</strong> <Settings size={14} />
-          </div>
-          
-          <div className="dz-actions-group">
-            <button className="dz-btn-plus">
-              <Send size={20} /> ENVIAR
-            </button>
-            <button className="dz-btn-save">
-              GUARDAR
-            </button>
-            {/* BOTÓN MÁS PARA ABRIR MODAL */}
-            <button className="dz-btn-save" onClick={() => setIsModalOpen(true)}>
-              +
+    <>
+      <Header />
+      <div className="dz-body-wrapper">
+        {/* BURBUJAS SUPERIORES (Con tus estilos) */}
+        <div className="dz-bubbles-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', gap: '15px' }}>
+            <button className="dz-btn-back-orange" onClick={alVolver} style={{ marginRight: '0', width: 'auto', padding: '0 20px', height: '40px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold', color: 'white', display: 'flex', alignItems: 'center' }}>
+               <ArrowLeft size={18} style={{ marginRight: '8px' }}/> VOLVER A ZONAS
             </button>
           </div>
-
-          <div className="dz-date-tag">
-            FECHA DE REGISTRO <strong>06-02-2026</strong>
+          <div style={{ display: 'flex', gap: '15px' }}>
+            <div className="dz-info-pill" style={{ color: 'black', display: 'flex', alignItems: 'center' }}>CURP <strong>&nbsp;{propertyCurp || "S/N"}</strong></div>
+            <div className="dz-info-pill" style={{ color: 'black', display: 'flex', alignItems: 'center' }}>ID ZONA <strong>&nbsp;{zona?.id}</strong></div>
           </div>
         </div>
 
-        {/* LISTA DE HABITACIONES */}
-        <div className="dz-list-container">
-          {items.map((item) => (
-            <div key={item.id} className="dz-item-row">
-              <div className="dz-item-left">
-                <div className="dz-thumb-box">
-                  <img src={item.img} alt="thumb" />
+        {/* TARJETA PRINCIPAL */}
+        <div className="dz-main-card">
+          <div className="dz-controls-row">
+            <div className="dz-category-tag" style={{ color: 'black', position: 'relative', display: 'flex', alignItems: 'center' }}>
+              CATEGORIA: 
+              {editandoZonaNombre ? (
+                <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginLeft: '8px' }}>
+                   <input 
+                     value={nuevoNombreZona} 
+                     onChange={e => setNuevoNombreZona(e.target.value.toUpperCase())}
+                     style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '13px', textTransform: 'uppercase', outline: 'none' }}
+                     autoFocus
+                   />
+                   <button onClick={guardarEdicionZona} style={{ padding: '4px 10px', background: '#f26624', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
+                   <button onClick={() => setEditandoZonaNombre(false)} style={{ padding: '4px 10px', background: '#666', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
                 </div>
-                <span className="dz-item-name">{item.nombre}</span>
-              </div>
-              <div className="dz-item-right">
-                <Edit3 
-                  size={20} 
-                  className="dz-icon-edit" 
-                  onClick={() => setHabitacionActiva(item)} 
-                />
-                <Trash2 size={20} className="dz-icon-delete" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* MODAL REDISEÑADO */}
-      {isModalOpen && (
-        <div className="custom-modal-overlay">
-          <div className="custom-modal-card">
-            {/* Encabezado del Modal */}
-            <div className="modal-header-gradient">
-              <div className="header-content">
-                <Home size={22} color="#fff" />
-                <h2>NUEVA HABITACIÓN</h2>
-              </div>
+              ) : (
+                <>
+                  <strong style={{ marginLeft: '8px' }}>{zona?.name || "SIN NOMBRE"}</strong> 
+                  <Settings 
+                    size={16} 
+                    style={{ marginLeft: '8px', cursor: 'pointer', color: '#666' }} 
+                    onClick={() => setMostrarOpcionesZona(!mostrarOpcionesZona)} 
+                  />
+                  
+                  {mostrarOpcionesZona && (
+                    <div style={{ position: 'absolute', top: '100%', right: '0', background: 'white', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', border: '1px solid #eee', borderRadius: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', minWidth: '120px', marginTop: '5px', overflow: 'hidden' }}>
+                      <button 
+                        onClick={() => { setEditandoZonaNombre(true); setMostrarOpcionesZona(false); }} 
+                        style={{ padding: '10px 15px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#333' }}
+                        onMouseOver={(e) => e.target.style.background = '#f9f9f9'}
+                        onMouseOut={(e) => e.target.style.background = 'none'}
+                      >
+                        Editar nombre
+                      </button>
+                      <button 
+                        onClick={eliminarZona} 
+                        style={{ padding: '10px 15px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#e63946' }}
+                        onMouseOver={(e) => e.target.style.background = '#fdf2f2'}
+                        onMouseOut={(e) => e.target.style.background = 'none'}
+                      >
+                        Eliminar zona
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
             
-            {/* Cuerpo del Modal */}
-            <div className="modal-body">
-              <div className="input-container-modern">
-                <label>NOMBRE DE LA HABITACIÓN / ÁREA</label>
-                <input 
-                  type="text" 
-                  value={nuevaHabitacion}
-                  onChange={(e) => setNuevaHabitacion(e.target.value)}
-                  placeholder="Escribe el nombre aquí..."
-                  autoFocus
-                />
-              </div>
+            <div className="dz-actions-group">
+              <button className="dz-btn-plus"><Send size={20} /> ENVIAR</button>
+              <button className="dz-btn-save">GUARDAR</button>
+              <button className="dz-btn-save" onClick={() => setIsModalOpen(true)}>+</button>
             </div>
 
-            {/* Acciones del Modal */}
-            <div className="modal-footer">
-              <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>
-                CANCELAR
-              </button>
-              <button 
-                className="btn-confirm-grad" 
-                onClick={() => {
-                  console.log("Nueva habitación:", nuevaHabitacion);
-                  setIsModalOpen(false);
-                  setNuevaHabitacion("");
-                }}
-              >
-                AGREGAR
-              </button>
+            <div className="dz-date-tag">
+              FECHA REGISTRO <strong>{new Date().toLocaleDateString()}</strong>
             </div>
           </div>
+
+          {/* LISTA DE SUB-HABITACIONES */}
+          <div className="dz-list-container">
+            {loading ? (
+              <p style={{textAlign: 'center', padding: '20px', color: '#fff'}}>Cargando habitaciones...</p>
+            ) : habitaciones.length > 0 ? (
+              habitaciones.map((item) => (
+                <div key={item.id} className="dz-item-row" style={{ alignItems: 'center' }}>
+                  <div className="dz-item-left" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div className="dz-thumb-box" style={{ width: '50px', height: '50px', backgroundColor: '#f0f0f0', borderRadius: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <DoorOpen size={28} color="#555" />
+                    </div>
+                    <span className="dz-item-name" style={{ fontSize: '1.1rem' }}>{item.name}</span>
+                  </div>
+                  
+                  <div className="dz-item-right" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    {/* Botón clave para entrar a ver los electrodomésticos */}
+                    <button 
+                      onClick={() => setHabitacionActiva(item)}
+                      style={{ padding: '8px 15px', backgroundColor: '#f37021', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
+                    >
+                      <LayoutGrid size={16} /> VER ACTIVOS
+                    </button>
+                    <Edit3 size={20} className="dz-icon-edit" style={{ cursor: 'pointer' }} />
+                    <Trash2 size={20} className="dz-icon-delete" style={{ cursor: 'pointer' }} />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{textAlign: 'center', padding: '40px', color: '#ccc'}}>
+                <DoorOpen size={48} style={{ opacity: 0.5, marginBottom: '10px' }} />
+                <p>No hay sub-habitaciones registradas.</p>
+                <p style={{ fontSize: '0.9rem' }}>Presiona el botón <strong>+</strong> para agregar una (Ej. Medio Baño, Cuarto de estar).</p>
+              </div>
+            )}
+          </div>
         </div>
-      )}
-    </div>
+
+        {/* MODAL SIMPLIFICADO PARA HABITACIONES */}
+        {isModalOpen && (
+          <div className="custom-modal-overlay">
+            <div className="custom-modal-card" style={{ maxWidth: '400px', width: '95%' }}>
+              
+              <div className="modal-header-gradient">
+                <div className="header-content">
+                  <Home size={22} color="#fff" />
+                  <h2>NUEVA HABITACIÓN</h2>
+                </div>
+              </div>
+              
+              <div className="modal-body" style={{ padding: '20px' }}>
+                <div className="input-container-modern">
+                  <label>NOMBRE (Ej. Cuarto de estar, Baño principal)</label>
+                  <input 
+                    type="text" 
+                    value={nuevaHabitacion} 
+                    onChange={(e) => setNuevaHabitacion(e.target.value.toUpperCase())} 
+                    placeholder="Escribe aquí..." 
+                    autoFocus 
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>
+                  CANCELAR
+                </button>
+                <button className="btn-confirm-grad" onClick={guardarHabitacion} disabled={guardando}>
+                  {guardando ? <Loader2 size={16} className="animate-spin" /> : 'AGREGAR'}
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

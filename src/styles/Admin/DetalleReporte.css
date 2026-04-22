@@ -69,7 +69,9 @@
 .rep-main-content {
   flex-grow: 1;
   overflow-y: auto; /* PERMITE EL DESPLAZAMIENTO HACIA ABAJO */
-  padding: 40px;
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .main-banner {
@@ -282,14 +284,14 @@
 .seccion-bloque {
   background: #ffffff;
   border-radius: 12px;
-  padding: 25px;
-  margin-bottom: 30px;
+  padding: 20px;
+  margin-bottom: 25px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Sombra elegante */
   border-left: 6px solid #ff7f00; /* Línea lateral naranja corporativa */
 }
 
 .seccion-header h3 {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   color: #1a1a1a;
   margin-bottom: 5px;
   text-transform: uppercase;
@@ -323,7 +325,7 @@
 .sub-titulo h4 {
   margin: 0;
   color: #2c3e50; /* Un gris/azul oscuro */
-  font-size: 1.2rem;
+  font-size: 1.05rem;
 }
 
 /* Estilo tipo "Píldora" para la nota */
@@ -352,8 +354,8 @@
   background-color: #2c3e50; /* Cabecera oscura */
   color: #ffffff;
   text-align: left;
-  padding: 14px 15px;
-  font-size: 0.9rem;
+  padding: 12px 15px;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -363,10 +365,10 @@
 }
 
 .tabla-inventario td {
-  padding: 14px 15px;
+  padding: 12px 15px;
   color: #444;
   border-bottom: 1px solid #f1f1f1;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 /* Efecto hover en las filas de la tabla */
@@ -388,5 +390,21 @@
   text-align: center;
   font-weight: bold;
   color: #ff7f00; 
-  font-size: 1.15rem;
+  font-size: 1.05rem;
+}
+
+.no-activos-msg {
+  color: #999;
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  width: 100%;
 }

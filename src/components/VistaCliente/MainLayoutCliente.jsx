@@ -10,7 +10,7 @@ const MainLayoutCliente = () => {
   const navButtons = [
     { label: 'PROPIEDADES', path: '/inicio', icon: <Home size={18} /> },
     { label: 'SOS', path: '/sos', icon: <Bell size={18} /> },
-    { label: 'COTIZACIONES', path: '/cotizacion1', icon: <FileText size={18} /> },
+    { label: 'COTIZACIONES', path: '/vista-cotizaciones', icon: <FileText size={18} /> },
 
   ];
 

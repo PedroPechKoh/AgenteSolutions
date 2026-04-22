@@ -18,7 +18,7 @@ const CustomizeLogin = () => {
     const fetchCurrentSettings = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/ui/settings/login-settings",
+          `${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`,
         );
         if (response.data.success) {
           if (response.data.settings.imageUrl)
@@ -57,20 +57,20 @@ const CustomizeLogin = () => {
 
     try {
       await axios.post(
-        "http://127.0.0.1:8000/api/ui/settings/login-background/color",
+        `${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-background/color`,
         { color_hex: selectedColor },
       );
 
       if (imageToDelete) {
         await axios.delete(
-          "http://127.0.0.1:8000/api/ui/settings/login-background/image",
+          `${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-background/image`,
         );
         setImageToDelete(false);
       } else if (selectedFile) {
         const formData = new FormData();
         formData.append("background_image", selectedFile);
         await axios.post(
-          "http://127.0.0.1:8000/api/ui/settings/login-background/image",
+          `${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-background/image`,
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },

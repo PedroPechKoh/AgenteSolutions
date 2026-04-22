@@ -5,6 +5,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 
+////Comentario
+
 const ClientRegister = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -30,41 +32,39 @@ const ClientRegister = () => {
     setMessage("");
 
     if (password !== confirmPassword) {
-      setMessage("Error: Passwords do not match.");
+      setMessage("Error: Las contraseñas no coinciden.");
       return;
     }
 
     if (!isCaptchaValid) {
-      setMessage("Error: Please verify that you are not a robot.");
+      setMessage("Error: Por favor verifica que no eres un robot.");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const fullName = `${firstName.trim()} ${lastName.trim()}`;
-
+      // ✅ CORRECCIÓN: Mandamos first_name y last_name en lugar de name
       const res = await axios.post(
-        "http://127.0.0.1:8000/api/public-client-register",
+        `${import.meta.env.VITE_API_BASE_URL}/registro-cliente`,
         {
-          first_name: firstName,
-          last_name: lastName,
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
           email,
           phone,
           password,
-        },
+        }
       );
-
-      setMessage("Registration successful! Redirecting to Login...");
+      
+      setMessage("¡Registro exitoso! Redirigiendo al inicio de sesión...");
 
       setTimeout(() => {
         navigate("/");
       }, 2000);
     } catch (error) {
-      console.log("Registration error:", error);
-      setMessage("Error: Please check your details or try another email.");
-    } finally {
       setIsLoading(false);
+      console.error(error.response?.data);
+      alert("Error del servidor: " + (error.response?.data?.error || error.response?.data?.message || "Error desconocido"));
     }
   };
 
@@ -98,7 +98,7 @@ const ClientRegister = () => {
             className="form-title"
             style={{ fontSize: "1.6rem", marginBottom: "25px" }}
           >
-            CREAR CUENTA <i class="fas fa-chess-queen-alt    "></i>
+            CREAR CUENTA <i className="fas fa-chess-queen-alt"></i>
           </h2>
 
           <div className="form-row-responsive">

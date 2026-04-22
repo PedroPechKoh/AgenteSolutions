@@ -18,7 +18,7 @@ const AssignServiceForm = () => {
     if (propertyId) {
       const fetchComponents = async () => {
         try {
-          const response = await axios.get(`http://127.0.0.1:8000/api/properties/${propertyId}/components`);
+          const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${propertyId}/components`);
           setAvailableComponents(response.data);
         } catch (error) {
           console.error("Error loading components:", error);
@@ -51,7 +51,7 @@ const AssignServiceForm = () => {
     console.log("Data ready to send to Laravel:", payload);
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/services/assign', payload);
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/services/assign`, payload);
       alert('¡Servicio asignado correctamente!');
       console.log("Respuesta de Laravel:", response.data);
       

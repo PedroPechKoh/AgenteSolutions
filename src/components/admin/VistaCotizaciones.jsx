@@ -11,13 +11,24 @@ const VistaCotizaciones = () => {
   const [busqueda, setBusqueda] = useState('');
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
 
+  const [esCliente, setEsCliente] = useState(false);
+  const [rechazando, setRechazando] = useState(false);
+  const [motivoRechazo, setMotivoRechazo] = useState('');
+  const [procesando, setProcesando] = useState(false);
+
   useEffect(() => {
+    try {
+      const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+      if (session?.userData?.role_id === 3) {
+        setEsCliente(true);
+      }
+    } catch(e) {}
     cargarCotizaciones();
   }, []);
 
   const cargarCotizaciones = async () => {
     try {
-      const respuesta = await axios.get('http://127.0.0.1:8000/api/cotizaciones');
+      const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
       setCotizaciones(respuesta.data);
     } catch (error) {
       console.error("Error al cargar cotizaciones:", error);
@@ -39,6 +50,30 @@ const VistaCotizaciones = () => {
 
   const verPantallaCompleta = (url) => {
     window.open(url, '_blank');
+  };
+
+  const procesarCotizacion = async (status) => {
+    if (status === 'Rechazado' && !motivoRechazo.trim()) {
+      alert("Por favor, ingresa el motivo del rechazo.");
+      return;
+    }
+
+    setProcesando(true);
+    try {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/status`, {
+        status,
+        rejection_reason: motivoRechazo
+      });
+      alert(`Cotización ${status.toLowerCase()} exitosamente.`);
+      setCotizacionSeleccionada(null);
+      setRechazando(false);
+      setMotivoRechazo('');
+      cargarCotizaciones();
+    } catch(e) {
+      alert("Error al procesar la cotización.");
+    } finally {
+      setProcesando(false);
+    }
   };
 
   return (
@@ -115,7 +150,7 @@ const VistaCotizaciones = () => {
             
             <div className="modal-header-dark" style={{ flexShrink: 0 }}>
                 <span>DETALLE DE COTIZACIÓN {cotizacionSeleccionada.folio}</span>
-                <button className="modal-close-icon" onClick={() => setCotizacionSeleccionada(null)}>&times;</button>
+                <button className="modal-close-icon" onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>&times;</button>
             </div>
             
             <div className="modal-body-content" style={{ overflowY: 'auto', flexGrow: 1 }}>
@@ -192,13 +227,80 @@ const VistaCotizaciones = () => {
                   <h3>TOTAL: ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}</h3>
                 </div>
 
+                {cotizacionSeleccionada.observaciones && (
+                  <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: '8px', marginTop: '15px', borderLeft: '4px solid #ff8800' }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', color: '#333' }}>Mensajes / Observaciones:</h4>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#555', whiteSpace: 'pre-wrap' }}>
+                      {cotizacionSeleccionada.observaciones}
+                    </p>
+                  </div>
+                )}
+                
+                {rechazando && (
+                  <div style={{ padding: '15px', background: '#ffebee', borderRadius: '8px', marginTop: '15px' }}>
+                    <label style={{ fontWeight: 'bold', color: '#b71c1c', display: 'block', marginBottom: '8px' }}>
+                      Motivo del rechazo:
+                    </label>
+                    <textarea 
+                      style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ffcdd2', outline: 'none' }}
+                      rows="3"
+                      placeholder="Escribe por qué rechazas la cotización..."
+                      value={motivoRechazo}
+                      onChange={(e) => setMotivoRechazo(e.target.value)}
+                    />
+                  </div>
+                )}
+
             </div>
 
-            <div className="modal-footer-btns" style={{ flexShrink: 0 }}>
-                {cotizacionSeleccionada.tipo !== 'archivo' && (
-                  <button className="btn-modal-print" onClick={() => window.print()}>🖨️ PDF</button>
-                )}
-                <button className="btn-modal-close" onClick={() => setCotizacionSeleccionada(null)}>CERRAR</button>
+            <div className="modal-footer-btns" style={{ flexShrink: 0, justifyContent: 'space-between', display: 'flex' }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {esCliente && cotizacionSeleccionada.estado === 'Pendiente' && !rechazando && (
+                    <>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#2e7d32', color: 'white' }} 
+                        onClick={() => procesarCotizacion('Aprobado')}
+                        disabled={procesando}
+                      >
+                        ✓ ACEPTAR COTIZACIÓN
+                      </button>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#c62828', color: 'white' }} 
+                        onClick={() => setRechazando(true)}
+                      >
+                        ✕ RECHAZAR
+                      </button>
+                    </>
+                  )}
+                  {esCliente && rechazando && (
+                    <>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#c62828', color: 'white' }} 
+                        onClick={() => procesarCotizacion('Rechazado')}
+                        disabled={procesando}
+                      >
+                        CONFIRMAR RECHAZO
+                      </button>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#757575', color: 'white' }} 
+                        onClick={() => { setRechazando(false); setMotivoRechazo(''); }}
+                      >
+                        CANCELAR
+                      </button>
+                    </>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {cotizacionSeleccionada.tipo !== 'archivo' && (
+                    <button className="btn-modal-print" onClick={() => window.print()}>🖨️ PDF</button>
+                  )}
+                  <button className="btn-modal-close" onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>CERRAR</button>
+                </div>
             </div>
           </div>
         </div>

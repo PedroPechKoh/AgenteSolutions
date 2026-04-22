@@ -25,11 +25,19 @@ const VistaPropiedades = () => {
   const [pasoModal, setPasoModal] = useState(1); 
   const [nombreResponsable, setNombreResponsable] = useState("");
 
+  // ✅ CORRECCIÓN 1: Enviar el Token al obtener propiedades
   useEffect(() => {
     const obtenerPropiedades = async () => {
       try {
+        const token = localStorage.getItem('agente_token'); // Extraemos el gafete
+
         const { data } = await axios.get(
-          "http://127.0.0.1:8000/api/propiedades",
+          `${import.meta.env.VITE_API_BASE_URL}/propiedades`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}` // Lo inyectamos aquí
+            }
+          }
         );
         setListaPropiedades(data);
       } catch (error) {
@@ -41,17 +49,23 @@ const VistaPropiedades = () => {
     obtenerPropiedades();
   }, []);
 
+  // ✅ CORRECCIÓN 2: Enviar el Token al eliminar
   const eliminarPropiedad = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar esta propiedad?")) return;
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/propiedades/${id}`);
+      const token = localStorage.getItem('agente_token');
+
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       setListaPropiedades((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
       alert("Error al eliminar la propiedad.");
     }
   };
 
-  
   const abrirModalParaPropiedad = (propiedad) => {
     setPropiedadSeleccionada(propiedad);
     setPasoModal(1); 
@@ -59,24 +73,28 @@ const VistaPropiedades = () => {
     setMostrarModalServicio(true);
   };
 
+  // ✅ CORRECCIÓN 3: Enviar el Token al solicitar levantamiento
   const enviarLevantamiento = async (e) => {
     e.preventDefault();
     try {
+      const token = localStorage.getItem('agente_token');
+
       const payload = {
         property_id: propiedadSeleccionada.id,
         title: "Levantamiento Inicial",
-        description:
-          "Solicitud de visita técnica para registro inicial de la propiedad.",
+        description: "Solicitud de visita técnica para registro inicial de la propiedad.",
         priority: "Media",
-        supervisor_name:
-          nombreResponsable.trim() !== ""
-            ? nombreResponsable
-            : "El propietario",
+        supervisor_name: nombreResponsable.trim() !== "" ? nombreResponsable : "El propietario",
       };
 
       const respuesta = await axios.post(
-        "http://127.0.0.1:8000/api/servicios",
+        `${import.meta.env.VITE_API_BASE_URL}/servicios`,
         payload,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
       );
 
       if (respuesta.data.success) {
@@ -169,73 +187,71 @@ const VistaPropiedades = () => {
                     </td>
                     <td>{p.direccion || "Sin dirección registrada"}</td>
                     <td>{p.fecha || "S/N"}</td>
-                    <td
-                      className="actions-btns"
-                      style={{
-                        display: "flex",
-                        gap: "5px",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <td
-                        className="actions-btns"
+                    <td className="actions-btns">
+                      <button
                         style={{
-                          display: "flex",
-                          gap: "5px",
-                          alignItems: "center",
-                          justifyContent: "center",
+                          backgroundColor: "#2196F3",
+                          color: "white",
+                          border: "none",
+                          padding: "6px 12px",
+                          borderRadius: "4px",
+                          fontWeight: "bold",
+                          cursor: "pointer",
+                          fontSize: "0.8rem",
                         }}
+                        title="Ver Tablero de la Propiedad"
+                        onClick={() => navigate(`/propiedad/${p.id}`)}
                       >
-                        {p.has_pending_service ? (
-                          <button
-                            style={{
-                              backgroundColor: "#e0e0e0", 
-                              color: "#888", 
-                              border: "1px solid #ccc",
-                              padding: "6px 12px",
-                              borderRadius: "4px",
-                              fontWeight: "bold",
-                              cursor: "not-allowed", 
-                              fontSize: "0.8rem",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "5px",
-                            }}
-                            disabled
-                            title="Ya tienes una solicitud pendiente para esta propiedad"
-                          >
-                            <CheckCircle size={14} /> LEVANTAMIENTO SOLICITADO
-                          </button>
-                        ) : (
-                          <button
-                            style={{
-                              backgroundColor: "#4CAF50",
-                              color: "white",
-                              border: "none",
-                              padding: "6px 12px",
-                              borderRadius: "4px",
-                              fontWeight: "bold",
-                              cursor: "pointer",
-                              fontSize: "0.8rem",
-                            }}
-                            onClick={() => abrirModalParaPropiedad(p)}
-                          >
-                            SOLICITAR LEVANTAMIENTO
-                          </button>
-                        )}
-
-                        <button className="btn-orange" title="Editar">
-                          ✏️
-                        </button>
+                        VER TABLERO
+                      </button>
+                      {p.has_pending_service ? (
                         <button
-                          className="btn-orange"
-                          title="Eliminar"
-                          onClick={() => eliminarPropiedad(p.id)}
+                          style={{
+                            backgroundColor: "#e0e0e0", 
+                            color: "#888", 
+                            border: "1px solid #ccc",
+                            padding: "6px 12px",
+                            borderRadius: "4px",
+                            fontWeight: "bold",
+                            cursor: "not-allowed", 
+                            fontSize: "0.8rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "5px",
+                          }}
+                          disabled
+                          title="Ya tienes una solicitud pendiente para esta propiedad"
                         >
-                          🗑️
+                          <CheckCircle size={14} /> LEVANTAMIENTO SOLICITADO
                         </button>
-                      </td>
+                      ) : (
+                        <button
+                          style={{
+                            backgroundColor: "#4CAF50",
+                            color: "white",
+                            border: "none",
+                            padding: "6px 12px",
+                            borderRadius: "4px",
+                            fontWeight: "bold",
+                            cursor: "pointer",
+                            fontSize: "0.8rem",
+                          }}
+                          onClick={() => abrirModalParaPropiedad(p)}
+                        >
+                          SOLICITAR LEVANTAMIENTO
+                        </button>
+                      )}
+
+                      <button className="btn-orange" title="Editar">
+                        ✏️
+                      </button>
+                      <button
+                        className="btn-orange"
+                        title="Eliminar"
+                        onClick={() => eliminarPropiedad(p.id)}
+                      >
+                        🗑️
+                      </button>
                     </td>
                   </tr>
                 ))
