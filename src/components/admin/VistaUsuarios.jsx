@@ -77,6 +77,31 @@ const VistaUsuarios = () => {
     }
   };
 
+  const cambiarRol = async (id, rolActual, nuevoRolStr) => {
+    if (rolActual === "ROOT") {
+      alert("⚠️ SEGURIDAD: No puedes modificar el rol del ROOT.");
+      return;
+    }
+    if (nuevoRolStr === "ROOT") {
+      alert("⚠️ SEGURIDAD: No puedes asignar el rol de ROOT desde aquí.");
+      return;
+    }
+    
+    if (!window.confirm(`¿Estás seguro de cambiar el rol de este usuario a ${nuevoRolStr}?`)) return;
+
+    const nuevoRoleId = parseInt(Object.keys(MAPA_ROLES).find(key => MAPA_ROLES[key] === nuevoRolStr));
+
+    try {
+      // Petición a Railway usando el VITE_API_BASE_URL
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}/rol`, { role_id: nuevoRoleId });
+      setListaUsuarios(prev => prev.map(u => u.id === id ? { ...u, rol: nuevoRolStr } : u));
+      // También forzamos la actualización visual inmediata en el filtrado
+      setUsuariosFiltrados(prev => prev.map(u => u.id === id ? { ...u, rol: nuevoRolStr } : u));
+    } catch (error) {
+      alert(error.response?.data?.error || "Hubo un error al cambiar el rol. Verifica la ruta en el backend.");
+    }
+  };
+
   return (
     <div className="main-container bg-light">
       <div className="top-bar-orange" /><div className="top-bar-black" />
@@ -139,7 +164,23 @@ const VistaUsuarios = () => {
                       {u.nombre} {u.bloqueado && <span className="blocked-tag">BLOQUEADO</span>}
                     </td>
                     <td>{u.correo}</td>
-                    <td><span className={`badge-rol ${u.rol.toLowerCase()}`}>{u.rol}</span></td>
+                    <td>
+                      <select 
+                        className={`badge-rol ${u.rol.toLowerCase()} border-none outline-none cursor-pointer`}
+                        value={u.rol}
+                        onChange={(e) => cambiarRol(u.id, u.rol, e.target.value)}
+                        disabled={u.rol === "ROOT"}
+                        style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none', textAlign: 'center' }}
+                      >
+                        {Object.values(MAPA_ROLES)
+                          .filter(rolOption => rolOption !== "ROOT") // Filtramos ROOT de las opciones select
+                          .map(rolOption => (
+                            <option key={rolOption} value={rolOption} className="text-black bg-white">
+                              {rolOption}
+                            </option>
+                        ))}
+                      </select>
+                    </td>
                     <td>
                       <span className={`status-dot ${u.bloqueado ? "status-off" : "status-on"}`} />
                       {u.bloqueado ? "Acceso Restringido" : u.estado}
