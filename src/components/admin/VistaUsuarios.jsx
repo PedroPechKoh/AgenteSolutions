@@ -48,6 +48,24 @@ const VistaUsuarios = () => {
     obtenerUsuarios();
   }, []);
 
+  // NUEVA ACCIÓN: CAMBIAR ROL
+  const cambiarRol = async (id, nuevoRolId, nombreUsuario) => {
+    if (!window.confirm(`¿Estás seguro de cambiar el tipo de usuario a ${nombreUsuario}?`)) return;
+
+    try {
+      // Se asume que tu API tiene un endpoint para actualizar el role_id
+      await axios.put(`http://127.0.0.1:8000/api/usuarios/${id}/update-role`, {
+        role_id: nuevoRolId
+      });
+
+      setListaUsuarios(prev => prev.map(u => 
+        u.id === id ? { ...u, rol: MAPA_ROLES[nuevoRolId] } : u
+      ));
+    } catch (error) {
+      alert(error.response?.data?.error || "Error al actualizar el rol del usuario.");
+    }
+  };
+
   // ACCIONES (BLOQUEO Y ELIMINACIÓN)
   const toggleBloqueo = async (id, rolActual, estaBloqueado) => {
     if (rolActual === 'ROOT') return alert("⚠️ SEGURIDAD: No puedes bloquear al ROOT.");
@@ -139,7 +157,22 @@ const VistaUsuarios = () => {
                       {u.nombre} {u.bloqueado && <span className="blocked-tag">BLOQUEADO</span>}
                     </td>
                     <td>{u.correo}</td>
-                    <td><span className={`badge-rol ${u.rol.toLowerCase()}`}>{u.rol}</span></td>
+                    <td>
+                      {/* SELECT EDITABLE PARA ROL */}
+                      {u.rol === "ROOT" ? (
+                        <span className="badge-rol root">{u.rol}</span>
+                      ) : (
+                        <select 
+                          className="select-rol-inline"
+                          value={Object.keys(MAPA_ROLES).find(key => MAPA_ROLES[key] === u.rol)}
+                          onChange={(e) => cambiarRol(u.id, parseInt(e.target.value), u.nombre)}
+                        >
+                          {Object.entries(MAPA_ROLES).map(([id, nombre]) => (
+                            <option key={id} value={id}>{nombre}</option>
+                          ))}
+                        </select>
+                      )}
+                    </td>
                     <td>
                       <span className={`status-dot ${u.bloqueado ? "status-off" : "status-on"}`} />
                       {u.bloqueado ? "Acceso Restringido" : u.estado}
