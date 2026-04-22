@@ -605,3 +605,193 @@
     padding-bottom: 2px;
     margin-bottom: 15px;
 }
+/* --- MODAL WIDE (Para las tablas dinámicas) --- */
+.cot-modal-card.wide {
+    width: 95%;
+    max-width: 1100px; /* Un poco más ancho para las tablas */
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+.cot-modal-body.dinamico {
+    padding: 25px;
+    max-height: 70vh; /* Scroll para que no se corte */
+    overflow-y: auto;
+    background: #f8f9fa; /* Fondo gris muy suave detrás de las secciones blancas */
+}
+
+/* --- SECCIONES BLANCAS DENTRO DEL MODAL --- */
+.cot-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* TÍTULO DE SECCIÓN CON LÍNEA NARANJA (idéntico a tu foto) */
+.coti-section-title {
+    color: #444;
+    font-size: 0.95rem;
+    font-weight: bold;
+    border-bottom: 3px solid #ff9800; /* Línea naranja gruesa */
+    display: inline-block;
+    padding-bottom: 2px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+/* --- TABLAS DINÁMICAS --- */
+.coti-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+/* CABECERAS GRISES (Idéntico a tu foto) */
+.coti-table th {
+    background: #ebeef0; 
+    color: #555;
+    padding: 12px 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.coti-table td {
+    padding: 8px;
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* INPUTS DENTRO DE TABLA */
+.coti-table input {
+    width: 90%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.subtotal-cell {
+    font-weight: bold;
+    color: #333;
+}
+
+/* --- BOTONES NARANJAS CON BORDE PUNTEADO (Idéntico a tu foto) --- */
+.btn-add-row.orange-dashed {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    color: #ff9800; /* Naranja institucional */
+    border: 2px dashed #ff9800; /* Borde punteado naranja */
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-add-row.orange-dashed:hover {
+    background: #fff5e6;
+}
+
+/* Botones de eliminar (trash icon) */
+.btn-delete {
+    background: transparent;
+    border: none;
+    color: #d9534f; /* Rojo suave */
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+/* --- DISEÑO GRID PARA HERRAMIENTAS --- */
+.cot-grid-tools {
+    display: flex;
+    gap: 20px;
+}
+
+.cot-section.half {
+    flex: 1;
+}
+
+.coti-table.compact th,
+.coti-table.compact td {
+    padding: 8px;
+    font-size: 0.85rem;
+}
+
+.btn-add-row.compact {
+    padding: 8px;
+    font-size: 0.9rem;
+}
+
+/* --- OBSERVACIONES --- */
+.cot-section.observations textarea {
+    width: 100%;
+    height: 80px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fdfdfd;
+}
+
+/* --- FOOTER DEL MODAL DINÁMICO --- */
+.cot-modal-footer.dinamico {
+    padding: 20px 30px;
+    background: #f1f3f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+}
+
+/* CAJA DE TOTAL CON BORDE NARANJA (Idéntico a tu foto) */
+.total-box.orange-border {
+    border: 1.5px solid #ff9800;
+    padding: 12px 25px;
+    border-radius: 8px;
+    background: white;
+}
+
+.total-label {
+    color: #ff9800;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.total-amount {
+    color: #ff9800;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.footer-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Botón Cancelar Gris Oscuro/Redondeado */
+.btn-secundario.rounded {
+    background: #2c3e50;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Botón Enviar Naranja Sólido */
+.btn-primario.orange-solid {
+    background: #ff9800;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
