@@ -408,3 +408,55 @@
   overflow-x: auto;
   width: 100%;
 }
+.cot-modal-card.wide {
+    width: 90%;
+    max-width: 1000px;
+    background: #f8f9fa;
+    color: #333;
+}
+
+.cot-section {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.cot-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.cot-table th {
+    text-align: left;
+    color: #666;
+    font-size: 12px;
+    border-bottom: 2px solid #eee;
+    padding: 10px;
+}
+
+.cot-table input {
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.btn-add {
+    background: transparent;
+    color: orange;
+    border: 2px dashed orange;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.total-box {
+    border: 1px solid orange;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 20px;
+}
