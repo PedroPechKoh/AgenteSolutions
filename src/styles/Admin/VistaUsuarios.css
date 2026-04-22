@@ -446,3 +446,69 @@
     color: #cc6d00;
     text-decoration: underline;
 }
+/* --- Estilos para el Selector de Rol con Diseño de 'Badge' --- */
+
+.select-rol-inline {
+    /* Reinicia estilos predeterminados del navegador */
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    /* Diseño base del Badge (Ovalado y Suave) */
+    padding: 3px 28px 3px 12px; /* Espacio extra a la derecha para la flecha */
+    border-radius: 20px;       /* Forma ovalada */
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;              /* Quitamos el borde por defecto */
+    outline: none;             /* Quitamos el borde de enfoque por defecto */
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    
+    /* Agregamos la flecha personalizada (un tono gris/negro suave) */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center; /* Posición de la flecha */
+    background-size: 14px;                 /* Tamaño de la flecha */
+}
+
+/* Efectos al pasar el mouse (Hover) */
+.select-rol-inline:hover:not(:disabled) {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Efecto al hacer clic (Active) */
+.select-rol-inline:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+
+/* --- Paleta de Colores Dinámicos (Estilo Badge Suave) --- */
+/* (Basados en el estilo del badge de ROOT: fondo muy claro, texto intenso) */
+
+/* Estilo para TECNICO (Fondo Azul muy claro, Texto Azul) */
+.select-rol-inline.tecnico {
+    background-color: #EBF5FF; /* Fondo suave */
+    color: #004A99;           /* Texto intenso */
+}
+
+/* Estilo para CLIENTE (Fondo Verde muy claro, Texto Verde) */
+.select-rol-inline.cliente {
+    background-color: #E6FFFA; /* Fondo suave */
+    color: #00664F;           /* Texto intenso */
+}
+
+/* Estilo para ADMIN (Fondo Naranja muy claro, Texto Naranja) */
+.select-rol-inline.admin {
+    background-color: #FFF5F0; /* Fondo suave (similar al ROOT pero tono naranja) */
+    color: #9C4221;           /* Texto intenso */
+}
+
+
+/* --- Estilos para las opciones dentro del desplegable --- */
+.select-rol-inline option {
+    background-color: white; /* Asegura que el menú desplegable tenga fondo blanco */
+    color: black;           /* Texto negro normal dentro del menú */
+    text-transform: none;   /* Opciones sin mayúsculas forzadas para legibilidad */
+    font-weight: normal;
+}

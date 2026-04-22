@@ -160,7 +160,7 @@ const handleLogin = async (e) => {
             style={{ paddingLeft: "55px" }}
           />
           <button type="button" className="toggle-password-btn" onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? <EyeOff size={22} strokeWidth={2.5} /> : <Eye size={22} strokeWidth={2.5} />}
+            {showPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
           </button>
         </div>
 

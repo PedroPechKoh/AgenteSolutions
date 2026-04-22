@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react'; // Eliminado 'React' ya que en versiones modernas no es necesario si no se usa explícitamente
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Camera, X } from 'lucide-react'; 
+import { Camera, X } from 'lucide-react'; // Eliminado 'ArrowLeft' porque no se usa
 import axios from 'axios';
-import Header from './Header'; 
+// Eliminado 'Header' porque no se usa en el JSX
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/Logo3.png"; 
 import "../../styles/Profile.css"; 
@@ -71,11 +71,19 @@ const Profile = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault(); 
     try {
+
+      // Eliminamos 'const res =' ya que no usas la respuesta para nada
+      await axios.post('http://127.0.0.1:8000/api/usuarios/update-profile', {
+        user_id: user.id,
+ });
+
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, {
         id: `u_${user.id}`,
+       
+
         ...formData
       });
-
+console.log("Perfil actualizado:", res.data);
       loginGlobal({
         ...user,
         first_name: formData.first_name,
@@ -88,7 +96,7 @@ const Profile = () => {
       setIsModalOpen(false);
       alert("¡Datos actualizados con éxito!");
     } catch (error) {
-      console.error(error);
+      console.error("Error en handleSaveProfile:", error);
       alert("Hubo un error al actualizar los datos.");
     }
   };
@@ -121,6 +129,9 @@ const Profile = () => {
         }
       });
 
+      // Aquí 'res' SÍ se usa para actualizar las fotos
+
+
       // Extraemos la URL de la nube
       const nuevaUrlNube = res.data.url;
 
@@ -133,6 +144,7 @@ const Profile = () => {
       alert(`¡${type === 'profile_picture' ? 'Foto de perfil' : 'Portada'} actualizada con éxito!`);
 
     } catch (error) {
+      console.error("Error en handleFileUpload:", error);
       console.error("Error al subir a Cloudinary:", error);
       alert("Error al subir la imagen. Revisa la consola.");
     } finally {
@@ -197,13 +209,59 @@ const Profile = () => {
                 <div className="data-group"><label>Correo Electrónico</label><p>{user?.email || 'No registrado'}</p></div>
                 <div className="data-group"><label>Teléfono</label><p>{user?.phone_number || 'No registrado'}</p></div>
                 <div className="data-group"><label>Fecha de Nacimiento</label><p>{formatearFecha(user?.birth_date)}</p></div>
-                <div className="data-group"><label>Miembro desde</label><p>{formatearFecha(user?.created_at)}</p></div>
+                <div className="data-grid-item"><label>Miembro desde</label><p>{formatearFecha(user?.created_at)}</p></div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>
+              &times;
+            </button>
+            
+            <h3 className="modal-title">Editar Perfil</h3>
+            
+            <form onSubmit={handleSaveProfile} className="edit-profile-form">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nombre(s)</label>
+                  <input type="text" required value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Apellidos</label>
+                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Teléfono Celular</label>
+                  <input type="tel" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Fecha de Nacimiento</label>
+                  <input type="date" value={formData.birth_date} onChange={(e) => setFormData({...formData, birth_date: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                <button type="submit" className="btn-save">Guardar Cambios</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+=======
      {isPhotoMenuOpen && (
       <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
         <div className="modal-content photo-menu-content" onClick={e => e.stopPropagation()}>

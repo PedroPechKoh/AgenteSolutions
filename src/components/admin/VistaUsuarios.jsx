@@ -6,6 +6,7 @@ import "../../styles/Admin/VistaUsuarios.css";
 import logo from "../../assets/Logo4.png";
 import { X } from "lucide-react";
 
+// CONFIGURACIÓN DE ROLES SEGÚN TU BASE DE DATOS
 const MAPA_ROLES = { 0: "ROOT", 1: "ADMIN", 2: "TECNICO", 3: "CLIENTE" };
 
 const CATEGORIAS = [
@@ -33,6 +34,7 @@ const VistaUsuarios = () => {
           nombre: `${u.first_name} ${u.last_name || ""}`.trim(),
           correo: u.email,
           rol: MAPA_ROLES[u.role_id] || "DESCONOCIDO",
+          role_id: u.role_id, // Importante guardar el ID numérico
           estado: u.is_active ? "Activo" : "Inactivo",
           bloqueado: u.is_active === 0,
           profile_picture_url: u.profile_picture_url,
@@ -48,9 +50,39 @@ const VistaUsuarios = () => {
     obtenerUsuarios();
   }, []);
 
-  // ACCIONES (BLOQUEO Y ELIMINACIÓN)
-  const toggleBloqueo = async (id, rolActual, estaBloqueado) => {
-    if (rolActual === 'ROOT') return alert("⚠️ SEGURIDAD: No puedes bloquear al ROOT.");
+  // ACCIÓN: CAMBIAR ROL
+  const cambiarRol = async (id, nuevoRolId, nombreUsuario) => {
+    if (!window.confirm(`¿Estás seguro de cambiar el tipo de usuario de ${nombreUsuario}?`)) {
+      setListaUsuarios([...listaUsuarios]);
+      return;
+    }
+
+    try {
+      // Petición a Railway usando el VITE_API_BASE_URL
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}/rol`, {
+        role_id: Number(nuevoRolId) 
+      });
+
+      const nuevoRolStr = MAPA_ROLES[nuevoRolId];
+      
+      setListaUsuarios(prev => prev.map(u => 
+        u.id === id ? { ...u, rol: nuevoRolStr, role_id: Number(nuevoRolId) } : u
+      ));
+      setUsuariosFiltrados(prev => prev.map(u => 
+        u.id === id ? { ...u, rol: nuevoRolStr, role_id: Number(nuevoRolId) } : u
+      ));
+      
+      alert("¡Rol actualizado correctamente!");
+    } catch (error) {
+      console.error("Error completo:", error.response?.data);
+      alert(error.response?.data?.message || "Error al actualizar el rol.");
+      setListaUsuarios([...listaUsuarios]);
+    }
+  };
+
+  // ACCIONES DE BLOQUEO Y ELIMINACIÓN
+  const toggleBloqueo = async (id, role_id, estaBloqueado) => {
+    if (role_id === 0) return alert("⚠️ SEGURIDAD: No puedes bloquear al ROOT.");
     const accion = estaBloqueado ? "desbloquear" : "bloquear";
     
     if (!window.confirm(`¿Estás seguro de que deseas ${accion} a este usuario?`)) return;
@@ -61,12 +93,12 @@ const VistaUsuarios = () => {
         ...u, bloqueado: !u.bloqueado, estado: !u.bloqueado ? 'Inactivo' : 'Activo' 
       } : u));
     } catch (error) {
-      alert(error.response?.data?.error || "Error al procesar la solicitud.");
+      alert("Error al procesar la solicitud.");
     }
   };
 
-  const eliminarUsuario = async (id, rolActual) => {
-    if (rolActual === "ROOT") return alert("⚠️ SEGURIDAD: No puedes eliminar al ROOT.");
+  const eliminarUsuario = async (id, role_id) => {
+    if (role_id === 0) return alert("⚠️ SEGURIDAD: No puedes eliminar al ROOT.");
     if (!window.confirm("¿Deseas eliminar este usuario? Esta acción es irreversible.")) return;
 
     try {
@@ -74,31 +106,6 @@ const VistaUsuarios = () => {
       setListaUsuarios(prev => prev.filter(u => u.id !== id));
     } catch (error) {
       alert("Hubo un problema al eliminar el usuario.");
-    }
-  };
-
-  const cambiarRol = async (id, rolActual, nuevoRolStr) => {
-    if (rolActual === "ROOT") {
-      alert("⚠️ SEGURIDAD: No puedes modificar el rol del ROOT.");
-      return;
-    }
-    if (nuevoRolStr === "ROOT") {
-      alert("⚠️ SEGURIDAD: No puedes asignar el rol de ROOT desde aquí.");
-      return;
-    }
-    
-    if (!window.confirm(`¿Estás seguro de cambiar el rol de este usuario a ${nuevoRolStr}?`)) return;
-
-    const nuevoRoleId = parseInt(Object.keys(MAPA_ROLES).find(key => MAPA_ROLES[key] === nuevoRolStr));
-
-    try {
-      // Petición a Railway usando el VITE_API_BASE_URL
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}/rol`, { role_id: nuevoRoleId });
-      setListaUsuarios(prev => prev.map(u => u.id === id ? { ...u, rol: nuevoRolStr } : u));
-      // También forzamos la actualización visual inmediata en el filtrado
-      setUsuariosFiltrados(prev => prev.map(u => u.id === id ? { ...u, rol: nuevoRolStr } : u));
-    } catch (error) {
-      alert(error.response?.data?.error || "Hubo un error al cambiar el rol. Verifica la ruta en el backend.");
     }
   };
 
@@ -165,35 +172,34 @@ const VistaUsuarios = () => {
                     </td>
                     <td>{u.correo}</td>
                     <td>
-                      <select 
-                        className={`badge-rol ${u.rol.toLowerCase()} border-none outline-none cursor-pointer`}
-                        value={u.rol}
-                        onChange={(e) => cambiarRol(u.id, u.rol, e.target.value)}
-                        disabled={u.rol === "ROOT"}
-                        style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none', textAlign: 'center' }}
-                      >
-                        {Object.values(MAPA_ROLES)
-                          .filter(rolOption => rolOption !== "ROOT") // Filtramos ROOT de las opciones select
-                          .map(rolOption => (
-                            <option key={rolOption} value={rolOption} className="text-black bg-white">
-                              {rolOption}
-                            </option>
-                        ))}
-                      </select>
+                      {u.role_id === 0 ? (
+                        <span className="badge-rol root text-center block">ROOT</span>
+                      ) : (
+                        <select 
+                          className={`badge-rol ${u.rol.toLowerCase()} border-none outline-none cursor-pointer text-center select-rol-inline`}
+                          value={u.role_id}
+                          onChange={(e) => cambiarRol(u.id, parseInt(e.target.value), u.nombre)}
+                          style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none' }}
+                        >
+                          <option value="1" className="text-black bg-white">ADMIN</option>
+                          <option value="2" className="text-black bg-white">TECNICO</option>
+                          <option value="3" className="text-black bg-white">CLIENTE</option>
+                        </select>
+                      )}
                     </td>
                     <td>
                       <span className={`status-dot ${u.bloqueado ? "status-off" : "status-on"}`} />
-                      {u.bloqueado ? "Acceso Restringido" : u.estado}
+                      {u.bloqueado ? "Inactivo" : u.estado}
                     </td>
                     <td className="actions-cell">
                       <button 
                         className={`btn-table-oval ${u.bloqueado ? "is-blocked" : "is-unblocked"}`} 
-                        onClick={() => toggleBloqueo(u.id, u.rol, u.bloqueado)}
+                        onClick={() => toggleBloqueo(u.id, u.role_id, u.bloqueado)}
                       >
                         <span className="oval-icon">{u.bloqueado ? "🔓" : "🔒"}</span>
                         <span className="oval-text">{u.bloqueado ? "Desbloquear" : "Bloquear"}</span>
                       </button>
-                      <button className="btn-table-oval-small delete-oval" onClick={() => eliminarUsuario(u.id, u.rol)}>🗑️</button>
+                      <button className="btn-table-oval-small delete-oval" onClick={() => eliminarUsuario(u.id, u.role_id)}>🗑️</button>
                     </td>
                   </tr>
                 ))

@@ -176,7 +176,7 @@
 
 .toggle-password-btn {
   position: absolute;
-  right: 15px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -188,10 +188,55 @@
   align-items: center;
   justify-content: center;
   transition: color 0.3s;
+  padding: 5px;
+  min-width: auto;
 }
 
 .toggle-password-btn:hover {
   color: #f26522;
+}
+
+@media (max-width: 768px) {
+  .form-section {
+    width: 90% !important;
+    padding: 20px !important;
+    gap: 15px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .toggle-password-btn {
+    right: 8px;
+    padding: 3px;
+  }
+  
+  .custom-input {
+    padding: 12px 38px 12px 45px;
+    font-size: 0.9rem;
+  }
+  
+  .input-icon {
+    left: 12px;
+    width: 18px !important;
+    height: 18px !important;
+  }
+  
+  .form-section {
+    width: 95% !important;
+    padding: 15px !important;
+    gap: 12px !important;
+    margin-right: 0 !important;
+  }
+  
+  .form-title {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+  }
+  
+  .btn-login {
+    padding: 12px;
+    font-size: 1.1rem;
+  }
 }
 
 @media (max-width: 960px) {
@@ -234,5 +279,24 @@
     max-width: 350px;
     padding: 20px;
     align-items: center;
+  }
+}
+
+/* Clase auxiliar para forms responsivos */
+.form-row-responsive {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+@media (max-width: 600px) {
+  .form-row-responsive {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .form-row-responsive > div {
+    margin-bottom: 0 !important;
   }
 }
