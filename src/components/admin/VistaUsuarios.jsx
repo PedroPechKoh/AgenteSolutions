@@ -148,7 +148,7 @@ const VistaUsuarios = () => {
             onClick={() => navigate('/registro')}
             style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600' }}
           >
-            <span className="icon-box">📝</span> REGISTRO PRIVADO
+            <span className="icon-box">📝</span> REGISTRAR USUARIO
           </div>
 
         </div>
