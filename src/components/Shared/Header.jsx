@@ -54,7 +54,6 @@ const Header = ({ rolTexto = "USUARIO" }) => {
           onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
         >
           <Home size={18} />
-          <span>Inicio</span>
         </button>
       </div>
 
