@@ -9,21 +9,24 @@ const DetalleReporte = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // --- ESTADOS DE LA VISTA PRINCIPAL ---
+    // --- ESTADOS DE LA VISTA PRINCIPAL (DATOS DE LEVANTAMIENTO) ---
     const [datosBD, setDatosBD] = useState(null);
     const [cargando, setCargando] = useState(true);
 
-    // --- ESTADOS DEL COTIZADOR ---
+    // --- ESTADOS DEL COTIZADOR AVANZADO ---
     const [mostrarCotizacion, setMostrarCotizacion] = useState(false);
     const [metodoCotizacion, setMetodoCotizacion] = useState('manual');
     const [archivoPreview, setArchivoPreview] = useState(null);
     const [archivoFisico, setArchivoFisico] = useState(null);
+    
+    // Filas dinámicas del cotizador
     const [filasConceptos, setFilasConceptos] = useState([{ descripcion: '', cantidad: 0, precio_u: 0 }]);
     const [filasMateriales, setFilasMateriales] = useState([{ nombre: '', cantidad: 0, costo_u: 0 }]);
     const [herramientasBasicas, setHerramientasBasicas] = useState([{ nombre: '', cantidad: 1 }]);
     const [herramientasEspeciales, setHerramientasEspeciales] = useState([{ nombre: '', cantidad: 1 }]);
     const [observaciones, setObservaciones] = useState('');
 
+    // --- CARGA DE DATOS DESDE LARAVEL ---
     useEffect(() => {
         const cargarReporte = async () => {
             try {
@@ -38,7 +41,7 @@ const DetalleReporte = () => {
         cargarReporte();
     }, [id]);
 
-    // --- LÓGICA DEL COTIZADOR ---
+    // --- LÓGICA FUNCIONAL DEL COTIZADOR ---
     const agregarFila = (tipo) => {
         if (tipo === 'concepto') setFilasConceptos([...filasConceptos, { descripcion: '', cantidad: 0, precio_u: 0 }]);
         if (tipo === 'material') setFilasMateriales([...filasMateriales, { nombre: '', cantidad: 0, costo_u: 0 }]);
@@ -61,10 +64,6 @@ const DetalleReporte = () => {
         if (tipo === 'especial') setHerramientasEspeciales(actualizar);
     };
 
-    const totalConceptos = filasConceptos.reduce((acc, f) => acc + (Number(f.cantidad) * Number(f.precio_u)), 0);
-    const totalMateriales = filasMateriales.reduce((acc, f) => acc + (Number(f.cantidad) * Number(f.costo_u)), 0);
-    const totalGeneral = totalConceptos + totalMateriales;
-
     const manejarArchivo = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -73,11 +72,15 @@ const DetalleReporte = () => {
         }
     };
 
+    const totalGeneral = filasConceptos.reduce((acc, f) => acc + (Number(f.cantidad) * Number(f.precio_u)), 0) + 
+                         filasMateriales.reduce((acc, f) => acc + (Number(f.cantidad) * Number(f.costo_u)), 0);
+
     const guardarCotizacion = async () => {
         try {
             const data = new FormData();
             data.append('service_id', id);
             data.append('type', metodoCotizacion);
+
             if (metodoCotizacion === 'manual') {
                 data.append('concept', JSON.stringify({
                     conceptos: filasConceptos,
@@ -91,16 +94,18 @@ const DetalleReporte = () => {
                 if (!archivoFisico) return alert("Selecciona un archivo");
                 data.append('file', archivoFisico);
             }
+
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, data);
-            alert("Cotización enviada exitosamente");
+            alert("¡Cotización guardada exitosamente!");
             setMostrarCotizacion(false);
         } catch (error) {
             console.error(error);
-            alert("Hubo un error al guardar la cotización.");
+            alert("Error al guardar la cotización.");
         }
     };
 
     if (cargando) return <div className="loading-screen">Cargando datos del reporte...</div>;
+    if (!datosBD) return <div className="loading-screen">Error: Reporte no encontrado.</div>;
 
     return (
         <div className="rep-container">
@@ -108,71 +113,105 @@ const DetalleReporte = () => {
             <aside className="rep-sidebar">
                 <img src={logo} alt="Logo" className="side-logo" onClick={() => navigate('/')} />
                 <div className="side-info">
-                    <span className="id-badge">{datosBD?.identificador_curp}</span>
-                    <h2 className="propietario-name">{datosBD?.propietario || 'Cargando...'}</h2>
+                    <span className="id-badge">{datosBD.identificador_curp}</span>
+                    <h2>{datosBD.propietario}</h2>
+                    
+                    <div className="rep-direccion-box">
+                        <p><strong>Dirección:</strong><br/>{datosBD.direccion}</p>
+                        <a 
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(datosBD.direccion)}`} 
+                            target="_blank" rel="noopener noreferrer" className="maps-link"
+                        >
+                            📍 VER EN GOOGLE MAPS
+                        </a>
+                    </div>
+
                     <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>
                         + GENERAR COTIZACIÓN
                     </button>
+
+                    <hr className="side-hr" />
+                    <p><strong>Técnico Asignado:</strong><br/>{datosBD.tecnico}</p>
+                    <p><strong>Día de visita:</strong><br/>{datosBD.fecha_programada}</p>
                 </div>
-                <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER</button>
+                <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER AL LISTADO</button>
             </aside>
 
-            {/* --- CONTENIDO PRINCIPAL --- */}
+            {/* --- CONTENIDO PRINCIPAL (LEVANTAMIENTO) --- */}
             <main className="rep-main-content">
                 <header className="main-banner">
-                    <img src={datosBD?.foto_propiedad || casaImg} alt="Propiedad" />
+                    <img src={datosBD.foto_propiedad || casaImg} alt="Propiedad" />
                     <div className="banner-text">
-                        <h1>{datosBD?.titulo || 'Detalle del Servicio'}</h1>
-                        <p>{datosBD?.direccion || 'Mérida, Yucatán'}</p>
+                        <h1>{datosBD.titulo}</h1>
                     </div>
                 </header>
 
                 <section className="reporte-flujo">
-                    {/* Renderizado dinámico de las secciones del levantamiento */}
-                    {datosBD?.secciones && datosBD.secciones.length > 0 ? (
-                        datosBD.secciones.map((seccion, idx) => (
-                            <div key={idx} className="info-section-card">
-                                <h3 className="section-title">{seccion.titulo}</h3>
-                                <div className="section-content-grid">
-                                    {seccion.items.map((item, i) => (
-                                        <div key={i} className="info-item">
-                                            <label>{item.nombre_campo}:</label>
-                                            <span>{item.valor_campo}</span>
-                                        </div>
-                                    ))}
+                    {datosBD.secciones && datosBD.secciones.length > 0 ? (
+                        datosBD.secciones.filter(sec => sec.subSecciones?.length > 0 || sec.descripcion).map((sec, idx) => (
+                            <div key={`sec-${idx}`} className="seccion-bloque">
+                                <div className="seccion-header">
+                                    <h3>{sec.titulo}</h3>
+                                    {sec.descripcion && <p className="sec-desc">{sec.descripcion}</p>}
                                 </div>
+
+                                {sec.subSecciones?.map((sub, sIdx) => (
+                                    <div key={`sub-${idx}-${sIdx}`} className="subseccion-caja">
+                                        <div className="sub-titulo">
+                                            <h4>{sub.nombre}</h4>
+                                            {sub.nota && <span className="nota-tecnica">Nota: {sub.nota}</span>}
+                                        </div>
+
+                                        <div className="table-responsive">
+                                            <table className="tabla-inventario">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Categoría</th>
+                                                        <th>Marca</th>
+                                                        <th>Modelo</th>
+                                                        <th className="txt-center">Cant.</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {sub.inventario?.map((inv, iIdx) => (
+                                                        <tr key={`inv-${idx}-${sIdx}-${iIdx}`}>
+                                                            <td className="bold">{inv.categoria}</td>
+                                                            <td>{inv.marca || '-'}</td>
+                                                            <td>{inv.modelo || '-'}</td>
+                                                            <td className="col-cant">{inv.cantidad}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ))
                     ) : (
-                        <div className="empty-state">No hay datos de levantamiento para mostrar.</div>
+                        <div className="empty-state">No hay áreas ni inventario registrado.</div>
                     )}
                 </section>
             </main>
 
-            {/* --- MODAL DE COTIZACIÓN --- */}
+            {/* --- MODAL DEL COTIZADOR AVANZADO --- */}
             {mostrarCotizacion && (
                 <div className="lev-modal-overlay">
                     <div className="cot-modal-card wide">
                         <div className="cot-modal-header">
-                            <h3>NUEVA COTIZACIÓN - FOLIO {datosBD?.identificador_curp}</h3>
+                            <h3>NUEVA COTIZACIÓN - {datosBD.identificador_curp}</h3>
                             <button className="cot-close-btn" onClick={() => setMostrarCotizacion(false)}>×</button>
                         </div>
 
                         <div className="cot-tabs-selector">
-                            <button 
-                                className={metodoCotizacion === 'manual' ? 'tab-btn active' : 'tab-btn'} 
-                                onClick={() => setMetodoCotizacion('manual')}
-                            >📝 Manual</button>
-                            <button 
-                                className={metodoCotizacion === 'archivo' ? 'tab-btn active' : 'tab-btn'} 
-                                onClick={() => setMetodoCotizacion('archivo')}
-                            >📎 Archivo</button>
+                            <button className={metodoCotizacion === 'manual' ? 'active' : ''} onClick={() => setMetodoCotizacion('manual')}>📝 Registro Manual</button>
+                            <button className={metodoCotizacion === 'archivo' ? 'active' : ''} onClick={() => setMetodoCotizacion('archivo')}>📎 Cargar Archivo</button>
                         </div>
 
                         <div className="cot-modal-body dinamico">
                             {metodoCotizacion === 'manual' ? (
                                 <>
-                                    {/* SECCIÓN 1: CONCEPTOS */}
+                                    {/* SECCIÓN CONCEPTOS */}
                                     <div className="cot-section">
                                         <h4 className="coti-section-title">1. CONCEPTOS DE SERVICIO</h4>
                                         <table className="coti-table">
@@ -197,12 +236,12 @@ const DetalleReporte = () => {
                                                 ))}
                                             </tbody>
                                         </table>
-                                        <button className="btn-add-row orange-dashed" onClick={() => agregarFila('concepto')}>+ Agregar Concepto</button>
+                                        <button className="btn-add-row" onClick={() => agregarFila('concepto')}>+ Agregar Concepto</button>
                                     </div>
 
-                                    {/* SECCIÓN 2: MATERIALES */}
+                                    {/* SECCIÓN MATERIALES */}
                                     <div className="cot-section">
-                                        <h4 className="coti-section-title">2. MATERIALES</h4>
+                                        <h4 className="coti-section-title">2. MATERIALES REQUERIDOS</h4>
                                         <table className="coti-table">
                                             <thead>
                                                 <tr>
@@ -225,64 +264,54 @@ const DetalleReporte = () => {
                                                 ))}
                                             </tbody>
                                         </table>
-                                        <button className="btn-add-row orange-dashed" onClick={() => agregarFila('material')}>+ Agregar Material</button>
+                                        <button className="btn-add-row" onClick={() => agregarFila('material')}>+ Agregar Material</button>
                                     </div>
 
-                                    {/* SECCIÓN 3: HERRAMIENTAS */}
+                                    {/* SECCIÓN HERRAMIENTAS */}
                                     <div className="cot-grid-tools">
                                         <div className="cot-section half">
                                             <h4 className="coti-section-title">3.1 HERRAMIENTAS BÁSICAS</h4>
-                                            <table className="coti-table compact">
-                                                <tbody>
-                                                    {herramientasBasicas.map((h, i) => (
-                                                        <tr key={i}>
-                                                            <td><input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'basica')} /></td>
-                                                            <td><button className="btn-delete" onClick={() => eliminarFila(i, 'basica')}>🗑️</button></td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                            <button className="btn-add-row orange-dashed compact" onClick={() => agregarFila('basica')}>+</button>
+                                            {herramientasBasicas.map((h, i) => (
+                                                <div key={i} className="tool-row">
+                                                    <input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'basica')} />
+                                                    <button onClick={() => eliminarFila(i, 'basica')}>×</button>
+                                                </div>
+                                            ))}
+                                            <button className="btn-add-tool" onClick={() => agregarFila('basica')}>+</button>
                                         </div>
                                         <div className="cot-section half">
                                             <h4 className="coti-section-title">3.2 ESPECIALES</h4>
-                                            <table className="coti-table compact">
-                                                <tbody>
-                                                    {herramientasEspeciales.map((h, i) => (
-                                                        <tr key={i}>
-                                                            <td><input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'especial')} /></td>
-                                                            <td><button className="btn-delete" onClick={() => eliminarFila(i, 'especial')}>🗑️</button></td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                            <button className="btn-add-row orange-dashed compact" onClick={() => agregarFila('especial')}>+</button>
+                                            {herramientasEspeciales.map((h, i) => (
+                                                <div key={i} className="tool-row">
+                                                    <input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'especial')} />
+                                                    <button onClick={() => eliminarFila(i, 'especial')}>×</button>
+                                                </div>
+                                            ))}
+                                            <button className="btn-add-tool" onClick={() => agregarFila('especial')}>+</button>
                                         </div>
                                     </div>
 
-                                    <div className="cot-section observations">
-                                        <h4 className="coti-section-title">4. OBSERVACIONES</h4>
-                                        <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder="Notas internas..." />
+                                    <div className="cot-section">
+                                        <label>Observaciones</label>
+                                        <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} rows="3" />
                                     </div>
                                 </>
                             ) : (
                                 <div className="cot-upload-container">
-                                    <div className="upload-box">
-                                        <input type="file" onChange={manejarArchivo} accept="image/*,application/pdf" />
-                                        {archivoPreview && <img src={archivoPreview} alt="Preview" className="img-preview" />}
-                                    </div>
+                                    <input type="file" onChange={manejarArchivo} accept="image/*,application/pdf" />
+                                    {archivoPreview && <img src={archivoPreview} className="img-preview" alt="Preview" />}
                                 </div>
                             )}
                         </div>
 
                         <div className="cot-modal-footer dinamico">
-                            <div className="total-box orange-border">
-                                <span className="total-label">TOTAL: </span>
-                                <strong className="total-amount">${totalGeneral.toLocaleString()}</strong>
+                            <div className="total-box">
+                                <span>TOTAL ESTIMADO:</span>
+                                <strong>${totalGeneral.toLocaleString()}</strong>
                             </div>
-                            <div className="footer-actions">
-                                <button className="btn-secundario rounded" onClick={() => setMostrarCotizacion(false)}>CANCELAR</button>
-                                <button className="btn-primario orange-solid" onClick={guardarCotizacion}>ENVIAR COTIZACIÓN</button>
+                            <div className="actions">
+                                <button className="btn-secundario" onClick={() => setMostrarCotizacion(false)}>CANCELAR</button>
+                                <button className="btn-primario" onClick={guardarCotizacion}>GUARDAR COTIZACIÓN</button>
                             </div>
                         </div>
                     </div>
