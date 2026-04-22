@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import UniversalSearch from "../Shared/UniversalSearch";
+import UniversalSearch from "../Shared/UniversalSearch"; 
+import Header from "../Shared/Header"; 
 import "../../styles/Admin/VistaPropiedades.css";
-import logo from "../../assets/Logo4.png";
 import { X, CheckCircle, User } from "lucide-react";
 
 const TIPOS_PROPIEDAD = [
@@ -25,17 +25,16 @@ const VistaPropiedades = () => {
   const [pasoModal, setPasoModal] = useState(1); 
   const [nombreResponsable, setNombreResponsable] = useState("");
 
-  // ✅ CORRECCIÓN 1: Enviar el Token al obtener propiedades
   useEffect(() => {
     const obtenerPropiedades = async () => {
       try {
-        const token = localStorage.getItem('agente_token'); // Extraemos el gafete
+        const token = localStorage.getItem('agente_token'); 
 
         const { data } = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}/propiedades`,
           {
             headers: {
-              'Authorization': `Bearer ${token}` // Lo inyectamos aquí
+              'Authorization': `Bearer ${token}` 
             }
           }
         );
@@ -49,7 +48,6 @@ const VistaPropiedades = () => {
     obtenerPropiedades();
   }, []);
 
-  // ✅ CORRECCIÓN 2: Enviar el Token al eliminar
   const eliminarPropiedad = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar esta propiedad?")) return;
     try {
@@ -73,7 +71,6 @@ const VistaPropiedades = () => {
     setMostrarModalServicio(true);
   };
 
-  // ✅ CORRECCIÓN 3: Enviar el Token al solicitar levantamiento
   const enviarLevantamiento = async (e) => {
     e.preventDefault();
     try {
@@ -112,34 +109,49 @@ const VistaPropiedades = () => {
   };
 
   return (
-    <div className="main-container-users">
+    <div className="main-container bg-light">
       <div className="top-bar-orange" />
       <div className="top-bar-black" />
 
-      <header
-        className="lev-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px 40px",
-        }}
-      >
-        <img
-          src={logo}
-          alt="Agente Solutions"
-          className="lev-logo"
-          style={{ height: "50px" }}
-        />
-        <button
-          className="lev-btn-add"
-          onClick={() => navigate("/registro-propiedades")}
-        >
-          + NUEVA PROPIEDAD
-        </button>
-      </header>
+      <Header rolTexto="ADMINISTRACIÓN DE PROPIEDADES" />
 
-      <main className="content-body">
+      <section className="content-area">
+        
+        {/* ✅ CAMBIO: justifyContent: 'center' para que todo el bloque de botones se centre */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', justifyContent: 'center', marginBottom: '15px' }}>
+          
+          <div className="categories-row" style={{ margin: 0, display: 'flex', gap: '10px' }}>
+            {TIPOS_PROPIEDAD.map((tipo) => (
+              <button
+                key={tipo.label}
+                className={`cat-btn ${categoria === tipo.label ? "active" : ""}`}
+                onClick={() => setCategoria(tipo.label)}
+              >
+                <span className="btn-icon-small">{tipo.icon}</span> {tipo.title}
+              </button>
+            ))}
+          </div>
+
+          <button
+            className="lev-btn-add"
+            onClick={() => navigate("/registro-propiedades")}
+            style={{
+              backgroundColor: '#FF6600',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '6px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            + NUEVA PROPIEDAD
+          </button>
+        </div>
+
         <UniversalSearch
           type="PROPIEDADES"
           data={listaPropiedades}
@@ -148,19 +160,7 @@ const VistaPropiedades = () => {
           placeholder="BUSCAR POR DUEÑO, DIRECCIÓN O CURP..."
         />
 
-        <div className="categories-row">
-          {TIPOS_PROPIEDAD.map((tipo) => (
-            <button
-              key={tipo.label}
-              className={`cat-btn ${categoria === tipo.label ? "active" : ""}`}
-              onClick={() => setCategoria(tipo.label)}
-            >
-              <span className="btn-icon-small">{tipo.icon}</span> {tipo.title}
-            </button>
-          ))}
-        </div>
-
-        <div className="table-scroll-container">
+        <div className="table-scroll-container" style={{ marginTop: '15px' }}>
           <table className="custom-table">
             <thead>
               <tr>
@@ -266,10 +266,7 @@ const VistaPropiedades = () => {
           </table>
         </div>
 
-        <button className="back-arrow-btn" onClick={() => navigate(-1)}>
-          ←
-        </button>
-      </main>
+      </section>
 
       {/* 👇 MODAL DE SOLICITAR LEVANTAMIENTO 👇 */}
       {mostrarModalServicio && (
@@ -317,7 +314,6 @@ const VistaPropiedades = () => {
               </button>
             )}
 
-            {/* --- PASO 1: CONFIRMACIÓN Y RESPONSABLE --- */}
             {pasoModal === 1 && (
               <form
                 onSubmit={enviarLevantamiento}
@@ -434,7 +430,6 @@ const VistaPropiedades = () => {
               </form>
             )}
 
-            {/* --- PASO 2: ÉXITO --- */}
             {pasoModal === 2 && (
               <div style={{ textAlign: "center", padding: "20px 10px" }}>
                 <CheckCircle
