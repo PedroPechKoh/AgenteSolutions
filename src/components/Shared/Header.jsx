@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Home } from 'lucide-react'; // Importamos el ícono de casita
+import { Home } from 'lucide-react'; // ✅ Importamos el ícono de la casita
 import logo from '../../assets/Logo3.png'; 
 import NotificationBell from '../Shared/NotificationBell'; 
 
@@ -15,68 +15,63 @@ const Header = ({ rolTexto = "USUARIO" }) => {
     navigate("/");
   };
 
-  // Función para determinar la ruta de inicio según el rol
+  // ✅ Función para regresar al panel correcto según el tipo de usuario
   const irAlInicio = () => {
     if (!user) return;
     switch (user.role_id) {
-      case 0: navigate('/VistaRoot'); break; // Root
-      case 1: navigate('/VistaAdmin'); break; // Admin
-      case 2: navigate('/VistaTecnico'); break; // Técnico
-      case 3: navigate('/VistaCliente'); break; // Cliente
+      case 0: navigate('/VistaRoot'); break;
+      case 1: navigate('/VistaAdmin'); break;
+      case 2: navigate('/VistaTecnico'); break;
+      case 3: navigate('/VistaCliente'); break;
       default: navigate('/'); break;
     }
   };
 
   return (
-    <header className="header-content" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', position: 'relative' }}>
+    <header className="header-content">
       
-      {/* SECCIÓN IZQUIERDA: Logo y Botón de Inicio */}
+      {/* SECCIÓN IZQUIERDA: Logo y Casita */}
       <div className="logo-section" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <img src={logo} alt="Logo" className="main-logo" style={{ height: '50px' }} />
+        <img src={logo} alt="Logo" className="main-logo" />
         
-        {/* NUEVO BOTÓN DE INICIO */}
+        {/* NUEVO BOTÓN DE INICIO (Solo ícono, grande y visible) */}
         <button 
           onClick={irAlInicio}
+          title="Ir al Inicio"
           style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '5px',
+            color: '#FF6600', // Color naranja para que resalte
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            backgroundColor: '#f0f0f0',
-            border: 'none',
-            padding: '8px 15px',
-            borderRadius: '20px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            color: '#333',
-            transition: 'all 0.3s'
+            justifyContent: 'center',
+            transition: 'transform 0.2s ease-in-out' // Pequeña animación
           }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#e0e0e0'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
+          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.15)'}
+          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <Home size={18} />
+          <Home size={34} strokeWidth={2.5} />
         </button>
       </div>
 
-      {/* SECCIÓN CENTRAL: Foto de Perfil + Título */}
-      <div className="center-title-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+      {/* SECCIÓN CENTRAL: Título */}
+      <div className="center-title-section">
+        <h1 className="welcome-title">
+          BIENVENIDO {(user?.first_name || user?.name) ? (user.first_name || user.name).toUpperCase() : rolTexto}
+        </h1>
+      </div>
+
+      {/* SECCIÓN DERECHA: Notificaciones y Perfil */}
+      <div className="user-controls" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
         
-        {/* BOTÓN DE PERFIL (Movido al centro) */}
-        <div style={{ position: "relative", marginBottom: '5px' }}>
+        <NotificationBell />
+
+        <div style={{ position: "relative" }}>
           <button
             className="icon-btn"
-            style={{ 
-              padding: 0, 
-              overflow: "hidden", 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              width: '50px', // Un poco más grande para que destaque en el centro
-              height: '50px', 
-              borderRadius: '50%',
-              border: '2px solid #FF6600', // Un borde naranja para que resalte
-              cursor: 'pointer',
-              backgroundColor: '#eee'
-            }}
+            style={{ padding: 0, overflow: "hidden", display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%' }}
             onClick={() => setMenuAbierto(!menuAbierto)}
           >
             {user?.profile_picture ? (
@@ -90,53 +85,25 @@ const Header = ({ rolTexto = "USUARIO" }) => {
             )}
           </button>
 
-          {/* Menú Desplegable del Perfil */}
           {menuAbierto && (
-            <div 
-              className="profile-dropdown-menu" 
-              style={{ 
-                position: 'absolute', 
-                top: '60px', 
-                left: '50%', 
-                transform: 'translateX(-50%)', // Centra el menú debajo de la foto
-                backgroundColor: 'white',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                borderRadius: '8px',
-                padding: '10px',
-                zIndex: 1000,
-                minWidth: '150px'
-              }}
-            >
+            <div className="profile-dropdown-menu">
               <button
                 className="dropdown-item"
                 onClick={() => navigate("/mi-perfil")}
-                style={{ width: '100%', padding: '10px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer' }}
               >
                 👤 Mi Perfil
               </button>
-              <div style={{ height: '1px', backgroundColor: '#eee', margin: '5px 0' }}></div>
+              <div className="dropdown-divider"></div>
               <button
                 className="dropdown-item logout"
                 onClick={handleCerrarSesion}
-                style={{ width: '100%', padding: '10px', textAlign: 'left', border: 'none', background: 'none', cursor: 'pointer', color: 'red' }}
               >
                 🚪 Cerrar Sesión
               </button>
             </div>
           )}
         </div>
-
-        {/* Título de Bienvenida */}
-        <h1 className="welcome-title" style={{ margin: 0, fontSize: '1.8rem', textAlign: 'center' }}>
-          BIENVENIDO {(user?.first_name || user?.name) ? (user.first_name || user.name).toUpperCase() : rolTexto}
-        </h1>
       </div>
-
-      {/* SECCIÓN DERECHA: Notificaciones */}
-      <div className="user-controls" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-        <NotificationBell />
-      </div>
-
     </header>
   );
 };
