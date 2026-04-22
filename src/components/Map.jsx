@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import axios from 'axios';
 import logoAgente from '../assets/Logo_simple.png';
+import Header from './Header'; // ✅ IMPORTAMOS EL HEADER. Ajusta la ruta (../Shared/Header) si es necesario según tu carpeta.
 
 const containerStyle = {
   width: '100%',
-  height: '600px',
-  borderRadius: '15px'
+  height: '75vh', // Ajustado a porcentaje visual para que no se coma la pantalla con el Header
+  borderRadius: '15px',
+  boxShadow: '0 4px 15px rgba(0,0,0,0.1)' // Un toquecito de sombra elegante
 };
 
 const Map = () => {
@@ -51,90 +53,90 @@ const Map = () => {
   if (!isLoaded) return <div>Cargando el mapa...</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-        <img 
-          src="/src/assets/Logo3.png" 
-          alt="Agente Solutions" 
-          style={{ height: '80px', objectFit: 'contain' }} 
-        />
-      </div>      
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={center}
-        zoom={13} 
-      >
-        {miUbicacion && (
-          <Marker
-            position={miUbicacion}
-            icon={{
-              url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' 
-            }}
-            title="¡Estás aquí!"
-          />
-        )}
+    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
+      
+      {/* ✅ REEMPLAZAMOS EL LOGO SUELTO POR EL HEADER COMPLETO */}
+      <Header rolTexto="MAPA DE PROPIEDADES" />
 
-        {propiedades.map((prop) => (
-          <Marker
-            key={prop.id}
-            position={{ lat: prop.lat, lng: prop.lng }}
-            onClick={() => setMarcadorActivo(prop)}
-            icon={{
-              url: logoAgente, 
-              scaledSize: new window.google.maps.Size(40, 40), 
-              origin: new window.google.maps.Point(0, 0),
-              anchor: new window.google.maps.Point(20, 40)
-            }}
-          />
-        ))}
+      <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={center}
+          zoom={13} 
+        >
+          {miUbicacion && (
+            <Marker
+              position={miUbicacion}
+              title="¡Estás aquí!"
+              icon={{
+                // Usamos un ícono azul de Google para diferenciar la ubicación actual de los clientes
+                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' 
+              }}
+            />
+          )}
 
-        {marcadorActivo && (
-          <InfoWindow
-            position={{ lat: marcadorActivo.lat, lng: marcadorActivo.lng }}
-            onCloseClick={() => setMarcadorActivo(null)}
-          >
-            <div style={{ display: 'flex', gap: '15px', maxWidth: '300px', padding: '5px', alignItems: 'center' }}>
-              
-              <div>
-                <img 
-                  src={marcadorActivo.picture || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'} 
-                  alt="Perfil del Cliente" 
-                  style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #FF6600' }} 
-                />
+          {propiedades.map((prop) => (
+            <Marker
+              key={prop.id}
+              position={{ lat: prop.lat, lng: prop.lng }}
+              onClick={() => setMarcadorActivo(prop)}
+              icon={{
+                url: logoAgente, 
+                scaledSize: new window.google.maps.Size(40, 40), 
+                origin: new window.google.maps.Point(0, 0),
+                anchor: new window.google.maps.Point(20, 40)
+              }}
+            />
+          ))}
+
+          {marcadorActivo && (
+            <InfoWindow
+              position={{ lat: marcadorActivo.lat, lng: marcadorActivo.lng }}
+              onCloseClick={() => setMarcadorActivo(null)}
+            >
+              <div style={{ display: 'flex', gap: '15px', maxWidth: '300px', padding: '5px', alignItems: 'center' }}>
+                
+                <div>
+                  <img 
+                    src={marcadorActivo.picture || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'} 
+                    alt="Perfil del Cliente" 
+                    style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #FF6600' }} 
+                  />
+                </div>
+
+                <div style={{ color: '#333', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <h4 style={{ margin: 0, color: '#FF6600', fontSize: '1.1rem' }}>
+                    {marcadorActivo.owner_name || 'Cliente sin nombre'}
+                  </h4>
+                  
+                  <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>
+                    📞 {marcadorActivo.phone || 'Sin teléfono registrado'}
+                  </p>
+                  
+                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#666', lineHeight: '1.2' }}>
+                    📍 {marcadorActivo.address}
+                  </p>
+                  
+                  <button style={{
+                      marginTop: '8px', 
+                      backgroundColor: '#333', 
+                      color: 'white', 
+                      border: 'none', 
+                      padding: '6px 12px', 
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      alignSelf: 'flex-start'
+                    }}>
+                    Ver Detalles
+                  </button>
+                </div>
+                
               </div>
-
-              <div style={{ color: '#333', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <h4 style={{ margin: 0, color: '#FF6600', fontSize: '1.1rem' }}>
-                  {marcadorActivo.owner_name || 'Cliente sin nombre'}
-                </h4>
-                
-                <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>
-                  📞 {marcadorActivo.phone || 'Sin teléfono registrado'}
-                </p>
-                
-                <p style={{ margin: 0, fontSize: '0.8rem', color: '#666', lineHeight: '1.2' }}>
-                  📍 {marcadorActivo.address}
-                </p>
-                
-                <button style={{
-                    marginTop: '8px', 
-                    backgroundColor: '#333', 
-                    color: 'white', 
-                    border: 'none', 
-                    padding: '6px 12px', 
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    alignSelf: 'flex-start'
-                  }}>
-                  Ver Detalles
-                </button>
-              </div>
-              
-            </div>
-          </InfoWindow>
-        )}
-      </GoogleMap>
+            </InfoWindow>
+          )}
+        </GoogleMap>
+      </div>
     </div>
   );
 };
