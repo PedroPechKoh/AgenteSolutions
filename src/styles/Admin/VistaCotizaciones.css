@@ -191,7 +191,7 @@
     color: #333; /* <--- Texto oscuro para la tabla */
 }
 @media print {
-    /* 1. CONFIGURACIÓN DE PÁGINA */
+    /* 1. CONFIGURACIÓN DE PÁGINA COMPLETA */
     @page {
         size: letter;
         margin: 0;
@@ -203,92 +203,74 @@
     .print-container {
         position: absolute !important;
         top: 0; left: 0;
-        width: 100vw !important;
-        height: 100vh !important;
+        width: 100% !important;
+        height: 100% !important;
         background: white !important;
         display: flex !important;
         flex-direction: column !important;
-        font-family: 'Helvetica', 'Arial', sans-serif !important;
+        visibility: visible !important;
         -webkit-print-color-adjust: exact !important;
     }
 
-    /* 2. ENCABEZADO: LOGO Y TÍTULO "INVOICE" (Replica Imagen 1) */
+    /* 2. ENCABEZADO: LOGO Y TÍTULO (Ajuste de tamaño de letra) */
     .modal-header-dark {
         background: white !important;
-        padding: 40px 60px !important;
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        align-items: start !important;
-        position: relative !important;
-        border-top: 15px solid #ff8800 !important; /* Banda Naranja Superior */
+        padding: 30px 60px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        border-top: 12px solid #ff8800 !important; /* Banda Naranja Superior */
     }
 
-    /* Logo de la Empresa (Izquierda) */
-    .modal-header-dark::before {
-        content: "AGENTE SOLUTIONS" !important; /* Aquí iría tu logo */
-        font-weight: 900 !important;
-        font-size: 18pt !important;
-        color: #1a1a1a !important;
-        letter-spacing: -1px !important;
+    /* Ajuste del Logo */
+    .empresa-logo-print {
+        height: 80px !important; /* Tamaño ajustado para que no se vea gigante */
+        width: auto !important;
+        object-fit: contain !important;
     }
 
-    /* Título del Documento (Derecha) */
+    /* Título "INVOICE / COTIZACIÓN" */
     .modal-header-dark span {
-        font-size: 45pt !important;
+        font-size: 32pt !important; /* Letra ajustada para ser profesional, no excesiva */
         font-weight: 300 !important;
         color: #1a1a1a !important;
-        text-align: right !important;
         text-transform: uppercase !important;
-        letter-spacing: 5px !important;
+        letter-spacing: 4px !important;
     }
 
-    /* 3. DATOS OBLIGATORIOS (Cliente, Fecha, Folio) */
+    /* 3. DISTRIBUCIÓN DE INFORMACIÓN (Grid de la imagen 1) */
     .modal-info-summary {
         display: grid !important;
-        grid-template-columns: 1.2fr 0.8fr !important;
-        padding: 20px 60px !important;
-        gap: 40px !important;
+        grid-template-columns: 1fr 1fr !important;
+        padding: 40px 60px !important;
+        gap: 20px !important;
+        border-bottom: 1px solid #eee !important;
     }
 
-    /* Columna Izquierda: Datos del Cliente */
-    .modal-info-summary .cliente-box::before {
-        content: "Cotización para:" !important;
-        display: block !important;
-        font-weight: 800 !important;
+    /* Datos del Cliente (Izquierda) */
+    .cliente-info-box h3 {
         font-size: 11pt !important;
-        margin-bottom: 5px !important;
+        margin-bottom: 10px !important;
+        text-transform: uppercase;
+        color: #1a1a1a;
     }
 
-    /* Columna Derecha: Detalles del Documento */
-    .modal-info-summary .detalles-box {
+    /* Datos de la Empresa / Fecha (Derecha) */
+    .datos-empresa-box {
         text-align: right !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 8px !important;
+        font-size: 9pt !important;
+        line-height: 1.4 !important;
     }
 
-    .modal-info-summary p {
-        font-size: 10pt !important;
-        color: #1a1a1a !important;
-        margin: 0 !important;
-    }
-
-    .modal-info-summary strong {
-        color: #ff8800 !important;
-        text-transform: uppercase !important;
-        font-size: 8pt !important;
-    }
-
-    /* 4. TABLA DE CONCEPTOS (Cabecera Negra) */
+    /* 4. TABLA PROFESIONAL (Cabecera Bicolor) */
     .modal-items-table {
         width: calc(100% - 120px) !important;
-        margin: 30px 60px !important;
+        margin: 20px 60px !important;
         border-collapse: collapse !important;
     }
 
     .modal-items-table thead tr {
-        background: #343a40 !important; /* Gris muy oscuro/negro */
-        -webkit-print-color-adjust: exact !important;
+        background: #ff8800 !important; /* Banda Naranja */
     }
 
     .modal-items-table th {
@@ -296,70 +278,74 @@
         padding: 12px !important;
         font-size: 9pt !important;
         text-transform: uppercase !important;
-        border: none !important;
+    }
+
+    /* Celda de Descripción con Flecha Negra (Replica exacta) */
+    .modal-items-table th:first-child {
+        background: #1a1a1a !important;
+        clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%) !important;
+        padding-right: 30px !important;
+        text-align: left !important;
     }
 
     .modal-items-table td {
-        padding: 15px 12px !important;
+        padding: 15px !important;
         border-bottom: 1px solid #eee !important;
         font-size: 10pt !important;
-        color: #444 !important;
     }
 
-    /* 5. SECCIÓN DE TOTAL (Banda Naranja de la imagen) */
+    /* 5. BLOQUE DE TOTAL (Banda Naranja Estilo Imagen 1) */
     .modal-total-section {
-        margin: 20px 60px 0 auto !important;
+        margin: 30px 60px 0 auto !important;
         width: 350px !important;
-        background: #ff8800 !important; /* Fondo naranja exacto */
+        background: #ff8800 !important; /* Naranja exacto de la referencia */
         color: white !important;
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
+        display: flex !important;
+        justify-content: space-between !important;
         align-items: center !important;
-        padding: 0 !important;
+        padding: 0 20px !important;
         -webkit-print-color-adjust: exact !important;
     }
 
     .modal-total-section::before {
         content: "TOTAL:" !important;
-        padding-left: 20px !important;
         font-weight: 900 !important;
-        font-size: 14pt !important;
+        font-size: 12pt !important;
     }
 
     .modal-total-section h3 {
-        margin: 0 !important;
-        padding: 15px 20px !important;
         font-size: 18pt !important;
-        background: transparent !important;
-        text-align: right !important;
+        margin: 0 !important;
+        padding: 15px 0 !important;
     }
 
-    /* 6. PIE DE PÁGINA (Datos de contacto y firma) */
-    .modal-body-content::after {
-        content: "__________________________\nFIRMA AUTORIZADA" !important;
-        display: block !important;
-        white-space: pre !important;
-        margin: 80px 60px 40px auto !important;
+    /* 6. DATOS BANCARIOS Y FISCALES (Obligatorios del Excel) */
+    .detalles-adicionales-print {
+        margin: 40px 60px !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 30px !important;
+        font-size: 8pt !important;
+        color: #555 !important;
+    }
+
+    .detalles-adicionales-print h4 {
+        color: #ff8800 !important;
+        border-bottom: 1px solid #ff8800 !important;
+        margin-bottom: 5px !important;
+        text-transform: uppercase !important;
+    }
+
+    /* 7. FIRMA Y PIE DE PÁGINA */
+    .firma-container {
+        margin: auto 60px 40px auto !important;
         text-align: center !important;
         width: 250px !important;
+        border-top: 1px solid #1a1a1a !important;
+        padding-top: 5px !important;
         font-size: 9pt !important;
-        border-top: none !important;
     }
 
-    /* Franja inferior decorativa con datos de contacto */
-    .print-container::after {
-        content: "Tel: (999) 242 6030  |  Mérida, Yucatán  |  agentesolutions.com" !important;
-        position: absolute !important;
-        bottom: 0;
-        width: 100% !important;
-        background: white !important;
-        border-top: 2px solid #ff8800 !important;
-        padding: 15px 0 !important;
-        text-align: center !important;
-        font-size: 8pt !important;
-        color: #666 !important;
-    }
-
-    /* Ocultar elementos innecesarios */
+    /* Ocultar elementos de la interfaz */
     .modal-close-icon, .modal-footer-btns, .back-arrow-fixed { display: none !important; }
 }
