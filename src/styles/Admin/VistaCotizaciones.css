@@ -190,136 +190,105 @@
     border-bottom: 1px solid #eee; 
     color: #333; /* <--- Texto oscuro para la tabla */
 }
+/* CONTENEDOR DE IMPRESIÓN */
+.printable-quote {
+  background: white;
+  padding: 40px;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+/* HEADER */
+.quote-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 4px solid #ff6f00;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.quote-header-left h2 {
+  margin: 0;
+  color: #222;
+}
+
+.quote-header-left p {
+  margin: 0;
+  color: #777;
+}
+
+.quote-header-right h1 {
+  color: #ff6f00;
+  margin: 0;
+}
+
+/* LOGO */
+.quote-logo {
+  width: 60px;
+  margin-bottom: 10px;
+}
+
+/* CLIENTE */
+.quote-client {
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* TABLA */
+.quote-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.quote-table th {
+  background: #222;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+.quote-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* TOTAL */
+.quote-total {
+  text-align: right;
+  background: #ff6f00;
+  color: white;
+  padding: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* NOTAS */
+.quote-notes {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #555;
+}
+
+/* 🔥 IMPORTANTE: SOLO IMPRIME LA COTIZACIÓN */
 @media print {
-    /* 1. CONFIGURACIÓN DE PÁGINA COMPLETA */
-    @page {
-        size: letter;
-        margin: 0;
-    }
+  body * {
+    visibility: hidden;
+  }
 
-    body { margin: 0; padding: 0; }
-    body > *:not(.print-container) { display: none !important; }
+  .printable-quote, .printable-quote * {
+    visibility: visible;
+  }
 
-    .print-container {
-        position: absolute !important;
-        top: 0; left: 0;
-        width: 100% !important;
-        height: 100% !important;
-        background: white !important;
-        display: flex !important;
-        flex-direction: column !important;
-        visibility: visible !important;
-        -webkit-print-color-adjust: exact !important;
-    }
+  .printable-quote {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
 
-    /* 2. ENCABEZADO: LOGO Y TÍTULO BALANCEADO */
-    .modal-header-dark {
-        background: white !important;
-        padding: 40px 60px !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        border-top: 15px solid #ff8800 !important; /* Banda Naranja Superior */
-    }
-
-    /* Logo Ajustado (No gigante) */
-    .empresa-logo-print {
-        height: 50px !important; 
-        width: auto !important;
-        object-fit: contain !important;
-    }
-
-    /* Título "INVOICE / COTIZACIÓN" (Tamaño Proporcional) */
-    .modal-header-dark span {
-        font-size: 28pt !important; 
-        font-weight: 300 !important;
-        color: #1a1a1a !important;
-        text-transform: uppercase !important;
-        letter-spacing: 3px !important;
-    }
-
-    /* 3. DATOS OBLIGATORIOS (Cliente y Fecha) */
-    .modal-info-summary {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        padding: 20px 60px !important;
-        gap: 0 !important;
-    }
-
-    /* Estilo para etiquetas (Cliente:, Fecha:) */
-    .info-label {
-        font-size: 9pt !important;
-        font-weight: 800 !important;
-        color: #ff8800 !important;
-        text-transform: uppercase !important;
-        margin-bottom: 2px !important;
-    }
-
-    /* Estilo para valores (Nombre del cliente, 2026-04-22) */
-    .info-value {
-        font-size: 12pt !important;
-        color: #1a1a1a !important;
-        margin-bottom: 15px !important;
-    }
-
-    /* 4. TABLA DE CONCEPTOS (Estilo Profesional) */
-    .modal-items-table {
-        width: calc(100% - 120px) !important;
-        margin: 30px 60px !important;
-        border-collapse: collapse !important;
-    }
-
-    .modal-items-table thead tr {
-        background: #343a40 !important; /* Gris Oscuro de la Referencia */
-    }
-
-    .modal-items-table th {
-        color: white !important;
-        padding: 12px !important;
-        font-size: 9pt !important;
-        text-transform: uppercase !important;
-        border: none !important;
-    }
-
-    .modal-items-table td {
-        padding: 15px 12px !important;
-        border-bottom: 1px solid #eee !important;
-        font-size: 10pt !important;
-        color: #444 !important;
-    }
-
-    /* 5. SECCIÓN DE TOTAL (Banda Naranja de Referencia) */
-    .modal-total-section {
-        margin: 20px 60px 0 auto !important;
-        width: 350px !important;
-        background: #ff8800 !important; /* Color Agente Solutions */
-        color: white !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        padding: 15px 25px !important;
-        -webkit-print-color-adjust: exact !important;
-    }
-
-    .modal-total-section h3 {
-        margin: 0 !important;
-        font-size: 20pt !important;
-        font-weight: 800 !important;
-    }
-
-    /* 6. PIE DE PÁGINA (Datos Fiscales y Bancarios Obligatorios) */
-    .print-footer-details {
-        margin-top: auto !important;
-        padding: 30px 60px !important;
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
-        font-size: 8pt !important;
-        color: #666 !important;
-        border-top: 2px solid #ff8800 !important;
-    }
-
-    /* Ocultar elementos innecesarios */
-    .modal-close-icon, .modal-footer-btns, .back-arrow-fixed, .scrollbar { 
-        display: none !important; 
-    }
+  .modal-footer-btns,
+  .modal-header-dark {
+    display: none;
+  }
 }
