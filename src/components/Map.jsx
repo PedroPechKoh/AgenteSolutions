@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import axios from 'axios';
 import logoAgente from '../assets/Logo_simple.png';
-import Header from './Header'; // ✅ IMPORTAMOS EL HEADER. Ajusta la ruta (../Shared/Header) si es necesario según tu carpeta.
+import Header from './Shared/Header';
 
 const containerStyle = {
   width: '100%',
-  height: '75vh', // Ajustado a porcentaje visual para que no se coma la pantalla con el Header
+  height: '75vh', 
   borderRadius: '15px',
-  boxShadow: '0 4px 15px rgba(0,0,0,0.1)' // Un toquecito de sombra elegante
+  boxShadow: '0 4px 15px rgba(0,0,0,0.1)' 
 };
 
 const Map = () => {
