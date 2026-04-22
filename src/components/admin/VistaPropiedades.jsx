@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import UniversalSearch from "../Shared/UniversalSearch";
+import Header from "../Shared/Header"; // ✅ IMPORTAMOS EL NUEVO HEADER
 import "../../styles/Admin/VistaPropiedades.css";
-import logo from "../../assets/Logo4.png";
 import { X, CheckCircle, User } from "lucide-react";
 
 const TIPOS_PROPIEDAD = [
@@ -25,17 +25,16 @@ const VistaPropiedades = () => {
   const [pasoModal, setPasoModal] = useState(1); 
   const [nombreResponsable, setNombreResponsable] = useState("");
 
-  // ✅ CORRECCIÓN 1: Enviar el Token al obtener propiedades
   useEffect(() => {
     const obtenerPropiedades = async () => {
       try {
-        const token = localStorage.getItem('agente_token'); // Extraemos el gafete
+        const token = localStorage.getItem('agente_token'); 
 
         const { data } = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}/propiedades`,
           {
             headers: {
-              'Authorization': `Bearer ${token}` // Lo inyectamos aquí
+              'Authorization': `Bearer ${token}` 
             }
           }
         );
@@ -49,7 +48,6 @@ const VistaPropiedades = () => {
     obtenerPropiedades();
   }, []);
 
-  // ✅ CORRECCIÓN 2: Enviar el Token al eliminar
   const eliminarPropiedad = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar esta propiedad?")) return;
     try {
@@ -73,7 +71,6 @@ const VistaPropiedades = () => {
     setMostrarModalServicio(true);
   };
 
-  // ✅ CORRECCIÓN 3: Enviar el Token al solicitar levantamiento
   const enviarLevantamiento = async (e) => {
     e.preventDefault();
     try {
@@ -116,30 +113,33 @@ const VistaPropiedades = () => {
       <div className="top-bar-orange" />
       <div className="top-bar-black" />
 
-      <header
-        className="lev-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px 40px",
-        }}
-      >
-        <img
-          src={logo}
-          alt="Agente Solutions"
-          className="lev-logo"
-          style={{ height: "50px" }}
-        />
-        <button
-          className="lev-btn-add"
-          onClick={() => navigate("/registro-propiedades")}
-        >
-          + NUEVA PROPIEDAD
-        </button>
-      </header>
+      {/* ✅ AQUÍ INTEGRAMOS EL NUEVO HEADER GENERAL */}
+      <Header rolTexto="ADMINISTRACIÓN DE PROPIEDADES" />
 
-      <main className="content-body">
+      <main className="content-body" style={{ padding: "20px" }}>
+        
+        {/* ✅ BOTÓN DE NUEVA PROPIEDAD REUBICADO */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
+          <button
+            className="lev-btn-add"
+            onClick={() => navigate("/registro-propiedades")}
+            style={{
+              backgroundColor: '#FF6600',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '6px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            + NUEVA PROPIEDAD
+          </button>
+        </div>
+
         <UniversalSearch
           type="PROPIEDADES"
           data={listaPropiedades}
@@ -266,9 +266,6 @@ const VistaPropiedades = () => {
           </table>
         </div>
 
-        <button className="back-arrow-btn" onClick={() => navigate(-1)}>
-          ←
-        </button>
       </main>
 
       {/* 👇 MODAL DE SOLICITAR LEVANTAMIENTO 👇 */}
