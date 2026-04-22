@@ -270,8 +270,8 @@
   color: #555;
 }
 
-/* 🔥 IMPORTANTE: SOLO IMPRIME LA COTIZACIÓN */
 @media print {
+
   body * {
     visibility: hidden;
   }
@@ -282,13 +282,22 @@
 
   .printable-quote {
     position: absolute;
-    left: 0;
     top: 0;
+    left: 0;
     width: 100%;
+    background: white;
+    padding: 40px;
   }
 
+  /* OCULTA TODO LO DEMÁS */
+  .modal-header-dark,
   .modal-footer-btns,
-  .modal-header-dark {
-    display: none;
+  .modal-info-summary {
+    display: none !important;
   }
+
+}
+.printable-quote {
+  background: white !important;
+  color: #222;
 }
