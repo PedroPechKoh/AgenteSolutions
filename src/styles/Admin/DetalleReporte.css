@@ -460,3 +460,148 @@
     border-radius: 5px;
     font-size: 20px;
 }
+/* --- MODAL DE COTIZACIÓN --- */
+.lev-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.cot-modal-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    overflow: hidden;
+}
+
+.cot-modal-header {
+    background: #1a1a1a;
+    padding: 18px 25px;
+    border-bottom: 1px solid #333;
+}
+
+/* --- TABLAS DINÁMICAS --- */
+.coti-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.coti-table th {
+    background: #ebeef0; /* Gris claro de cabecera */
+    color: #4a4a4a;
+    padding: 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 1px solid #dee2e6;
+}
+
+.coti-table td {
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    vertical-align: middle;
+}
+
+/* --- INPUTS DENTRO DE TABLAS --- */
+.coti-table input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+    transition: border 0.2s;
+}
+
+.coti-table input:focus {
+    outline: none;
+    border-color: #ff9800;
+}
+
+/* --- BOTONES DE ACCIÓN --- */
+.btn-add-row {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: #ff9800; /* Color naranja institucional */
+    border: 2px dashed #ff9800;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 15px 0 30px 0;
+    transition: all 0.3s;
+}
+
+.btn-add-row:hover {
+    background: #fff5e6;
+}
+
+.btn-delete {
+    background: #ffebee;
+    color: #c62828;
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* --- SECCIÓN DE TOTAL --- */
+.total-box {
+    border: 1.5px solid #ff9800;
+    padding: 15px 25px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.total-label {
+    color: #ff9800;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-right: 10px;
+}
+
+.total-amount {
+    color: #ff9800;
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+/* --- BOTONES INFERIORES --- */
+.btn-cancelar {
+    background: #232e3c; /* Azul oscuro/grisáceo */
+    color: white;
+    padding: 12px 30px;
+    border-radius: 30px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-enviar {
+    background: #1a252f;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* --- TÍTULOS DE SECCIÓN --- */
+.coti-section-title {
+    color: #333;
+    font-size: 0.95rem;
+    font-weight: 700;
+    border-bottom: 3px solid #ff9800; /* Línea naranja de tus fotos */
+    display: inline-block;
+    padding-bottom: 2px;
+    margin-bottom: 15px;
+}
