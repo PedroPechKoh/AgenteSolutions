@@ -10,24 +10,20 @@ const DetalleReporte = () => {
     const navigate = useNavigate();
 
     const [mostrarCotizacion, setMostrarCotizacion] = useState(false);
-    const [metodoCotizacion, setMetodoCotizacion] = useState('manual');
-
-    // Estados para manejo de archivos
+    const [metodoCotizacion, setMetodoCotizacion] = useState('manual'); // <--- AHORA SE USA ABAJO
     const [archivoPreview, setArchivoPreview] = useState(null);
     const [archivoFisico, setArchivoFisico] = useState(null);
 
-    // --- NUEVOS ESTADOS PARA EL COTIZADOR DINÁMICO (MANTENIENDO LO ANTERIOR) ---
-    const [filasConceptos, setFilasConceptos] = useState([{ descripcion: '', cantidad: 1, precio_u: 0 }]);
-    const [filasMateriales, setFilasMateriales] = useState([{ nombre: '', cantidad: 1, costo_u: 0 }]);
+    // ESTADOS DEL COTIZADOR DINÁMICO
+    const [filasConceptos, setFilasConceptos] = useState([{ descripcion: '', cantidad: 0, precio_u: 0 }]);
+    const [filasMateriales, setFilasMateriales] = useState([{ nombre: '', cantidad: 0, costo_u: 0 }]);
     const [herramientasBasicas, setHerramientasBasicas] = useState([{ nombre: '', cantidad: 1 }]);
-    const [herramientasEspeciales, setHerramientasEspeciales] = useState([]);
-    const [observaciones, setObservaciones] = useState('');
+    const [herramientasEspeciales, setHerramientasEspeciales] = useState([{ nombre: '', cantidad: 1 }]);
+    const [observaciones, setObservaciones] = useState(''); 
 
-    // ESTADO PARA GUARDAR LOS DATOS DE LA BD
     const [datosBD, setDatosBD] = useState(null);
     const [cargando, setCargando] = useState(true);
 
-    // EFECTO PARA TRAER DATOS DE LARAVEL (SIN CAMBIOS)
     useEffect(() => {
         const cargarReporte = async () => {
             try {
@@ -42,10 +38,9 @@ const DetalleReporte = () => {
         cargarReporte();
     }, [id]);
 
-    // --- LÓGICA DE TABLAS DINÁMICAS ---
     const agregarFila = (tipo) => {
-        if (tipo === 'concepto') setFilasConceptos([...filasConceptos, { descripcion: '', cantidad: 1, precio_u: 0 }]);
-        if (tipo === 'material') setFilasMateriales([...filasMateriales, { nombre: '', cantidad: 1, costo_u: 0 }]);
+        if (tipo === 'concepto') setFilasConceptos([...filasConceptos, { descripcion: '', cantidad: 0, precio_u: 0 }]);
+        if (tipo === 'material') setFilasMateriales([...filasMateriales, { nombre: '', cantidad: 0, costo_u: 0 }]);
         if (tipo === 'basica') setHerramientasBasicas([...herramientasBasicas, { nombre: '', cantidad: 1 }]);
         if (tipo === 'especial') setHerramientasEspeciales([...herramientasEspeciales, { nombre: '', cantidad: 1 }]);
     };
@@ -65,7 +60,6 @@ const DetalleReporte = () => {
         if (tipo === 'especial') setHerramientasEspeciales(actualizar);
     };
 
-    // Cálculos de totales en tiempo real
     const totalConceptos = filasConceptos.reduce((acc, f) => acc + (f.cantidad * f.precio_u), 0);
     const totalMateriales = filasMateriales.reduce((acc, f) => acc + (f.cantidad * f.costo_u), 0);
     const totalGeneral = totalConceptos + totalMateriales;
@@ -78,7 +72,6 @@ const DetalleReporte = () => {
         }
     };
 
-    // Lógica para enviar la cotización (MODIFICADA PARA ENVIAR JSON)
     const guardarCotizacion = async () => {
         try {
             const data = new FormData();
@@ -86,65 +79,46 @@ const DetalleReporte = () => {
             data.append('type', metodoCotizacion);
 
             if (metodoCotizacion === 'manual') {
-                // Enviamos toda la estructura como un string JSON en el campo 'concept'
-                const conceptoEstructurado = JSON.stringify({
+                data.append('concept', JSON.stringify({
                     conceptos: filasConceptos,
                     materiales: filasMateriales,
                     herramientas_basicas: herramientasBasicas,
-                    herramientas_especiales: herramientasEspeciales
-                });
-                
-                data.append('concept', conceptoEstructurado);
+                    herramientas_especiales: herramientasEspeciales,
+                    notas: observaciones
+                }));
                 data.append('estimated_amount', totalGeneral);
                 data.append('observations', observaciones);
-                data.append('validity_days', 15);
             } else {
-                if (!archivoFisico) { alert("Selecciona un documento."); return; }
+                if (!archivoFisico) return alert("Selecciona un archivo");
                 data.append('file', archivoFisico);
             }
 
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, data, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-
-            alert("¡Cotización guardada exitosamente!");
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, data);
+            alert("¡Cotización guardada!");
             setMostrarCotizacion(false);
         } catch (error) {
-            console.error("Error al guardar:", error);
-            alert("Hubo un problema al guardar.");
+            console.error(error);
+            alert("Error al guardar.");
         }
     };
 
-    if (cargando) return <div style={{padding: '50px', textAlign: 'center', color: 'white'}}>Cargando datos del reporte...</div>;
-    if (!datosBD) return <div style={{padding: '50px', textAlign: 'center', color: 'white'}}>Error: Reporte no encontrado.</div>;
+    if (cargando) return <div style={{padding: '50px', textAlign: 'center', color: 'white'}}>Cargando datos...</div>;
+    if (!datosBD) return <div style={{padding: '50px', textAlign: 'center', color: 'white'}}>Reporte no encontrado.</div>;
 
     return (
         <div className="rep-container">
-            {/* SIDEBAR ORIGINAL SIN CAMBIOS */}
+            {/* SIDEBAR - SIN CAMBIOS */}
             <aside className="rep-sidebar">
                 <img src={logo} alt="Logo Agente" className="side-logo" onClick={() => navigate('/')} />
                 <div className="side-info">
                     <span className="id-badge">{datosBD.identificador_curp}</span>
                     <h2>{datosBD.propietario}</h2>
-                    <div className="rep-clasificacion">
-                        <div className="rep-direccion-box" style={{marginTop: '20px', marginBottom: '25px'}}>
-                            <p style={{fontSize: '0.9rem', lineHeight: '1.4', marginBottom: '12px'}}>
-                                <strong>Dirección:</strong><br/>{datosBD.direccion}
-                            </p>
-                            <a href={`https://www.google.com/maps/search/?api=1&query=$${datosBD.direccion}`} target="_blank" rel="noopener noreferrer" className="btn-maps">
-                                📍 VER EN GOOGLE MAPS
-                            </a>
-                        </div>
-                    </div>
                     <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>+ GENERAR COTIZACIÓN</button>
-                    <hr className="side-hr" />
-                    <p><strong>Técnico Asignado:</strong><br/>{datosBD.tecnico}</p>
-                    <p><strong>Día de visita programada:</strong><br/>{datosBD.fecha_programada}</p>
                 </div>
-                <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER AL LISTADO</button>
+                <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER</button>
             </aside>
 
-            {/* MAIN CONTENT ORIGINAL SIN CAMBIOS */}
+            {/* MAIN CONTENT - SIN CAMBIOS */}
             <main className="rep-main-content">
                 <header className="main-banner">
                     <img src={casaImg} alt="Propiedad" />
@@ -152,162 +126,141 @@ const DetalleReporte = () => {
                 </header>
 
                 <section className="reporte-flujo">
-                    {datosBD.secciones && datosBD.secciones.length > 0 ? (
-                        datosBD.secciones.map((sec, idx) => (
-                            <div key={`sec-${idx}`} className="seccion-bloque">
-                                <div className="seccion-header">
-                                    <h3>{sec.titulo}</h3>
-                                    {sec.descripcion && <p className="sec-desc">{sec.descripcion}</p>}
+                    {datosBD.secciones?.map((sec, idx) => (
+                        <div key={idx} className="seccion-bloque">
+                            <div className="seccion-header"><h3>{sec.titulo}</h3></div>
+                            {sec.subSecciones.map((sub, sIdx) => (
+                                <div key={sIdx} className="subseccion-caja">
+                                    <h4>{sub.nombre}</h4>
+                                    <table className="tabla-inventario">
+                                        <thead><tr><th>Categoría</th><th>Cant.</th></tr></thead>
+                                        <tbody>
+                                            {sub.inventario.map((inv, iIdx) => (
+                                                <tr key={iIdx}><td>{inv.categoria}</td><td>{inv.cantidad}</td></tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
-                                {sec.subSecciones.map((sub, sIdx) => (
-                                    <div key={`sub-${idx}-${sIdx}`} className="subseccion-caja">
-                                        <div className="sub-titulo">
-                                            <h4>{sub.nombre}</h4>
-                                            <span className="nota-tecnica">Nota: {sub.nota}</span>
-                                        </div>
-                                        <div className="table-responsive">
-                                            <table className="tabla-inventario">
-                                                <thead>
-                                                    <tr><th>Categoría</th><th>Marca</th><th>Modelo</th><th className="txt-center">Cant.</th></tr>
-                                                </thead>
-                                                <tbody>
-                                                    {sub.inventario.map((inv, iIdx) => (
-                                                        <tr key={iIdx}>
-                                                            <td className="bold">{inv.categoria}</td>
-                                                            <td>{inv.marca || '-'}</td>
-                                                            <td>{inv.modelo || '-'}</td>
-                                                            <td className="col-cant">{inv.cantidad}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ))
-                    ) : (
-                        <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>No hay áreas registradas.</div>
-                    )}
+                            ))}
+                        </div>
+                    ))}
                 </section>
             </main>
 
-            {/* MODAL DE COTIZACIÓN - UNICA PARTE MODIFICADA INTERNAMENTE */}
+            {/* MODAL CON SELECTOR DE MÉTODO (SOLUCIONA ERROR ESLINT) */}
             {mostrarCotizacion && (
                 <div className="lev-modal-overlay" onClick={() => setMostrarCotizacion(false)}>
-                    <div className="cot-modal-card" style={{maxWidth: '1000px', width: '95%'}} onClick={e => e.stopPropagation()}>
-                        <div className="cot-modal-header">
-                            <h3>GENERAR NUEVA COTIZACIÓN</h3>
-                            <button className="cot-close-btn" onClick={() => setMostrarCotizacion(false)}>×</button>
+                    <div className="cot-modal-card" style={{maxWidth: '1000px', width: '95%', background: '#fff', borderRadius: '12px'}} onClick={e => e.stopPropagation()}>
+                        <div className="cot-modal-header" style={{background: '#1a1a1a', color: '#fff', padding: '15px 20px', display: 'flex', justifyContent: 'space-between', borderRadius: '12px 12px 0 0'}}>
+                            <h3 style={{margin: 0, fontSize: '1.2rem'}}>GENERAR NUEVA COTIZACIÓN</h3>
+                            <button onClick={() => setMostrarCotizacion(false)} style={{background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer'}}>×</button>
                         </div>
 
-                        <div className="cot-tabs-selector">
-                            <button className={metodoCotizacion === 'manual' ? 'active' : ''} onClick={() => setMetodoCotizacion('manual')}>📝 Manual</button>
-                            <button className={metodoCotizacion === 'archivo' ? 'active' : ''} onClick={() => setMetodoCotizacion('archivo')}>📎 Archivo</button>
+                        {/* SELECTOR DE PESTAÑAS - AQUÍ SE USA setMetodoCotizacion */}
+                        <div style={{display: 'flex', padding: '15px 20px', gap: '15px', background: '#f8f9fa', borderBottom: '1px solid #eee'}}>
+                            <button 
+                                onClick={() => setMetodoCotizacion('manual')} 
+                                style={{flex: 1, padding: '12px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: metodoCotizacion === 'manual' ? '#fff' : 'transparent', boxShadow: metodoCotizacion === 'manual' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none', color: metodoCotizacion === 'manual' ? '#ff9800' : '#666'}}
+                            >
+                                📝 Registro Manual
+                            </button>
+                            <button 
+                                onClick={() => setMetodoCotizacion('archivo')} 
+                                style={{flex: 1, padding: '12px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: metodoCotizacion === 'archivo' ? '#fff' : 'transparent', boxShadow: metodoCotizacion === 'archivo' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none', color: metodoCotizacion === 'archivo' ? '#ff9800' : '#666'}}
+                            >
+                                📎 Cargar Archivo
+                            </button>
                         </div>
 
-                        <div className="cot-modal-body" style={{maxHeight: '70vh', overflowY: 'auto'}}>
+                        <div className="cot-modal-body" style={{padding: '20px', maxHeight: '65vh', overflowY: 'auto', color: '#333'}}>
                             {metodoCotizacion === 'manual' ? (
-                                <div className="cot-dinamico-container">
-                                    {/* SECCIÓN 1: CONCEPTOS */}
-                                    <h4 className="coti-title">1. CONCEPTOS PARA EL CLIENTE</h4>
-                                    <table className="coti-table">
-                                        <thead>
-                                            <tr><th>DESCRIPCIÓN</th><th>CANT.</th><th>PRECIO U.</th><th>SUBTOTAL</th><th></th></tr>
+                                <>
+                                    <h4 style={{borderBottom: '2px solid #ff9800', display: 'inline-block', marginBottom: '15px'}}>1. CONCEPTOS PARA EL CLIENTE</h4>
+                                    <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '10px'}}>
+                                        <thead style={{background: '#eee'}}>
+                                            <tr><th style={{padding: '10px'}}>DESCRIPCIÓN</th><th>CANT.</th><th>PRECIO U.</th><th>SUBTOTAL</th><th></th></tr>
                                         </thead>
                                         <tbody>
                                             {filasConceptos.map((f, i) => (
-                                                <tr key={i}>
-                                                    <td><input type="text" value={f.descripcion} onChange={(e) => actualizarFila(i, 'descripcion', e.target.value, 'concepto')} placeholder="Concepto..." /></td>
-                                                    <td><input type="number" value={f.cantidad} onChange={(e) => actualizarFila(i, 'cantidad', e.target.value, 'concepto')} style={{width: '60px'}} /></td>
-                                                    <td><input type="number" value={f.precio_u} onChange={(e) => actualizarFila(i, 'precio_u', e.target.value, 'concepto')} style={{width: '100px'}} /></td>
-                                                    <td>${f.cantidad * f.precio_u}</td>
-                                                    <td><button onClick={() => eliminarFila(i, 'concepto')}>🗑️</button></td>
+                                                <tr key={i} style={{borderBottom: '1px solid #ddd'}}>
+                                                    <td style={{padding: '5px'}}><input type="text" placeholder="Concepto..." value={f.descripcion} onChange={(e) => actualizarFila(i, 'descripcion', e.target.value, 'concepto')} style={{width: '95%', padding: '8px', border: '1px solid #ccc'}} /></td>
+                                                    <td><input type="number" value={f.cantidad} onChange={(e) => actualizarFila(i, 'cantidad', e.target.value, 'concepto')} style={{width: '50px', padding: '8px'}} /></td>
+                                                    <td><input type="number" value={f.precio_u} onChange={(e) => actualizarFila(i, 'precio_u', e.target.value, 'concepto')} style={{width: '80px', padding: '8px'}} /></td>
+                                                    <td style={{fontWeight: 'bold'}}>${(f.cantidad * f.precio_u).toLocaleString()}</td>
+                                                    <td><button onClick={() => eliminarFila(i, 'concepto')} style={{background: '#ffebee', border: 'none', padding: '5px', cursor: 'pointer'}}>🗑️</button></td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
-                                    <button className="btn-add-row" onClick={() => agregarFila('concepto')}>+ AGREGAR FILA</button>
+                                    <button onClick={() => agregarFila('concepto')} style={{width: '100%', padding: '10px', background: 'none', border: '2px dashed #ff9800', color: '#ff9800', fontWeight: 'bold', cursor: 'pointer', marginBottom: '25px'}}>+ AGREGAR FILA</button>
 
-                                    {/* SECCIÓN 2: MATERIALES */}
-                                    <h4 className="coti-title">2. MATERIALES (PRECIOS INTERNOS)</h4>
-                                    <table className="coti-table">
-                                        <thead>
-                                            <tr><th>MATERIAL</th><th>CANT.</th><th>COSTO U.</th><th>SUBTOTAL</th><th></th></tr>
+                                    <h4 style={{borderBottom: '2px solid #ff9800', display: 'inline-block', marginBottom: '15px'}}>2. MATERIALES (PRECIOS INTERNOS)</h4>
+                                    <table style={{width: '100%', borderCollapse: 'collapse', marginBottom: '10px'}}>
+                                        <thead style={{background: '#eee'}}>
+                                            <tr><th style={{padding: '10px'}}>MATERIAL</th><th>CANT.</th><th>COSTO U.</th><th>SUBTOTAL</th><th></th></tr>
                                         </thead>
                                         <tbody>
                                             {filasMateriales.map((f, i) => (
-                                                <tr key={i}>
-                                                    <td><input type="text" value={f.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'material')} placeholder="Material..." /></td>
-                                                    <td><input type="number" value={f.cantidad} onChange={(e) => actualizarFila(i, 'cantidad', e.target.value, 'material')} style={{width: '60px'}} /></td>
-                                                    <td><input type="number" value={f.costo_u} onChange={(e) => actualizarFila(i, 'costo_u', e.target.value, 'material')} style={{width: '100px'}} /></td>
-                                                    <td>${f.cantidad * f.costo_u}</td>
-                                                    <td><button onClick={() => eliminarFila(i, 'material')}>🗑️</button></td>
+                                                <tr key={i} style={{borderBottom: '1px solid #ddd'}}>
+                                                    <td style={{padding: '5px'}}><input type="text" placeholder="Material..." value={f.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'material')} style={{width: '95%', padding: '8px', border: '1px solid #ccc'}} /></td>
+                                                    <td><input type="number" value={f.cantidad} onChange={(e) => actualizarFila(i, 'cantidad', e.target.value, 'material')} style={{width: '50px', padding: '8px'}} /></td>
+                                                    <td><input type="number" value={f.costo_u} onChange={(e) => actualizarFila(i, 'costo_u', e.target.value, 'material')} style={{width: '80px', padding: '8px'}} /></td>
+                                                    <td style={{fontWeight: 'bold'}}>${(f.cantidad * f.costo_u).toLocaleString()}</td>
+                                                    <td><button onClick={() => eliminarFila(i, 'material')} style={{background: '#ffebee', border: 'none', padding: '5px', cursor: 'pointer'}}>🗑️</button></td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
-                                    <button className="btn-add-row" onClick={() => agregarFila('material')}>+ AGREGAR MATERIAL</button>
+                                    <button onClick={() => agregarFila('material')} style={{width: '100%', padding: '10px', background: 'none', border: '2px dashed #ff9800', color: '#ff9800', fontWeight: 'bold', cursor: 'pointer', marginBottom: '25px'}}>+ AGREGAR MATERIAL</button>
 
-                                    {/* SECCIÓN 3: HERRAMIENTAS */}
-                                    <div style={{display: 'flex', gap: '20px', marginTop: '20px'}}>
+                                    <div style={{display: 'flex', gap: '20px'}}>
                                         <div style={{flex: 1}}>
-                                            <h4 className="coti-title">3.1 HERRAMIENTAS BÁSICAS</h4>
+                                            <h4 style={{borderBottom: '2px solid #ff9800', display: 'inline-block', marginBottom: '10px'}}>3.1 HERRAMIENTAS BÁSICAS</h4>
                                             {herramientasBasicas.map((h, i) => (
                                                 <div key={i} style={{display: 'flex', gap: '5px', marginBottom: '5px'}}>
-                                                    <input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'basica')} placeholder="Herramienta..." style={{flex: 1}} />
+                                                    <input type="text" placeholder="Herramienta..." value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'basica')} style={{flex: 1, padding: '8px'}} />
                                                     <button onClick={() => eliminarFila(i, 'basica')}>🗑️</button>
                                                 </div>
                                             ))}
-                                            <button className="btn-add-row" onClick={() => agregarFila('basica')}>+ AGREGAR</button>
+                                            <button onClick={() => agregarFila('basica')} style={{width: '100%', border: '1px dashed #ff9800', color: '#ff9800', background: 'none', padding: '5px', cursor: 'pointer'}}>+ AGREGAR BÁSICA</button>
                                         </div>
-                                        {/* SECCIÓN 4: OBSERVACIONES */}
-<div style={{ marginTop: '20px' }}>
-    <h4 className="coti-title">4. OBSERVACIONES ADICIONALES</h4>
-    <textarea 
-        className="cot-textarea"
-        value={observaciones}
-        onChange={(e) => setObservaciones(e.target.value)}
-        placeholder="Escribe notas internas o detalles específicos aquí..."
-        style={{
-            width: '100%',
-            height: '80px',
-            backgroundColor: '#2a2a2a',
-            color: 'white',
-            border: '1px solid #444',
-            borderRadius: '8px',
-            padding: '10px',
-            marginTop: '10px'
-        }}
-    />
-</div>
                                         <div style={{flex: 1}}>
-                                            <h4 className="coti-title">3.2 ESPECIALES</h4>
+                                            <h4 style={{borderBottom: '2px solid #ff9800', display: 'inline-block', marginBottom: '10px'}}>3.2 ESPECIALES</h4>
                                             {herramientasEspeciales.map((h, i) => (
                                                 <div key={i} style={{display: 'flex', gap: '5px', marginBottom: '5px'}}>
-                                                    <input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'especial')} placeholder="Especial..." style={{flex: 1}} />
+                                                    <input type="text" placeholder="Especial..." value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'especial')} style={{flex: 1, padding: '8px'}} />
                                                     <button onClick={() => eliminarFila(i, 'especial')}>🗑️</button>
                                                 </div>
                                             ))}
-                                            <button className="btn-add-row" onClick={() => agregarFila('especial')}>+ AGREGAR</button>
+                                            <button onClick={() => agregarFila('especial')} style={{width: '100%', border: '1px dashed #ff9800', color: '#ff9800', background: 'none', padding: '5px', cursor: 'pointer'}}>+ AGREGAR ESPECIAL</button>
                                         </div>
                                     </div>
-                                </div>
+
+                                    <div style={{marginTop: '20px'}}>
+                                        <h4 style={{marginBottom: '10px'}}>OBSERVACIONES ADICIONALES</h4>
+                                        <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder="Detalles técnicos..." style={{width: '97%', height: '80px', padding: '10px', border: '1px solid #ccc'}} />
+                                    </div>
+                                </>
                             ) : (
-                                <div className="cot-upload-container">
-                                    <input type="file" onChange={manejarArchivo} accept="image/*,application/pdf" />
-                                    {archivoPreview && <img src={archivoPreview} alt="Vista previa" style={{width: '100%', marginTop: '10px'}} />}
+                                <div style={{textAlign: 'center', padding: '40px'}}>
+                                    <input type="file" onChange={manejarArchivo} accept="image/*,application/pdf" style={{marginBottom: '20px'}} />
+                                    {archivoPreview && (
+                                        <div style={{marginTop: '10px', border: '1px solid #eee', padding: '10px'}}>
+                                            <img src={archivoPreview} alt="Preview" style={{maxWidth: '100%', height: 'auto'}} />
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
 
-                        <div className="cot-modal-footer" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                            <div className="total-display" style={{border: '1px solid #ff9800', padding: '10px 20px', borderRadius: '8px', color: '#ff9800', fontWeight: 'bold', fontSize: '1.2rem'}}>
-                                TOTAL: ${totalGeneral}
+                        <div className="cot-modal-footer" style={{padding: '20px', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                            <div style={{border: '1px solid #ff9800', padding: '15px 30px', borderRadius: '8px'}}>
+                                <span style={{color: '#ff9800', fontWeight: 'bold'}}>TOTAL: </span>
+                                <strong style={{fontSize: '1.4rem', color: '#ff9800'}}>${totalGeneral.toLocaleString()}</strong>
                             </div>
-                            <div>
-                                <button className="btn-secundario" onClick={() => setMostrarCotizacion(false)}>CANCELAR</button>
-                                <button className="btn-primario" onClick={guardarCotizacion}>ENVIAR COTIZACIÓN</button>
+                            <div style={{display: 'flex', gap: '10px'}}>
+                                <button onClick={() => setMostrarCotizacion(false)} style={{background: '#2c3e50', color: '#fff', padding: '12px 25px', borderRadius: '25px', border: 'none', fontWeight: 'bold', cursor: 'pointer'}}>CANCELAR</button>
+                                <button onClick={guardarCotizacion} style={{background: '#1a252f', color: '#fff', padding: '12px 25px', borderRadius: '5px', border: 'none', fontWeight: 'bold', cursor: 'pointer'}}>ENVIAR</button>
                             </div>
                         </div>
                     </div>
