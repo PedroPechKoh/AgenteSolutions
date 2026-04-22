@@ -190,3 +190,103 @@
     border-bottom: 1px solid #eee; 
     color: #333; /* <--- Texto oscuro para la tabla */
 }
+/* =============================================
+   DISEÑO PARA IMPRESIÓN (PDF)
+   ============================================= */
+@media print {
+  /* 1. Ocultar todo lo que no sea el contenido de la cotización */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 2. Mostrar solo el contenedor del modal y su contenido */
+  .modal-fixed-overlay,
+  .modal-box-card,
+  .modal-box-card * {
+    visibility: visible;
+  }
+
+  /* 3. Posicionar el contenido para que ocupe toda la hoja */
+  .modal-fixed-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+  }
+
+  .modal-box-card {
+    position: relative;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+    max-height: none !important;
+  }
+
+  /* 4. Ocultar botones y elementos de interfaz en el PDF */
+  .modal-close-icon, 
+  .modal-footer-btns, 
+  .back-arrow-fixed,
+  .top-bar-orange,
+  .top-bar-black,
+  .cotiz-header {
+    display: none !important;
+  }
+
+  /* 5. Diseño Estilo Factura / Membrete */
+  .modal-header-dark {
+    background: #222 !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact; /* Fuerza el color en Chrome/Edge */
+    padding: 20px !important;
+    text-align: center;
+    font-size: 1.5rem;
+    border-radius: 0;
+  }
+
+  .modal-info-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    border-bottom: 2px solid #ff8800;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+
+  .modal-items-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .modal-items-table th {
+    background-color: #f0f0f0 !important;
+    border-bottom: 2px solid #333 !important;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .modal-items-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .modal-total-section {
+    text-align: right;
+    margin-top: 30px;
+    padding: 15px;
+    background: #fff5e6 !important;
+    border: 1px solid #ff8800;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* 6. Pie de página del PDF */
+  .modal-body-content::after {
+    content: "Gracias por su preferencia - Agente Solutions. Este documento es una cotización oficial válida por 15 días.";
+    display: block;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 50px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+  }
+}
