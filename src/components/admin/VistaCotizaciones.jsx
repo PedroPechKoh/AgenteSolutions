@@ -22,7 +22,7 @@ const VistaCotizaciones = () => {
       if (session?.userData?.role_id === 3) {
         setEsCliente(true);
       }
-    } catch(e) {}
+    } catch {}
     cargarCotizaciones();
   }, []);
 
@@ -69,7 +69,7 @@ const VistaCotizaciones = () => {
       setRechazando(false);
       setMotivoRechazo('');
       cargarCotizaciones();
-    } catch(e) {
+    } catch {
       alert("Error al procesar la cotización.");
     } finally {
       setProcesando(false);
@@ -144,7 +144,7 @@ const VistaCotizaciones = () => {
       </main>
 
       {cotizacionSeleccionada && (
-        <div className="modal-fixed-overlay" onClick={() => setCotizacionSeleccionada(null)}>
+  <div className="modal-fixed-overlay print-container" onClick={() => setCotizacionSeleccionada(null)}>
          
           <div className="modal-box-card" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
             
