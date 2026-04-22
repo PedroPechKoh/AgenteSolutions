@@ -190,26 +190,34 @@
     border-bottom: 1px solid #eee; 
     color: #333; /* <--- Texto oscuro para la tabla */
 }
+/* =============================================
+   REPLICA EXACTA DE DISEÑO (QUANTAM/EXAMPLE 1)
+   PARA IMPRESIÓN EN AGENTE SOLUTIONS
+   Colores: Negro, Naranja, Gris Claro
+   ============================================= */
+
 @media print {
-    /* 1. CONFIGURACIÓN DE PÁGINA */
+    /* 1. RESET Y CONFIGURACIÓN DE PÁGINA (PAPEL BONO) */
     @page {
         size: letter;
-        margin: 0;
+        margin: 0; /* Control total del diseño */
     }
 
     body { margin: 0; padding: 0; }
     
+    /* Ocultar el sitio web web */
     body > *:not(.print-container) { display: none !important; }
 
+    /* Forzar que el modal ocupe toda la hoja */
     .print-container {
         position: absolute !important;
         top: 0; left: 0;
-        width: 100% !important;
-        height: 100% !important;
+        width: 100vw !important;
+        height: 100vh !important;
         background: white !important;
-        visibility: visible !important;
         display: flex !important;
         flex-direction: column !important;
+        -webkit-print-color-adjust: exact !important;
     }
 
     .modal-box-card {
@@ -219,156 +227,177 @@
         height: 100% !important;
         display: flex !important;
         flex-direction: column !important;
+        padding: 0 !important;
+        margin: 0 !important;
     }
 
-    /* 2. HEADER: IMPACTO VISUAL */
+    /* Ocultar botones e iconos */
+    .modal-close-icon, .modal-footer-btns, .back-arrow-fixed { display: none !important; }
+
+    /* 2. HEADER MODERNO CON LOGO Y BANDA NARANJA (Estilo Imagen 1) */
     .modal-header-dark {
-        background: #1a1a1a !important;
-        height: 160px !important;
-        clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%) !important;
-        padding: 0 60px !important;
+        background: white !important; /* El header web es negro, aquí es blanco */
+        height: 120px !important;
+        padding: 40px 60px !important;
         display: flex !important;
-        justify-content: space-between !important;
         align-items: center !important;
-        -webkit-print-color-adjust: exact !important;
+        border-radius: 0 !important;
+        border-top: 10px solid #ff8800 !important; /* Banda Naranja Superior */
+        position: relative !important;
     }
 
+    /* Título del Folio (Negro, a la derecha) */
     .modal-header-dark span {
-        color: white !important;
-        font-size: 32pt !important;
-        font-weight: 900 !important;
-        letter-spacing: -1px !important;
+        font-size: 24pt !important;
+        font-weight: 800 !important;
+        color: #1a1a1a !important;
+        margin-left: auto !important;
+        text-transform: uppercase;
+        letter-spacing: 3px;
     }
 
-    /* Franja naranja estilizada */
-    .modal-header-dark::after {
+    /* Añadir Logo Institucional (Simulado de imagen 1) */
+    .modal-header-dark::before {
         content: "" !important;
-        position: absolute !important;
-        top: 0; right: 15%;
-        width: 80px; height: 100%;
+        position: absolute;
+        top: 0; right: 25%;
+        width: 50px; height: 100%;
         background: #ff8800 !important;
-        transform: skewX(-30deg) !important;
+        transform: skewX(-20deg) !important;
+        z-index: 1;
         -webkit-print-color-adjust: exact !important;
     }
 
-    /* 3. BLOQUE DE INFORMACIÓN (Grid de 3 columnas) */
+    /* 3. BLOQUE DE DATOS (Cliente / Cotización / Fecha) */
     .modal-info-summary {
         display: grid !important;
-        grid-template-columns: 1.5fr 1fr 1fr !important; /* Más espacio al cliente */
-        padding: 60px 60px 30px 60px !important;
-        gap: 20px !important;
-        border-bottom: 1px solid #eee !important;
-        margin-bottom: 20px !important;
+        grid-template-columns: 1.5fr 1fr !important;
+        padding: 60px 60px 20px 60px !important;
+        gap: 30px !important;
+        border-top: 2px solid #eee;
     }
 
     .modal-info-summary p {
+        margin: 5px 0 !important;
         font-size: 10pt !important;
-        line-height: 1.6 !important;
-        margin: 0 !important;
         color: #555 !important;
     }
 
     .modal-info-summary strong {
-        display: block !important;
-        color: #ff8800 !important;
-        font-size: 8pt !important;
+        color: #1a1a1a !important;
+        font-weight: 700 !important;
         text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        margin-bottom: 4px !important;
     }
 
-    /* 4. CUERPO DE LA COTIZACIÓN */
-    .modal-body-content {
-        padding: 0 60px !important;
-        flex-grow: 1 !important;
-    }
-
-    h2.cotiz-title { /* Añadir un h2 en el JS si es posible */
+    /* Título secundario centrado */
+    .modal-body-content::before {
+        content: "COTIZACIÓN FORMAL";
+        display: block;
         text-align: center;
         font-size: 16pt;
-        font-weight: 300;
+        font-weight: 900;
         color: #1a1a1a;
-        margin-bottom: 40px;
-        letter-spacing: 5px;
-        text-transform: uppercase;
+        margin: 10px 0;
+        letter-spacing: 8px;
     }
 
+    /* 4. TABLA DE CONCEPTOS PROFESIONAL (Cabecera Bicolor Flecha) */
     .modal-items-table {
-        width: 100% !important;
+        width: calc(100% - 120px) !important;
+        margin: 20px 60px !important;
         border-collapse: separate !important;
-        border-spacing: 0 10px !important; /* Espacio entre filas para look moderno */
+        border-spacing: 0 10px !important; /* Espacio entre filas modernas */
     }
 
-    .modal-items-table th {
-        background: #ff8800 !important;
-        color: white !important;
-        padding: 15px !important;
-        font-size: 9pt !important;
-        text-align: center !important;
+    /* Cabecera Bicolor (Flecha) */
+    .modal-items-table thead tr {
+        background: #ff8800 !important; /* Banda Naranja */
         -webkit-print-color-adjust: exact !important;
     }
 
-    .modal-items-table th:first-child {
-        text-align: left !important;
-        padding-left: 25px !important;
-        background: #1a1a1a !important;
-        clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%) !important;
+    .modal-items-table th {
+        color: white !important;
+        padding: 12px 10px !important;
+        font-size: 9pt !important;
+        text-transform: uppercase !important;
+        border: none !important;
     }
 
+    /* La descripción es Negra con Punta de Flecha */
+    .modal-items-table th:first-child {
+        background: #1a1a1a !important;
+        clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%) !important;
+        padding-right: 30px !important;
+        -webkit-print-color-adjust: exact !important;
+    }
+
+    /* Alinear total a la derecha */
+    .modal-items-table td:last-child,
+    .modal-items-table th:last-child {
+        text-align: right !important;
+    }
+
+    /* Filas de la tabla (Como imagen_1.png pero en gris suave) */
     .modal-items-table td {
-        background: #fcfcfc !important;
-        padding: 20px !important;
+        padding: 18px 12px !important;
+        background: #fafafa !important;
         border-bottom: 2px solid #eee !important;
         font-size: 11pt !important;
         color: #333 !important;
     }
 
-    /* 5. SECCIÓN DE TOTALES Y FIRMA */
-    .total-and-signature-row {
-        display: grid !important;
-        grid-template-columns: 1.2fr 0.8fr !important;
-        margin: 40px 60px !important;
-        gap: 50px !important;
-        align-items: end !important;
-    }
-
+    /* 5. SECCIÓN DE TOTAL RESALTADA (Bloque Flecha Invertida) */
     .modal-total-section {
-        background: #1a1a1a !important;
+        margin: 40px 60px 0 auto !important;
+        width: 380px !important;
+        background: #1a1a1a !important; /* Bloque Negro */
+        color: white !important;
         display: flex !important;
         align-items: center !important;
-        justify-content: space-between !important;
-        clip-path: polygon(3% 0, 100% 0, 100% 100%, 3% 100%, 0% 50%) !important;
+        clip-path: polygon(5% 0, 100% 0, 100% 100%, 5% 100%, 0% 50%) !important; /* Flecha izquierda */
+        padding: 0 !important;
         -webkit-print-color-adjust: exact !important;
     }
 
     .modal-total-section h3 {
-        background: #ff8800 !important;
-        margin: 0 !important;
-        padding: 20px 40px !important;
-        font-size: 24pt !important;
+        background: #ff8800 !important; /* Naranja Institucional */
         color: white !important;
+        margin: 0 !important;
+        padding: 20px 30px !important;
+        font-size: 22pt !important;
+        flex-grow: 1 !important;
+        text-align: right !important;
     }
 
-    .signature-box {
-        text-align: center !important;
-        border-top: 1px solid #333 !important;
-        padding-top: 10px !important;
+    /* Texto "TOTAL ESTIMADO" a la izquierda del monto */
+    .modal-total-section::before {
+        content: "TOTAL ESTIMADO" !important;
+        padding-left: 30px !important;
+        font-weight: 800 !important;
         font-size: 9pt !important;
-        color: #666 !important;
-        text-transform: uppercase !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
-    /* 6. PIE DE PÁGINA PROFESIONAL */
-    .footer-note {
-        padding: 20px 60px !important;
-        font-size: 8pt !important;
-        color: #999 !important;
-        text-align: center !important;
-        border-top: 1px solid #f5f5f5 !important;
+    /* 6. PIE DE PÁGINA (Banda asimétrica final) */
+    .modal-body-content::after {
+        content: "__________________________\nFIRMA AUTORIZADA";
+        display: block;
+        white-space: pre;
+        margin: 100px 60px 0 auto;
+        text-align: center;
+        width: 250px;
+        font-size: 10pt;
+        color: #1a1a1a;
     }
 
-    /* Ocultar elementos UI */
-    .modal-close-icon, .modal-footer-btns, .back-arrow-fixed, .modal-total-section::before {
-        display: none !important;
+    /* Banda decorativa final */
+    .modal-box-card::after {
+        content: "" !important;
+        height: 30px !important;
+        background: #1a1a1a !important;
+        clip-path: polygon(0 0, 80% 0, 85% 100%, 0 100%) !important;
+        margin-top: auto !important;
+        -webkit-print-color-adjust: exact !important;
     }
 }
