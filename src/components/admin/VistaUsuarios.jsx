@@ -6,6 +6,7 @@ import "../../styles/Admin/VistaUsuarios.css";
 import logo from "../../assets/Logo4.png";
 import { X } from "lucide-react";
 
+// CONFIGURACIÓN DE ROLES SEGÚN TU BASE DE DATOS
 const MAPA_ROLES = { 0: "ROOT", 1: "ADMIN", 2: "TECNICO", 3: "CLIENTE" };
 
 const CATEGORIAS = [
@@ -33,6 +34,7 @@ const VistaUsuarios = () => {
           nombre: `${u.first_name} ${u.last_name || ""}`.trim(),
           correo: u.email,
           rol: MAPA_ROLES[u.role_id] || "DESCONOCIDO",
+          role_id: u.role_id, // Importante guardar el ID numérico
           estado: u.is_active ? "Activo" : "Inactivo",
           bloqueado: u.is_active === 0,
           profile_picture_url: u.profile_picture_url,
@@ -48,27 +50,30 @@ const VistaUsuarios = () => {
     obtenerUsuarios();
   }, []);
 
-  // NUEVA ACCIÓN: CAMBIAR ROL
+  // ACCIÓN: CAMBIAR ROL
   const cambiarRol = async (id, nuevoRolId, nombreUsuario) => {
-    if (!window.confirm(`¿Estás seguro de cambiar el tipo de usuario a ${nombreUsuario}?`)) return;
+    if (!window.confirm(`¿Estás seguro de cambiar el tipo de usuario de ${nombreUsuario}?`)) return;
 
     try {
-      // Se asume que tu API tiene un endpoint para actualizar el role_id
-      await axios.put(`http://127.0.0.1:8000/api/usuarios/${id}/update-role`, {
-        role_id: nuevoRolId
+      // Forzamos el ID a número para que Laravel no se queje
+      await axios.put(`http://127.0.0.1:8000/api/usuarios/${id}/rol`, {
+        role_id: Number(nuevoRolId) 
       });
 
       setListaUsuarios(prev => prev.map(u => 
-        u.id === id ? { ...u, rol: MAPA_ROLES[nuevoRolId] } : u
+        u.id === id ? { ...u, rol: MAPA_ROLES[nuevoRolId], role_id: Number(nuevoRolId) } : u
       ));
+      
+      alert("¡Rol actualizado correctamente!");
     } catch (error) {
-      alert(error.response?.data?.error || "Error al actualizar el rol del usuario.");
+      console.error("Error completo:", error.response?.data);
+      alert(error.response?.data?.message || "Error al actualizar el rol.");
     }
   };
 
-  // ACCIONES (BLOQUEO Y ELIMINACIÓN)
-  const toggleBloqueo = async (id, rolActual, estaBloqueado) => {
-    if (rolActual === 'ROOT') return alert("⚠️ SEGURIDAD: No puedes bloquear al ROOT.");
+  // ACCIONES DE BLOQUEO Y ELIMINACIÓN
+  const toggleBloqueo = async (id, role_id, estaBloqueado) => {
+    if (role_id === 0) return alert("⚠️ SEGURIDAD: No puedes bloquear al ROOT.");
     const accion = estaBloqueado ? "desbloquear" : "bloquear";
     
     if (!window.confirm(`¿Estás seguro de que deseas ${accion} a este usuario?`)) return;
@@ -79,12 +84,12 @@ const VistaUsuarios = () => {
         ...u, bloqueado: !u.bloqueado, estado: !u.bloqueado ? 'Inactivo' : 'Activo' 
       } : u));
     } catch (error) {
-      alert(error.response?.data?.error || "Error al procesar la solicitud.");
+      alert("Error al procesar la solicitud.");
     }
   };
 
-  const eliminarUsuario = async (id, rolActual) => {
-    if (rolActual === "ROOT") return alert("⚠️ SEGURIDAD: No puedes eliminar al ROOT.");
+  const eliminarUsuario = async (id, role_id) => {
+    if (role_id === 0) return alert("⚠️ SEGURIDAD: No puedes eliminar al ROOT.");
     if (!window.confirm("¿Deseas eliminar este usuario? Esta acción es irreversible.")) return;
 
     try {
@@ -158,34 +163,33 @@ const VistaUsuarios = () => {
                     </td>
                     <td>{u.correo}</td>
                     <td>
-                      {/* SELECT EDITABLE PARA ROL */}
-                      {u.rol === "ROOT" ? (
-                        <span className="badge-rol root">{u.rol}</span>
+                      {u.role_id === 0 ? (
+                        <span className="badge-rol root">ROOT</span>
                       ) : (
                         <select 
-                          className="select-rol-inline"
-                          value={Object.keys(MAPA_ROLES).find(key => MAPA_ROLES[key] === u.rol)}
+                          className={`select-rol-inline ${u.rol.toLowerCase()}`}
+                          value={u.role_id}
                           onChange={(e) => cambiarRol(u.id, parseInt(e.target.value), u.nombre)}
                         >
-                          {Object.entries(MAPA_ROLES).map(([id, nombre]) => (
-                            <option key={id} value={id}>{nombre}</option>
-                          ))}
+                          <option value="2">TECNICO</option>
+                          <option value="3">CLIENTE</option>
+                          <option value="1">ADMIN</option>
                         </select>
                       )}
                     </td>
                     <td>
                       <span className={`status-dot ${u.bloqueado ? "status-off" : "status-on"}`} />
-                      {u.bloqueado ? "Acceso Restringido" : u.estado}
+                      {u.bloqueado ? "Inactivo" : u.estado}
                     </td>
                     <td className="actions-cell">
                       <button 
                         className={`btn-table-oval ${u.bloqueado ? "is-blocked" : "is-unblocked"}`} 
-                        onClick={() => toggleBloqueo(u.id, u.rol, u.bloqueado)}
+                        onClick={() => toggleBloqueo(u.id, u.role_id, u.bloqueado)}
                       >
                         <span className="oval-icon">{u.bloqueado ? "🔓" : "🔒"}</span>
                         <span className="oval-text">{u.bloqueado ? "Desbloquear" : "Bloquear"}</span>
                       </button>
-                      <button className="btn-table-oval-small delete-oval" onClick={() => eliminarUsuario(u.id, u.rol)}>🗑️</button>
+                      <button className="btn-table-oval-small delete-oval" onClick={() => eliminarUsuario(u.id, u.role_id)}>🗑️</button>
                     </td>
                   </tr>
                 ))
