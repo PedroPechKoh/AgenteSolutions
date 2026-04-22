@@ -605,6 +605,9 @@
     padding-bottom: 2px;
     margin-bottom: 15px;
 }
+.coti-section-title h4{
+  color: #080808;
+}
 /* --- MODAL WIDE (Para las tablas dinámicas) --- */
 .cot-modal-card.wide {
     width: 95%;
