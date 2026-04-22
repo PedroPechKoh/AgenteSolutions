@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import UniversalSearch from "../Shared/UniversalSearch"; 
+import Header from "../Shared/Header"; // ✅ IMPORTAMOS EL NUEVO HEADER
 import "../../styles/Admin/VistaUsuarios.css";
-import logo from "../../assets/Logo4.png";
-import { X } from "lucide-react";
 
 // CONFIGURACIÓN DE ROLES SEGÚN TU BASE DE DATOS
 const MAPA_ROLES = { 0: "ROOT", 1: "ADMIN", 2: "TECNICO", 3: "CLIENTE" };
@@ -58,7 +57,6 @@ const VistaUsuarios = () => {
     }
 
     try {
-      // Petición a Railway usando el VITE_API_BASE_URL
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}/rol`, {
         role_id: Number(nuevoRolId) 
       });
@@ -113,18 +111,15 @@ const VistaUsuarios = () => {
     <div className="main-container bg-light">
       <div className="top-bar-orange" /><div className="top-bar-black" />
 
-      <header className="header-admin">
-        <img src={logo} alt="Logo" className="logo-small" />
-        <div className="header-right">
-          <button className="back-oval-btn" onClick={() => navigate(-1)}>
-            <X size={20} className="close-icon" />
-            <span className="back-text">Regresar</span>
-          </button>
-        </div>
-      </header>
+      {/* ✅ AQUÍ INTEGRAMOS EL NUEVO HEADER GENERAL */}
+      <Header rolTexto="ADMINISTRACIÓN DE USUARIOS" />
 
       <section className="content-area">
-        <div className="filter-grid">
+        
+        {/* ✅ FILTROS Y NUEVOS BOTONES (MAPA Y REGISTRO) */}
+        <div className="filter-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+          
+          {/* Botones de Filtro Originales */}
           {CATEGORIAS.map((cat) => (
             <div 
               key={cat.label} 
@@ -134,6 +129,28 @@ const VistaUsuarios = () => {
               <span className="icon-box">{cat.icon}</span> {cat.label}
             </div>
           ))}
+
+          {/* Separador Visual (Opcional, para dividir filtros de acciones) */}
+          <div style={{ width: '2px', height: '30px', backgroundColor: '#ccc', margin: '0 10px' }}></div>
+
+          {/* NUEVO BOTÓN: MAPA */}
+          <div 
+            className="filter-item" 
+            onClick={() => navigate('/map')}
+            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600' }} // Un ligero tono para diferenciarlos de los filtros
+          >
+            <span className="icon-box">🗺️</span> VER MAPA
+          </div>
+
+          {/* NUEVO BOTÓN: REGISTRO PRIVADO */}
+          <div 
+            className="filter-item" 
+            onClick={() => navigate('/registro')}
+            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600' }}
+          >
+            <span className="icon-box">📝</span> REGISTRAR USUARIO
+          </div>
+
         </div>
 
         <UniversalSearch 
