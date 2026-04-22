@@ -9,19 +9,20 @@ const DetalleReporte = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
+    // --- ESTADOS DE LA VISTA PRINCIPAL ---
+    const [datosBD, setDatosBD] = useState(null);
+    const [cargando, setCargando] = useState(true);
+
+    // --- ESTADOS DEL COTIZADOR ---
     const [mostrarCotizacion, setMostrarCotizacion] = useState(false);
     const [metodoCotizacion, setMetodoCotizacion] = useState('manual');
     const [archivoPreview, setArchivoPreview] = useState(null);
     const [archivoFisico, setArchivoFisico] = useState(null);
-
     const [filasConceptos, setFilasConceptos] = useState([{ descripcion: '', cantidad: 0, precio_u: 0 }]);
     const [filasMateriales, setFilasMateriales] = useState([{ nombre: '', cantidad: 0, costo_u: 0 }]);
     const [herramientasBasicas, setHerramientasBasicas] = useState([{ nombre: '', cantidad: 1 }]);
     const [herramientasEspeciales, setHerramientasEspeciales] = useState([{ nombre: '', cantidad: 1 }]);
     const [observaciones, setObservaciones] = useState('');
-
-    const [datosBD, setDatosBD] = useState(null);
-    const [cargando, setCargando] = useState(true);
 
     useEffect(() => {
         const cargarReporte = async () => {
@@ -37,6 +38,7 @@ const DetalleReporte = () => {
         cargarReporte();
     }, [id]);
 
+    // --- LÓGICA DEL COTIZADOR ---
     const agregarFila = (tipo) => {
         if (tipo === 'concepto') setFilasConceptos([...filasConceptos, { descripcion: '', cantidad: 0, precio_u: 0 }]);
         if (tipo === 'material') setFilasMateriales([...filasMateriales, { nombre: '', cantidad: 0, costo_u: 0 }]);
@@ -90,54 +92,69 @@ const DetalleReporte = () => {
                 data.append('file', archivoFisico);
             }
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, data);
-            alert("Cotización enviada");
+            alert("Cotización enviada exitosamente");
             setMostrarCotizacion(false);
         } catch (error) {
             console.error(error);
-            alert("Error al guardar.");
+            alert("Hubo un error al guardar la cotización.");
         }
     };
 
-    if (cargando) return <div className="loading-screen">Cargando...</div>;
+    if (cargando) return <div className="loading-screen">Cargando datos del reporte...</div>;
 
     return (
-        <>
-            <div className="rep-container">
-                {/* --- SIDEBAR --- */}
-                <aside className="rep-sidebar">
-                    <img src={logo} alt="Logo" className="side-logo" onClick={() => navigate('/')} />
-                    <div className="side-info">
-                        <span className="id-badge">{datosBD?.identificador_curp}</span>
-                        <h2>{datosBD?.propietario}</h2>
-                        <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>
-                            + GENERAR COTIZACIÓN
-                        </button>
+        <div className="rep-container">
+            {/* --- SIDEBAR --- */}
+            <aside className="rep-sidebar">
+                <img src={logo} alt="Logo" className="side-logo" onClick={() => navigate('/')} />
+                <div className="side-info">
+                    <span className="id-badge">{datosBD?.identificador_curp}</span>
+                    <h2 className="propietario-name">{datosBD?.propietario || 'Cargando...'}</h2>
+                    <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>
+                        + GENERAR COTIZACIÓN
+                    </button>
+                </div>
+                <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER</button>
+            </aside>
+
+            {/* --- CONTENIDO PRINCIPAL --- */}
+            <main className="rep-main-content">
+                <header className="main-banner">
+                    <img src={datosBD?.foto_propiedad || casaImg} alt="Propiedad" />
+                    <div className="banner-text">
+                        <h1>{datosBD?.titulo || 'Detalle del Servicio'}</h1>
+                        <p>{datosBD?.direccion || 'Mérida, Yucatán'}</p>
                     </div>
-                    <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER</button>
-                </aside>
+                </header>
 
-                {/* --- MAIN CONTENT --- */}
-                <main className="rep-main-content">
-                    <header className="main-banner">
-                        <img src={casaImg} alt="Propiedad" />
-                        <div className="banner-text"><h1>{datosBD?.titulo}</h1></div>
-                    </header>
-                    <section className="reporte-flujo">
-                        {/* Contenido del inventario aquí */}
-                        <div className="card-placeholder">
-                            <h3>Información del Reporte</h3>
-                            <p>Detalles técnicos y evidencia fotográfica...</p>
-                        </div>
-                    </section>
-                </main>
-            </div>
+                <section className="reporte-flujo">
+                    {/* Renderizado dinámico de las secciones del levantamiento */}
+                    {datosBD?.secciones && datosBD.secciones.length > 0 ? (
+                        datosBD.secciones.map((seccion, idx) => (
+                            <div key={idx} className="info-section-card">
+                                <h3 className="section-title">{seccion.titulo}</h3>
+                                <div className="section-content-grid">
+                                    {seccion.items.map((item, i) => (
+                                        <div key={i} className="info-item">
+                                            <label>{item.nombre_campo}:</label>
+                                            <span>{item.valor_campo}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="empty-state">No hay datos de levantamiento para mostrar.</div>
+                    )}
+                </section>
+            </main>
 
-            {/* --- MODAL (Renderizado fuera del contenedor principal para evitar conflictos de flujo) --- */}
+            {/* --- MODAL DE COTIZACIÓN --- */}
             {mostrarCotizacion && (
                 <div className="lev-modal-overlay">
                     <div className="cot-modal-card wide">
                         <div className="cot-modal-header">
-                            <h3>GENERAR NUEVA COTIZACIÓN</h3>
+                            <h3>NUEVA COTIZACIÓN - FOLIO {datosBD?.identificador_curp}</h3>
                             <button className="cot-close-btn" onClick={() => setMostrarCotizacion(false)}>×</button>
                         </div>
 
@@ -145,22 +162,19 @@ const DetalleReporte = () => {
                             <button 
                                 className={metodoCotizacion === 'manual' ? 'tab-btn active' : 'tab-btn'} 
                                 onClick={() => setMetodoCotizacion('manual')}
-                            >
-                                📝 Registro Manual
-                            </button>
+                            >📝 Manual</button>
                             <button 
                                 className={metodoCotizacion === 'archivo' ? 'tab-btn active' : 'tab-btn'} 
                                 onClick={() => setMetodoCotizacion('archivo')}
-                            >
-                                📎 Cargar Archivo
-                            </button>
+                            >📎 Archivo</button>
                         </div>
 
                         <div className="cot-modal-body dinamico">
                             {metodoCotizacion === 'manual' ? (
                                 <>
+                                    {/* SECCIÓN 1: CONCEPTOS */}
                                     <div className="cot-section">
-                                        <h4 className="coti-section-title">1. CONCEPTOS PARA EL CLIENTE</h4>
+                                        <h4 className="coti-section-title">1. CONCEPTOS DE SERVICIO</h4>
                                         <table className="coti-table">
                                             <thead>
                                                 <tr>
@@ -168,13 +182,13 @@ const DetalleReporte = () => {
                                                     <th>CANT.</th>
                                                     <th>PRECIO U.</th>
                                                     <th>SUBTOTAL</th>
-                                                    <th style={{ width: '50px' }}></th>
+                                                    <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {filasConceptos.map((f, i) => (
                                                     <tr key={i}>
-                                                        <td><input type="text" placeholder="Concepto..." value={f.descripcion} onChange={(e) => actualizarFila(i, 'descripcion', e.target.value, 'concepto')} /></td>
+                                                        <td><input type="text" value={f.descripcion} onChange={(e) => actualizarFila(i, 'descripcion', e.target.value, 'concepto')} /></td>
                                                         <td><input type="number" value={f.cantidad} onChange={(e) => actualizarFila(i, 'cantidad', e.target.value, 'concepto')} /></td>
                                                         <td><input type="number" value={f.precio_u} onChange={(e) => actualizarFila(i, 'precio_u', e.target.value, 'concepto')} /></td>
                                                         <td className="subtotal-cell">${(f.cantidad * f.precio_u).toLocaleString()}</td>
@@ -183,11 +197,12 @@ const DetalleReporte = () => {
                                                 ))}
                                             </tbody>
                                         </table>
-                                        <button className="btn-add-row orange-dashed" onClick={() => agregarFila('concepto')}>+ AGREGAR FILA</button>
+                                        <button className="btn-add-row orange-dashed" onClick={() => agregarFila('concepto')}>+ Agregar Concepto</button>
                                     </div>
 
+                                    {/* SECCIÓN 2: MATERIALES */}
                                     <div className="cot-section">
-                                        <h4 className="coti-section-title">2. MATERIALES (PRECIOS INTERNOS)</h4>
+                                        <h4 className="coti-section-title">2. MATERIALES</h4>
                                         <table className="coti-table">
                                             <thead>
                                                 <tr>
@@ -195,13 +210,13 @@ const DetalleReporte = () => {
                                                     <th>CANT.</th>
                                                     <th>COSTO U.</th>
                                                     <th>SUBTOTAL</th>
-                                                    <th style={{ width: '50px' }}></th>
+                                                    <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {filasMateriales.map((f, i) => (
                                                     <tr key={i}>
-                                                        <td><input type="text" placeholder="Material..." value={f.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'material')} /></td>
+                                                        <td><input type="text" value={f.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'material')} /></td>
                                                         <td><input type="number" value={f.cantidad} onChange={(e) => actualizarFila(i, 'cantidad', e.target.value, 'material')} /></td>
                                                         <td><input type="number" value={f.costo_u} onChange={(e) => actualizarFila(i, 'costo_u', e.target.value, 'material')} /></td>
                                                         <td className="subtotal-cell">${(f.cantidad * f.costo_u).toLocaleString()}</td>
@@ -210,59 +225,50 @@ const DetalleReporte = () => {
                                                 ))}
                                             </tbody>
                                         </table>
-                                        <button className="btn-add-row orange-dashed" onClick={() => agregarFila('material')}>+ AGREGAR MATERIAL</button>
+                                        <button className="btn-add-row orange-dashed" onClick={() => agregarFila('material')}>+ Agregar Material</button>
                                     </div>
 
+                                    {/* SECCIÓN 3: HERRAMIENTAS */}
                                     <div className="cot-grid-tools">
                                         <div className="cot-section half">
                                             <h4 className="coti-section-title">3.1 HERRAMIENTAS BÁSICAS</h4>
                                             <table className="coti-table compact">
-                                                <thead><tr><th>HERRAMIENTA</th><th>CANT.</th><th></th></tr></thead>
                                                 <tbody>
                                                     {herramientasBasicas.map((h, i) => (
                                                         <tr key={i}>
                                                             <td><input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'basica')} /></td>
-                                                            <td><input type="number" value={h.cantidad} onChange={(e) => actualizarFila(i, 'cantidad', e.target.value, 'basica')} /></td>
                                                             <td><button className="btn-delete" onClick={() => eliminarFila(i, 'basica')}>🗑️</button></td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
                                             </table>
-                                            <button className="btn-add-row orange-dashed compact" onClick={() => agregarFila('basica')}>+ AGREGAR BÁSICA</button>
+                                            <button className="btn-add-row orange-dashed compact" onClick={() => agregarFila('basica')}>+</button>
                                         </div>
-
                                         <div className="cot-section half">
                                             <h4 className="coti-section-title">3.2 ESPECIALES</h4>
                                             <table className="coti-table compact">
-                                                <thead><tr><th>ESPECÍFICA</th><th>CANT.</th><th></th></tr></thead>
                                                 <tbody>
                                                     {herramientasEspeciales.map((h, i) => (
                                                         <tr key={i}>
                                                             <td><input type="text" value={h.nombre} onChange={(e) => actualizarFila(i, 'nombre', e.target.value, 'especial')} /></td>
-                                                            <td><input type="number" value={h.cantidad} onChange={(e) => actualizarFila(i, 'cantidad', e.target.value, 'especial')} /></td>
                                                             <td><button className="btn-delete" onClick={() => eliminarFila(i, 'especial')}>🗑️</button></td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
                                             </table>
-                                            <button className="btn-add-row orange-dashed compact" onClick={() => agregarFila('especial')}>+ AGREGAR ESPECIAL</button>
+                                            <button className="btn-add-row orange-dashed compact" onClick={() => agregarFila('especial')}>+</button>
                                         </div>
                                     </div>
 
                                     <div className="cot-section observations">
                                         <h4 className="coti-section-title">4. OBSERVACIONES</h4>
-                                        <textarea 
-                                            value={observaciones} 
-                                            onChange={(e) => setObservaciones(e.target.value)} 
-                                            placeholder="Notas internas..."
-                                        />
+                                        <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} placeholder="Notas internas..." />
                                     </div>
                                 </>
                             ) : (
                                 <div className="cot-upload-container">
                                     <div className="upload-box">
                                         <input type="file" onChange={manejarArchivo} accept="image/*,application/pdf" />
-                                        <p>Carga la cotización aquí</p>
                                         {archivoPreview && <img src={archivoPreview} alt="Preview" className="img-preview" />}
                                     </div>
                                 </div>
@@ -282,7 +288,7 @@ const DetalleReporte = () => {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 };
 
