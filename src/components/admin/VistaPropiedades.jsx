@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import UniversalSearch from "../Shared/UniversalSearch";
-import Header from "../Shared/Header"; // ✅ IMPORTAMOS EL NUEVO HEADER
+import UniversalSearch from "../Shared/UniversalSearch"; // ✅ IMPORTANDO EL SUPERBUSCADOR
+import Header from "../Shared/Header"; 
 import "../../styles/Admin/VistaPropiedades.css";
 import { X, CheckCircle, User } from "lucide-react";
 
@@ -109,17 +109,30 @@ const VistaPropiedades = () => {
   };
 
   return (
-    <div className="main-container-users">
+    // ✅ CAMBIO 1: Clases estandarizadas para eliminar el hueco gigante
+    <div className="main-container bg-light">
       <div className="top-bar-orange" />
       <div className="top-bar-black" />
 
-      {/* ✅ AQUÍ INTEGRAMOS EL NUEVO HEADER GENERAL */}
       <Header rolTexto="ADMINISTRACIÓN DE PROPIEDADES" />
 
-      <main className="content-body" style={{ padding: "20px" }}>
+      <section className="content-area">
         
-        {/* ✅ BOTÓN DE NUEVA PROPIEDAD REUBICADO */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
+        {/* ✅ CAMBIO 2: Diseño compacto. Filtros y botón "NUEVA" en la misma fila */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+          
+          <div className="categories-row" style={{ margin: 0 }}>
+            {TIPOS_PROPIEDAD.map((tipo) => (
+              <button
+                key={tipo.label}
+                className={`cat-btn ${categoria === tipo.label ? "active" : ""}`}
+                onClick={() => setCategoria(tipo.label)}
+              >
+                <span className="btn-icon-small">{tipo.icon}</span> {tipo.title}
+              </button>
+            ))}
+          </div>
+
           <button
             className="lev-btn-add"
             onClick={() => navigate("/registro-propiedades")}
@@ -140,6 +153,7 @@ const VistaPropiedades = () => {
           </button>
         </div>
 
+        {/* ✅ EL SUPERBUSCADOR */}
         <UniversalSearch
           type="PROPIEDADES"
           data={listaPropiedades}
@@ -148,19 +162,7 @@ const VistaPropiedades = () => {
           placeholder="BUSCAR POR DUEÑO, DIRECCIÓN O CURP..."
         />
 
-        <div className="categories-row">
-          {TIPOS_PROPIEDAD.map((tipo) => (
-            <button
-              key={tipo.label}
-              className={`cat-btn ${categoria === tipo.label ? "active" : ""}`}
-              onClick={() => setCategoria(tipo.label)}
-            >
-              <span className="btn-icon-small">{tipo.icon}</span> {tipo.title}
-            </button>
-          ))}
-        </div>
-
-        <div className="table-scroll-container">
+        <div className="table-scroll-container" style={{ marginTop: '15px' }}>
           <table className="custom-table">
             <thead>
               <tr>
@@ -266,7 +268,7 @@ const VistaPropiedades = () => {
           </table>
         </div>
 
-      </main>
+      </section>
 
       {/* 👇 MODAL DE SOLICITAR LEVANTAMIENTO 👇 */}
       {mostrarModalServicio && (
@@ -314,7 +316,6 @@ const VistaPropiedades = () => {
               </button>
             )}
 
-            {/* --- PASO 1: CONFIRMACIÓN Y RESPONSABLE --- */}
             {pasoModal === 1 && (
               <form
                 onSubmit={enviarLevantamiento}
@@ -431,7 +432,6 @@ const VistaPropiedades = () => {
               </form>
             )}
 
-            {/* --- PASO 2: ÉXITO --- */}
             {pasoModal === 2 && (
               <div style={{ textAlign: "center", padding: "20px 10px" }}>
                 <CheckCircle
