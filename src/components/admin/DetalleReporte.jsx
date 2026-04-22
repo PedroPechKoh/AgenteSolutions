@@ -14,7 +14,6 @@ const DetalleReporte = () => {
     const [archivoPreview, setArchivoPreview] = useState(null);
     const [archivoFisico, setArchivoFisico] = useState(null);
 
-    // ESTADOS DEL COTIZADOR
     const [filasConceptos, setFilasConceptos] = useState([{ descripcion: '', cantidad: 0, precio_u: 0 }]);
     const [filasMateriales, setFilasMateriales] = useState([{ nombre: '', cantidad: 0, costo_u: 0 }]);
     const [herramientasBasicas, setHerramientasBasicas] = useState([{ nombre: '', cantidad: 1 }]);
@@ -102,30 +101,38 @@ const DetalleReporte = () => {
     if (cargando) return <div className="loading-screen">Cargando...</div>;
 
     return (
-        <div className="rep-container">
-            {/* --- SIDEBAR --- */}
-            <aside className="rep-sidebar">
-                <img src={logo} alt="Logo" className="side-logo" onClick={() => navigate('/')} />
-                <div className="side-info">
-                    <span className="id-badge">{datosBD?.identificador_curp}</span>
-                    <h2>{datosBD?.propietario}</h2>
-                    <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>+ GENERAR COTIZACIÓN</button>
-                </div>
-                <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER</button>
-            </aside>
+        <>
+            <div className="rep-container">
+                {/* --- SIDEBAR --- */}
+                <aside className="rep-sidebar">
+                    <img src={logo} alt="Logo" className="side-logo" onClick={() => navigate('/')} />
+                    <div className="side-info">
+                        <span className="id-badge">{datosBD?.identificador_curp}</span>
+                        <h2>{datosBD?.propietario}</h2>
+                        <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>
+                            + GENERAR COTIZACIÓN
+                        </button>
+                    </div>
+                    <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER</button>
+                </aside>
 
-            {/* --- MAIN CONTENT --- */}
-            <main className="rep-main-content">
-                <header className="main-banner">
-                    <img src={casaImg} alt="Propiedad" />
-                    <div className="banner-text"><h1>{datosBD?.titulo}</h1></div>
-                </header>
-                <section className="reporte-flujo">
-                    {/* Aquí mapeas tus secciones de inventario */}
-                </section>
-            </main>
+                {/* --- MAIN CONTENT --- */}
+                <main className="rep-main-content">
+                    <header className="main-banner">
+                        <img src={casaImg} alt="Propiedad" />
+                        <div className="banner-text"><h1>{datosBD?.titulo}</h1></div>
+                    </header>
+                    <section className="reporte-flujo">
+                        {/* Contenido del inventario aquí */}
+                        <div className="card-placeholder">
+                            <h3>Información del Reporte</h3>
+                            <p>Detalles técnicos y evidencia fotográfica...</p>
+                        </div>
+                    </section>
+                </main>
+            </div>
 
-            {/* --- MODAL DE COTIZACIÓN CORREGIDO --- */}
+            {/* --- MODAL (Renderizado fuera del contenedor principal para evitar conflictos de flujo) --- */}
             {mostrarCotizacion && (
                 <div className="lev-modal-overlay">
                     <div className="cot-modal-card wide">
@@ -152,7 +159,6 @@ const DetalleReporte = () => {
                         <div className="cot-modal-body dinamico">
                             {metodoCotizacion === 'manual' ? (
                                 <>
-                                    {/* SECCIÓN 1: CONCEPTOS */}
                                     <div className="cot-section">
                                         <h4 className="coti-section-title">1. CONCEPTOS PARA EL CLIENTE</h4>
                                         <table className="coti-table">
@@ -180,7 +186,6 @@ const DetalleReporte = () => {
                                         <button className="btn-add-row orange-dashed" onClick={() => agregarFila('concepto')}>+ AGREGAR FILA</button>
                                     </div>
 
-                                    {/* SECCIÓN 2: MATERIALES */}
                                     <div className="cot-section">
                                         <h4 className="coti-section-title">2. MATERIALES (PRECIOS INTERNOS)</h4>
                                         <table className="coti-table">
@@ -208,7 +213,6 @@ const DetalleReporte = () => {
                                         <button className="btn-add-row orange-dashed" onClick={() => agregarFila('material')}>+ AGREGAR MATERIAL</button>
                                     </div>
 
-                                    {/* SECCIÓN 3: HERRAMIENTAS (GRID) */}
                                     <div className="cot-grid-tools">
                                         <div className="cot-section half">
                                             <h4 className="coti-section-title">3.1 HERRAMIENTAS BÁSICAS</h4>
@@ -245,13 +249,12 @@ const DetalleReporte = () => {
                                         </div>
                                     </div>
 
-                                    {/* SECCIÓN 4: OBSERVACIONES */}
                                     <div className="cot-section observations">
                                         <h4 className="coti-section-title">4. OBSERVACIONES</h4>
                                         <textarea 
                                             value={observaciones} 
                                             onChange={(e) => setObservaciones(e.target.value)} 
-                                            placeholder="Escribe notas internas o detalles específicos aquí..."
+                                            placeholder="Notas internas..."
                                         />
                                     </div>
                                 </>
@@ -259,14 +262,13 @@ const DetalleReporte = () => {
                                 <div className="cot-upload-container">
                                     <div className="upload-box">
                                         <input type="file" onChange={manejarArchivo} accept="image/*,application/pdf" />
-                                        <p>Haz clic o arrastra para cargar la cotización</p>
+                                        <p>Carga la cotización aquí</p>
                                         {archivoPreview && <img src={archivoPreview} alt="Preview" className="img-preview" />}
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* FOOTER DEL MODAL */}
                         <div className="cot-modal-footer dinamico">
                             <div className="total-box orange-border">
                                 <span className="total-label">TOTAL: </span>
@@ -280,7 +282,7 @@ const DetalleReporte = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 
