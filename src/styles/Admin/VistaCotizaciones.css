@@ -190,25 +190,16 @@
     border-bottom: 1px solid #eee; 
     color: #333; /* <--- Texto oscuro para la tabla */
 }
-/* =============================================
-   REPLICA EXACTA DE DISEÑO (QUANTAM/EXAMPLE 1)
-   PARA IMPRESIÓN EN AGENTE SOLUTIONS
-   Colores: Negro, Naranja, Gris Claro
-   ============================================= */
-
 @media print {
-    /* 1. RESET Y CONFIGURACIÓN DE PÁGINA (PAPEL BONO) */
+    /* 1. CONFIGURACIÓN DE PÁGINA */
     @page {
         size: letter;
-        margin: 0; /* Control total del diseño */
+        margin: 0;
     }
 
     body { margin: 0; padding: 0; }
-    
-    /* Ocultar el sitio web web */
     body > *:not(.print-container) { display: none !important; }
 
-    /* Forzar que el modal ocupe toda la hoja */
     .print-container {
         position: absolute !important;
         top: 0; left: 0;
@@ -217,187 +208,158 @@
         background: white !important;
         display: flex !important;
         flex-direction: column !important;
+        font-family: 'Helvetica', 'Arial', sans-serif !important;
         -webkit-print-color-adjust: exact !important;
     }
 
-    .modal-box-card {
-        border: none !important;
-        box-shadow: none !important;
-        width: 100% !important;
-        height: 100% !important;
-        display: flex !important;
-        flex-direction: column !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    /* Ocultar botones e iconos */
-    .modal-close-icon, .modal-footer-btns, .back-arrow-fixed { display: none !important; }
-
-    /* 2. HEADER MODERNO CON LOGO Y BANDA NARANJA (Estilo Imagen 1) */
+    /* 2. ENCABEZADO: LOGO Y TÍTULO "INVOICE" (Replica Imagen 1) */
     .modal-header-dark {
-        background: white !important; /* El header web es negro, aquí es blanco */
-        height: 120px !important;
+        background: white !important;
         padding: 40px 60px !important;
-        display: flex !important;
-        align-items: center !important;
-        border-radius: 0 !important;
-        border-top: 10px solid #ff8800 !important; /* Banda Naranja Superior */
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        align-items: start !important;
         position: relative !important;
+        border-top: 15px solid #ff8800 !important; /* Banda Naranja Superior */
     }
 
-    /* Título del Folio (Negro, a la derecha) */
-    .modal-header-dark span {
-        font-size: 24pt !important;
-        font-weight: 800 !important;
-        color: #1a1a1a !important;
-        margin-left: auto !important;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-    }
-
-    /* Añadir Logo Institucional (Simulado de imagen 1) */
+    /* Logo de la Empresa (Izquierda) */
     .modal-header-dark::before {
-        content: "" !important;
-        position: absolute;
-        top: 0; right: 25%;
-        width: 50px; height: 100%;
-        background: #ff8800 !important;
-        transform: skewX(-20deg) !important;
-        z-index: 1;
-        -webkit-print-color-adjust: exact !important;
+        content: "AGENTE SOLUTIONS" !important; /* Aquí iría tu logo */
+        font-weight: 900 !important;
+        font-size: 18pt !important;
+        color: #1a1a1a !important;
+        letter-spacing: -1px !important;
     }
 
-    /* 3. BLOQUE DE DATOS (Cliente / Cotización / Fecha) */
+    /* Título del Documento (Derecha) */
+    .modal-header-dark span {
+        font-size: 45pt !important;
+        font-weight: 300 !important;
+        color: #1a1a1a !important;
+        text-align: right !important;
+        text-transform: uppercase !important;
+        letter-spacing: 5px !important;
+    }
+
+    /* 3. DATOS OBLIGATORIOS (Cliente, Fecha, Folio) */
     .modal-info-summary {
         display: grid !important;
-        grid-template-columns: 1.5fr 1fr !important;
-        padding: 60px 60px 20px 60px !important;
-        gap: 30px !important;
-        border-top: 2px solid #eee;
+        grid-template-columns: 1.2fr 0.8fr !important;
+        padding: 20px 60px !important;
+        gap: 40px !important;
+    }
+
+    /* Columna Izquierda: Datos del Cliente */
+    .modal-info-summary .cliente-box::before {
+        content: "Cotización para:" !important;
+        display: block !important;
+        font-weight: 800 !important;
+        font-size: 11pt !important;
+        margin-bottom: 5px !important;
+    }
+
+    /* Columna Derecha: Detalles del Documento */
+    .modal-info-summary .detalles-box {
+        text-align: right !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
     }
 
     .modal-info-summary p {
-        margin: 5px 0 !important;
         font-size: 10pt !important;
-        color: #555 !important;
+        color: #1a1a1a !important;
+        margin: 0 !important;
     }
 
     .modal-info-summary strong {
-        color: #1a1a1a !important;
-        font-weight: 700 !important;
+        color: #ff8800 !important;
         text-transform: uppercase !important;
+        font-size: 8pt !important;
     }
 
-    /* Título secundario centrado */
-    .modal-body-content::before {
-        content: "COTIZACIÓN FORMAL";
-        display: block;
-        text-align: center;
-        font-size: 16pt;
-        font-weight: 900;
-        color: #1a1a1a;
-        margin: 10px 0;
-        letter-spacing: 8px;
-    }
-
-    /* 4. TABLA DE CONCEPTOS PROFESIONAL (Cabecera Bicolor Flecha) */
+    /* 4. TABLA DE CONCEPTOS (Cabecera Negra) */
     .modal-items-table {
         width: calc(100% - 120px) !important;
-        margin: 20px 60px !important;
-        border-collapse: separate !important;
-        border-spacing: 0 10px !important; /* Espacio entre filas modernas */
+        margin: 30px 60px !important;
+        border-collapse: collapse !important;
     }
 
-    /* Cabecera Bicolor (Flecha) */
     .modal-items-table thead tr {
-        background: #ff8800 !important; /* Banda Naranja */
+        background: #343a40 !important; /* Gris muy oscuro/negro */
         -webkit-print-color-adjust: exact !important;
     }
 
     .modal-items-table th {
         color: white !important;
-        padding: 12px 10px !important;
+        padding: 12px !important;
         font-size: 9pt !important;
         text-transform: uppercase !important;
         border: none !important;
     }
 
-    /* La descripción es Negra con Punta de Flecha */
-    .modal-items-table th:first-child {
-        background: #1a1a1a !important;
-        clip-path: polygon(0 0, 95% 0, 100% 50%, 95% 100%, 0 100%) !important;
-        padding-right: 30px !important;
-        -webkit-print-color-adjust: exact !important;
-    }
-
-    /* Alinear total a la derecha */
-    .modal-items-table td:last-child,
-    .modal-items-table th:last-child {
-        text-align: right !important;
-    }
-
-    /* Filas de la tabla (Como imagen_1.png pero en gris suave) */
     .modal-items-table td {
-        padding: 18px 12px !important;
-        background: #fafafa !important;
-        border-bottom: 2px solid #eee !important;
-        font-size: 11pt !important;
-        color: #333 !important;
+        padding: 15px 12px !important;
+        border-bottom: 1px solid #eee !important;
+        font-size: 10pt !important;
+        color: #444 !important;
     }
 
-    /* 5. SECCIÓN DE TOTAL RESALTADA (Bloque Flecha Invertida) */
+    /* 5. SECCIÓN DE TOTAL (Banda Naranja de la imagen) */
     .modal-total-section {
-        margin: 40px 60px 0 auto !important;
-        width: 380px !important;
-        background: #1a1a1a !important; /* Bloque Negro */
+        margin: 20px 60px 0 auto !important;
+        width: 350px !important;
+        background: #ff8800 !important; /* Fondo naranja exacto */
         color: white !important;
-        display: flex !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
         align-items: center !important;
-        clip-path: polygon(5% 0, 100% 0, 100% 100%, 5% 100%, 0% 50%) !important; /* Flecha izquierda */
         padding: 0 !important;
         -webkit-print-color-adjust: exact !important;
     }
 
+    .modal-total-section::before {
+        content: "TOTAL:" !important;
+        padding-left: 20px !important;
+        font-weight: 900 !important;
+        font-size: 14pt !important;
+    }
+
     .modal-total-section h3 {
-        background: #ff8800 !important; /* Naranja Institucional */
-        color: white !important;
         margin: 0 !important;
-        padding: 20px 30px !important;
-        font-size: 22pt !important;
-        flex-grow: 1 !important;
+        padding: 15px 20px !important;
+        font-size: 18pt !important;
+        background: transparent !important;
         text-align: right !important;
     }
 
-    /* Texto "TOTAL ESTIMADO" a la izquierda del monto */
-    .modal-total-section::before {
-        content: "TOTAL ESTIMADO" !important;
-        padding-left: 30px !important;
-        font-weight: 800 !important;
-        font-size: 9pt !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    /* 6. PIE DE PÁGINA (Banda asimétrica final) */
+    /* 6. PIE DE PÁGINA (Datos de contacto y firma) */
     .modal-body-content::after {
-        content: "__________________________\nFIRMA AUTORIZADA";
-        display: block;
-        white-space: pre;
-        margin: 100px 60px 0 auto;
-        text-align: center;
-        width: 250px;
-        font-size: 10pt;
-        color: #1a1a1a;
+        content: "__________________________\nFIRMA AUTORIZADA" !important;
+        display: block !important;
+        white-space: pre !important;
+        margin: 80px 60px 40px auto !important;
+        text-align: center !important;
+        width: 250px !important;
+        font-size: 9pt !important;
+        border-top: none !important;
     }
 
-    /* Banda decorativa final */
-    .modal-box-card::after {
-        content: "" !important;
-        height: 30px !important;
-        background: #1a1a1a !important;
-        clip-path: polygon(0 0, 80% 0, 85% 100%, 0 100%) !important;
-        margin-top: auto !important;
-        -webkit-print-color-adjust: exact !important;
+    /* Franja inferior decorativa con datos de contacto */
+    .print-container::after {
+        content: "Tel: (999) 242 6030  |  Mérida, Yucatán  |  agentesolutions.com" !important;
+        position: absolute !important;
+        bottom: 0;
+        width: 100% !important;
+        background: white !important;
+        border-top: 2px solid #ff8800 !important;
+        padding: 15px 0 !important;
+        text-align: center !important;
+        font-size: 8pt !important;
+        color: #666 !important;
     }
+
+    /* Ocultar elementos innecesarios */
+    .modal-close-icon, .modal-footer-btns, .back-arrow-fixed { display: none !important; }
 }
