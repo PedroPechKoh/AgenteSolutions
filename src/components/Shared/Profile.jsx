@@ -1,8 +1,7 @@
-import { useRef, useState } from 'react'; // Eliminado 'React' ya que en versiones modernas no es necesario si no se usa explícitamente
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, X } from 'lucide-react'; // Eliminado 'ArrowLeft' porque no se usa
+import { Camera, X } from 'lucide-react';
 import axios from 'axios';
-// Eliminado 'Header' porque no se usa en el JSX
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/Logo3.png"; 
 import "../../styles/Profile.css"; 
@@ -71,19 +70,20 @@ const Profile = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault(); 
     try {
-
-      // Eliminamos 'const res =' ya que no usas la respuesta para nada
-      await axios.post('http://127.0.0.1:8000/api/usuarios/update-profile', {
-        user_id: user.id,
- });
-
+      // ✅ SE AGREGÓ EL TOKEN DE SEGURIDAD Y SE ELIMINÓ LA RUTA QUEMADA
+      const token = localStorage.getItem('agente_token');
+      
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, {
-        id: `u_${user.id}`,
-       
-
+        user_id: user.id, // Enviamos el ID limpio
         ...formData
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
-console.log("Perfil actualizado:", res.data);
+
+      console.log("Perfil actualizado:", res.data);
+      
       loginGlobal({
         ...user,
         first_name: formData.first_name,
@@ -101,13 +101,12 @@ console.log("Perfil actualizado:", res.data);
     }
   };
 
-  // --- MAGIA DE CLOUDINARY (VERSIÓN FINAL) ---
+  // --- MAGIA DE CLOUDINARY ---
   const handleFileUpload = async (event, type) => {
     const file = event.target.files[0];
     if (!file) return;
     if (!user?.id) return alert("Error: La sesión no tiene el ID.");
 
-    // Límite ajustado a 10MB (Límite del plan gratuito de Cloudinary)
     if (file.size > 10 * 1024 * 1024) {
       return alert("La imagen es muy pesada. Por favor elige una menor a 10MB.");
     }
@@ -118,8 +117,6 @@ console.log("Perfil actualizado:", res.data);
 
     try {
       setIsUploading(true);
-      
-      // Leemos exactamente tu token personalizado de Railway
       const token = localStorage.getItem('agente_token'); 
 
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/upload-profile-picture`, uploadData, {
@@ -129,13 +126,8 @@ console.log("Perfil actualizado:", res.data);
         }
       });
 
-      // Aquí 'res' SÍ se usa para actualizar las fotos
-
-
-      // Extraemos la URL de la nube
       const nuevaUrlNube = res.data.url;
 
-      // Actualizamos el estado global para que el cambio sea instantáneo en pantalla
       loginGlobal({
         ...user, 
         [type]: nuevaUrlNube
@@ -145,7 +137,6 @@ console.log("Perfil actualizado:", res.data);
 
     } catch (error) {
       console.error("Error en handleFileUpload:", error);
-      console.error("Error al subir a Cloudinary:", error);
       alert("Error al subir la imagen. Revisa la consola.");
     } finally {
       setIsUploading(false);
@@ -216,53 +207,9 @@ console.log("Perfil actualizado:", res.data);
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>
-              &times;
-            </button>
-            
-            <h3 className="modal-title">Editar Perfil</h3>
-            
-            <form onSubmit={handleSaveProfile} className="edit-profile-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Nombre(s)</label>
-                  <input type="text" required value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} />
-                </div>
-                <div className="form-group">
-                  <label>Apellidos</label>
-                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Teléfono Celular</label>
-                  <input type="tel" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} />
-                </div>
-                <div className="form-group">
-                  <label>Fecha de Nacimiento</label>
-                  <input type="date" value={formData.birth_date} onChange={(e) => setFormData({...formData, birth_date: e.target.value})} />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Correo Electrónico</label>
-                <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
-              </div>
-
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                <button type="submit" className="btn-save">Guardar Cambios</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-=======
-     {isPhotoMenuOpen && (
+      {/* ✅ SE ELIMINÓ EL CONFLICTO DE GIT Y SE MANTUVIERON AMBOS MODALES LIMPIOS */}
+      
+      {isPhotoMenuOpen && (
       <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
         <div className="modal-content photo-menu-content" onClick={e => e.stopPropagation()}>
           <h3 className="modal-title" style={{ color: '#ff6600', borderBottom: '2px solid #EEEEEE' }}>Actualizar Foto</h3>
@@ -281,7 +228,7 @@ console.log("Perfil actualizado:", res.data);
       </div>
       )}
 
-     {isModalOpen && (
+      {isModalOpen && (
       <div className="modal-overlay">
         <div className="modal-content">
           <button className="btn-close-modal" onClick={() => setIsModalOpen(false)}>
@@ -320,7 +267,6 @@ console.log("Perfil actualizado:", res.data);
 
             <div className="modal-actions">
               <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-              
               <button type="submit" className="btn-save">Guardar Cambios</button>
             </div>
           </form>

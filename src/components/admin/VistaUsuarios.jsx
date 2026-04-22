@@ -52,22 +52,31 @@ const VistaUsuarios = () => {
 
   // ACCIÓN: CAMBIAR ROL
   const cambiarRol = async (id, nuevoRolId, nombreUsuario) => {
-    if (!window.confirm(`¿Estás seguro de cambiar el tipo de usuario de ${nombreUsuario}?`)) return;
+    if (!window.confirm(`¿Estás seguro de cambiar el tipo de usuario de ${nombreUsuario}?`)) {
+      setListaUsuarios([...listaUsuarios]);
+      return;
+    }
 
     try {
-      // Forzamos el ID a número para que Laravel no se queje
-      await axios.put(`http://127.0.0.1:8000/api/usuarios/${id}/rol`, {
+      // Petición a Railway usando el VITE_API_BASE_URL
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}/rol`, {
         role_id: Number(nuevoRolId) 
       });
 
+      const nuevoRolStr = MAPA_ROLES[nuevoRolId];
+      
       setListaUsuarios(prev => prev.map(u => 
-        u.id === id ? { ...u, rol: MAPA_ROLES[nuevoRolId], role_id: Number(nuevoRolId) } : u
+        u.id === id ? { ...u, rol: nuevoRolStr, role_id: Number(nuevoRolId) } : u
+      ));
+      setUsuariosFiltrados(prev => prev.map(u => 
+        u.id === id ? { ...u, rol: nuevoRolStr, role_id: Number(nuevoRolId) } : u
       ));
       
       alert("¡Rol actualizado correctamente!");
     } catch (error) {
       console.error("Error completo:", error.response?.data);
       alert(error.response?.data?.message || "Error al actualizar el rol.");
+      setListaUsuarios([...listaUsuarios]);
     }
   };
 
@@ -164,16 +173,17 @@ const VistaUsuarios = () => {
                     <td>{u.correo}</td>
                     <td>
                       {u.role_id === 0 ? (
-                        <span className="badge-rol root">ROOT</span>
+                        <span className="badge-rol root text-center block">ROOT</span>
                       ) : (
                         <select 
-                          className={`select-rol-inline ${u.rol.toLowerCase()}`}
+                          className={`badge-rol ${u.rol.toLowerCase()} border-none outline-none cursor-pointer text-center select-rol-inline`}
                           value={u.role_id}
                           onChange={(e) => cambiarRol(u.id, parseInt(e.target.value), u.nombre)}
+                          style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none' }}
                         >
-                          <option value="2">TECNICO</option>
-                          <option value="3">CLIENTE</option>
-                          <option value="1">ADMIN</option>
+                          <option value="1" className="text-black bg-white">ADMIN</option>
+                          <option value="2" className="text-black bg-white">TECNICO</option>
+                          <option value="3" className="text-black bg-white">CLIENTE</option>
                         </select>
                       )}
                     </td>
