@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import UniversalSearch from "../Shared/UniversalSearch"; // ✅ IMPORTANDO EL SUPERBUSCADOR
+import UniversalSearch from "../Shared/UniversalSearch"; 
 import Header from "../Shared/Header"; 
 import "../../styles/Admin/VistaPropiedades.css";
 import { X, CheckCircle, User } from "lucide-react";
@@ -109,7 +109,6 @@ const VistaPropiedades = () => {
   };
 
   return (
-    // ✅ CAMBIO 1: Clases estandarizadas para eliminar el hueco gigante
     <div className="main-container bg-light">
       <div className="top-bar-orange" />
       <div className="top-bar-black" />
@@ -118,10 +117,10 @@ const VistaPropiedades = () => {
 
       <section className="content-area">
         
-        {/* ✅ CAMBIO 2: Diseño compacto. Filtros y botón "NUEVA" en la misma fila */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+        {/* ✅ CAMBIO: justifyContent: 'center' para que todo el bloque de botones se centre */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', justifyContent: 'center', marginBottom: '15px' }}>
           
-          <div className="categories-row" style={{ margin: 0 }}>
+          <div className="categories-row" style={{ margin: 0, display: 'flex', gap: '10px' }}>
             {TIPOS_PROPIEDAD.map((tipo) => (
               <button
                 key={tipo.label}
@@ -153,7 +152,6 @@ const VistaPropiedades = () => {
           </button>
         </div>
 
-        {/* ✅ EL SUPERBUSCADOR */}
         <UniversalSearch
           type="PROPIEDADES"
           data={listaPropiedades}
