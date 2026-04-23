@@ -1,51 +1,46 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/Admin/VistaCotizacionPrint.css";
-import logo from "../../assets/Logo.png"; // Verifica que sea Logo.png o Logo4.png según corresponda
+import logo from "../../assets/Logo3.png";
 
 const VistaCotizacionPrint = () => {
   const [cotizacion, setCotizacion] = useState(null);
   const [elementosTabla, setElementosTabla] = useState([]);
 
   useEffect(() => {
-    // 1. Extraemos la cotización de la memoria temporal
     const datosGuardados = localStorage.getItem('cotizacion_para_imprimir');
     
     if (datosGuardados) {
       const data = JSON.parse(datosGuardados);
       setCotizacion(data);
 
-      // 2. Desmenuzamos el JSON para armar las filas de la tabla
       let items = [];
       try {
         const detalle = typeof data.concepto === 'string' ? JSON.parse(data.concepto) : data.concepto;
         
         if (detalle && typeof detalle === 'object') {
-          // Extraemos los Conceptos (Mano de obra)
           if (detalle.conceptos) {
             detalle.conceptos.filter(c => c.descripcion).forEach(c => {
               items.push({
                 descripcion: c.descripcion,
                 cantidad: c.cantidad || 1,
-                unidad: 'S', // Servicio
+                unidad: 'S',
                 precio_u: c.precio_u || 0,
                 importe: (c.cantidad || 1) * (c.precio_u || 0)
               });
             });
           }
-          // Extraemos los Materiales
           if (detalle.materiales) {
             detalle.materiales.filter(m => m.nombre).forEach(m => {
               items.push({
                 descripcion: m.nombre,
                 cantidad: m.cantidad || 1,
-                unidad: 'PZA', // Pieza
+                unidad: 'PZA', 
                 precio_u: m.costo_u || 0,
                 importe: (m.cantidad || 1) * (m.costo_u || 0)
               });
             });
           }
         } else {
-          // Si por alguna razón es texto normal viejo, lo ponemos como 1 solo servicio
           items.push({
             descripcion: data.concepto,
             cantidad: 1,
@@ -55,7 +50,6 @@ const VistaCotizacionPrint = () => {
           });
         }
       } catch (error) {
-        // Fallback en caso de error
         items.push({
           descripcion: data.concepto,
           cantidad: 1,
@@ -67,20 +61,16 @@ const VistaCotizacionPrint = () => {
       
       setElementosTabla(items);
 
-      // 3. Magia: Abrimos la ventana de imprimir automáticamente después de 1 segundo
       setTimeout(() => {
         window.print();
       }, 1000);
     }
   }, []);
 
-  // Mostrar mensaje mientras carga la información
   if (!cotizacion) {
     return <div style={{ padding: '50px', textAlign: 'center' }}>Cargando formato de impresión...</div>;
   }
 
-  // Cálculos matemáticos basados en el total (Asumiendo que el total ya incluye IVA)
-  // Si tu total es SIN IVA, puedes invertir la fórmula. 
   const totalCotizacion = parseFloat(cotizacion.total);
   const subtotal = totalCotizacion / 1.16;
   const iva = totalCotizacion - subtotal;
