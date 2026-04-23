@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "../../styles/Admin/VistaCotizaciones.css";
-import logo from "../../assets/Logo4.png"; 
+import Header from "../Shared/Header";
 
 const VistaCotizaciones = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
@@ -76,7 +76,6 @@ const VistaCotizaciones = () => {
     }
   };
 
-  // 👇 ESTA ES LA FUNCIÓN VITAL QUE TE FALTABA 👇
   const handleImprimirPDF = () => {
     // Guardamos los datos temporalmente
     localStorage.setItem('cotizacion_para_imprimir', JSON.stringify(cotizacionSeleccionada));
@@ -84,7 +83,6 @@ const VistaCotizaciones = () => {
     // Abrimos la vista en una NUEVA PESTAÑA
     window.open('/imprimir-cotizacion', '_blank'); 
   };
-  // 👆 👆 👆
 
   const renderConceptoDetalle = (conceptoStr) => {
     try {
@@ -172,12 +170,10 @@ const VistaCotizaciones = () => {
 
   return (
     <div className="cotiz-page">
-      <div className="top-bar-orange"></div>
-      <div className="top-bar-black"></div>
-
-      <header className="cotiz-header">
-        <img src={logo} alt="Logo" className="logo-top-left" />
-      </header>
+      
+      {/* 👇 AQUÍ ESTÁ EL NUEVO HEADER GLOBAL 👇 */}
+      <Header />
+      {/* 👆 Se eliminaron los div de las barras manuales y el tag <header> 👆 */}
 
       <main className="cotiz-main-content">
         <div className="cotiz-search-wrapper">
