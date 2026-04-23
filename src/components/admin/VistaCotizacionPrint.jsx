@@ -79,6 +79,7 @@ const VistaCotizacionPrint = () => {
     return `$${parseFloat(cantidad).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+
   return (
     <div className="cotizacion-container">
 
