@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import "../../styles/Admin/VistaCotizacionPrint.css";
 import logo from "../../assets/Logo3.png"; 
 import html2pdf from 'html2pdf.js';
 
 const VistaCotizacionPrint = () => {
+  const navigate = useNavigate();
   const [cotizacion, setCotizacion] = useState(null);
   const [elementosTabla, setElementosTabla] = useState([]);
   const [guardando, setGuardando] = useState(false);
@@ -121,31 +123,40 @@ const VistaCotizacionPrint = () => {
     <div style={{ backgroundColor: '#f4f4f4', minHeight: '100vh', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       
       {/* Panel de control superior */}
-      <div className="no-print" style={{ marginBottom: '20px', width: '21cm', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-         {!pdfGenerado ? (
-           <button 
-              onClick={handleGenerarPDF} 
-              disabled={guardando}
-              style={{ padding: '12px 24px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
-           >
-             {guardando ? 'Procesando...' : '💾 GENERAR Y GUARDAR PDF'}
-           </button>
-         ) : (
-           <>
+      <div className="no-print" style={{ marginBottom: '20px', width: '21cm', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+         <button 
+            onClick={() => navigate('/vista-cotizaciones')}
+            style={{ padding: '12px 24px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+         >
+           ⬅️ REGRESAR
+         </button>
+
+         <div style={{ display: 'flex', gap: '10px' }}>
+           {!pdfGenerado ? (
              <button 
-                onClick={handleDescargar} 
-                style={{ padding: '12px 24px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+                onClick={handleGenerarPDF} 
+                disabled={guardando}
+                style={{ padding: '12px 24px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
              >
-               📥 GUARDAR (DESCARGAR PC)
+               {guardando ? 'Procesando...' : '💾 GENERAR Y GUARDAR PDF'}
              </button>
-             <button 
-                onClick={handleImprimir} 
-                style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
-             >
-               🖨️ IMPRIMIR
-             </button>
-           </>
-         )}
+           ) : (
+             <>
+               <button 
+                  onClick={handleDescargar} 
+                  style={{ padding: '12px 24px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+               >
+                 📥 GUARDAR (DESCARGAR PC)
+               </button>
+               <button 
+                  onClick={handleImprimir} 
+                  style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+               >
+                 🖨️ IMPRIMIR
+               </button>
+             </>
+           )}
+         </div>
       </div>
 
       <div id="cotizacion-pdf" className="cotizacion-container" style={{ backgroundColor: 'white', width: '21cm', minHeight: '29.7cm', padding: '1.5cm 2cm', boxShadow: '0 0 15px rgba(0,0,0,0.1)' }}>
