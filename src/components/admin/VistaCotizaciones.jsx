@@ -373,7 +373,7 @@ const VistaCotizaciones = () => {
 
                 <div style={{ display: 'flex', gap: '10px' }}>
                   {cotizacionSeleccionada.tipo !== 'archivo' && (
-                    <button className="btn-modal-print" onClick={handleImprimirPDF}>🖨️ PDF</button>
+                    <button className="btn-modal-print" onClick={handleImprimirPDF}>🖨️ VER PDF</button>
                   )}
                   <button className="btn-modal-close" onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>CERRAR</button>
                 </div>

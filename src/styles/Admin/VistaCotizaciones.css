@@ -150,35 +150,54 @@
 
 .modal-total-section { text-align: right; margin-top: 25px; color: #ff8800; border-top: 2px solid #eee; padding-top: 10px; }
 
-.modal-footer-btns { background: #f8f8f8; padding: 20px 30px; display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #eee; }
+.modal-footer-btns { 
+    background: #f8f8f8; 
+    padding: 20px 30px; 
+    display: flex; 
+    justify-content: flex-end; 
+    align-items: center;
+    gap: 15px; 
+    border-top: 1px solid #eee; 
+}
+
 .btn-modal-print { 
     background: #444; 
     color: white; 
     border: none; 
-    padding: 12px 30px; 
-    border-radius: 8px; 
+    padding: 0 25px; 
+    height: 45px; /* Altura fija para consistencia */
+    border-radius: 10px; 
     cursor: pointer; 
     font-weight: bold; 
     display: flex; 
     align-items: center; 
-    gap: 8px;
-    transition: background 0.3s;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    min-width: 130px;
+    font-size: 0.9rem;
 }
-.btn-modal-print:hover { background: #222; }
+.btn-modal-print:hover { background: #222; transform: translateY(-1px); }
 
 .btn-modal-close { 
     background: #1c252e; 
     color: white; 
     border: none; 
-    padding: 12px 35px; 
-    border-radius: 8px; 
+    padding: 0 30px; 
+    height: 45px; /* Misma altura */
+    border-radius: 10px; 
     cursor: pointer; 
     font-weight: bold; 
     text-transform: uppercase;
     letter-spacing: 1px;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
+    min-width: 130px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.btn-modal-close:hover { background: #000; }
+.btn-modal-close:hover { background: #000; transform: translateY(-1px); }
 
 /* --- EXTRAS --- */
 .back-arrow-fixed { 
