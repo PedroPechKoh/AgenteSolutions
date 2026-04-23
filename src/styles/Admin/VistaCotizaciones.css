@@ -165,7 +165,7 @@
     color: white; 
     border: none; 
     padding: 0 25px; 
-    height: 45px; /* Altura fija para consistencia */
+    height: 45px; 
     border-radius: 10px; 
     cursor: pointer; 
     font-weight: bold; 
@@ -174,8 +174,9 @@
     justify-content: center;
     gap: 10px;
     transition: all 0.3s ease;
-    min-width: 130px;
+    min-width: 150px; /* Aumentado */
     font-size: 0.9rem;
+    white-space: nowrap; /* Evita saltos de línea */
 }
 .btn-modal-print:hover { background: #222; transform: translateY(-1px); }
 
@@ -184,18 +185,19 @@
     color: white; 
     border: none; 
     padding: 0 30px; 
-    height: 45px; /* Misma altura */
+    height: 45px; 
     border-radius: 10px; 
     cursor: pointer; 
     font-weight: bold; 
     text-transform: uppercase;
     letter-spacing: 1px;
     transition: all 0.3s ease;
-    min-width: 130px;
+    min-width: 150px; /* Aumentado */
     font-size: 0.9rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap; /* Evita saltos de línea */
 }
 .btn-modal-close:hover { background: #000; transform: translateY(-1px); }
 
