@@ -107,6 +107,7 @@
     text-align: center;
     vertical-align: middle;
     white-space: nowrap;
+    color:black
 }
 
 /* Scroll personalizado */
@@ -452,56 +453,3 @@
     display: inline;
 }
 
-/* =========================================
-   CORRECCIÓN DE COLORES DE TEXTO
-   ========================================= */
-
-/* Asegura que el texto de la tabla sea oscuro */
-.modern-table td,
-.modern-table td * {
-    color: #333 !important;
-}
-
-/* Color específico para nombres clickeables */
-.clickable-name {
-    color: #ff8800 !important;
-}
-
-/* Color para el tag de bloqueado */
-.blocked-tag {
-    color: white !important;
-}
-
-/* Color para el texto del buscador */
-.search-input-large,
-.input-grey,
-.search-input-large::placeholder,
-.input-grey::placeholder {
-    color: #333 !important;
-}
-
-/* Color para el texto de los filtros */
-.filter-item {
-    color: #333 !important;
-}
-
-.filter-item.active {
-    color: #ff8800 !important;
-}
-
-/* Color para selects */
-.select-rol-inline {
-    color: #333 !important;
-}
-
-.select-rol-inline.admin {
-    color: #ff8800 !important;
-}
-
-.select-rol-inline.tecnico {
-    color: #2196f3 !important;
-}
-
-.select-rol-inline.cliente {
-    color: #4caf50 !important;
-}
