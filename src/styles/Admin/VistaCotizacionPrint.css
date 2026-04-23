@@ -1,0 +1,295 @@
+body {
+  background: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* solo bloquea horizontal */
+  overflow-y: auto; 
+}
+.tt-container {
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+/* CONTENEDOR */
+.cotizacion-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  color: #000;
+  box-sizing: border-box;
+    max-height: none; /* 👈 importante */
+  overflow: visible;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap; /* 👈 clave responsive */
+  gap: 15px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.logo {
+  width: 80px;
+}
+
+/* TEXTO */
+.info-cliente p {
+  margin: 0;
+  color: #ff4d00;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.info-cliente h2 {
+  margin: 5px 0;
+  font-size: 18px;
+}
+
+.info-cliente h3 {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+/* FECHA */
+.header-right {
+  width: 100%;
+  max-width: 250px;
+}
+
+.fecha-box {
+  background: #000;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+.fecha-box span {
+  font-size: 12px;
+  color: #ff4d00;
+}
+
+.fecha-box p {
+  margin: 5px 0 0;
+  font-size: 14px;
+}
+
+/* LINEA */
+.linea {
+  height: 3px;
+  background: #ff4d00;
+  margin: 20px 0;
+}
+
+/* TABLA RESPONSIVA */
+.tabla-container {
+  width: 100%;
+  overflow-x: auto; /* 👈 scroll en móvil */
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px; /* 👈 evita que se rompa */
+}
+
+.tabla th {
+  background: #000;
+  color: white;
+  padding: 10px;
+  font-size: 13px;
+}
+
+.tabla td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 13px;
+  vertical-align: top;
+}
+
+.tabla td:nth-child(1),
+.tabla td:nth-child(3),
+.tabla td:nth-child(4),
+.tabla td:nth-child(5),
+.tabla td:nth-child(6) {
+  text-align: center;
+}
+
+/* TOTALES */
+.totales .label {
+  font-weight: bold;
+  text-align: right;
+}
+
+.subtotal {
+  background: #ff4d00;
+  color: white;
+  font-weight: bold;
+}
+
+.total-final td {
+  background: #000;
+  color: white;
+  font-weight: bold;
+}
+
+/* NOTAS */
+.notas {
+  margin-top: 20px;
+}
+
+.notas ul {
+  padding-left: 18px;
+}
+
+.notas li {
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+/* FISCALES */
+.fiscales {
+  margin-top: 20px;
+  border-top: 3px solid #ff4d00;
+  padding-top: 10px;
+}
+
+.fiscales h3 {
+  background: #ff4d00;
+  color: white;
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+.fiscales p {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 600px) {
+  .logo {
+    width: 60px;
+  }
+
+  .info-cliente h2 {
+    font-size: 16px;
+  }
+
+  .info-cliente h3 {
+    font-size: 14px;
+  }
+
+  .fecha-box {
+    font-size: 12px;
+  }
+
+  .tabla th,
+  .tabla td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+
+/* 🖨️ PRINT */
+@media print {
+  body {
+    background: white;
+  }
+
+  .cotizacion-container {
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  .tabla-container {
+    overflow: visible;
+  }
+}
+.tabla-container {
+  width: 100%;
+}
+
+/* DESKTOP */
+.tabla-header {
+  display: grid;
+  grid-template-columns: 60px 1fr 80px 80px 120px 120px;
+  background: #000;
+  color: white;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 60px 1fr 80px 80px 120px 120px;
+  border-bottom: 1px solid #ccc;
+  padding: 10px;
+}
+
+.fila div {
+  padding: 5px;
+}
+
+/* TOTALES */
+.totales-box {
+  margin-top: 10px;
+  text-align: right;
+}
+
+.totales-box div {
+  margin: 5px 0;
+}
+
+.totales-box .total {
+  background: #000;
+  color: white;
+  padding: 8px;
+  font-weight: bold;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 768px) {
+
+  .tabla-header {
+    display: none; /* 👈 ocultamos encabezado */
+  }
+
+  .fila {
+    display: block;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 10px;
+  }
+
+  .fila div {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding: 6px 0;
+  }
+
+  .fila div::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #ff4d00;
+  }
+
+  .totales-box {
+    text-align: left;
+  }
+
+}
