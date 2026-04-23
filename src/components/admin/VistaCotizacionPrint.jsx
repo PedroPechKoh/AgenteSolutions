@@ -8,6 +8,8 @@ const VistaCotizacionPrint = () => {
   const [cotizacion, setCotizacion] = useState(null);
   const [elementosTabla, setElementosTabla] = useState([]);
   const [guardando, setGuardando] = useState(false);
+  const [pdfGenerado, setPdfGenerado] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState("");
 
   // --- ESTADOS PARA LAS ESPECIFICACIONES ---
   const [notas, setNotas] = useState("");
@@ -75,17 +77,32 @@ const VistaCotizacionPrint = () => {
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
 
-      alert("¡Cotización generada, guardada en la base de datos y subida a Cloudinary!");
+      setPdfUrl(respuesta.data.url);
+      setPdfGenerado(true);
+      alert("¡Cotización generada y guardada exitosamente!");
       
-      // Opcional: abrir el PDF recién creado en otra pestaña
-      window.open(respuesta.data.url, '_blank');
-
     } catch (error) {
       console.error("Error en el proceso:", error);
       alert("Hubo un error al procesar el archivo.");
     } finally {
       setGuardando(false);
     }
+  };
+
+  const handleDescargar = () => {
+    if (pdfUrl) {
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `cotizacion_${cotizacion.folio}.pdf`;
+      link.target = "_blank";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const handleImprimir = () => {
+    window.print();
   };
 
   if (!cotizacion) {
@@ -104,14 +121,31 @@ const VistaCotizacionPrint = () => {
     <div style={{ backgroundColor: '#f4f4f4', minHeight: '100vh', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       
       {/* Panel de control superior */}
-      <div className="no-print" style={{ marginBottom: '20px', width: '21cm', display: 'flex', justifyContent: 'flex-end' }}>
-         <button 
-            onClick={handleGenerarPDF} 
-            disabled={guardando}
-            style={{ padding: '12px 24px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
-         >
-           {guardando ? 'Procesando...' : '💾 GENERAR Y GUARDAR PDF'}
-         </button>
+      <div className="no-print" style={{ marginBottom: '20px', width: '21cm', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+         {!pdfGenerado ? (
+           <button 
+              onClick={handleGenerarPDF} 
+              disabled={guardando}
+              style={{ padding: '12px 24px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+           >
+             {guardando ? 'Procesando...' : '💾 GENERAR Y GUARDAR PDF'}
+           </button>
+         ) : (
+           <>
+             <button 
+                onClick={handleDescargar} 
+                style={{ padding: '12px 24px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+             >
+               📥 GUARDAR (DESCARGAR PC)
+             </button>
+             <button 
+                onClick={handleImprimir} 
+                style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+             >
+               🖨️ IMPRIMIR
+             </button>
+           </>
+         )}
       </div>
 
       <div id="cotizacion-pdf" className="cotizacion-container" style={{ backgroundColor: 'white', width: '21cm', minHeight: '29.7cm', padding: '1.5cm 2cm', boxShadow: '0 0 15px rgba(0,0,0,0.1)' }}>

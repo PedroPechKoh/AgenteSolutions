@@ -70,11 +70,10 @@ const Profile = () => {
   const handleSaveProfile = async (e) => {
     e.preventDefault(); 
     try {
-      // ✅ SE AGREGÓ EL TOKEN DE SEGURIDAD Y SE ELIMINÓ LA RUTA QUEMADA
       const token = localStorage.getItem('agente_token');
       
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, {
-        user_id: user.id, // Enviamos el ID limpio
+        user_id: user.id,
         ...formData
       }, {
         headers: {
@@ -207,25 +206,23 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* ✅ SE ELIMINÓ EL CONFLICTO DE GIT Y SE MANTUVIERON AMBOS MODALES LIMPIOS */}
-      
       {isPhotoMenuOpen && (
-      <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
-        <div className="modal-content photo-menu-content" onClick={e => e.stopPropagation()}>
-          <h3 className="modal-title" style={{ color: '#ff6600', borderBottom: '2px solid #EEEEEE' }}>Actualizar Foto</h3>
-          <div className="photo-menu-actions">
-            <button className="btn-menu-action" onClick={() => selectPhotoSource('camera')}>
-              📷 Tomar Foto
-            </button>
-            <button className="btn-menu-action" onClick={() => selectPhotoSource('gallery')}>
-              🖼️ Elegir de la Galería
-            </button>
-            <button className="btn-menu-action btn-menu-cancel" onClick={() => setIsPhotoMenuOpen(false)}>
-              Cancelar
-            </button>
+        <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
+          <div className="modal-content photo-menu-content" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title" style={{ color: '#ff6600', borderBottom: '2px solid #EEEEEE' }}>Actualizar Foto</h3>
+            <div className="photo-menu-actions">
+              <button className="btn-menu-action" onClick={() => selectPhotoSource('camera')}>
+                📷 Tomar Foto
+              </button>
+              <button className="btn-menu-action" onClick={() => selectPhotoSource('gallery')}>
+                🖼️ Elegir de la Galería
+              </button>
+              <button className="btn-menu-action btn-menu-cancel" onClick={() => setIsPhotoMenuOpen(false)}>
+                Cancelar
+              </button>
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       {isModalOpen && (
