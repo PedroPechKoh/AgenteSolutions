@@ -67,17 +67,14 @@ const VistaCotizaciones = () => {
   };
 
   return (
-    // ✅ CAMBIAMOS A LAS CLASES GLOBALES PARA ELIMINAR EL HUECO GIGANTE
     <div className="main-container bg-light">
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
       <Header rolTexto="COTIZACIONES" />
 
-      {/* ✅ USAMOS content-area PARA QUE SE COMPORTE COMO LAS OTRAS PANTALLAS */}
       <section className="content-area">
         
-        {/* ✅ Agrupamos las pestañas y el buscador para que queden centrados y compactos */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
           
           <div className="cotiz-tabs-row" style={{ margin: 0 }}>
@@ -197,14 +194,73 @@ const VistaCotizaciones = () => {
                     <table className="modal-items-table">
                       <thead>
                         <tr>
-                          <th>Descripción</th>
+                          <th>Descripción del Servicio</th>
                           <th style={{ textAlign: 'center' }}>Total Estimado</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td>{cotizacionSeleccionada.concepto}</td>
-                          <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                          <td>
+                            {(() => {
+                              try {
+                                const detalle = typeof cotizacionSeleccionada.concepto === 'string' 
+                                                ? JSON.parse(cotizacionSeleccionada.concepto) 
+                                                : cotizacionSeleccionada.concepto;
+                                
+                                if (!detalle || typeof detalle !== 'object' || !detalle.conceptos) {
+                                  return <span>{String(cotizacionSeleccionada.concepto)}</span>;
+                                }
+
+                                return (
+                                  <div style={{ textAlign: 'left', fontSize: '0.9rem', lineHeight: '1.4' }}>
+                                    
+                                    {detalle.conceptos && detalle.conceptos.length > 0 && detalle.conceptos.some(c => c.descripcion) && (
+                                      <div style={{ marginBottom: '10px' }}>
+                                        <strong style={{ color: '#FF6600' }}>Conceptos / Mano de Obra:</strong>
+                                        <ul style={{ margin: '5px 0', paddingLeft: '20px', color: '#444' }}>
+                                          {detalle.conceptos.filter(c => c.descripcion).map((item, idx) => (
+                                            <li key={idx}>
+                                              {item.descripcion} (Cant: {item.cantidad}) - ${item.precio_u} c/u
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+
+                                    {detalle.materiales && detalle.materiales.length > 0 && detalle.materiales.some(m => m.nombre) && (
+                                      <div style={{ marginBottom: '10px' }}>
+                                        <strong style={{ color: '#FF6600' }}>Materiales:</strong>
+                                        <ul style={{ margin: '5px 0', paddingLeft: '20px', color: '#444' }}>
+                                          {detalle.materiales.filter(m => m.nombre).map((item, idx) => (
+                                            <li key={idx}>
+                                              {item.nombre} (Cant: {item.cantidad}) - ${item.costo_u} c/u
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+
+                                    {detalle.herramientas_especiales && detalle.herramientas_especiales.length > 0 && detalle.herramientas_especiales.some(h => h.nombre) && (
+                                      <div>
+                                        <strong style={{ color: '#FF6600' }}>Herramientas Especiales:</strong>
+                                        <ul style={{ margin: '5px 0', paddingLeft: '20px', color: '#444' }}>
+                                          {detalle.herramientas_especiales.filter(h => h.nombre).map((item, idx) => (
+                                            <li key={idx}>
+                                              {item.nombre} (Cant: {item.cantidad})
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+
+                                  </div>
+                                );
+                              } catch (e) {
+                                return <span>{String(cotizacionSeleccionada.concepto)}</span>;
+                              }
+                            })()}
+                          </td>
+                          <td style={{ textAlign: 'center', fontWeight: 'bold', verticalAlign: 'top', paddingTop: '15px' }}>
                             ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}
                           </td>
                         </tr>
