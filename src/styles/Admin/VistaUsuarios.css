@@ -81,39 +81,37 @@
 
 /* Este contenedor activa los dos scrolls */
 .table-wrapper-scroll, .table-scroll-container {
-    width: 100% !important;
-    max-width: 100vw;
-    margin: 0 auto 30px;
-    max-height: 500px; /* Activa scroll Vertical */
-    
-    overflow-y: auto !important; 
-    overflow-x: auto !important; /* Forza scroll Horizontal */
-    
-    display: block !important;
-    border-radius: 10px;
+   width: 100%;
+    max-width: 100%;
+    height: 500px; /* 🔥 altura fija para activar scroll vertical */
+
+    overflow-y: auto;
+    overflow-x: auto;
+
+    display: block;
+    position: relative;
+
+    border-radius: 12px;
     background: white;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    -webkit-overflow-scrolling: touch;
     border: 1px solid #eee;
 }
 
 .modern-table, .custom-table {
-    width: 100%;
-    /* Obligamos a que la tabla sea ancha para que aparezca el scroll horizontal */
-    min-width: 1000px !important; 
+   width: max-content; /* 🔥 esto es mejor que 100% */
+    min-width: 1200px; /* 🔥 fuerza el scroll horizontal */
     border-collapse: collapse;
-    table-layout: auto !important;
 }
 
 .modern-table th, .custom-table th {
     background: #1a1a1a;
     color: white;
     padding: 15px;
+
     position: sticky;
     top: 0;
-    z-index: 20;
-    font-size: 0.8rem;
-    text-transform: uppercase;
+    z-index: 10;
+
     white-space: nowrap;
 }
 
@@ -122,8 +120,8 @@
     border-bottom: 1px solid #f0f0f0;
     text-align: center;
     vertical-align: middle;
-    white-space: nowrap !important; /* Evita que el texto se amontone */
-    color: #333;
+    
+    white-space: nowrap; /* 🔥 importante */
 }
 
 /* --- ESTILO DE LOS SCROLLBARS (NARANJA AGENTE) --- */
@@ -195,4 +193,7 @@
     }
 
     .oval-text { display: none; } /* Oculta texto largo en botones de tabla */
+}
+.table-wrapper-scroll {
+    padding-bottom: 5px;
 }
