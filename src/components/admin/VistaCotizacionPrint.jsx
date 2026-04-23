@@ -58,22 +58,48 @@ const VistaCotizacionPrint = () => {
     }
   }, []);
 
-  const handleGenerarPDF = async () => {
-    setGuardando(true);
-    try {
-      // Al guardar, enviamos el contenido del cuadro (notas) a la columna observations
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/observaciones`, {
-        observaciones: notas 
-      });
-      alert("Especificaciones guardadas exitosamente.");
-      window.print();
-    } catch (error) {
-      console.error("Error al guardar:", error);
-      alert("No se pudieron guardar las especificaciones.");
-    } finally {
-      setGuardando(false);
-    }
+const handleGenerarPDF = async () => {
+  setGuardando(true);
+  
+  // 1. Configuración del PDF
+  const elemento = document.getElementById('cotizacion-pdf');
+  const opciones = {
+    margin: 0,
+    filename: `cotizacion_${cotizacion.folio}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true }, // useCORS es vital para que salga el logo de Cloudinary
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
+
+  try {
+    // 2. Generar el PDF como un "Blob" (archivo en memoria)
+    const pdfBlob = await html2pdf().set(opciones).from(elemento).output('blob');
+
+    // 3. Preparar el envío (FormData)
+    const formData = new FormData();
+    formData.append('pdf', pdfBlob, `cotizacion_${cotizacion.folio}.pdf`);
+    formData.append('observaciones', notas);
+    formData.append('titulo_seccion', tituloNotas);
+
+    // 4. Enviar a Laravel
+    const respuesta = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/finalizar`, 
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+
+    alert("¡Cotización generada, guardada en la base de datos y subida a Cloudinary!");
+    
+    // Opcional: abrir el PDF recién creado en otra pestaña
+    window.open(respuesta.data.url, '_blank');
+
+  } catch (error) {
+    console.error("Error en el proceso:", error);
+    alert("Hubo un error al procesar el archivo.");
+  } finally {
+    setGuardando(false);
+  }
+};
 
   const handleAgregarTitulo = () => {
     if (nuevoTitulo.trim() !== "") {
