@@ -1,6 +1,6 @@
 import React from "react";
-import "../styles/Admin/VistaCotizacionPrint.css";
-import logo from "../assets/Logo.png";
+import "../../styles/Admin/VistaCotizacionPrint.css";
+import logo from "../../assets/Logo.png";
 
 const VistaCotizacionPrint = () => {
   return (
