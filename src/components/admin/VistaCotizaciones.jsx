@@ -69,9 +69,9 @@ const VistaCotizaciones = () => {
       setRechazando(false);
       setMotivoRechazo('');
       cargarCotizaciones();
-    } catch() {
-      alert("Error al procesar la cotización.");
-    } finally {
+    } catch (error) {
+  alert("Error al procesar la cotización.");
+} finally {
       setProcesando(false);
     }
   };
