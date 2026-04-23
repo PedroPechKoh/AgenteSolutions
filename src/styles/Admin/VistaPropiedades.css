@@ -120,12 +120,28 @@
 
 /* --- GRID DE PROPIEDADES --- */
 .properties-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    display: flex; /* Cambiado a flex para fila única */
+    flex-wrap: nowrap;
+    overflow-x: auto;
     gap: 30px;
-    width: 90%;
+    width: 95%;
     margin: 30px auto;
-    padding-bottom: 50px;
+    padding: 20px 10px 50px 10px;
+    scrollbar-width: thin;
+    scrollbar-color: #ff8800 #f0f0f0;
+}
+
+.properties-grid::-webkit-scrollbar {
+    height: 10px;
+}
+
+.properties-grid::-webkit-scrollbar-thumb {
+    background: #ff8800;
+    border-radius: 10px;
+}
+
+.properties-grid::-webkit-scrollbar-track {
+    background: #f0f0f0;
 }
 
 /* Tarjeta Individual */
@@ -135,10 +151,11 @@
     overflow: hidden;
     position: relative;
     box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 650px; /* Más alta para los datos */
+    width: 320px;
 }
 
 .property-card:hover {
@@ -155,69 +172,86 @@
     border-radius: 20px;
     overflow: hidden;
     background-color: #444;
-    border: 2px solid #ff8800; /* Borde naranja sutil como en el mockup */
+    border: 2px solid #ff8800;
 }
 
-.property-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Botón VER MÁS sobre la imagen */
-.ver-mas-overlay {
-    position: absolute;
-    bottom: 15px;
-    left: 15px;
-}
-
-.btn-ver-mas {
-    background-color: #ff5500;
-    color: white;
-    border: none;
-    padding: 6px 15px;
-    border-radius: 15px;
-    font-weight: 900;
-    font-size: 0.7rem;
-    cursor: pointer;
-    text-transform: uppercase;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}
-
-/* Detalles de la Propiedad (Caja Gris Clara) */
+/* Efecto Hover para los Datos */
 .property-info-box {
-    background-color: #d1d1d1; /* Gris claro de la imagen */
+    background-color: #f0f0f0; /* Gris muy claro/blanco */
     width: 85%;
-    margin: 0 auto 20px auto;
+    margin: 0 auto 10px auto;
     padding: 15px;
     border-radius: 20px;
-    border: 2px solid #a67c52; /* Borde café/naranja oscuro del mockup */
+    border: 2px solid #a67c52;
     color: #333;
     font-size: 0.85rem;
+    opacity: 0; /* Oculto por defecto */
+    transform: translateY(20px);
+    transition: all 0.4s ease;
+}
+
+/* Cuando el mouse está sobre la tarjeta, mostramos los datos */
+.property-card:hover .property-info-box {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .info-item {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .info-label {
     font-weight: 900;
     color: #000;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
 }
 
 .info-value {
-    font-weight: 500;
-    word-break: break-all;
+    font-weight: 600;
+    color: #444;
+    word-break: break-word;
 }
 
-/* Acciones rápidas (Eliminar/Levantamiento) */
-.card-actions {
+/* --- BOTONES DE ACCIÓN RESTAURADOS --- */
+.card-actions-column {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding: 0 20px 15px 20px;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 20px;
+    opacity: 0; /* También ocultos por defecto? El usuario dijo "que los datos aparezcan", no especificó botones. Pero mejor ponerlos visibles o también en hover. */
+    transition: all 0.4s ease;
+}
+
+.property-card:hover .card-actions-column {
+    opacity: 1;
+}
+
+.btn-restored {
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    transition: 0.2s;
+    width: 100%;
+}
+
+.btn-blue { background-color: #2196F3; color: white; }
+.btn-green { background-color: #4CAF50; color: white; }
+.btn-orange-action { background-color: #ff8800; color: white; }
+.btn-red { background-color: #f44336; color: white; }
+.btn-maps { background-color: #4285F4; color: white; }
+
+.btn-restored:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
 }
 
 .btn-icon-action {

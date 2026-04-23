@@ -161,6 +161,7 @@ const VistaPropiedades = () => {
           ) : propiedadesFiltradas.length > 0 ? (
             propiedadesFiltradas.map((p) => (
               <div key={p.id} className="property-card">
+                {/* Parte superior: Imagen con botón VER MÁS */}
                 <div className="property-image-container">
                   <img 
                     src={p.facade_photo_path || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
@@ -177,6 +178,7 @@ const VistaPropiedades = () => {
                   </div>
                 </div>
 
+                {/* Bloque de Información (Aparece en HOVER) */}
                 <div className="property-info-box">
                   <div className="info-item">
                     <span className="info-label">ID :</span>
@@ -192,33 +194,50 @@ const VistaPropiedades = () => {
                   </div>
                 </div>
 
-                <div className="card-actions">
-                  {!p.has_pending_service && (
-                    <button 
-                      className="btn-icon-action" 
-                      title="Solicitar Levantamiento"
+                {/* Botones de Acción Restaurados (Aparecen en HOVER) */}
+                <div className="card-actions-column">
+                  <button
+                    className="btn-restored btn-blue"
+                    title="Ver Tablero de la Propiedad"
+                    onClick={() => navigate(`/propiedad/${p.id}`)}
+                  >
+                    VER TABLERO
+                  </button>
+
+                  {p.has_pending_service ? (
+                    <button className="btn-restored" style={{ backgroundColor: "#e0e0e0", color: "#888" }} disabled>
+                      LEVANTAMIENTO SOLICITADO
+                    </button>
+                  ) : (
+                    <button
+                      className="btn-restored btn-green"
                       onClick={() => abrirModalParaPropiedad(p)}
-                      style={{ color: '#4CAF50' }}
                     >
-                      🛠️
+                      SOLICITAR LEVANTAMIENTO
                     </button>
                   )}
-                  {p.has_pending_service && (
-                    <span style={{ fontSize: '0.8rem', color: '#888', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <CheckCircle size={14} /> Solicitado
-                    </span>
-                  )}
-                  <button className="btn-icon-action" title="Editar">
-                    ✏️
-                  </button>
-                  <button 
-                    className="btn-icon-action" 
-                    title="Eliminar"
-                    onClick={() => eliminarPropiedad(p.id)}
-                    style={{ color: '#ff4444' }}
-                  >
-                    🗑️
-                  </button>
+
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      className="btn-restored btn-maps" 
+                      onClick={() => window.open(`https://www.google.com/maps?q=${p.direccion}`, "_blank")}
+                    >
+                      🗺️ MAPS
+                    </button>
+                    <button 
+                      className="btn-restored btn-orange-action" 
+                      title="Editar"
+                    >
+                      ✏️
+                    </button>
+                    <button 
+                      className="btn-restored btn-red" 
+                      title="Eliminar"
+                      onClick={() => eliminarPropiedad(p.id)}
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
