@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// (Opcional) Si usas el logo aquí, déjalo, pero quité el import del CSS de impresión que no va en esta pantalla.
+  import "../../styles/Admin/VistaCotizacionPrint.css";
+
 import logo from "../../assets/Logo4.png"; 
 
 const VistaCotizaciones = () => {
