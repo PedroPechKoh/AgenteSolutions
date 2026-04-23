@@ -1,8 +1,7 @@
 /* =========================================
    1. CONFIGURACIÓN GLOBAL Y RESET
    ========================================= */
-.bg-light, 
-.main-container-users { 
+.bg-light, .main-container-users { 
     background-color: #ffffff; 
     min-height: 100vh; 
     font-family: 'Segoe UI', sans-serif; 
@@ -11,18 +10,8 @@
     overflow-x: hidden;
 }
 
-.top-bar-orange { 
-    height: 8px; 
-    background: #ff8800; 
-    width: 100%; 
-}
-
-.top-bar-black { 
-    height: 40px; 
-    background: #1a1a1a; 
-    width: 100%; 
-    margin-bottom: 20px; 
-}
+.top-bar-orange { height: 8px; background: #ff8800; width: 100%; }
+.top-bar-black { height: 40px; background: #1a1a1a; width: 100%; margin-bottom: 20px; }
 
 .content-area {
     padding: 15px;
@@ -34,8 +23,7 @@
 /* =========================================
    2. FILTROS Y BUSCADOR
    ========================================= */
-.filter-grid, 
-.categories-row {
+.filter-grid, .categories-row {
     display: flex;
     flex-wrap: wrap; 
     justify-content: center;
@@ -43,8 +31,7 @@
     margin-bottom: 25px;
 }
 
-.filter-item, 
-.cat-btn {
+.filter-item, .cat-btn {
     background: #e0e0e0;
     border: 1px solid #ccc;
     border-radius: 12px;
@@ -58,30 +45,26 @@
     transition: all 0.2s ease;
 }
 
-.filter-item.active, 
-.cat-btn.active { 
+.filter-item.active, .cat-btn.active { 
     border: 2px solid #ff8800; 
     background: #fff; 
     color: #ff8800;
 }
 
-.search-wrapper-full, 
-.search-container-center {
+.search-wrapper-full, .search-container-center {
     width: 100%;
     display: flex;
     justify-content: center;
     margin-bottom: 25px;
 }
 
-.search-input-container, 
-.search-box {
+.search-input-container, .search-box {
     position: relative;
     width: 100%;
     max-width: 800px;
 }
 
-.search-input-large, 
-.input-grey {
+.search-input-large, .input-grey {
     width: 100%;
     padding: 14px 20px;
     border-radius: 30px;
@@ -93,66 +76,62 @@
 }
 
 /* =========================================
-   3. TABLA CON SCROLL
+   3. TABLA CON DOBLE SCROLL
    ========================================= */
-.table-wrapper-scroll {
+
+.table-wrapper-scroll, .table-scroll-container {
     width: 100%;
+    max-width: 100%;
     height: 500px;
-    overflow: auto;
+
+    overflow-y: auto;
+    overflow-x: auto;
+
     display: block;
     position: relative;
+
     border-radius: 12px;
     background: white;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     border: 1px solid #eee;
+
+    padding-bottom: 5px; /* espacio para scroll */
 }
 
-/* Contenedor secundario */
-.table-scroll-container {
-    width: 90%;
-    margin: 0 auto;
-    max-height: 420px;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch; 
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-}
-
-/* Tabla */
-.modern-table, 
-.custom-table {
-    width: 100%;
+/* 🔥 CLAVE: hace que aparezca el scroll horizontal */
+.modern-table, .custom-table {
+    width: max-content;
+    min-width: 1200px;
     border-collapse: collapse;
-    background: white;
-    text-align: center;
 }
 
 /* Header fijo */
-.modern-table th, 
-.custom-table th {
-    background: #222;
+.modern-table th, .custom-table th {
+    background: #1a1a1a;
     color: white;
     padding: 15px;
-    font-size: 0.85rem;
-    text-transform: uppercase;
+
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 20;
+
+    white-space: nowrap;
 }
 
 /* Celdas */
-.modern-table td, 
-.custom-table td {
+.modern-table td, .custom-table td {
     padding: 15px;
     border-bottom: 1px solid #f0f0f0;
     text-align: center;
     vertical-align: middle;
+    
     white-space: nowrap;
 }
 
 /* =========================================
    SCROLL PERSONALIZADO
    ========================================= */
+
 .table-wrapper-scroll::-webkit-scrollbar, 
 .table-scroll-container::-webkit-scrollbar {
     width: 10px;
@@ -180,16 +159,14 @@
 /* =========================================
    4. BOTONES
    ========================================= */
-.actions-cell, 
-.actions-btns {
+.actions-cell, .actions-btns {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
 }
 
-.btn-table-oval, 
-.btn-orange {
+.btn-table-oval, .btn-orange {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -212,18 +189,14 @@
    5. MOBILE
    ========================================= */
 @media (max-width: 768px) {
-    .filter-item, 
-    .cat-btn {
+    .filter-item, .cat-btn {
         flex: 1 1 calc(50% - 15px);
         font-size: 0.75rem;
     }
     
-    .modern-table td, 
-    .modern-table th {
+    .modern-table td, .modern-table th {
         padding: 10px 8px;
     }
 
-    .oval-text { 
-        display: none; 
-    }
+    .oval-text { display: none; }
 }
