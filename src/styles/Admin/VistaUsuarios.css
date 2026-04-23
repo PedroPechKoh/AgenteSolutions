@@ -1,128 +1,101 @@
 /* =========================================
-   1. LAYOUT PRINCIPAL Y CONTENEDORES
+   1. CONFIGURACIÓN GLOBAL Y RESET
    ========================================= */
 .bg-light { 
     background-color: #ffffff; 
     min-height: 100vh; 
     font-family: 'Segoe UI', sans-serif; 
     margin: 0;
+    /* Evita que toda la página tenga scroll horizontal indeseado */
+    overflow-x: hidden; 
 }
 
 .top-bar-orange { height: 8px; background: #ff8800; width: 100%; }
 .top-bar-black { height: 40px; background: #1a1a1a; width: 100%; margin-bottom: 20px; }
 
+/* Contenedor principal */
 .content-area {
-    padding: 20px;
-    max-width: 1400px;
+    padding: 15px;
+    max-width: 100%;
     margin: 0 auto;
-    /* Evita que el desbordamiento de la tabla rompa el layout global */
-    overflow-x: hidden; 
-}
-
-/* AVATAR */
-.avatar-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid #ddd;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f9f9f9;
-    margin: 0 auto;
-}
-
-.perfil-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    box-sizing: border-box;
 }
 
 /* =========================================
-   2. FILTROS Y BUSCADOR (ADAPTABLES)
+   2. FILTROS Y BUSCADOR (RESPONSIVOS)
    ========================================= */
 .filter-grid {
     display: flex;
-    flex-wrap: wrap; /* Permite que los botones bajen a otra fila en móvil */
+    flex-wrap: wrap; /* Importante para que no se corten los botones de arriba */
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 30px;
-    padding: 0 10px;
+    gap: 12px;
+    margin-bottom: 25px;
 }
 
 .filter-item {
     background: #f9f9f9;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    min-width: 100px;
-    flex: 1 1 120px; /* Crecen y se ajustan según el espacio */
-    max-width: 160px;
-    padding: 12px 5px;
+    flex: 1 1 130px; /* Se ajustan al ancho del celular */
+    max-width: 180px;
+    padding: 12px 8px;
     text-align: center;
     cursor: pointer;
-    transition: 0.3s;
-    color: #333;
     font-weight: 600;
     font-size: 0.85rem;
 }
 
-.filter-item.active {
-    border: 2px solid #ff8800;
-    background: #fff;
-}
-
-.icon-box { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+.filter-item.active { border: 2px solid #ff8800; background: #fff; }
 
 .search-wrapper-full {
+    width: 100%;
     display: flex;
     justify-content: center;
-    margin-bottom: 30px;
-    padding: 0 15px;
+    margin-bottom: 25px;
 }
 
 .search-input-container {
     position: relative;
     width: 100%;
-    max-width: 900px;
+    max-width: 800px;
 }
 
 .search-input-large {
     width: 100%;
-    padding: 14px 25px;
+    padding: 14px 20px;
     border-radius: 30px;
     border: 1px solid #ddd;
     background: #f2f2f2;
     font-size: 1rem;
-    outline: none;
-    text-indent: 20px;
+    box-sizing: border-box;
 }
 
 /* =========================================
-   3. TABLA RESPONSIVA (SOLUCIÓN AL CORTE LATERAL)
+   3. LA TABLA (EL CORTE SE ARREGLA AQUÍ)
    ========================================= */
 
-/* Este contenedor es el que permite el deslizamiento lateral */
+/* 1. Este es el contenedor que DEBE tener el scroll */
 .table-wrapper-scroll {
     width: 100% !important;
-    margin: 0 auto 40px;
+    max-width: 100vw; /* No puede ser más ancho que la pantalla */
+    margin: 0 auto 30px;
     max-height: 500px;
-    overflow-y: auto;       /* Scroll vertical */
-    overflow-x: auto !important; /* FORZAR SCROLL HORIZONTAL */
-    display: block !important;
+    overflow-y: auto;
+    overflow-x: auto !important; /* FORZAR EL SCROLL LATERAL */
+    display: block !important;    /* Necesario para que overflow-x funcione */
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     background: white;
-    -webkit-overflow-scrolling: touch; /* Scroll suave en móviles */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    -webkit-overflow-scrolling: touch; /* Suavidad en iPhone/Android */
     border: 1px solid #eee;
 }
 
+/* 2. La tabla debe ser obligatoriamente más ancha que el celular */
 .modern-table {
     width: 100%;
+    min-width: 950px !important; /* Fuerza a que aparezca la barra de scroll */
     border-collapse: collapse;
-    /* EL SECRETO: Forzar un ancho mínimo para que no se "apriete" en el celular */
-    min-width: 900px !important; 
-    table-layout: auto;
+    table-layout: auto !important;
 }
 
 .modern-table th {
@@ -131,10 +104,10 @@
     padding: 15px;
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 20;
     font-size: 0.8rem;
-    letter-spacing: 1px;
-    text-align: center;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .modern-table td {
@@ -142,21 +115,20 @@
     border-bottom: 1px solid #f0f0f0;
     text-align: center;
     vertical-align: middle;
-    color: #333;
-    font-weight: 500;
-    /* Evita que el texto largo (correos) rompa el diseño */
+    /* Evita que el texto se amontone y rompa el ancho de la tabla */
     white-space: nowrap !important; 
+    color: #333;
 }
 
-/* Scrollbar Personalizado (Naranja) */
-.table-wrapper-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+/* Scrollbar naranja personalizado */
+.table-wrapper-scroll::-webkit-scrollbar { height: 8px; width: 6px; }
 .table-wrapper-scroll::-webkit-scrollbar-thumb {
     background: #ff8800;
     border-radius: 10px;
 }
 
 /* =========================================
-   4. ACCIONES Y ESTADOS
+   4. BOTONES Y ESTADOS
    ========================================= */
 .actions-cell {
     display: flex;
@@ -166,7 +138,7 @@
 }
 
 .btn-table-oval, .btn-table-oval-small {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 1px solid #e0e0e0;
@@ -176,62 +148,40 @@
     transition: 0.2s;
 }
 
-.btn-table-oval { padding: 6px 15px; gap: 8px; min-width: 115px; }
+.btn-table-oval { padding: 6px 15px; min-width: 120px; gap: 8px; }
 .btn-table-oval-small { width: 50px; height: 32px; }
 
-.oval-text { font-size: 0.8rem; color: #333; font-weight: 600; }
+.oval-text { font-size: 0.8rem; font-weight: 600; color: #333; }
 
-.is-blocked {
-    background-color: #ff8800 !important;
-    border-color: #ff8800 !important;
-}
+.is-blocked { background-color: #ff8800 !important; border-color: #ff8800 !important; }
 .is-blocked .oval-text, .is-blocked .oval-icon { color: white !important; }
 
-.delete-oval:hover { background-color: #333; border-color: #333; color: white; }
-
-/* BADGES DE ROLES */
+/* Badges de Roles */
 .badge-rol {
-    padding: 4px 12px;
+    padding: 5px 12px;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: bold;
-    text-transform: uppercase;
 }
-.cliente { background: #E6FFFA; color: #00664F; }
 .tecnico { background: #EBF5FF; color: #004A99; }
+.cliente { background: #E6FFFA; color: #00664F; }
 .admin { background: #FFF5F0; color: #9C4221; }
-.root { background: #ffebee; color: #c62828; }
-
-.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-.status-on { background: #2ecc71; }
-.status-off { background: #e74c3c; }
-
-/* SELECTOR DE ROL */
-.select-rol-inline {
-    appearance: none;
-    padding: 4px 25px 4px 12px;
-    border-radius: 20px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 12px;
-}
 
 /* =========================================
-   5. MEDIA QUERIES (MÓVIL)
+   5. AJUSTE FINAL PARA MÓVIL (QUERIES)
    ========================================= */
 @media (max-width: 768px) {
-    .filter-item {
-        flex: 1 1 45%; /* Dos botones por fila en móvil */
-        font-size: 0.75rem;
+    /* Ocultamos el texto de los botones en la tabla para ganar espacio */
+    .oval-text {
+        display: none;
     }
     
-    .search-input-large { font-size: 0.9rem; text-indent: 10px; }
+    .btn-table-oval {
+        min-width: 40px;
+        padding: 8px;
+    }
 
-    /* Ocultamos el texto de los botones en la tabla para que no sea tan gigante */
-    .oval-text { display: none; }
-    .btn-table-oval { min-width: 40px; padding: 6px; }
+    .modern-table td, .modern-table th {
+        padding: 10px 8px;
+    }
 }
