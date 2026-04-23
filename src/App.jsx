@@ -11,6 +11,7 @@ import CustomizeLogin from "./components/CustomizeLogin";
 import AssignServiceForm from "./components/AssignServiceForm";
 import VistaNotificaciones from "./components/Shared/VistaNotificaciones"; 
 import RegistroZonas from "./components/VistasTecnico/RegistroZonas";
+import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
 
 ///Cliente
 import MainLayoutCliente from "./components/VistaCliente/MainLayoutCliente";
@@ -57,6 +58,7 @@ import TableroScrum from "./components/VistaCliente/TableroScrum";
 import VistaDetallePropiedadCliente from "./components/VistaCliente/VistaDetallePropiedad";
 
 import RegisteRoot from "./components/Register"; 
+import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
 // Le decimos a Laravel que siempre queremos JSON de regreso (Evita el error 'Route [login] not defined')
 axios.defaults.headers.common["Accept"] = "application/json";
 
@@ -167,7 +169,9 @@ function App() {
 <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />           <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
            <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
 
-                      <Route path="/registro" element={<RegisteRoot />} />
+          <Route path="/registro" element={<RegisteRoot />} />
+          <Route path="/imprimir-cotizacion" element={<VistaCotizacionPrint />} />
+
 
 
         </Routes>
