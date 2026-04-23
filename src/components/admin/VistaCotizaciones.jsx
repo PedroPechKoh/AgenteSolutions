@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../../styles/Admin/VistaCotizaciones.css';
+import "../../styles/Admin/VistaCotizacionPrint.css";
 import logo from "../../assets/Logo4.png";
 
 const VistaCotizaciones = () => {

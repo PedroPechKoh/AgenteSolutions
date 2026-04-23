@@ -11,7 +11,6 @@ import CustomizeLogin from "./components/CustomizeLogin";
 import AssignServiceForm from "./components/AssignServiceForm";
 import VistaNotificaciones from "./components/Shared/VistaNotificaciones"; 
 import RegistroZonas from "./components/VistasTecnico/RegistroZonas";
-import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
 
 ///Cliente
 import MainLayoutCliente from "./components/VistaCliente/MainLayoutCliente";
