@@ -88,33 +88,43 @@
    4. TABLA RESPONSIVA (EL CAMBIO CLAVE)
    ========================================= */
 .table-wrapper-scroll {
-   width: 100%;             /* Ocupa todo el ancho disponible */
+  width: 100%;            /* Ocupa todo el ancho de la pantalla */
     margin: 0 auto 40px;
     max-height: 450px;
-    overflow-y: auto;        /* Scroll vertical para el contenido */
-    overflow-x: auto;        /* ¡ESTO ES LO IMPORTANTE! Permite scroll lateral */
-    display: block;          /* Asegura que se comporte como un bloque deslizable */
+    overflow-y: auto;       /* Scroll vertical para ver más usuarios */
+    overflow-x: auto;       /* ¡CRUCIAL! Esto permite el scroll lateral en móvil */
+    display: block;         /* Asegura que el contenedor respete el overflow */
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     background: white;
-    white-space: nowrap; /* Scroll suave en iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
 .modern-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 850px;       /* FORZAMOS un ancho mínimo para que aparezca el scroll en celular */
+    min-width: 800px; /* Al obligar a la tabla a medir 800px, activarás el scroll en celulares */
+}
+
+.modern-table th, .modern-table td {
+    white-space: nowrap; /* Evita que el nombre o correo se rompan en dos líneas */
+    padding: 15px;
 }
 
 /* Ajuste para los filtros para que no se amontonen en móvil */
 .filter-grid {
     display: flex;
-    flex-wrap: wrap;        /* Si no caben, bajan a la siguiente fila */
+    flex-wrap: wrap; /* Si no caben en una línea, bajan a la siguiente */
     justify-content: center;
     gap: 10px;
-    margin-bottom: 20px;
+    padding: 0 10px;
 }
 
+.filter-item {
+    flex: 1 1 auto; /* Permite que los botones se ajusten al texto */
+    min-width: 100px;
+    max-width: 150px;
+}
 .modern-table th {
     background: #1a1a1a;
     color: white;
