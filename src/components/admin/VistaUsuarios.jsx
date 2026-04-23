@@ -88,7 +88,7 @@ const VistaUsuarios = () => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}`);
       setListaUsuarios(prev => prev.filter(u => u.id !== id));
-    } catch (error) {
+    } catch () {
       alert("Hubo un problema al eliminar el usuario.");
     }
   };
