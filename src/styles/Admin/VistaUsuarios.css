@@ -1,22 +1,21 @@
 /* =========================================
    1. CONFIGURACIÓN GLOBAL Y RESET
    ========================================= */
-.bg-light { 
+.bg-light, .main-container-users { 
     background-color: #ffffff; 
     min-height: 100vh; 
     font-family: 'Segoe UI', sans-serif; 
     margin: 0;
-    /* Evita que toda la página tenga scroll horizontal indeseado */
-    overflow-x: hidden; 
+    position: relative;
+    overflow-x: hidden; /* Evita que la página completa rebote */
 }
 
 .top-bar-orange { height: 8px; background: #ff8800; width: 100%; }
 .top-bar-black { height: 40px; background: #1a1a1a; width: 100%; margin-bottom: 20px; }
 
-/* Contenedor principal */
 .content-area {
     padding: 15px;
-    max-width: 100%;
+    max-width: 1400px;
     margin: 0 auto;
     box-sizing: border-box;
 }
@@ -24,43 +23,48 @@
 /* =========================================
    2. FILTROS Y BUSCADOR (RESPONSIVOS)
    ========================================= */
-.filter-grid {
+.filter-grid, .categories-row {
     display: flex;
-    flex-wrap: wrap; /* Importante para que no se corten los botones de arriba */
+    flex-wrap: wrap; 
     justify-content: center;
     gap: 12px;
     margin-bottom: 25px;
 }
 
-.filter-item {
-    background: #f9f9f9;
-    border: 1px solid #e0e0e0;
+.filter-item, .cat-btn {
+    background: #e0e0e0;
+    border: 1px solid #ccc;
     border-radius: 12px;
-    flex: 1 1 130px; /* Se ajustan al ancho del celular */
+    flex: 1 1 130px; 
     max-width: 180px;
     padding: 12px 8px;
     text-align: center;
     cursor: pointer;
     font-weight: 600;
     font-size: 0.85rem;
+    transition: all 0.2s ease;
 }
 
-.filter-item.active { border: 2px solid #ff8800; background: #fff; }
+.filter-item.active, .cat-btn.active { 
+    border: 2px solid #ff8800; 
+    background: #fff; 
+    color: #ff8800;
+}
 
-.search-wrapper-full {
+.search-wrapper-full, .search-container-center {
     width: 100%;
     display: flex;
     justify-content: center;
     margin-bottom: 25px;
 }
 
-.search-input-container {
+.search-input-container, .search-box {
     position: relative;
     width: 100%;
     max-width: 800px;
 }
 
-.search-input-large {
+.search-input-large, .input-grey {
     width: 100%;
     padding: 14px 20px;
     border-radius: 30px;
@@ -68,37 +72,40 @@
     background: #f2f2f2;
     font-size: 1rem;
     box-sizing: border-box;
+    outline: none;
 }
 
 /* =========================================
-   3. LA TABLA (EL CORTE SE ARREGLA AQUÍ)
+   3. LA TABLA (DOBLE SCROLL NARANJA)
    ========================================= */
 
-/* 1. Este es el contenedor que DEBE tener el scroll */
-.table-wrapper-scroll {
+/* Este contenedor activa los dos scrolls */
+.table-wrapper-scroll, .table-scroll-container {
     width: 100% !important;
-    max-width: 100vw; /* No puede ser más ancho que la pantalla */
+    max-width: 100vw;
     margin: 0 auto 30px;
-    max-height: 500px;
-    overflow-y: auto;
-    overflow-x: auto !important; /* FORZAR EL SCROLL LATERAL */
-    display: block !important;    /* Necesario para que overflow-x funcione */
+    max-height: 500px; /* Activa scroll Vertical */
+    
+    overflow-y: auto !important; 
+    overflow-x: auto !important; /* Forza scroll Horizontal */
+    
+    display: block !important;
     border-radius: 10px;
     background: white;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    -webkit-overflow-scrolling: touch; /* Suavidad en iPhone/Android */
+    -webkit-overflow-scrolling: touch;
     border: 1px solid #eee;
 }
 
-/* 2. La tabla debe ser obligatoriamente más ancha que el celular */
-.modern-table {
+.modern-table, .custom-table {
     width: 100%;
-    min-width: 950px !important; /* Fuerza a que aparezca la barra de scroll */
+    /* Obligamos a que la tabla sea ancha para que aparezca el scroll horizontal */
+    min-width: 1000px !important; 
     border-collapse: collapse;
     table-layout: auto !important;
 }
 
-.modern-table th {
+.modern-table th, .custom-table th {
     background: #1a1a1a;
     color: white;
     padding: 15px;
@@ -110,78 +117,82 @@
     white-space: nowrap;
 }
 
-.modern-table td {
+.modern-table td, .custom-table td {
     padding: 15px;
     border-bottom: 1px solid #f0f0f0;
     text-align: center;
     vertical-align: middle;
-    /* Evita que el texto se amontone y rompa el ancho de la tabla */
-    white-space: nowrap !important; 
+    white-space: nowrap !important; /* Evita que el texto se amontone */
     color: #333;
 }
 
-/* Scrollbar naranja personalizado */
-.table-wrapper-scroll::-webkit-scrollbar { height: 8px; width: 6px; }
-.table-wrapper-scroll::-webkit-scrollbar-thumb {
-    background: #ff8800;
+/* --- ESTILO DE LOS SCROLLBARS (NARANJA AGENTE) --- */
+
+/* Tamaño de las barras */
+.table-wrapper-scroll::-webkit-scrollbar, 
+.table-scroll-container::-webkit-scrollbar {
+    width: 10px;  /* Vertical */
+    height: 10px; /* Horizontal */
+}
+
+/* Fondo del carril */
+.table-wrapper-scroll::-webkit-scrollbar-track, 
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
     border-radius: 10px;
 }
 
+/* Parte deslizable */
+.table-wrapper-scroll::-webkit-scrollbar-thumb, 
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #ff8800; /* Naranja de las fotos */
+    border-radius: 10px;
+    border: 2px solid #f1f1f1;
+}
+
+.table-wrapper-scroll::-webkit-scrollbar-thumb:hover, 
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #e67a00;
+}
+
 /* =========================================
-   4. BOTONES Y ESTADOS
+   4. BOTONES Y ACCIONES
    ========================================= */
-.actions-cell {
+.actions-cell, .actions-btns {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
 }
 
-.btn-table-oval, .btn-table-oval-small {
+.btn-table-oval, .btn-orange {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #e0e0e0;
-    background: white;
+    background: #ff8800;
+    color: white;
+    padding: 8px 20px;
     border-radius: 50px;
     cursor: pointer;
+    font-weight: bold;
+    border: none;
     transition: 0.2s;
 }
 
-.btn-table-oval { padding: 6px 15px; min-width: 120px; gap: 8px; }
-.btn-table-oval-small { width: 50px; height: 32px; }
-
-.oval-text { font-size: 0.8rem; font-weight: 600; color: #333; }
-
-.is-blocked { background-color: #ff8800 !important; border-color: #ff8800 !important; }
-.is-blocked .oval-text, .is-blocked .oval-icon { color: white !important; }
-
-/* Badges de Roles */
-.badge-rol {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: bold;
-}
-.tecnico { background: #EBF5FF; color: #004A99; }
-.cliente { background: #E6FFFA; color: #00664F; }
-.admin { background: #FFF5F0; color: #9C4221; }
+.btn-orange:hover { background: #e67a00; transform: scale(1.05); }
 
 /* =========================================
-   5. AJUSTE FINAL PARA MÓVIL (QUERIES)
+   5. AJUSTES PARA MÓVIL
    ========================================= */
 @media (max-width: 768px) {
-    /* Ocultamos el texto de los botones en la tabla para ganar espacio */
-    .oval-text {
-        display: none;
+    .filter-item, .cat-btn {
+        flex: 1 1 calc(50% - 15px); /* Dos por fila en móvil */
+        font-size: 0.75rem;
     }
     
-    .btn-table-oval {
-        min-width: 40px;
-        padding: 8px;
-    }
-
     .modern-table td, .modern-table th {
         padding: 10px 8px;
     }
+
+    .oval-text { display: none; } /* Oculta texto largo en botones de tabla */
 }
