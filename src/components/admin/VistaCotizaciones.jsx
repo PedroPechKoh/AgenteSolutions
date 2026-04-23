@@ -40,13 +40,15 @@ const VistaCotizaciones = () => {
   };
 
   const filtradas = cotizaciones.filter(c => {
-    const coincideFiltro = 
+    const coincideFiltro =
       (filtro === 'Pendiente' && (c.estado === 'Pendiente' || c.estado === 'En proceso')) ||
       (filtro === 'Aprobado' && c.estado === 'Aprobado') ||
       (filtro === 'Rechazado' && c.estado === 'Rechazado');
 
-    const coincideBusqueda = c.cliente.toLowerCase().includes(busqueda.toLowerCase()) || 
-                             c.folio.includes(busqueda);
+    const coincideBusqueda =
+      c.cliente.toLowerCase().includes(busqueda.toLowerCase()) ||
+      c.folio.includes(busqueda);
+
     return coincideFiltro && coincideBusqueda;
   });
 
@@ -56,7 +58,7 @@ const VistaCotizaciones = () => {
 
   const procesarCotizacion = async (status) => {
     if (status === 'Rechazado' && !motivoRechazo.trim()) {
-      alert("Por favor, ingresa el motivo del rechazo.");
+      alert("Ingresa el motivo del rechazo.");
       return;
     }
 
@@ -66,14 +68,16 @@ const VistaCotizaciones = () => {
         status,
         rejection_reason: motivoRechazo
       });
-      alert(`Cotización ${status.toLowerCase()} exitosamente.`);
+
+      alert(`Cotización ${status.toLowerCase()} correctamente.`);
       setCotizacionSeleccionada(null);
       setRechazando(false);
       setMotivoRechazo('');
       cargarCotizaciones();
+
     } catch (error) {
       console.error(error);
-      alert("Error al procesar la cotización.");
+      alert("Error al procesar.");
     } finally {
       setProcesando(false);
     }
@@ -81,63 +85,58 @@ const VistaCotizaciones = () => {
 
   return (
     <div className="cotiz-page">
-      <div className="top-bar-orange"></div>
-      <div className="top-bar-black"></div>
+<div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+  <button onClick={() => setFiltro('Pendiente')}>
+    📩 NUEVAS
+  </button>
 
-      <header className="cotiz-header">
-        <img src={logo} alt="Logo" className="logo-top-left" />
-      </header>
+  <button onClick={() => setFiltro('Aprobado')}>
+    ✅ APROBADAS
+  </button>
 
+  <button onClick={() => setFiltro('Rechazado')}>
+    ❌ RECHAZADAS
+  </button>
+</div>
       <main className="cotiz-main-content">
-        <div className="cotiz-search-wrapper">
-          <div className="cotiz-search-bar">
-            <input 
-              type="text" 
-              placeholder="BUSCAR CLIENTE O FOLIO..." 
-              className="cotiz-input-field"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-            <span className="cotiz-search-icon">🔍</span>
-          </div>
-        </div>
 
-        <div className="cotiz-tabs-row">
-          <button className={`cotiz-tab-btn ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>📩 NUEVAS</button>
-          <button className={`cotiz-tab-btn ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>✅ APROBADAS</button>
-          <button className={`cotiz-tab-btn ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>❌ RECHAZADAS</button>
-        </div>
+        <input
+          placeholder="Buscar..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
 
-        <div className="cotiz-table-container">
-          <table className="cotiz-data-table">
-            <thead>
-              <tr>
-                <th>FOLIO</th>
-                <th>CLIENTE</th>
-                <th>TOTAL</th>
-                <th>ACCIONES</th>
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Cliente</th>
+              <th>Total</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {cargando ? (
+              <tr><td colSpan="4">Cargando...</td></tr>
+            ) : filtradas.map((c) => (
+              <tr key={c.id}>
+                <td>{c.folio}</td>
+                <td>{c.cliente}</td>
+                <td>${parseFloat(c.total).toLocaleString('es-MX')}</td>
+                <td>
+                  <button onClick={() => setCotizacionSeleccionada(c)}>
+                    VER
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {cargando ? (
-                <tr><td colSpan="4" className="no-data">Cargando...</td></tr>
-              ) : filtradas.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.folio}</td>
-                  <td>{c.cliente}</td>
-                  <td>${parseFloat(c.total).toLocaleString('es-MX')}</td>
-                  <td>
-                    <button onClick={() => setCotizacionSeleccionada(c)}>
-                      👁️ VER
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
+
       </main>
 
+      {/* MODAL */}
       {cotizacionSeleccionada && (
         <div className="modal-fixed-overlay">
           <div className="modal-box-card">
@@ -150,111 +149,112 @@ const VistaCotizaciones = () => {
                     ⛶ Pantalla completa
                   </button>
 
-                  <iframe 
-                    src={cotizacionSeleccionada.archivo_url} 
+                  <iframe
+                    src={cotizacionSeleccionada.archivo_url}
                     style={{ width: '100%', height: '400px' }}
                   />
                 </>
               ) : (
 
+                /* 🔥 DISEÑO PROFESIONAL */
                 <div className="printable-quote">
 
+                  {/* HEADER */}
                   <div className="quote-header">
                     <div>
                       <img src={logo} className="quote-logo" />
                       <h2>AGENTE SOLUTIONS</h2>
+                      <p>Soluciones tecnológicas</p>
                     </div>
 
                     <div>
                       <h1>COTIZACIÓN</h1>
-                      <p>{cotizacionSeleccionada.folio}</p>
+                      <h3>#{cotizacionSeleccionada.folio}</h3>
                     </div>
                   </div>
 
-                  <p>Cliente: {cotizacionSeleccionada.cliente}</p>
+                  <div className="quote-divider"></div>
 
+                  {/* INFO */}
+                  <div className="quote-info">
+                    <p><strong>Cliente:</strong> {cotizacionSeleccionada.cliente}</p>
+                    <p><strong>Técnico:</strong> {cotizacionSeleccionada.tecnico}</p>
+                    <p><strong>Fecha:</strong> {cotizacionSeleccionada.fecha}</p>
+                  </div>
+
+                  {/* TABLA */}
                   <table className="quote-table">
+                    <thead>
+                      <tr>
+                        <th>Descripción</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
                     <tbody>
                       <tr>
                         <td>{cotizacionSeleccionada.concepto}</td>
-                        <td>${cotizacionSeleccionada.total}</td>
+                        <td>${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}</td>
                       </tr>
                     </tbody>
                   </table>
 
-                  <h2>Total: ${cotizacionSeleccionada.total}</h2>
+                  {/* TOTAL */}
+                  <div className="quote-total-box">
+                    TOTAL: ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}
+                  </div>
+
+                  {/* OBSERVACIONES */}
+                  {cotizacionSeleccionada.observaciones && (
+                    <div className="quote-notes">
+                      <h4>Observaciones</h4>
+                      <p>{cotizacionSeleccionada.observaciones}</p>
+                    </div>
+                  )}
 
                 </div>
               )}
-
             </div>
 
-          <div className="modal-footer-btns" style={{ display: 'flex', justifyContent: 'space-between' }}>
-  
-  {/* IZQUIERDA (CLIENTE) */}
-  <div style={{ display: 'flex', gap: '10px' }}>
-    
-    {esCliente && cotizacionSeleccionada.estado === 'Pendiente' && !rechazando && (
-      <>
-        <button 
-          disabled={procesando}
-          onClick={() => procesarCotizacion('Aprobado')}
-          style={{ background: '#2e7d32', color: 'white' }}
-        >
-          ✓ ACEPTAR
-        </button>
+            {/* FOOTER */}
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
 
-        <button 
-          onClick={() => setRechazando(true)}
-          style={{ background: '#c62828', color: 'white' }}
-        >
-          ✕ RECHAZAR
-        </button>
-      </>
-    )}
+              <div>
+                {esCliente && cotizacionSeleccionada.estado === 'Pendiente' && !rechazando && (
+                  <>
+                    <button disabled={procesando} onClick={() => procesarCotizacion('Aprobado')}>
+                      ✓ ACEPTAR
+                    </button>
 
-    {rechazando && (
-      <>
-        <textarea
-          placeholder="Motivo del rechazo..."
-          value={motivoRechazo}
-          onChange={(e) => setMotivoRechazo(e.target.value)}
-          style={{ padding: '8px', borderRadius: '6px' }}
-        />
+                    <button onClick={() => setRechazando(true)}>
+                      ✕ RECHAZAR
+                    </button>
+                  </>
+                )}
 
-        <button 
-          disabled={procesando}
-          onClick={() => procesarCotizacion('Rechazado')}
-          style={{ background: '#c62828', color: 'white' }}
-        >
-          CONFIRMAR
-        </button>
+                {rechazando && (
+                  <>
+                    <textarea
+                      value={motivoRechazo}
+                      onChange={(e) => setMotivoRechazo(e.target.value)}
+                    />
 
-        <button 
-          onClick={() => {
-            setRechazando(false);
-            setMotivoRechazo('');
-          }}
-        >
-          CANCELAR
-        </button>
-      </>
-    )}
+                    <button onClick={() => procesarCotizacion('Rechazado')}>
+                      CONFIRMAR
+                    </button>
 
-  </div>
+                    <button onClick={() => setRechazando(false)}>
+                      CANCELAR
+                    </button>
+                  </>
+                )}
+              </div>
 
-  {/* DERECHA */}
-  <div style={{ display: 'flex', gap: '10px' }}>
-    <button onClick={() => window.print()}>
-      🖨️ PDF
-    </button>
+              <div>
+                <button onClick={() => window.print()}>PDF</button>
+                <button onClick={() => setCotizacionSeleccionada(null)}>Cerrar</button>
+              </div>
 
-    <button onClick={() => setCotizacionSeleccionada(null)}>
-      CERRAR
-    </button>
-  </div>
-
-</div>
+            </div>
 
           </div>
         </div>

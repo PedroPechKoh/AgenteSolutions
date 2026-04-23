@@ -300,4 +300,125 @@
 .printable-quote {
   background: white !important;
   color: #222;
+}.printable-quote {
+  background: white;
+  padding: 50px;
+  font-family: Arial, sans-serif;
+  color: #222;
+}
+
+/* TOP */
+.quote-top-bar {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+/* HEADER */
+.quote-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quote-left h2 {
+  margin: 5px 0;
+}
+
+.quote-right h1 {
+  font-size: 40px;
+  margin: 0;
+}
+
+.quote-right h3 {
+  margin: 0;
+  color: #555;
+}
+
+/* LOGO */
+.quote-logo {
+  width: 60px;
+}
+
+/* LINEA */
+.quote-divider {
+  height: 4px;
+  background: #ff6f00;
+  margin: 20px 0;
+}
+
+/* INFO */
+.quote-info {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* TABLA */
+.quote-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.quote-table th {
+  background: #333;
+  color: white;
+  padding: 10px;
+}
+
+.quote-table td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* TOTAL */
+.quote-total-box {
+  background: #ff6f00;
+  color: white;
+  padding: 15px;
+  text-align: right;
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+/* NOTAS */
+.quote-notes {
+  margin-top: 20px;
+  border-left: 4px solid #ff6f00;
+  padding: 10px;
+  background: #fafafa;
+}
+
+/* FOOTER */
+.quote-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 40px;
+}
+
+/* PRINT */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-quote, .printable-quote * {
+    visibility: visible;
+  }
+
+  .printable-quote {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  .modal-header-dark,
+  .modal-footer-btns {
+    display: none !important;
+  }
 }
