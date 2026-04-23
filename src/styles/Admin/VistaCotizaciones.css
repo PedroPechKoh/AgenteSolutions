@@ -1,9 +1,17 @@
-/* --- BASE Y ESTRUCTURA --- */
+/* ==========================================================================
+   1. BASE Y ESTRUCTURA (VISTA GENERAL)
+   ========================================================================== */
+body {
+    background: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
 .cotiz-page { 
     background-color: #ffffff; 
     min-height: 100vh; 
-    position: relative; 
-    font-family: Arial, sans-serif;
+    position: relative;
     overflow-x: hidden;
 }
 
@@ -13,19 +21,20 @@
 .cotiz-header { padding: 10px 40px; }
 .logo-top-left { height: 55px; }
 
-/* --- CUERPO PRINCIPAL --- */
+/* ==========================================================================
+   2. BUSCADOR Y FILTROS
+   ========================================================================== */
 .cotiz-main-content {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px 50px;
-    width: 100%;
     box-sizing: border-box;
 }
 
-/* Buscador Estilo Usuarios */
 .cotiz-search-wrapper { width: 100%; max-width: 900px; margin-bottom: 30px; }
 .cotiz-search-bar { position: relative; width: 100%; }
+
 .cotiz-input-field {
     width: 100%; 
     padding: 15px 25px; 
@@ -35,16 +44,15 @@
     font-size: 1rem;
     outline: none;
 }
+
 .cotiz-search-icon { 
     position: absolute; 
     right: 25px; 
     top: 50%; 
     transform: translateY(-50%); 
-    font-size: 1.2rem; 
     color: #555;
 }
 
-/* Filtros */
 .cotiz-tabs-row { display: flex; gap: 15px; margin-bottom: 30px; }
 .cotiz-tab-btn {
     padding: 12px 25px; 
@@ -54,8 +62,9 @@
     font-weight: bold; 
     cursor: pointer; 
     color: #444;
-    transition: all 0.2s ease;
+    transition: 0.2s;
 }
+
 .cotiz-tab-btn.active { 
     border-color: #ff8800; 
     background: #fff; 
@@ -63,7 +72,9 @@
     box-shadow: 0 4px 10px rgba(255,136,0,0.15);
 }
 
-/* --- TABLA --- */
+/* ==========================================================================
+   3. TABLA DE LA LISTA PRINCIPAL
+   ========================================================================== */
 .cotiz-table-container {
     width: 95%;
     max-height: 450px;
@@ -71,6 +82,7 @@
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
+
 .cotiz-data-table { width: 100%; border-collapse: collapse; text-align: center; background: white; }
 .cotiz-data-table th { 
     background: #222; 
@@ -78,14 +90,13 @@
     padding: 18px; 
     position: sticky; 
     top: 0; 
-    font-size: 0.9rem;
     z-index: 10;
 }
-.cotiz-data-table td { padding: 16px; border-bottom: 1px solid #eee; font-size: 1rem; }
 
-.bold-folio { font-weight: bold; color: #000000; }
-.cliente-name { font-weight: bold; color: #000; text-align: left !important; padding-left: 50px !important; }
-.monto-final { color: #1a7e32; font-weight: bold; font-size: 1.1rem; }
+.cotiz-data-table td { padding: 16px; border-bottom: 1px solid #eee; }
+.bold-folio { font-weight: bold; }
+.cliente-name { font-weight: bold; text-align: left !important; padding-left: 50px !important; }
+.monto-final { color: #1a7e32; font-weight: bold; }
 
 .btn-view-detail {
     background: #ff8800; 
@@ -95,11 +106,11 @@
     border-radius: 25px; 
     font-weight: bold; 
     cursor: pointer;
-    transition: background 0.3s;
 }
-.btn-view-detail:hover { background: #e67a00; }
 
-/* --- MODAL (FIXED PARA EVITAR DESPLAZAMIENTOS) --- */
+/* ==========================================================================
+   4. MODAL Y FORMATO DE COTIZACIÓN (IMPRESIÓN)
+   ========================================================================== */
 .modal-fixed-overlay {
     position: fixed; 
     top: 0; left: 0; 
@@ -108,599 +119,73 @@
     display: flex; 
     justify-content: center; 
     align-items: center;
-    z-index: 10000; /* Siempre por encima */
+    z-index: 10000;
 }
+
 .modal-box-card { 
     background: white; 
     width: 90%; 
-    max-width: 700px; 
+    max-width: 1000px; 
     border-radius: 15px; 
-    overflow: hidden; 
-    animation: modalPop 0.3s ease-out;
+    overflow-y: auto;
+    max-height: 95vh;
 }
 
-@keyframes modalPop {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
+.modal-header-dark { background: #222; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+.modal-body-content { padding: 20px; color: #333; }
 
-.modal-header-dark { 
-    background: #222; 
-    color: white; 
-    padding: 20px 30px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-}
-.modal-close-icon { background: none; border: none; color: white; font-size: 2.2rem; cursor: pointer; }
-
-.modal-body-content { padding: 30px; }
-.modal-info-summary { 
-    background: #f4f4f4; 
-    padding: 15px 20px; 
-    border-radius: 10px; 
-    margin-bottom: 20px; 
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-.modal-items-table { width: 100%; border-collapse: collapse; }
-.modal-items-table th { border-bottom: 2px solid #ff8800; text-align: left; padding: 10px; color: #555; }
-.modal-items-table td { padding: 12px 10px; border-bottom: 1px solid #eee; }
-
-.modal-total-section { text-align: right; margin-top: 25px; color: #ff8800; border-top: 2px solid #eee; padding-top: 10px; }
-
-.modal-footer-btns { background: #f8f8f8; padding: 20px 30px; display: flex; justify-content: flex-end; gap: 15px; }
-.btn-modal-print { background: #333; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-.btn-modal-close { background: #aaa; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-
-/* --- EXTRAS --- */
-.back-arrow-fixed { 
-    position: fixed; 
-    bottom: 30px; 
-    left: 40px; 
-    background: none; 
-    border: none; 
-    font-size: 3.5rem; 
-    cursor: pointer; 
-    color: #222;
-}
-.no-data { padding: 50px; color: #999; font-style: italic; }
-
-/* Scrollbar personalizada */
-.cotiz-table-container::-webkit-scrollbar { width: 8px; }
-.cotiz-table-container::-webkit-scrollbar-thumb { background: #ff8800; border-radius: 10px; }
-
-/*Colores del texto de los Modales*/
-/* 1. Forzamos que todo el contenido del modal sea oscuro */
-.modal-body-content { 
-    padding: 30px; 
-    color: #333; /* <--- ESTA ES LA MAGIA */
-}
-
-/* 2. Aseguramos que el resumen (Cliente, Fecha) se lea bien */
-.modal-info-summary p {
-    color: #444;
-    margin: 5px 0;
-}
-
-/* 3. Aseguramos que la descripción de la tabla manual no se pierda */
-.modal-items-table td { 
-    padding: 12px 10px; 
-    border-bottom: 1px solid #eee; 
-    color: #333; /* <--- Texto oscuro para la tabla */
-}
-/* CONTENEDOR DE IMPRESIÓN */
-.printable-quote {
-  background: white;
-  padding: 40px;
-  font-family: 'Arial', sans-serif;
-  color: #333;
-}
-
-/* HEADER */
-.quote-header {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 4px solid #ff6f00;
-  padding-bottom: 15px;
-  margin-bottom: 20px;
-}
-
-.quote-header-left h2 {
-  margin: 0;
-  color: #222;
-}
-
-.quote-header-left p {
-  margin: 0;
-  color: #777;
-}
-
-.quote-header-right h1 {
-  color: #ff6f00;
-  margin: 0;
-}
-
-/* LOGO */
-.quote-logo {
-  width: 60px;
-  margin-bottom: 10px;
-}
-
-/* CLIENTE */
-.quote-client {
-  margin-bottom: 20px;
-  font-size: 14px;
-}
-
-/* TABLA */
-.quote-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-.quote-table th {
-  background: #222;
-  color: white;
-  padding: 10px;
-  text-align: left;
-}
-
-.quote-table td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-/* TOTAL */
-.quote-total {
-  text-align: right;
-  background: #ff6f00;
-  color: white;
-  padding: 10px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-/* NOTAS */
-.quote-notes {
-  margin-top: 20px;
-  font-size: 13px;
-  color: #555;
-}
-
-@media print {
-
-  body * {
-    visibility: hidden;
-  }
-
-  .printable-quote, .printable-quote * {
-    visibility: visible;
-  }
-
-  .printable-quote {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: white;
-    padding: 40px;
-  }
-
-  /* OCULTA TODO LO DEMÁS */
-  .modal-header-dark,
-  .modal-footer-btns,
-  .modal-info-summary {
-    display: none !important;
-  }
-
-}
-.printable-quote {
-  background: white !important;
-  color: #222;
-}.printable-quote {
-  background: white;
-  padding: 50px;
-  font-family: Arial, sans-serif;
-  color: #222;
-}
-
-/* TOP */
-.quote-top-bar {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-bottom: 20px;
-}
-
-/* HEADER */
-.quote-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.quote-left h2 {
-  margin: 5px 0;
-}
-
-.quote-right h1 {
-  font-size: 40px;
-  margin: 0;
-}
-
-.quote-right h3 {
-  margin: 0;
-  color: #555;
-}
-
-/* LOGO */
-.quote-logo {
-  width: 60px;
-}
-
-/* LINEA */
-.quote-divider {
-  height: 4px;
-  background: #ff6f00;
-  margin: 20px 0;
-}
-
-/* INFO */
-.quote-info {
-  background: #f5f5f5;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-/* TABLA */
-.quote-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.quote-table th {
-  background: #333;
-  color: white;
-  padding: 10px;
-}
-
-.quote-table td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-/* TOTAL */
-.quote-total-box {
-  background: #ff6f00;
-  color: white;
-  padding: 15px;
-  text-align: right;
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 20px;
-}
-
-/* NOTAS */
-.quote-notes {
-  margin-top: 20px;
-  border-left: 4px solid #ff6f00;
-  padding: 10px;
-  background: #fafafa;
-}
-
-/* FOOTER */
-.quote-footer {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-top: 40px;
-}
-
-@media print {
-  .no-print { display: none !important; }
-  .modal-fixed-overlay { position: relative; background: white; }
-  .modal-box-card { box-shadow: none; width: 100%; max-height: none; }
-  body { visibility: hidden; }
-  .cotizacion-container, .cotizacion-container * { visibility: visible; }
-  .cotizacion-container { position: absolute; left: 0; top: 0; }
-}
-
-body {
-  background: #f5f5f5;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden; /* solo bloquea horizontal */
-  overflow-y: auto; 
-}
-.tt-container {
-  min-height: 100vh;
-  overflow-y: auto;
-}
-
-/* CONTENEDOR */
+/* Contenedor de la Cotización Estilo Factura */
 .cotizacion-container {
-  width: 100%;
-  max-width: 1000px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  color: #000;
-  box-sizing: border-box;
-    max-height: none; /* 👈 importante */
-  overflow: visible;
+    padding: 20px;
+    background: #fff;
+    color: #000;
 }
 
-/* HEADER */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap; /* 👈 clave responsive */
-  gap: 15px;
-}
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.info-cliente p { color: #ff4d00; font-weight: bold; margin: 0; }
+.fecha-box { background: #000; color: #fff; padding: 10px; text-align: center; min-width: 200px; }
+.fecha-box span { color: #ff4d00; font-size: 12px; }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-}
+.linea { height: 3px; background: #ff4d00; margin: 15px 0; }
 
-.logo {
-  width: 80px;
-}
+/* Tabla interna del Modal */
+.tabla { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.tabla th { background: #000; color: #fff; padding: 10px; font-size: 13px; }
+.tabla td { border: 1px solid #ccc; padding: 10px; font-size: 13px; text-align: center; }
 
-/* TEXTO */
-.info-cliente p {
-  margin: 0;
-  color: #ff4d00;
-  font-weight: bold;
-  font-size: 14px;
-}
+.subtotal { background: #ff4d00; color: white; font-weight: bold; }
+.total-final td { background: #000; color: white; font-weight: bold; }
 
-.info-cliente h2 {
-  margin: 5px 0;
-  font-size: 18px;
-}
+.notas { margin-top: 20px; font-size: 12px; }
+.fiscales { border-top: 3px solid #ff4d00; margin-top: 20px; padding-top: 10px; }
+.fiscales h3 { background: #ff4d00; color: white; padding: 5px 10px; display: inline-block; }
 
-.info-cliente h3 {
-  margin: 5px 0;
-  font-size: 16px;
-}
+/* ==========================================================================
+   5. BOTONES Y EXTRAS
+   ========================================================================== */
+.modal-footer-btns { padding: 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
+.btn-modal-print { background: #333; color: white; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
+.btn-modal-close { background: #aaa; color: white; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; }
 
-/* FECHA */
-.header-right {
-  width: 100%;
-  max-width: 250px;
-}
+.back-arrow-fixed { position: fixed; bottom: 30px; left: 40px; background: none; border: none; font-size: 3rem; cursor: pointer; z-index: 100; }
 
-.fecha-box {
-  background: #000;
-  color: white;
-  padding: 10px;
-  text-align: center;
-  width: 100%;
-}
-
-.fecha-box span {
-  font-size: 12px;
-  color: #ff4d00;
-}
-
-.fecha-box p {
-  margin: 5px 0 0;
-  font-size: 14px;
-}
-
-/* LINEA */
-.linea {
-  height: 3px;
-  background: #ff4d00;
-  margin: 20px 0;
-}
-
-/* TABLA RESPONSIVA */
-.tabla-container {
-  width: 100%;
-  overflow-x: auto; /* 👈 scroll en móvil */
-}
-
-.tabla {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px; /* 👈 evita que se rompa */
-}
-
-.tabla th {
-  background: #000;
-  color: white;
-  padding: 10px;
-  font-size: 13px;
-}
-
-.tabla td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  font-size: 13px;
-  vertical-align: top;
-}
-
-.tabla td:nth-child(1),
-.tabla td:nth-child(3),
-.tabla td:nth-child(4),
-.tabla td:nth-child(5),
-.tabla td:nth-child(6) {
-  text-align: center;
-}
-
-/* TOTALES */
-.totales .label {
-  font-weight: bold;
-  text-align: right;
-}
-
-.subtotal {
-  background: #ff4d00;
-  color: white;
-  font-weight: bold;
-}
-
-.total-final td {
-  background: #000;
-  color: white;
-  font-weight: bold;
-}
-
-/* NOTAS */
-.notas {
-  margin-top: 20px;
-}
-
-.notas ul {
-  padding-left: 18px;
-}
-
-.notas li {
-  margin-bottom: 6px;
-  font-size: 13px;
-}
-
-/* FISCALES */
-.fiscales {
-  margin-top: 20px;
-  border-top: 3px solid #ff4d00;
-  padding-top: 10px;
-}
-
-.fiscales h3 {
-  background: #ff4d00;
-  color: white;
-  display: inline-block;
-  padding: 5px 10px;
-  font-size: 14px;
-}
-
-.fiscales p {
-  margin: 4px 0;
-  font-size: 13px;
-}
-
-/* 📱 MOBILE */
-@media (max-width: 600px) {
-  .logo {
-    width: 60px;
-  }
-
-  .info-cliente h2 {
-    font-size: 16px;
-  }
-
-  .info-cliente h3 {
-    font-size: 14px;
-  }
-
-  .fecha-box {
-    font-size: 12px;
-  }
-
-  .tabla th,
-  .tabla td {
-    font-size: 12px;
-    padding: 8px;
-  }
-}
-
-/* 🖨️ PRINT */
+/* ==========================================================================
+   6. REGLAS DE IMPRESIÓN (LIMPIEZA TOTAL)
+   ========================================================================== */
 @media print {
-  body {
-    background: white;
-  }
-
-  .cotizacion-container {
-    max-width: 100%;
-    padding: 10px;
-  }
-
-  .tabla-container {
-    overflow: visible;
-  }
-}
-.tabla-container {
-  width: 100%;
-}
-
-/* DESKTOP */
-.tabla-header {
-  display: grid;
-  grid-template-columns: 60px 1fr 80px 80px 120px 120px;
-  background: #000;
-  color: white;
-  font-weight: bold;
-  padding: 10px;
-}
-
-.fila {
-  display: grid;
-  grid-template-columns: 60px 1fr 80px 80px 120px 120px;
-  border-bottom: 1px solid #ccc;
-  padding: 10px;
-}
-
-.fila div {
-  padding: 5px;
-}
-
-/* TOTALES */
-.totales-box {
-  margin-top: 10px;
-  text-align: right;
-}
-
-.totales-box div {
-  margin: 5px 0;
-}
-
-.totales-box .total {
-  background: #000;
-  color: white;
-  padding: 8px;
-  font-weight: bold;
-}
-
-/* 📱 MOBILE */
-@media (max-width: 768px) {
-
-  .tabla-header {
-    display: none; /* 👈 ocultamos encabezado */
-  }
-
-  .fila {
-    display: block;
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
-    padding: 10px;
-  }
-
-  .fila div {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #eee;
-    padding: 6px 0;
-  }
-
-  .fila div::before {
-    content: attr(data-label);
-    font-weight: bold;
-    color: #ff4d00;
-  }
-
-  .totales-box {
-    text-align: left;
-  }
-
+    .no-print, .modal-header-dark, .modal-footer-btns, .back-arrow-fixed, .top-bar-orange, .top-bar-black, .cotiz-header {
+        display: none !important;
+    }
+    
+    body { background: white !important; }
+    
+    .modal-fixed-overlay { position: absolute; top: 0; background: white; }
+    .modal-box-card { width: 100%; max-height: none; box-shadow: none; }
+    
+    .cotizacion-container {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        visibility: visible;
+    }
 }
