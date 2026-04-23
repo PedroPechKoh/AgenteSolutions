@@ -99,7 +99,7 @@ const VistaUsuarios = () => {
 
       <Header rolTexto="ADMINISTRACIÓN DE USUARIOS" />
 
-      <section className="content-area" style={{ padding: '10px' }}>
+      <section className="content-area" style={{ padding: '10px', overflowX: 'hidden'}}>
         
         {/* FILTROS ADAPTADOS PARA MÓVIL */}
         <div className="filter-grid" style={{ 

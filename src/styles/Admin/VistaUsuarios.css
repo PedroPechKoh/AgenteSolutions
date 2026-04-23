@@ -42,13 +42,7 @@
 /* =========================================
    2. FILTROS RESPONSIVOS (CORREGIDO)
    ========================================= */
-.filter-grid { 
-    display: flex; 
-    flex-wrap: wrap; /* Permite que los botones bajen si no caben */
-    justify-content: center; 
-    gap: 10px; 
-    margin-bottom: 25px; 
-}
+
 
 .filter-item {
     background: #f9f9f9;
@@ -62,6 +56,8 @@
     font-weight: 600;
     font-size: 0.75rem; /* Fuente más pequeña para móviles */
     transition: 0.3s;
+    flex: 1 1 120px;       /* Los botones crecen y se ajustan solos */
+    max-width: 150px;
 }
 
 .filter-item.active { border: 2px solid #ff8800; background: #fff; }
@@ -73,7 +69,7 @@
 
 .search-input-container {
     position: relative;
-    width: 100%; /* Ocupa todo el ancho en móviles */
+  width: 95%;            /* Un poco menos del 100% para dejar margen */
     max-width: 900px;
 }
 
@@ -92,21 +88,31 @@
    4. TABLA RESPONSIVA (EL CAMBIO CLAVE)
    ========================================= */
 .table-wrapper-scroll {
-    width: 100%;
+   width: 100%;             /* Ocupa todo el ancho disponible */
     margin: 0 auto 40px;
-    max-height: 500px;
-    overflow-y: auto; /* Scroll vertical para el cuerpo */
-    overflow-x: auto; /* SCROLL HORIZONTAL para que la tabla no se corte */
+    max-height: 450px;
+    overflow-y: auto;        /* Scroll vertical para el contenido */
+    overflow-x: auto;        /* ¡ESTO ES LO IMPORTANTE! Permite scroll lateral */
+    display: block;          /* Asegura que se comporte como un bloque deslizable */
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     background: white;
-    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+    white-space: nowrap; /* Scroll suave en iOS */
 }
 
-.modern-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    min-width: 700px; /* Fuerza a la tabla a no comprimirse demasiado */
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;       /* FORZAMOS un ancho mínimo para que aparezca el scroll en celular */
+}
+
+/* Ajuste para los filtros para que no se amontonen en móvil */
+.filter-grid {
+    display: flex;
+    flex-wrap: wrap;        /* Si no caben, bajan a la siguiente fila */
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .modern-table th {
