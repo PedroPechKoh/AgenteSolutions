@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import "../../styles/Admin/VistaCotizacionPrint.css";
-import logo from "../../assets/Logo4.png";
+// (Opcional) Si usas el logo aquí, déjalo, pero quité el import del CSS de impresión que no va en esta pantalla.
+import logo from "../../assets/Logo4.png"; 
 
 const VistaCotizaciones = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
@@ -70,11 +70,21 @@ const VistaCotizaciones = () => {
       setMotivoRechazo('');
       cargarCotizaciones();
     } catch (error) {
-  alert("Error al procesar la cotización.");
-} finally {
+      alert("Error al procesar la cotización.");
+    } finally {
       setProcesando(false);
     }
   };
+
+  // 👇 ESTA ES LA FUNCIÓN VITAL QUE TE FALTABA 👇
+  const handleImprimirPDF = () => {
+    // Guardamos los datos temporalmente
+    localStorage.setItem('cotizacion_para_imprimir', JSON.stringify(cotizacionSeleccionada));
+    
+    // Abrimos la vista en una NUEVA PESTAÑA
+    window.open('/imprimir-cotizacion', '_blank'); 
+  };
+  // 👆 👆 👆
 
   return (
     <div className="cotiz-page">
@@ -145,7 +155,7 @@ const VistaCotizaciones = () => {
 
       {cotizacionSeleccionada && (
         <div className="modal-fixed-overlay" onClick={() => setCotizacionSeleccionada(null)}>
-         
+          
           <div className="modal-box-card" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
             
             <div className="modal-header-dark" style={{ flexShrink: 0 }}>
@@ -297,8 +307,8 @@ const VistaCotizaciones = () => {
 
                 <div style={{ display: 'flex', gap: '10px' }}>
                   {cotizacionSeleccionada.tipo !== 'archivo' && (
-  <button className="btn-modal-print" onClick={handleImprimirPDF}>🖨️ PDF</button>
-)}
+                    <button className="btn-modal-print" onClick={handleImprimirPDF}>🖨️ PDF</button>
+                  )}
                   <button className="btn-modal-close" onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>CERRAR</button>
                 </div>
             </div>
