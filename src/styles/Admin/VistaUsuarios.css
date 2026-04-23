@@ -100,22 +100,22 @@
 
 /* 🔥 CLAVE: hace que aparezca el scroll horizontal */
 .modern-table, .custom-table {
-    width: max-content;
-    min-width: 1200px;
+    width: 100%;
     border-collapse: collapse;
+    background: white;
+    text-align: center;
 }
 
 /* Header fijo */
 .modern-table th, .custom-table th {
-    background: #1a1a1a;
+     background: #222; /* Negro sólido */
     color: white;
     padding: 15px;
-
+    font-size: 0.85rem;
+    text-transform: uppercase;
     position: sticky;
     top: 0;
-    z-index: 20;
-
-    white-space: nowrap;
+    z-index: 10;
 }
 
 /* Celdas */
@@ -185,7 +185,7 @@
     transform: scale(1.05); 
 }
 
-/* =========================================
+/* ========================================
    5. MOBILE
    ========================================= */
 @media (max-width: 768px) {
