@@ -96,7 +96,7 @@ const VistaUsuarios = () => {
   };
 
   return (
-    <div className="main-container bg-light">
+    <div className="main-container-users bg-light">
       <div className="top-bar-orange" />
       <div className="top-bar-black" />
 
