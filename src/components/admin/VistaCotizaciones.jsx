@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../Shared/Header'; 
-import UniversalSearch from '../Shared/UniversalSearch'; 
 import '../../styles/Admin/VistaCotizaciones.css';
+import logo from "../../assets/Logo4.png";
 
 const VistaCotizaciones = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
-  const [cotizacionesFiltradas, setCotizacionesFiltradas] = useState([]); 
   const [cargando, setCargando] = useState(true);
 
   const [filtro, setFiltro] = useState('Pendiente');
+  const [busqueda, setBusqueda] = useState('');
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
 
   const [esCliente, setEsCliente] = useState(false);
@@ -23,7 +22,7 @@ const VistaCotizaciones = () => {
       if (session?.userData?.role_id === 3) {
         setEsCliente(true);
       }
-    } catch {}
+    } catch(e) {}
     cargarCotizaciones();
   }, []);
 
@@ -37,6 +36,17 @@ const VistaCotizaciones = () => {
       setCargando(false);
     }
   };
+
+  const filtradas = cotizaciones.filter(c => {
+    const coincideFiltro = 
+      (filtro === 'Pendiente' && (c.estado === 'Pendiente' || c.estado === 'En proceso')) ||
+      (filtro === 'Aprobado' && c.estado === 'Aprobado') ||
+      (filtro === 'Rechazado' && c.estado === 'Rechazado');
+
+    const coincideBusqueda = c.cliente.toLowerCase().includes(busqueda.toLowerCase()) || 
+                             c.folio.includes(busqueda);
+    return coincideFiltro && coincideBusqueda;
+  });
 
   const verPantallaCompleta = (url) => {
     window.open(url, '_blank');
@@ -59,7 +69,7 @@ const VistaCotizaciones = () => {
       setRechazando(false);
       setMotivoRechazo('');
       cargarCotizaciones();
-    } catch {
+    } catch() {
       alert("Error al procesar la cotización.");
     } finally {
       setProcesando(false);
@@ -67,32 +77,32 @@ const VistaCotizaciones = () => {
   };
 
   return (
-    <div className="main-container bg-light">
+    <div className="cotiz-page">
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
-      <Header rolTexto="COTIZACIONES" />
+      <header className="cotiz-header">
+        <img src={logo} alt="Logo" className="logo-top-left" />
+      </header>
 
-      <section className="content-area">
-        
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
-          
-          <div className="cotiz-tabs-row" style={{ margin: 0 }}>
-            <button className={`cotiz-tab-btn ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>📩 NUEVAS</button>
-            <button className={`cotiz-tab-btn ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>✅ APROBADAS</button>
-            <button className={`cotiz-tab-btn ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>❌ RECHAZADAS</button>
-          </div>
-
-          <div style={{ width: '100%', maxWidth: '900px' }}>
-            <UniversalSearch
-              type="COTIZACIONES"
-              data={cotizaciones}
-              setFilteredData={setCotizacionesFiltradas}
-              filtroActual={filtro}
-              placeholder="BUSCAR CLIENTE O FOLIO..."
+      <main className="cotiz-main-content">
+        <div className="cotiz-search-wrapper">
+          <div className="cotiz-search-bar">
+            <input 
+              type="text" 
+              placeholder="BUSCAR CLIENTE O FOLIO..." 
+              className="cotiz-input-field"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
             />
+            <span className="cotiz-search-icon">🔍</span>
           </div>
+        </div>
 
+        <div className="cotiz-tabs-row">
+          <button className={`cotiz-tab-btn ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>📩 NUEVAS</button>
+          <button className={`cotiz-tab-btn ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>✅ APROBADAS</button>
+          <button className={`cotiz-tab-btn ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>❌ RECHAZADAS</button>
         </div>
 
         <div className="cotiz-table-container">
@@ -108,8 +118,8 @@ const VistaCotizaciones = () => {
             <tbody>
               {cargando ? (
                 <tr><td colSpan="4" className="no-data">Cargando cotizaciones...</td></tr>
-              ) : cotizacionesFiltradas.length > 0 ? (
-                cotizacionesFiltradas.map((c) => (
+              ) : filtradas.length > 0 ? (
+                filtradas.map((c) => (
                   <tr key={c.id}>
                     <td className="bold-folio">{c.folio}</td>
                     <td className="cliente-name">{c.cliente}</td>
@@ -131,11 +141,11 @@ const VistaCotizaciones = () => {
             </tbody>
           </table>
         </div>
-      </section>
+      </main>
 
-      {/* ✅ MODAL DE DETALLES */}
       {cotizacionSeleccionada && (
         <div className="modal-fixed-overlay" onClick={() => setCotizacionSeleccionada(null)}>
+         
           <div className="modal-box-card" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
             
             <div className="modal-header-dark" style={{ flexShrink: 0 }}>
@@ -152,10 +162,11 @@ const VistaCotizaciones = () => {
                 </div>
 
                 {cotizacionSeleccionada.tipo === 'archivo' ? (
+                  
                   <div style={{ position: 'relative', background: '#e0e0e0', padding: '15px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '350px' }}>
                     
                     {cotizacionSeleccionada.archivo_url && (
-                      <button
+                      <button 
                         onClick={() => verPantallaCompleta(cotizacionSeleccionada.archivo_url)}
                         title="Ver en pantalla completa"
                         style={{
@@ -173,81 +184,37 @@ const VistaCotizaciones = () => {
 
                     {cotizacionSeleccionada.archivo_url ? (
                       cotizacionSeleccionada.archivo_url.endsWith('.pdf') ? (
-                        <iframe
-                          src={cotizacionSeleccionada.archivo_url}
+                        <iframe 
+                          src={cotizacionSeleccionada.archivo_url} 
                           title="Vista previa del documento"
                           style={{ width: '100%', height: '50vh', border: 'none', borderRadius: '4px', background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                         />
                       ) : (
-                        <img
-                          src={cotizacionSeleccionada.archivo_url}
-                          alt="Cotización"
-                          style={{ maxWidth: '100%', maxHeight: '50vh', objectFit: 'contain', borderRadius: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                        <img 
+                          src={cotizacionSeleccionada.archivo_url} 
+                          alt="Cotización" 
+                          style={{ maxWidth: '100%', maxHeight: '50vh', objectFit: 'contain', borderRadius: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} 
                         />
                       )
                     ) : (
                       <p style={{ color: 'red', padding: '30px' }}>El archivo no se encuentra disponible.</p>
                     )}
                   </div>
+
                 ) : (
+                  
                   <>
                     <table className="modal-items-table">
                       <thead>
                         <tr>
-                          <th>Descripción del Servicio</th>
+                          <th>Descripción</th>
                           <th style={{ textAlign: 'center' }}>Total Estimado</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
-                          <td>
-                            {(() => {
-                              try {
-                                const detalle = typeof cotizacionSeleccionada.concepto === 'string' 
-                                                ? JSON.parse(cotizacionSeleccionada.concepto) 
-                                                : cotizacionSeleccionada.concepto;
-                                
-                                if (!detalle || typeof detalle !== 'object' || !detalle.conceptos) {
-                                  return <span>{String(cotizacionSeleccionada.concepto)}</span>;
-                                }
-
-                                return (
-                                  <div style={{ textAlign: 'left', fontSize: '0.9rem', lineHeight: '1.4' }}>
-                                    
-                                    {detalle.conceptos && detalle.conceptos.length > 0 && detalle.conceptos.some(c => c.descripcion) && (
-                                      <div style={{ marginBottom: '10px' }}>
-                                        <strong style={{ color: '#FF6600' }}>Conceptos / Mano de Obra:</strong>
-                                        <ul style={{ margin: '5px 0', paddingLeft: '20px', color: '#444' }}>
-                                          {detalle.conceptos.filter(c => c.descripcion).map((item, idx) => (
-                                            <li key={idx}>
-                                              {item.descripcion} (Cant: {item.cantidad}) - ${item.precio_u} c/u
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-
-                                    {detalle.materiales && detalle.materiales.length > 0 && detalle.materiales.some(m => m.nombre) && (
-                                      <div style={{ marginBottom: '10px' }}>
-                                        <strong style={{ color: '#FF6600' }}>Materiales:</strong>
-                                        <ul style={{ margin: '5px 0', paddingLeft: '20px', color: '#444' }}>
-                                          {detalle.materiales.filter(m => m.nombre).map((item, idx) => (
-                                            <li key={idx}>
-                                              {item.nombre} (Cant: {item.cantidad}) - ${item.costo_u} c/u
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-
-                                  </div>
-                                );
-                              } catch (e) {
-                                return <span>{String(cotizacionSeleccionada.concepto)}</span>;
-                              }
-                            })()}
-                          </td>
-                          <td style={{ textAlign: 'center', fontWeight: 'bold', verticalAlign: 'top', paddingTop: '15px' }}>
+                          <td>{cotizacionSeleccionada.concepto}</td>
+                          <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
                             ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}
                           </td>
                         </tr>
@@ -274,7 +241,7 @@ const VistaCotizaciones = () => {
                     <label style={{ fontWeight: 'bold', color: '#b71c1c', display: 'block', marginBottom: '8px' }}>
                       Motivo del rechazo:
                     </label>
-                    <textarea
+                    <textarea 
                       style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ffcdd2', outline: 'none' }}
                       rows="3"
                       placeholder="Escribe por qué rechazas la cotización..."
@@ -290,17 +257,17 @@ const VistaCotizaciones = () => {
                 <div style={{ display: 'flex', gap: '10px' }}>
                   {esCliente && cotizacionSeleccionada.estado === 'Pendiente' && !rechazando && (
                     <>
-                      <button
-                        className="btn-modal-print"
-                        style={{ background: '#2e7d32', color: 'white' }}
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#2e7d32', color: 'white' }} 
                         onClick={() => procesarCotizacion('Aprobado')}
                         disabled={procesando}
                       >
                         ✓ ACEPTAR COTIZACIÓN
                       </button>
-                      <button
-                        className="btn-modal-print"
-                        style={{ background: '#c62828', color: 'white' }}
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#c62828', color: 'white' }} 
                         onClick={() => setRechazando(true)}
                       >
                         ✕ RECHAZAR
@@ -309,17 +276,17 @@ const VistaCotizaciones = () => {
                   )}
                   {esCliente && rechazando && (
                     <>
-                      <button
-                        className="btn-modal-print"
-                        style={{ background: '#c62828', color: 'white' }}
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#c62828', color: 'white' }} 
                         onClick={() => procesarCotizacion('Rechazado')}
                         disabled={procesando}
                       >
                         CONFIRMAR RECHAZO
                       </button>
-                      <button
-                        className="btn-modal-print"
-                        style={{ background: '#757575', color: 'white' }}
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#757575', color: 'white' }} 
                         onClick={() => { setRechazando(false); setMotivoRechazo(''); }}
                       >
                         CANCELAR
@@ -339,9 +306,7 @@ const VistaCotizaciones = () => {
         </div>
       )}
 
-      {/* ✅ FLECHA DE REGRESO COLOCADA CORRECTAMENTE FUERA DEL MODAL */}
-      <button className="back-arrow-fixed no-print" onClick={() => window.history.back()}>←</button>
-
+      <button className="back-arrow-fixed" onClick={() => window.history.back()}>←</button>
     </div>
   );
 };
