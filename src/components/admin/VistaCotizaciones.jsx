@@ -240,8 +240,6 @@ const VistaCotizaciones = () => {
                                       </div>
                                     )}
 
-                                    {/* ❌ HERRAMIENTAS OMITIDAS A PETICIÓN ❌ */}
-
                                   </div>
                                 );
                               } catch (e) {
@@ -340,6 +338,10 @@ const VistaCotizaciones = () => {
           </div>
         </div>
       )}
+
+      {/* ✅ FLECHA DE REGRESO COLOCADA CORRECTAMENTE FUERA DEL MODAL */}
+      <button className="back-arrow-fixed no-print" onClick={() => window.history.back()}>←</button>
+
     </div>
   );
 };
