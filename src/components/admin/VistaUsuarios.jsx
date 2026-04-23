@@ -76,9 +76,10 @@ const VistaUsuarios = () => {
       setListaUsuarios(prev => prev.map(u => u.id === id ? { 
         ...u, bloqueado: !u.bloqueado, estado: !u.bloqueado ? 'Inactivo' : 'Activo' 
       } : u));
-    } catch () {
-      alert("Error al procesar la solicitud.");
-    }
+    } catch (error) {
+  console.error("Error al procesar la solicitud:", error);
+  alert("Error al procesar la solicitud.");
+}
   };
 
   const eliminarUsuario = async (id, role_id) => {
@@ -88,9 +89,10 @@ const VistaUsuarios = () => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}`);
       setListaUsuarios(prev => prev.filter(u => u.id !== id));
-    } catch  {
-      alert("Hubo un problema al eliminar el usuario.");
-    }
+   } catch (error) {
+  console.error(error);
+  alert("Hubo un problema al eliminar el usuario.");
+}
   };
 
   return (
@@ -121,21 +123,21 @@ const VistaUsuarios = () => {
             </div>
           ))}
 
-          <div 
-            className="filter-item" 
-            onClick={() => navigate('/map')}
-            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600' }}
-          >
-            🗺️ VER MAPA
-          </div>
+         <div 
+  className="filter-item" 
+  onClick={() => navigate("/map")}
+  style={{ backgroundColor: "#fff4e6", border: "1px solid #FF6600", margin: 0, width: "100%" }}
+>
+  <span className="icon-box">🗺️</span> VER MAPA
+</div>
 
-          <div 
-            className="filter-item" 
-            onClick={() => navigate('/registro')}
-            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600' }}
-          >
-            📝 REGISTRAR
-          </div>
+<div 
+  className="filter-item" 
+  onClick={() => navigate("/registro")}
+  style={{ backgroundColor: "#fff4e6", border: "1px solid #FF6600", margin: 0, width: "100%" }}
+>
+  <span className="icon-box">📝</span> REGISTRAR
+</div>
         </div>
 
         <UniversalSearch 
