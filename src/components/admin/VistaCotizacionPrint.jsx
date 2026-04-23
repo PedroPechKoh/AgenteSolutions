@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from 'axios';
 import "../../styles/Admin/VistaCotizacionPrint.css";
 import logo from "../../assets/Logo3.png"; 
+import html2pdf from 'html2pdf.js';
 
 const VistaCotizacionPrint = () => {
   const [cotizacion, setCotizacion] = useState(null);
