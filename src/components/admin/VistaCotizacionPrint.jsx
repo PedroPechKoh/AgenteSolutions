@@ -10,19 +10,7 @@ const VistaCotizacionPrint = () => {
   const [guardando, setGuardando] = useState(false);
 
   // --- ESTADOS PARA LAS ESPECIFICACIONES ---
-  // Ahora el estado inicial es un string vacío como solicitaste
   const [notas, setNotas] = useState("");
-  
-  const [opcionesTitulos, setOpcionesTitulos] = useState([
-    "OBSERVACIONES", 
-    "ESPECIFICACIONES", 
-    "TÉRMINOS Y CONDICIONES", 
-    "NOTAS IMPORTANTES"
-  ]);
-  const [tituloNotas, setTituloNotas] = useState("ESPECIFICACIONES");
-  
-  const [modoNuevoTitulo, setModoNuevoTitulo] = useState(false);
-  const [nuevoTitulo, setNuevoTitulo] = useState("");
 
   useEffect(() => {
     const datosGuardados = localStorage.getItem('cotizacion_para_imprimir');
@@ -30,8 +18,6 @@ const VistaCotizacionPrint = () => {
     if (datosGuardados) {
       const data = JSON.parse(datosGuardados);
       setCotizacion(data);
-
-      // ❌ Se eliminó la carga automática de data.observaciones para que el cuadro esté vacío
 
       let items = [];
       try {
@@ -59,57 +45,47 @@ const VistaCotizacionPrint = () => {
     }
   }, []);
 
-const handleGenerarPDF = async () => {
-  setGuardando(true);
-  
-  // 1. Configuración del PDF
-  const elemento = document.getElementById('cotizacion-pdf');
-  const opciones = {
-    margin: 0,
-    filename: `cotizacion_${cotizacion.folio}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true }, // useCORS es vital para que salga el logo de Cloudinary
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-
-  try {
-    // 2. Generar el PDF como un "Blob" (archivo en memoria)
-    const pdfBlob = await html2pdf().set(opciones).from(elemento).output('blob');
-
-    // 3. Preparar el envío (FormData)
-    const formData = new FormData();
-    formData.append('pdf', pdfBlob, `cotizacion_${cotizacion.folio}.pdf`);
-    formData.append('observaciones', notas);
-    formData.append('titulo_seccion', tituloNotas);
-
-    // 4. Enviar a Laravel
-    const respuesta = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/finalizar`, 
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
-    );
-
-    alert("¡Cotización generada, guardada en la base de datos y subida a Cloudinary!");
+  const handleGenerarPDF = async () => {
+    setGuardando(true);
     
-    // Opcional: abrir el PDF recién creado en otra pestaña
-    window.open(respuesta.data.url, '_blank');
+    // 1. Configuración del PDF
+    const elemento = document.getElementById('cotizacion-pdf');
+    const opciones = {
+      margin: 0,
+      filename: `cotizacion_${cotizacion.folio}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true }, // useCORS es vital para que salga el logo de Cloudinary
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
 
-  } catch (error) {
-    console.error("Error en el proceso:", error);
-    alert("Hubo un error al procesar el archivo.");
-  } finally {
-    setGuardando(false);
-  }
-};
+    try {
+      // 2. Generar el PDF como un "Blob" (archivo en memoria)
+      const pdfBlob = await html2pdf().set(opciones).from(elemento).output('blob');
 
-  const handleAgregarTitulo = () => {
-    if (nuevoTitulo.trim() !== "") {
-      const tituloMayusculas = nuevoTitulo.toUpperCase();
-      setOpcionesTitulos([...opcionesTitulos, tituloMayusculas]);
-      setTituloNotas(tituloMayusculas);
+      // 3. Preparar el envío (FormData)
+      const formData = new FormData();
+      formData.append('pdf', pdfBlob, `cotizacion_${cotizacion.folio}.pdf`);
+      formData.append('observaciones', notas);
+      formData.append('titulo_seccion', 'ESPECIFICACIONES'); // Título fijo enviado al backend
+
+      // 4. Enviar a Laravel
+      const respuesta = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/finalizar`, 
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+
+      alert("¡Cotización generada, guardada en la base de datos y subida a Cloudinary!");
+      
+      // Opcional: abrir el PDF recién creado en otra pestaña
+      window.open(respuesta.data.url, '_blank');
+
+    } catch (error) {
+      console.error("Error en el proceso:", error);
+      alert("Hubo un error al procesar el archivo.");
+    } finally {
+      setGuardando(false);
     }
-    setModoNuevoTitulo(false);
-    setNuevoTitulo("");
   };
 
   if (!cotizacion) {
@@ -203,31 +179,8 @@ const handleGenerarPDF = async () => {
         </div>
 
         <div className="notas">
-          <div className="no-print" style={{ marginBottom: '10px', padding: '12px', background: '#fff5e6', border: '1px dashed #FF6600', borderRadius: '6px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-             <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Título:</span>
-             {!modoNuevoTitulo ? (
-               <>
-                 <select 
-                   value={tituloNotas} 
-                   onChange={(e) => setTituloNotas(e.target.value)}
-                   style={{ padding: '5px', borderRadius: '4px' }}
-                 >
-                   {opcionesTitulos.map((op, idx) => (
-                     <option key={idx} value={op}>{op}</option>
-                   ))}
-                 </select>
-                 <button onClick={() => setModoNuevoTitulo(true)} style={{ background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' }}>+</button>
-               </>
-             ) : (
-               <>
-                 <input type="text" value={nuevoTitulo} onChange={(e) => setNuevoTitulo(e.target.value)} placeholder="Nuevo título..." style={{ padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }} />
-                 <button onClick={handleAgregarTitulo} style={{ background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' }}>Aceptar</button>
-               </>
-             )}
-          </div>
-
           <h4 style={{ color: '#FF6600', marginBottom: '8px', textTransform: 'uppercase', fontSize: '1rem', borderBottom: '2px solid #FF6600', paddingBottom: '4px', display: 'inline-block' }}>
-            {tituloNotas}
+            ESPECIFICACIONES
           </h4>
 
           <textarea 
