@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../Shared/Header'; 
-import UniversalSearch from '../Shared/UniversalSearch'; // ✅ IMPORTAMOS EL SUPERBUSCADOR
+import UniversalSearch from '../Shared/UniversalSearch'; 
 import '../../styles/Admin/VistaCotizaciones.css';
 
 const VistaCotizaciones = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
-  const [cotizacionesFiltradas, setCotizacionesFiltradas] = useState([]); // ✅ ESTADO PARA EL BUSCADOR
+  const [cotizacionesFiltradas, setCotizacionesFiltradas] = useState([]); 
   const [cargando, setCargando] = useState(true);
 
   const [filtro, setFiltro] = useState('Pendiente');
@@ -71,6 +71,7 @@ const VistaCotizaciones = () => {
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
+      {/* ✅ HEADER INTEGRADO */}
       <Header rolTexto="COTIZACIONES" />
 
       <main className="cotiz-main-content">
@@ -82,14 +83,16 @@ const VistaCotizaciones = () => {
           <button className={`cotiz-tab-btn ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>❌ RECHAZADAS</button>
         </div>
 
-        {/* ✅ SUPERBUSCADOR INTEGRADO */}
-        <UniversalSearch
-          type="COTIZACIONES"
-          data={cotizaciones}
-          setFilteredData={setCotizacionesFiltradas}
-          filtroActual={filtro}
-          placeholder="BUSCAR CLIENTE O FOLIO..."
-        />
+        {/* ✅ SUPERBUSCADOR CON TAMAÑO FORZADO */}
+        <div style={{ width: '100%', maxWidth: '900px', margin: '20px auto' }}>
+          <UniversalSearch
+            type="COTIZACIONES"
+            data={cotizaciones}
+            setFilteredData={setCotizacionesFiltradas}
+            filtroActual={filtro}
+            placeholder="BUSCAR CLIENTE O FOLIO..."
+          />
+        </div>
 
         <div className="cotiz-table-container">
           <table className="cotiz-data-table">
@@ -129,6 +132,7 @@ const VistaCotizaciones = () => {
         </div>
       </main>
 
+      {/* ✅ MODAL DE DETALLES (Mantenido intacto) */}
       {cotizacionSeleccionada && (
         <div className="modal-fixed-overlay" onClick={() => setCotizacionSeleccionada(null)}>
           <div className="modal-box-card" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
