@@ -1,33 +1,6 @@
 /* =========================================
    1. LAYOUT PRINCIPAL Y CONTENEDORES
    ========================================= */
-/* =========================================
-   1. LAYOUT Y HEADER (BOTÓN REGRESAR)
-   ========================================= */
-
-   /* NUEVOS ESTILOS PARA FOTO DE PERFIL CIRCULAR */
-.avatar-circle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid #ddd;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f9f9f9;
-}
-
-.perfil-photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.perfil-icon-generico {
-  font-size: 1.5rem;
-  color: #ccc;
-}
 
 .bg-light { 
     background-color: #ffffff; 
@@ -36,479 +9,193 @@
     margin: 0;
 }
 
-.modern-table td {
-    padding: 15px;
-    border-bottom: 1px solid #f0f0f0;
-    text-align: center;
-    vertical-align: middle;
-    color: #333333; 
-    font-weight: 500;
-}
-
 .top-bar-orange { height: 8px; background: #ff8800; width: 100%; }
 .top-bar-black { height: 40px; background: #1a1a1a; width: 100%; margin-bottom: 20px; }
 
-.header-admin {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 50px;
-    align-items: center;
+/* Contenedor de contenido con padding adaptable */
+.content-area {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.logo-small { height: 60px; }
-
-/* FIX: BOTÓN REGRESAR VISIBLE Y ANIMADO */
-.back-oval-btn {
+/* AVATAR */
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 38px;
-    width: 38px;
-    padding: 0;
-    border-radius: 50px;
-    border: 1px solid #d1d5db;
-    background: white;
-    color: #374151;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background-color: #f9f9f9;
+    margin: 0 auto;
 }
 
-.back-oval-btn .close-icon {
-    min-width: 20px;
-    transition: transform 0.4s ease, color 0.4s ease;
-}
-
-.back-oval-btn .back-text {
-    max-width: 0;
-    opacity: 0;
-    white-space: nowrap;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.back-oval-btn:hover {
-    width: 120px; /* Expandir a tamaño completo para mostrar texto */
-    background-color: #1a1a1a; /* Estilo FORMAL combinando con el top-bar */
-    border-color: #1a1a1a;
-    color: white;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-
-.back-oval-btn:hover .close-icon {
-    transform: rotate(90deg);
-    color: white;
-}
-
-.back-oval-btn:hover .back-text {
-    max-width: 80px;
-    opacity: 1;
-    margin-left: 8px; /* Espacio entre el icono y el texto */
-    color: white;
+.perfil-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 /* =========================================
-   2. FILTROS Y BUSCADOR
+   2. FILTROS RESPONSIVOS (CORREGIDO)
    ========================================= */
-.filter-grid { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+
 
 .filter-item {
     background: #f9f9f9;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    width: 110px;
-    padding: 12px 5px;
+    width: 100px; /* Un poco más angosto para móviles */
+    padding: 10px 5px;
     text-align: center;
     cursor: pointer;
     color: #333;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.75rem; /* Fuente más pequeña para móviles */
+    transition: 0.3s;
+    flex: 1 1 120px;       /* Los botones crecen y se ajustan solos */
+    max-width: 150px;
 }
 
 .filter-item.active { border: 2px solid #ff8800; background: #fff; }
 
-.search-wrapper-full { display: flex; justify-content: center; margin-bottom: 30px; }
+/* =========================================
+   3. BUSCADOR ADAPTABLE
+   ========================================= */
+.search-wrapper-full { display: flex; justify-content: center; margin-bottom: 30px; padding: 0 10px; }
 
 .search-input-container {
     position: relative;
-    width: 80%;
+  width: 95%;            /* Un poco menos del 100% para dejar margen */
     max-width: 900px;
 }
 
 .search-input-large {
     width: 100%;
-    padding: 14px 25px; 
+    padding: 12px 20px; 
     border-radius: 30px;
     border: 1px solid #ddd;
     background: #f2f2f2;
-    font-size: 1rem;
+    font-size: 0.95rem;
     outline: none;
-    color: #333333;
-    text-indent: 30px; 
-}
-
-.search-icon-inside {
-    position: absolute;
-    left: 20px; 
-    top: 50%;
-    transform: translateY(-50%);
-    color: #55acee;
-    font-size: 1.2rem;
-    pointer-events: none; 
+    text-indent: 10px; 
 }
 
 /* =========================================
-   3. TABLA CON SCROLL VERTICAL
+   4. TABLA RESPONSIVA (EL CAMBIO CLAVE)
    ========================================= */
 .table-wrapper-scroll {
-    width: 95%;
+   width: 100%;             /* Ocupa todo el ancho disponible */
     margin: 0 auto 40px;
     max-height: 450px;
-    overflow-y: auto;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
-
-.modern-table { width: 100%; border-collapse: collapse; background: white; }
-
-.modern-table th {
-    background: #1a1a1a;
-    color: white;
-    padding: 15px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    font-size: 0.8rem;
-}
-
-.modern-table td { padding: 15px; border-bottom: 1px solid #f0f0f0; text-align: center; }
-
-/* Scrollbar Naranja */
-.table-wrapper-scroll::-webkit-scrollbar { width: 8px; }
-.table-wrapper-scroll::-webkit-scrollbar-thumb { background: #ff8800; border-radius: 10px; }
-
-/* =========================================
-   4. ACCIONES (BOTONES ÓVALO)
-   ========================================= */
-.actions-cell { display: flex; align-items: center; justify-content: center; gap: 12px; }
-
-.btn-table-oval, .btn-table-oval-small {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #e0e0e0;
-    background: white;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn-table-oval { padding: 6px 18px; gap: 8px; min-width: 125px; }
-.btn-table-oval-small { width: 70px; height: 32px; }
-
-.oval-text { font-size: 0.85rem; color: #333; font-weight: 500; }
-
-/* ESTADOS */
-.is-unblocked:hover, .edit-oval:hover { border-color: #ff8800; color: #ff8800; }
-
-.is-blocked {
-    background-color: #ff8800 !important;
-    border-color: #ff8800 !important;
-}
-.is-blocked .oval-text, .is-blocked .oval-icon { color: white !important; }
-
-.delete-oval:hover { background-color: #333; border-color: #333; color: white; }
-
-/* BADGES */
-.badge-rol { padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
-.cliente { background: #e3f2fd; color: #1976d2; }
-.tecnico { background: #f3e5f5; color: #7b1fa2; }
-.admin { background: #fff3e0; color: #f57c00; }
-.root { background: #ffebee; color: #c62828; }
-
-.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
-.status-on { background: #2ecc71; }
-.status-off { background: #e74c3c; }
-
-.user-row-blocked td { color: #999; }
-.blocked-tag { background: #ff4d4d; color: white; font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
-
-/* =========================================
-   2. FILTROS Y BUSCADOR (ESTILO IMAGEN)
-   ========================================= */
-.filter-grid {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.filter-item {
-    background: #f9f9f9;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    width: 110px;
-    padding: 12px 5px;
-    text-align: center;
-    cursor: pointer;
-    transition: 0.3s;
-    color: #333;
-    font-weight: 600;
-    font-size: 0.85rem;
-}
-
-.filter-item.active {
-    border: 2px solid #ff8800;
-    background: #fff;
-}
-
-.icon-box { font-size: 1.5rem; display: block; margin-bottom: 4px; }
-.label-text { font-size: 0.8rem; font-weight: bold; color: #333; }
-
-.search-wrapper-full {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
-}
-
-.search-input-container {
-    position: relative;
-    width: 80%;
-    max-width: 900px;
-}
-
-.search-input-large {
-    width: 100%;
-    padding: 14px 25px;
-    border-radius: 30px;
-    border: 1px solid #ddd;
-    background: #f2f2f2;
-    font-size: 1rem;
-    outline: none;
-}
-
-.search-icon-inside {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #55acee; /* Azul de tu lupa */
-    font-size: 1.2rem;
-}
-
-/* =========================================
-   3. TABLA Y SCROLL VERTICAL (CORREGIDO)
-   ========================================= */
-.table-wrapper-scroll {
-    width: 95%;
-    margin: 0 auto 40px auto;
-    max-height: 450px; /* Altura para ver el contenido sin perder el header */
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow-y: auto;        /* Scroll vertical para el contenido */
+    overflow-x: auto;        /* ¡ESTO ES LO IMPORTANTE! Permite scroll lateral */
+    display: block;          /* Asegura que se comporte como un bloque deslizable */
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     background: white;
+    white-space: nowrap; /* Scroll suave en iOS */
 }
 
 .modern-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 850px;       /* FORZAMOS un ancho mínimo para que aparezca el scroll en celular */
+}
+
+/* Ajuste para los filtros para que no se amontonen en móvil */
+.filter-grid {
+    display: flex;
+    flex-wrap: wrap;        /* Si no caben, bajan a la siguiente fila */
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .modern-table th {
     background: #1a1a1a;
     color: white;
-    padding: 15px;
+    padding: 12px;
     position: sticky;
     top: 0;
     z-index: 10;
-    font-size: 0.8rem;
-    letter-spacing: 1px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
 }
 
 .modern-table td {
-    padding: 15px;
+    padding: 12px 10px;
     border-bottom: 1px solid #f0f0f0;
     text-align: center;
     vertical-align: middle;
+    font-size: 0.85rem;
 }
 
-/* Scrollbar Naranja Personalizado */
-.table-wrapper-scroll::-webkit-scrollbar { width: 8px; }
-.table-wrapper-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
-.table-wrapper-scroll::-webkit-scrollbar-thumb {
-    background: #ff8800;
-    border-radius: 10px;
+/* Evitar que el nombre y correo se rompan en mil líneas */
+.modern-table td:nth-child(2), 
+.modern-table td:nth-child(3) {
+    white-space: nowrap;
 }
 
 /* =========================================
-   4. BOTONES OVALADOS (DISEÑO EXACTO)
+   5. BOTONES Y ACCIONES
    ========================================= */
-.actions-cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+.actions-cell { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 8px; 
 }
 
-/* Óvalo base para todos los botones de la tabla */
-.btn-table-oval, .btn-table-oval-small {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #e0e0e0;
-    background: white;
+.btn-table-oval { 
+    padding: 6px 12px; 
+    gap: 5px; 
+    min-width: 100px; 
     border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s ease;
 }
 
-/* Botón Bloquear/Desbloquear */
-.btn-table-oval {
-    padding: 6px 18px;
-    gap: 8px;
-    min-width: 125px;
-}
+.btn-table-oval-small { width: 40px; height: 32px; border-radius: 50px; }
 
-.oval-text { font-size: 0.85rem; color: #333; font-weight: 500; }
-
-/* Botones Editar y Borrar (Óvalos más cortos) */
-.btn-table-oval-small {
-    width: 70px;
-    height: 32px;
-}
-
-/* ESTADOS DINÁMICOS */
-
-/* Usuario NORMAL -> Hover Naranja */
-.is-unblocked:hover, .edit-oval:hover {
-    border-color: #ff8800;
-    color: #ff8800;
-}
-
-/* Usuario BLOQUEADO -> Fondo Naranja Sólido (Como tu imagen #2) */
-.is-blocked {
-    background-color: #ff8800 !important;
-    border-color: #ff8800 !important;
-}
-
-.is-blocked .oval-text, .is-blocked .oval-icon {
-    color: white !important;
-}
-
-/* Botón Borrar -> Hover Negro */
-.delete-oval:hover {
-    background-color: #333;
-    border-color: #333;
-    color: white;
-}
+/* Scrollbar Naranja */
+.table-wrapper-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.table-wrapper-scroll::-webkit-scrollbar-thumb { background: #ff8800; border-radius: 10px; }
 
 /* =========================================
-   5. BADGES Y ESTADOS DE TEXTO
+   6. MEDIA QUERIES (PARA MÓVILES)
    ========================================= */
-.badge-rol {
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: bold;
-}
-
-/* Colores de roles de tus capturas */
-.cliente { background: #e3f2fd; color: #1976d2; }
-.tecnico { background: #f3e5f5; color: #7b1fa2; }
-.admin { background: #fff3e0; color: #f57c00; }
-.root { background: #ffebee; color: #c62828; }
-
-.status-dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 6px;
-}
-.status-on { background: #2ecc71; }
-.status-off { background: #e74c3c; }
-
-/* Fila cuando está bloqueada */
-.user-row-blocked td {
-    color: #999;
-}
-.clickable-name {
-    cursor: pointer;
-    color: #ff8800; /* Color naranja de Agente Solutions */
-    text-decoration: underline transparent;
-    transition: all 0.3s ease;
-}
-
-.clickable-name:hover {
-    color: #cc6d00;
-    text-decoration: underline;
-}
-/* --- Estilos para el Selector de Rol con Diseño de 'Badge' --- */
-
-.select-rol-inline {
-    /* Reinicia estilos predeterminados del navegador */
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+@media (max-width: 768px) {
+    .header-admin {
+        padding: 10px 20px;
+    }
     
-    /* Diseño base del Badge (Ovalado y Suave) */
-    padding: 3px 28px 3px 12px; /* Espacio extra a la derecha para la flecha */
-    border-radius: 20px;       /* Forma ovalada */
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    border: none;              /* Quitamos el borde por defecto */
-    outline: none;             /* Quitamos el borde de enfoque por defecto */
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    .filter-item {
+        width: 30%; /* Tres por fila en tablets/móviles grandes */
+        flex-grow: 1;
+    }
+
+    .oval-text {
+        display: none; /* Ocultamos el texto "Bloquear" en móviles para ahorrar espacio */
+    }
+
+    .btn-table-oval {
+        min-width: 40px;
+        padding: 6px;
+    }
+
+    .search-input-large {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-item {
+        width: 45%; /* Dos por fila en móviles pequeños */
+    }
     
-    /* Agregamos la flecha personalizada (un tono gris/negro suave) */
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 8px center; /* Posición de la flecha */
-    background-size: 14px;                 /* Tamaño de la flecha */
-}
-
-/* Efectos al pasar el mouse (Hover) */
-.select-rol-inline:hover:not(:disabled) {
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* Efecto al hacer clic (Active) */
-.select-rol-inline:active:not(:disabled) {
-    transform: scale(0.97);
-}
-
-
-/* --- Paleta de Colores Dinámicos (Estilo Badge Suave) --- */
-/* (Basados en el estilo del badge de ROOT: fondo muy claro, texto intenso) */
-
-/* Estilo para TECNICO (Fondo Azul muy claro, Texto Azul) */
-.select-rol-inline.tecnico {
-    background-color: #EBF5FF; /* Fondo suave */
-    color: #004A99;           /* Texto intenso */
-}
-
-/* Estilo para CLIENTE (Fondo Verde muy claro, Texto Verde) */
-.select-rol-inline.cliente {
-    background-color: #E6FFFA; /* Fondo suave */
-    color: #00664F;           /* Texto intenso */
-}
-
-/* Estilo para ADMIN (Fondo Naranja muy claro, Texto Naranja) */
-.select-rol-inline.admin {
-    background-color: #FFF5F0; /* Fondo suave (similar al ROOT pero tono naranja) */
-    color: #9C4221;           /* Texto intenso */
-}
-
-
-/* --- Estilos para las opciones dentro del desplegable --- */
-.select-rol-inline option {
-    background-color: white; /* Asegura que el menú desplegable tenga fondo blanco */
-    color: black;           /* Texto negro normal dentro del menú */
-    text-transform: none;   /* Opciones sin mayúsculas forzadas para legibilidad */
-    font-weight: normal;
+    .content-area {
+        padding: 10px;
+    }
 }
