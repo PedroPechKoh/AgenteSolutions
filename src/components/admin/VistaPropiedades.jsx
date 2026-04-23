@@ -118,9 +118,29 @@ const VistaPropiedades = () => {
       <section className="content-area">
         
         {/* ✅ CAMBIO: justifyContent: 'center' para que todo el bloque de botones se centre */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', alignItems: 'center', justifyContent: 'center', marginBottom: '15px' }}>
-          
-          <div className="categories-row" style={{ margin: 0, display: 'flex', gap: '10px' }}>
+        <div className="search-header-flex">
+          <div className="search-container-center">
+            <UniversalSearch
+              type="PROPIEDADES"
+              data={listaPropiedades}
+              setFilteredData={setPropiedadesFiltradas}
+              filtroActual={categoria}
+              placeholder="PROPIEDADES"
+            />
+          </div>
+
+          <button
+            className="btn-add-circle"
+            onClick={() => navigate("/registro-propiedades")}
+            title="NUEVA PROPIEDAD"
+          >
+            +
+          </button>
+        </div>
+
+        {/* Botones de Categoría */}
+        <div className="categories-row-container">
+          <div className="categories-row">
             {TIPOS_PROPIEDAD.map((tipo) => (
               <button
                 key={tipo.label}
@@ -131,139 +151,82 @@ const VistaPropiedades = () => {
               </button>
             ))}
           </div>
-
-          <button
-            className="lev-btn-add"
-            onClick={() => navigate("/registro-propiedades")}
-            style={{
-              backgroundColor: '#FF6600',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '6px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            + NUEVA PROPIEDAD
-          </button>
         </div>
 
-        <UniversalSearch
-          type="PROPIEDADES"
-          data={listaPropiedades}
-          setFilteredData={setPropiedadesFiltradas}
-          filtroActual={categoria}
-          placeholder="BUSCAR POR DUEÑO, DIRECCIÓN O CURP..."
-        />
+        <div className="properties-grid">
+          {cargando ? (
+            <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '50px', color: '#666' }}>
+              Cargando propiedades... ⏳
+            </div>
+          ) : propiedadesFiltradas.length > 0 ? (
+            propiedadesFiltradas.map((p) => (
+              <div key={p.id} className="property-card">
+                <div className="property-image-container">
+                  <img 
+                    src={p.facade_photo_path || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
+                    alt="Propiedad" 
+                    className="property-image" 
+                  />
+                  <div className="ver-mas-overlay">
+                    <button 
+                      className="btn-ver-mas"
+                      onClick={() => navigate(`/propiedad/${p.id}`)}
+                    >
+                      VER MÁS
+                    </button>
+                  </div>
+                </div>
 
-        <div className="table-scroll-container" style={{ marginTop: '15px' }}>
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>NOMBRE DEL PROPIETARIO</th>
-                <th>DIRECCIÓN</th>
-                <th>FECHA DE REGISTRO</th>
-                <th>ACCIONES</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cargando ? (
-                <tr>
-                  <td colSpan="5" className="text-center">
-                    Cargando propiedades... ⏳
-                  </td>
-                </tr>
-              ) : propiedadesFiltradas.length > 0 ? (
-                propiedadesFiltradas.map((p) => (
-                  <tr key={p.id}>
-                    <td>#{p.id}</td>
-                    <td className="bold-text">
-                      {p.propietario || "Sin Propietario"}
-                    </td>
-                    <td>{p.direccion || "Sin dirección registrada"}</td>
-                    <td>{p.fecha || "S/N"}</td>
-                    <td className="actions-btns">
-                      <button
-                        style={{
-                          backgroundColor: "#2196F3",
-                          color: "white",
-                          border: "none",
-                          padding: "6px 12px",
-                          borderRadius: "4px",
-                          fontWeight: "bold",
-                          cursor: "pointer",
-                          fontSize: "0.8rem",
-                        }}
-                        title="Ver Tablero de la Propiedad"
-                        onClick={() => navigate(`/propiedad/${p.id}`)}
-                      >
-                        VER TABLERO
-                      </button>
-                      {p.has_pending_service ? (
-                        <button
-                          style={{
-                            backgroundColor: "#e0e0e0", 
-                            color: "#888", 
-                            border: "1px solid #ccc",
-                            padding: "6px 12px",
-                            borderRadius: "4px",
-                            fontWeight: "bold",
-                            cursor: "not-allowed", 
-                            fontSize: "0.8rem",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "5px",
-                          }}
-                          disabled
-                          title="Ya tienes una solicitud pendiente para esta propiedad"
-                        >
-                          <CheckCircle size={14} /> LEVANTAMIENTO SOLICITADO
-                        </button>
-                      ) : (
-                        <button
-                          style={{
-                            backgroundColor: "#4CAF50",
-                            color: "white",
-                            border: "none",
-                            padding: "6px 12px",
-                            borderRadius: "4px",
-                            fontWeight: "bold",
-                            cursor: "pointer",
-                            fontSize: "0.8rem",
-                          }}
-                          onClick={() => abrirModalParaPropiedad(p)}
-                        >
-                          SOLICITAR LEVANTAMIENTO
-                        </button>
-                      )}
+                <div className="property-info-box">
+                  <div className="info-item">
+                    <span className="info-label">ID :</span>
+                    <span className="info-value">#{p.id}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">PROPIETARIO :</span>
+                    <span className="info-value">{p.propietario || "Sin Propietario"}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">DIRECCION :</span>
+                    <span className="info-value">{p.direccion || "Sin dirección registrada"}</span>
+                  </div>
+                </div>
 
-                      <button className="btn-orange" title="Editar">
-                        ✏️
-                      </button>
-                      <button
-                        className="btn-orange"
-                        title="Eliminar"
-                        onClick={() => eliminarPropiedad(p.id)}
-                      >
-                        🗑️
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="text-center">
-                    No hay propiedades en esta categoría.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                <div className="card-actions">
+                  {!p.has_pending_service && (
+                    <button 
+                      className="btn-icon-action" 
+                      title="Solicitar Levantamiento"
+                      onClick={() => abrirModalParaPropiedad(p)}
+                      style={{ color: '#4CAF50' }}
+                    >
+                      🛠️
+                    </button>
+                  )}
+                  {p.has_pending_service && (
+                    <span style={{ fontSize: '0.8rem', color: '#888', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <CheckCircle size={14} /> Solicitado
+                    </span>
+                  )}
+                  <button className="btn-icon-action" title="Editar">
+                    ✏️
+                  </button>
+                  <button 
+                    className="btn-icon-action" 
+                    title="Eliminar"
+                    onClick={() => eliminarPropiedad(p.id)}
+                    style={{ color: '#ff4444' }}
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '50px', color: '#666' }}>
+              No hay propiedades en esta categoría.
+            </div>
+          )}
         </div>
 
       </section>

@@ -18,46 +18,77 @@
     height: 60px;
 }
 
-/* --- BUSCADOR CENTRADO Y LARGO --- */
-.search-container-center {
+/* --- BUSCADOR Y CABECERA --- */
+.search-header-flex {
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 20px;
     margin: 25px 0;
-}
-
-.search-box {
-    position: relative;
-    width: 75%;
-    max-width: 900px;
-}
-
-.input-grey {
     width: 100%;
-    padding: 14px 25px;
-    border-radius: 30px;
-    border: 1px solid #ccc;
-    background-color: #e0e0e0; /* Gris de la imagen */
-    font-size: 1rem;
-    outline: none;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.search-icon-black {
-    position: absolute;
-    right: 25px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.4rem;
-    color: #333;
+.search-container-center {
+    width: 60%;
+    max-width: 700px;
+}
+
+/* Overriding UniversalSearch styles for the mockup look */
+.search-container-center .search-wrapper-full {
+    margin: 0 !important;
+}
+
+.search-container-center .search-input-large {
+    background-color: #e0e0e0 !important;
+    border-radius: 40px !important;
+    border: none !important;
+    padding: 12px 30px !important;
+    font-size: 1.1rem !important;
+    color: #555 !important;
+    font-weight: bold !important;
+    text-transform: uppercase;
+}
+
+.search-container-center .search-icon-inside {
+    right: 25px !important;
+    font-size: 1.5rem !important;
+    color: #000 !important;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+}
+
+.btn-add-circle {
+    background-color: #d1d1d1;
+    color: #000;
+    width: 70px;
+    height: 50px;
+    border-radius: 20px;
+    border: none;
+    font-size: 2.5rem;
+    font-weight: 900;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s;
 }
 
-/* --- BOTONES DE CATEGORÍA (CASAS, MANSIONES, DEPTO) --- */
+.btn-add-circle:hover {
+    background-color: #c0c0c0;
+    transform: scale(1.05);
+}
+
+.categories-row-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
 .categories-row {
     display: flex;
     justify-content: center;
     gap: 15px;
-    margin-bottom: 25px;
 }
 
 .cat-btn {
@@ -87,157 +118,148 @@
     box-shadow: 0 4px 8px rgba(255, 136, 0, 0.2);
 }
 
-/* --- TABLA DE PROPIEDADES --- */
-.table-scroll-container {
+/* --- GRID DE PROPIEDADES --- */
+.properties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
     width: 90%;
-    margin: 0 auto;
-    max-height: 420px; /* Carril de deslizamiento vertical */
-    overflow-y: auto;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    margin: 30px auto;
+    padding-bottom: 50px;
 }
 
-.custom-table {
+/* Tarjeta Individual */
+.property-card {
+    background-color: #555555; /* Gris oscuro de la imagen */
+    border-radius: 25px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+/* Contenedor de Imagen */
+.property-image-container {
+    position: relative;
+    width: 90%;
+    margin: 15px auto 10px auto;
+    height: 200px;
+    border-radius: 20px;
+    overflow: hidden;
+    background-color: #444;
+    border: 2px solid #ff8800; /* Borde naranja sutil como en el mockup */
+}
+
+.property-image {
     width: 100%;
-    border-collapse: collapse;
-    background: white;
-    text-align: center;
+    height: 100%;
+    object-fit: cover;
 }
 
-.custom-table th {
-    background: #222; /* Negro sólido */
+/* Botón VER MÁS sobre la imagen */
+.ver-mas-overlay {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+}
+
+.btn-ver-mas {
+    background-color: #ff5500;
     color: white;
-    padding: 15px;
-    font-size: 0.85rem;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 15px;
+    font-weight: 900;
+    font-size: 0.7rem;
+    cursor: pointer;
     text-transform: uppercase;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
-.custom-table td {
+/* Detalles de la Propiedad (Caja Gris Clara) */
+.property-info-box {
+    background-color: #d1d1d1; /* Gris claro de la imagen */
+    width: 85%;
+    margin: 0 auto 20px auto;
     padding: 15px;
-    border-bottom: 1px solid #eee;
-    font-size: 0.95rem;
+    border-radius: 20px;
+    border: 2px solid #a67c52; /* Borde café/naranja oscuro del mockup */
     color: #333;
+    font-size: 0.85rem;
 }
 
-.bold-text {
-    font-weight: bold;
+.info-item {
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-weight: 900;
     color: #000;
 }
 
-/* Botones de acción dentro de la tabla */
-.actions-btns {
+.info-value {
+    font-weight: 500;
+    word-break: break-all;
+}
+
+/* Acciones rápidas (Eliminar/Levantamiento) */
+.card-actions {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-end;
     gap: 10px;
+    padding: 0 20px 15px 20px;
 }
 
-.btn-orange {
-    background: #ff8800;
-    border: none;
-    color: white;
-    padding: 8px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1rem;
-    transition: 0.2s;
-}
-
-.btn-orange:hover {
-    background: #e67a00;
-    transform: scale(1.05);
-}
-
-/* --- BOTÓN REGRESAR (FLECHA MINIMALISTA) --- */
-.back-arrow-btn {
-    position: fixed; /* Para que siempre esté visible abajo a la izquierda */
-    bottom: 40px;
-    left: 50px;
+.btn-icon-action {
     background: none;
     border: none;
-    font-size: 4rem;
-    font-weight: 300;
     cursor: pointer;
-    color: #222;
-    transition: transform 0.2s ease;
+    font-size: 1.2rem;
+    transition: transform 0.2s;
 }
 
-.back-arrow-btn:hover {
-    transform: translateX(-10px);
-}
-
-/* Personalización del carril de deslizamiento (Scrollbar) */
-.table-scroll-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.table-scroll-container::-webkit-scrollbar-thumb {
-    background: #ff8800;
-    border-radius: 10px;
-}
-
-.table-scroll-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
+.btn-icon-action:hover {
+    transform: scale(1.2);
 }
 
 /* --- ESTILOS RESPONSIVOS PARA MOVILES --- */
 @media (max-width: 768px) {
-    .lev-header {
+    .search-header-flex {
         flex-direction: column;
         gap: 15px;
-        padding: 15px 20px !important;
     }
-    
-    .lev-header .lev-btn-add {
+
+    .search-container-center {
+        width: 95%;
+    }
+
+    .btn-add-circle {
         width: 100%;
-        text-align: center;
+        height: 45px;
+        font-size: 1.5rem;
     }
 
-    .search-box {
-        width: 90%;
-    }
-
-    .categories-row {
-        flex-wrap: wrap;
+    .properties-grid {
+        grid-template-columns: 1fr;
         width: 95%;
-        margin: 0 auto 25px auto;
+        gap: 20px;
     }
 
-    .cat-btn {
-        flex: 1 1 calc(50% - 15px);
-        justify-content: center;
-        text-align: center;
-        padding: 8px 10px;
-        font-size: 0.75rem;
+    .property-card {
+        border-radius: 20px;
     }
 
-    .table-scroll-container {
-        width: 95%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; 
-    }
-
-    .custom-table {
-        min-width: 800px; /* Fuerza scroll horizontal, evita que se aplaste */
-    }
-
-    .custom-table th, .custom-table td {
-        padding: 10px;
-        font-size: 0.85rem;
-    }
-
-    .actions-btns {
-        flex-direction: row; 
-        flex-wrap: wrap;
-    }
-
-    .back-arrow-btn {
-        left: 20px;
-        bottom: 20px;
-        font-size: 3rem;
+    .property-image-container {
+        height: 180px;
     }
 }
