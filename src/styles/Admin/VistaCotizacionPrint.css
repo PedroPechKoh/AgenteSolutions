@@ -293,3 +293,28 @@ body {
   }
 
 }
+
+/* Añade esto a tu archivo VistaCotizacionPrint.css */
+.notas-textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 1px dashed #ccc;
+  background-color: #fafafa;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: #333;
+  padding: 10px;
+  resize: vertical;
+  outline: none;
+}
+
+@media print {
+  .notas-textarea {
+    border: none !important;
+    background-color: transparent !important;
+    resize: none !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
