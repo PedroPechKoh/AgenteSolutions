@@ -76,7 +76,7 @@ const VistaUsuarios = () => {
       setListaUsuarios(prev => prev.map(u => u.id === id ? { 
         ...u, bloqueado: !u.bloqueado, estado: !u.bloqueado ? 'Inactivo' : 'Activo' 
       } : u));
-    } catch (error) {
+    } catch () {
       alert("Error al procesar la solicitud.");
     }
   };
@@ -88,7 +88,7 @@ const VistaUsuarios = () => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}`);
       setListaUsuarios(prev => prev.filter(u => u.id !== id));
-    } catch () {
+    } catch  {
       alert("Hubo un problema al eliminar el usuario.");
     }
   };
