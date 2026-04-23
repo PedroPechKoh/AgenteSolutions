@@ -70,3 +70,75 @@
     overflow: hidden;
     text-overflow: ellipsis;
 }
+/* =========================================
+   FORZAR TAMAÑO DE IMAGEN (EL "DOMADOR")
+   ========================================= */
+
+/* Este es el div que envuelve la imagen en tu JSX */
+.avatar-circle {
+    width: 50px !important;   /* Forzamos el ancho */
+    height: 50px !important;  /* Forzamos el alto */
+    min-width: 50px !important;
+    min-height: 50px !important;
+    border-radius: 50% !important; /* Hazla circular */
+    overflow: hidden !important;   /* ¡CLAVE! Recorta lo que sobre de la foto */
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border: 2px solid #ff8800;
+    background-color: #f0f0f0;
+}
+
+/* Esta es la etiqueta <img> dentro del div */
+.perfil-photo {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important; /* Ajusta la foto al círculo sin estirarla */
+    display: block;
+}
+
+/* =========================================
+   ESTRUCTURA DE LA TABLA
+   ========================================= */
+
+.table-wrapper-scroll {
+    width: 100%;
+    overflow-x: auto; /* Scroll horizontal si es necesario */
+    overflow-y: auto; /* Scroll vertical */
+    max-height: 500px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* OBLIGA a las celdas a respetar el ancho */
+}
+
+/* Definimos anchos fijos para que la foto no empuje nada */
+.modern-table th:nth-child(1), 
+.modern-table td:nth-child(1) { 
+    width: 70px !important; 
+} 
+
+.modern-table th {
+    background: #1a1a1a;
+    color: white;
+    padding: 12px;
+    font-size: 0.8rem;
+    position: sticky;
+    top: 0;
+}
+
+.modern-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    vertical-align: middle;
+    /* Evita que el texto de nombre o correo empuje la tabla */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
