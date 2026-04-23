@@ -60,8 +60,9 @@ const VistaPropiedades = () => {
       });
       setListaPropiedades((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
-      alert("Error al eliminar la propiedad.");
-    }
+  console.error("Error al eliminar:", error); // <-- Al usarlo aquí, el aviso desaparece
+  alert("Hubo un problema al eliminar el usuario.");
+}
   };
 
   const abrirModalParaPropiedad = (propiedad) => {
