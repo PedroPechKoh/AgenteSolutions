@@ -8,24 +8,18 @@ const VistaCotizacionPrint = () => {
   const [elementosTabla, setElementosTabla] = useState([]);
   const [guardando, setGuardando] = useState(false);
 
-  // --- ESTADOS PARA LAS NOTAS Y EL TÍTULO ---
-  const [notas, setNotas] = useState(
-    "• EN CASO DE NO REQUERIR FACTURA EL PRECIO DE LOS EQUIPOS ES MAS IVA, MANO DE OBRA SIN IVA.\n" +
-    "• EL CLIENTE PROPORCIONARÁ FACILIDADES PARA EL CUMPLIMIENTO DE LOS TRABAJOS\n" +
-    "• SE REQUIERE UN 70% DE ANTICIPO PARA INICIAR EL SERVICIO\n" +
-    "• LA PRESENTE COTIZACIÓN TIENE UNA VIGENCIA DE 15 DIAS A PARTIR DE LA FECHA INDICADA EN LA MISMA"
-  );
+  // --- ESTADOS PARA LAS ESPECIFICACIONES ---
+  // Ahora el estado inicial es un string vacío como solicitaste
+  const [notas, setNotas] = useState("");
   
-  // Lista de opciones de títulos
   const [opcionesTitulos, setOpcionesTitulos] = useState([
     "OBSERVACIONES", 
     "ESPECIFICACIONES", 
     "TÉRMINOS Y CONDICIONES", 
     "NOTAS IMPORTANTES"
   ]);
-  const [tituloNotas, setTituloNotas] = useState("OBSERVACIONES");
+  const [tituloNotas, setTituloNotas] = useState("ESPECIFICACIONES");
   
-  // Controles para el botón "+"
   const [modoNuevoTitulo, setModoNuevoTitulo] = useState(false);
   const [nuevoTitulo, setNuevoTitulo] = useState("");
 
@@ -36,9 +30,7 @@ const VistaCotizacionPrint = () => {
       const data = JSON.parse(datosGuardados);
       setCotizacion(data);
 
-      if (data.observaciones) {
-        setNotas(data.observaciones);
-      }
+      // ❌ Se eliminó la carga automática de data.observaciones para que el cuadro esté vacío
 
       let items = [];
       try {
@@ -69,20 +61,20 @@ const VistaCotizacionPrint = () => {
   const handleGenerarPDF = async () => {
     setGuardando(true);
     try {
+      // Al guardar, enviamos el contenido del cuadro (notas) a la columna observations
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/observaciones`, {
         observaciones: notas 
       });
-      alert("Notas guardadas correctamente. (Generación de PDF en construcción...)");
+      alert("Especificaciones guardadas exitosamente.");
       window.print();
     } catch (error) {
       console.error("Error al guardar:", error);
-      alert("Hubo un error al guardar las especificaciones.");
+      alert("No se pudieron guardar las especificaciones.");
     } finally {
       setGuardando(false);
     }
   };
 
-  // Función para guardar el título personalizado
   const handleAgregarTitulo = () => {
     if (nuevoTitulo.trim() !== "") {
       const tituloMayusculas = nuevoTitulo.toUpperCase();
@@ -94,7 +86,7 @@ const VistaCotizacionPrint = () => {
   };
 
   if (!cotizacion) {
-    return <div style={{ padding: '50px', textAlign: 'center' }}>Cargando formato de impresión...</div>;
+    return <div style={{ padding: '50px', textAlign: 'center' }}>Cargando información...</div>;
   }
 
   const totalCotizacion = parseFloat(cotizacion.total);
@@ -106,21 +98,20 @@ const VistaCotizacionPrint = () => {
   };
 
   return (
-    <div style={{ backgroundColor: '#f0f0f0', minHeight: '100vh', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ backgroundColor: '#f4f4f4', minHeight: '100vh', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       
-      {/* Botón Flotante para Generar PDF */}
+      {/* Panel de control superior */}
       <div className="no-print" style={{ marginBottom: '20px', width: '21cm', display: 'flex', justifyContent: 'flex-end' }}>
          <button 
             onClick={handleGenerarPDF} 
             disabled={guardando}
-            style={{ padding: '10px 20px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1rem' }}
+            style={{ padding: '12px 24px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
          >
-           {guardando ? 'Guardando...' : '💾 Generar y Guardar PDF'}
+           {guardando ? 'Procesando...' : '💾 GENERAR Y GUARDAR PDF'}
          </button>
       </div>
 
-      {/* Contenedor principal de la cotización (Tamaño A4) */}
-      <div id="cotizacion-pdf" className="cotizacion-container" style={{ backgroundColor: 'white', width: '21cm', minHeight: '29.7cm', padding: '2cm', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+      <div id="cotizacion-pdf" className="cotizacion-container" style={{ backgroundColor: 'white', width: '21cm', minHeight: '29.7cm', padding: '1.5cm 2cm', boxShadow: '0 0 15px rgba(0,0,0,0.1)' }}>
 
         <div className="header">
           <div className="header-left">
@@ -184,74 +175,45 @@ const VistaCotizacionPrint = () => {
           </table>
         </div>
 
-        {/* --- SECCIÓN EDITABLE DE NOTAS --- */}
         <div className="notas">
-          
-          {/* Controles del título (Ocultos al imprimir) */}
-          <div className="no-print" style={{ marginBottom: '10px', padding: '10px', background: '#fff3e0', border: '1px dashed #FF6600', borderRadius: '5px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-             <label style={{ fontWeight: 'bold', color: '#333' }}>Título de la sección:</label>
-
+          <div className="no-print" style={{ marginBottom: '10px', padding: '12px', background: '#fff5e6', border: '1px dashed #FF6600', borderRadius: '6px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+             <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Título:</span>
              {!modoNuevoTitulo ? (
                <>
                  <select 
                    value={tituloNotas} 
                    onChange={(e) => setTituloNotas(e.target.value)}
-                   style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc', outline: 'none' }}
+                   style={{ padding: '5px', borderRadius: '4px' }}
                  >
                    {opcionesTitulos.map((op, idx) => (
                      <option key={idx} value={op}>{op}</option>
                    ))}
                  </select>
-                 <button 
-                   onClick={() => setModoNuevoTitulo(true)}
-                   style={{ background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', padding: '6px 12px', cursor: 'pointer', fontWeight: 'bold' }}
-                   title="Agregar título personalizado"
-                 >
-                   +
-                 </button>
+                 <button onClick={() => setModoNuevoTitulo(true)} style={{ background: '#28a745', color: 'white', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' }}>+</button>
                </>
              ) : (
                <>
-                 <input 
-                   type="text" 
-                   value={nuevoTitulo} 
-                   onChange={(e) => setNuevoTitulo(e.target.value)} 
-                   placeholder="Escribe el título..." 
-                   style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc', outline: 'none' }}
-                 />
-                 <button 
-                   onClick={handleAgregarTitulo}
-                   style={{ background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', padding: '6px 12px', cursor: 'pointer', fontWeight: 'bold' }}
-                 >
-                   Aceptar
-                 </button>
-                 <button 
-                   onClick={() => { setModoNuevoTitulo(false); setNuevoTitulo(""); }}
-                   style={{ background: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', padding: '6px 12px', cursor: 'pointer', fontWeight: 'bold' }}
-                 >
-                   Cancelar
-                 </button>
+                 <input type="text" value={nuevoTitulo} onChange={(e) => setNuevoTitulo(e.target.value)} placeholder="Nuevo título..." style={{ padding: '5px', borderRadius: '4px', border: '1px solid #ccc' }} />
+                 <button onClick={handleAgregarTitulo} style={{ background: '#007bff', color: 'white', border: 'none', borderRadius: '4px', padding: '5px 10px', cursor: 'pointer' }}>Aceptar</button>
                </>
              )}
           </div>
 
-          {/* Título visual para el documento (Este sí se imprime) */}
           <h4 style={{ color: '#FF6600', marginBottom: '8px', textTransform: 'uppercase', fontSize: '1rem', borderBottom: '2px solid #FF6600', paddingBottom: '4px', display: 'inline-block' }}>
             {tituloNotas}
           </h4>
 
-          {/* Textarea para las notas */}
           <textarea 
             className="notas-textarea"
             value={notas}
             onChange={(e) => setNotas(e.target.value)}
             spellCheck="false"
-            placeholder="Escribe las especificaciones o condiciones de la cotización aquí..."
+            placeholder="Escriba aquí los términos, especificaciones o condiciones de esta cotización..."
+            style={{ border: '1px solid #eee' }}
           />
         </div>
 
-        {/* DATOS FISCALES */}
-        <div className="fiscales">
+        <div className="fiscales" style={{ marginTop: 'auto' }}>
           <h3>DATOS FISCALES</h3>
           <p><strong>JORGE ERNESTO VALLARTA SOSA</strong></p>
           <p><strong>RFC:</strong> VASJ820324779</p>
