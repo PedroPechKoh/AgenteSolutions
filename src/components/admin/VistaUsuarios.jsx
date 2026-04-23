@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import UniversalSearch from "../Shared/UniversalSearch"; 
-import Header from "../Shared/Header"; // ✅ IMPORTAMOS EL NUEVO HEADER
+import Header from "../Shared/Header"; 
 import "../../styles/Admin/VistaUsuarios.css";
 
-// CONFIGURACIÓN DE ROLES SEGÚN TU BASE DE DATOS
 const MAPA_ROLES = { 0: "ROOT", 1: "ADMIN", 2: "TECNICO", 3: "CLIENTE" };
 
 const CATEGORIAS = [
@@ -23,7 +22,6 @@ const VistaUsuarios = () => {
   const [listaUsuarios, setListaUsuarios] = useState([]);
   const [usuariosFiltrados, setUsuariosFiltrados] = useState([]);
 
-  // CARGA DE DATOS
   useEffect(() => {
     const obtenerUsuarios = async () => {
       try {
@@ -33,7 +31,7 @@ const VistaUsuarios = () => {
           nombre: `${u.first_name} ${u.last_name || ""}`.trim(),
           correo: u.email,
           rol: MAPA_ROLES[u.role_id] || "DESCONOCIDO",
-          role_id: u.role_id, // Importante guardar el ID numérico
+          role_id: u.role_id,
           estado: u.is_active ? "Activo" : "Inactivo",
           bloqueado: u.is_active === 0,
           profile_picture_url: u.profile_picture_url,
@@ -49,40 +47,28 @@ const VistaUsuarios = () => {
     obtenerUsuarios();
   }, []);
 
-  // ACCIÓN: CAMBIAR ROL
   const cambiarRol = async (id, nuevoRolId, nombreUsuario) => {
     if (!window.confirm(`¿Estás seguro de cambiar el tipo de usuario de ${nombreUsuario}?`)) {
       setListaUsuarios([...listaUsuarios]);
       return;
     }
-
     try {
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}/rol`, {
         role_id: Number(nuevoRolId) 
       });
-
       const nuevoRolStr = MAPA_ROLES[nuevoRolId];
-      
       setListaUsuarios(prev => prev.map(u => 
         u.id === id ? { ...u, rol: nuevoRolStr, role_id: Number(nuevoRolId) } : u
       ));
-      setUsuariosFiltrados(prev => prev.map(u => 
-        u.id === id ? { ...u, rol: nuevoRolStr, role_id: Number(nuevoRolId) } : u
-      ));
-      
       alert("¡Rol actualizado correctamente!");
     } catch (error) {
-      console.error("Error completo:", error.response?.data);
       alert(error.response?.data?.message || "Error al actualizar el rol.");
-      setListaUsuarios([...listaUsuarios]);
     }
   };
 
-  // ACCIONES DE BLOQUEO Y ELIMINACIÓN
   const toggleBloqueo = async (id, role_id, estaBloqueado) => {
     if (role_id === 0) return alert("⚠️ SEGURIDAD: No puedes bloquear al ROOT.");
     const accion = estaBloqueado ? "desbloquear" : "bloquear";
-    
     if (!window.confirm(`¿Estás seguro de que deseas ${accion} a este usuario?`)) return;
 
     try {
@@ -111,46 +97,45 @@ const VistaUsuarios = () => {
     <div className="main-container bg-light">
       <div className="top-bar-orange" /><div className="top-bar-black" />
 
-      {/* ✅ AQUÍ INTEGRAMOS EL NUEVO HEADER GENERAL */}
       <Header rolTexto="ADMINISTRACIÓN DE USUARIOS" />
 
-      <section className="content-area">
+      <section className="content-area" style={{ padding: '10px' }}>
         
-        {/* ✅ FILTROS Y NUEVOS BOTONES (MAPA Y REGISTRO) */}
-        <div className="filter-grid" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+        {/* FILTROS ADAPTADOS PARA MÓVIL */}
+        <div className="filter-grid" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
+          gap: '10px', 
+          marginBottom: '20px' 
+        }}>
           
-          {/* Botones de Filtro Originales */}
           {CATEGORIAS.map((cat) => (
             <div 
               key={cat.label} 
               className={`filter-item ${filtro === cat.label ? "active" : ""}`} 
               onClick={() => setFiltro(cat.label)}
+              style={{ margin: 0, width: '100%' }}
             >
               <span className="icon-box">{cat.icon}</span> {cat.label}
             </div>
           ))}
 
-          {/* Separador Visual (Opcional, para dividir filtros de acciones) */}
-          <div style={{ width: '2px', height: '30px', backgroundColor: '#ccc', margin: '0 10px' }}></div>
-
-          {/* NUEVO BOTÓN: MAPA */}
+          {/* BOTONES DE ACCIÓN */}
           <div 
             className="filter-item" 
             onClick={() => navigate('/map')}
-            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600' }} // Un ligero tono para diferenciarlos de los filtros
+            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600', margin: 0, width: '100%' }}
           >
             <span className="icon-box">🗺️</span> VER MAPA
           </div>
 
-          {/* NUEVO BOTÓN: REGISTRO PRIVADO */}
           <div 
             className="filter-item" 
             onClick={() => navigate('/registro')}
-            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600' }}
+            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600', margin: 0, width: '100%' }}
           >
-            <span className="icon-box">📝</span> REGISTRAR USUARIO
+            <span className="icon-box">📝</span> REGISTRAR
           </div>
-
         </div>
 
         <UniversalSearch 
@@ -158,14 +143,20 @@ const VistaUsuarios = () => {
           data={listaUsuarios} 
           setFilteredData={setUsuariosFiltrados}
           filtroActual={filtro}
-          placeholder="BUSCAR POR NOMBRE, CORREO, ROL O TELÉFONO..."
+          placeholder="BUSCAR..."
         />
 
-        <div className="table-wrapper-scroll">
-          <table className="modern-table">
+        {/* CONTENEDOR CON SCROLL RESPONSIVO */}
+        <div className="table-wrapper-scroll" style={{ width: '100%', overflowX: 'auto', borderRadius: '8px' }}>
+          <table className="modern-table" style={{ minWidth: '800px' }}>
             <thead>
               <tr>
-                <th>Photo</th><th>NOMBRE</th><th>CORREO</th><th>ROL</th><th>ESTADO</th><th className="text-center">ACCIONES</th>
+                <th>PHOTO</th>
+                <th>NOMBRE</th>
+                <th>CORREO</th>
+                <th>ROL</th>
+                <th>ESTADO</th>
+                <th className="text-center">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
@@ -184,23 +175,23 @@ const VistaUsuarios = () => {
                     <td 
                       className={u.rol === "CLIENTE" ? "clickable-name" : ""} 
                       onClick={() => u.rol === "CLIENTE" && navigate("/detalle-cliente", { state: { cliente: u } })}
+                      style={{ whiteSpace: 'nowrap' }}
                     >
                       {u.nombre} {u.bloqueado && <span className="blocked-tag">BLOQUEADO</span>}
                     </td>
-                    <td>{u.correo}</td>
+                    <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.correo}</td>
                     <td>
                       {u.role_id === 0 ? (
                         <span className="badge-rol root text-center block">ROOT</span>
                       ) : (
                         <select 
-                          className={`badge-rol ${u.rol.toLowerCase()} border-none outline-none cursor-pointer text-center select-rol-inline`}
+                          className={`badge-rol ${u.rol.toLowerCase()} select-rol-inline`}
                           value={u.role_id}
                           onChange={(e) => cambiarRol(u.id, parseInt(e.target.value), u.nombre)}
-                          style={{ WebkitAppearance: 'none', MozAppearance: 'none', appearance: 'none' }}
                         >
-                          <option value="1" className="text-black bg-white">ADMIN</option>
-                          <option value="2" className="text-black bg-white">TECNICO</option>
-                          <option value="3" className="text-black bg-white">CLIENTE</option>
+                          <option value="1">ADMIN</option>
+                          <option value="2">TECNICO</option>
+                          <option value="3">CLIENTE</option>
                         </select>
                       )}
                     </td>
@@ -209,14 +200,16 @@ const VistaUsuarios = () => {
                       {u.bloqueado ? "Inactivo" : u.estado}
                     </td>
                     <td className="actions-cell">
-                      <button 
-                        className={`btn-table-oval ${u.bloqueado ? "is-blocked" : "is-unblocked"}`} 
-                        onClick={() => toggleBloqueo(u.id, u.role_id, u.bloqueado)}
-                      >
-                        <span className="oval-icon">{u.bloqueado ? "🔓" : "🔒"}</span>
-                        <span className="oval-text">{u.bloqueado ? "Desbloquear" : "Bloquear"}</span>
-                      </button>
-                      <button className="btn-table-oval-small delete-oval" onClick={() => eliminarUsuario(u.id, u.role_id)}>🗑️</button>
+                      <div style={{ display: 'flex', gap: '5px' }}>
+                        <button 
+                          className={`btn-table-oval ${u.bloqueado ? "is-blocked" : "is-unblocked"}`} 
+                          onClick={() => toggleBloqueo(u.id, u.role_id, u.bloqueado)}
+                        >
+                          <span className="oval-icon">{u.bloqueado ? "🔓" : "🔒"}</span>
+                          <span className="oval-text">{u.bloqueado ? "OK" : "Bloq"}</span>
+                        </button>
+                        <button className="btn-table-oval-small delete-oval" onClick={() => eliminarUsuario(u.id, u.role_id)}>🗑️</button>
+                      </div>
                     </td>
                   </tr>
                 ))
