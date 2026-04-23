@@ -9,13 +9,28 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
     
     const filtrados = data.filter((item) => {
       let coincideFiltro = true;
+      
       if (type === 'USUARIOS') {
         const rolBuscado = filtroActual === "ROOTS" ? "ROOT" : filtroActual.replace("S", "");
         coincideFiltro = filtroActual === "TODOS" || item.rol === rolBuscado;
+        
       } else if (type === 'PROPIEDADES') {
         coincideFiltro = filtroActual === "TODAS" || item.tipo === filtroActual;
+        
+      } else if (type === 'COTIZACIONES') {
+        // ✅ A PRUEBA DE BALAS: Extraemos el estado, sea como sea que venga de la BD
+        const estadoActual = String(item.estado || item.status || '').toLowerCase();
+        
+        if (filtroActual === 'Pendiente') {
+          coincideFiltro = estadoActual === 'pendiente' || estadoActual === 'en proceso';
+        } else if (filtroActual === 'Aprobado') {
+          coincideFiltro = estadoActual === 'aprobado' || estadoActual === 'aprobada';
+        } else if (filtroActual === 'Rechazado') {
+          coincideFiltro = estadoActual === 'rechazado' || estadoActual === 'rechazada';
+        }
       }
 
+      // Búsqueda por texto (Lupa)
       const coincideBusqueda = Object.values(item).some(valor => 
         String(valor || '').toLowerCase().includes(termino)
       );
