@@ -77,8 +77,9 @@ const VistaUsuarios = () => {
         ...u, bloqueado: !u.bloqueado, estado: !u.bloqueado ? 'Inactivo' : 'Activo' 
       } : u));
     } catch (error) {
-      alert("Error al procesar la solicitud.");
-    }
+  console.error("Error al procesar la solicitud:", error);
+  alert("Error al procesar la solicitud.");
+}
   };
 
   const eliminarUsuario = async (id, role_id) => {
@@ -88,20 +89,22 @@ const VistaUsuarios = () => {
     try {
       await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${id}`);
       setListaUsuarios(prev => prev.filter(u => u.id !== id));
-    } catch () {
-      alert("Hubo un problema al eliminar el usuario.");
-    }
+   } catch (error) {
+  console.error(error);
+  alert("Hubo un problema al eliminar el usuario.");
+}
   };
 
   return (
     <div className="main-container bg-light">
-      <div className="top-bar-orange" /><div className="top-bar-black" />
+      <div className="top-bar-orange" />
+      <div className="top-bar-black" />
 
       <Header rolTexto="ADMINISTRACIÓN DE USUARIOS" />
 
-      <section className="content-area" style={{ padding: '10px', overflowX: 'hidden'}}>
+      {/* 🔥 QUITAMOS overflowX:hidden */}
+      <section className="content-area" style={{ padding: '10px' }}>
         
-        {/* FILTROS ADAPTADOS PARA MÓVIL */}
         <div className="filter-grid" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
@@ -120,22 +123,21 @@ const VistaUsuarios = () => {
             </div>
           ))}
 
-          {/* BOTONES DE ACCIÓN */}
-          <div 
-            className="filter-item" 
-            onClick={() => navigate('/map')}
-            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600', margin: 0, width: '100%' }}
-          >
-            <span className="icon-box">🗺️</span> VER MAPA
-          </div>
+         <div 
+  className="filter-item" 
+  onClick={() => navigate("/map")}
+  style={{ backgroundColor: "#fff4e6", border: "1px solid #FF6600", margin: 0, width: "100%" }}
+>
+  <span className="icon-box">🗺️</span> VER MAPA
+</div>
 
-          <div 
-            className="filter-item" 
-            onClick={() => navigate('/registro')}
-            style={{ backgroundColor: '#fff4e6', border: '1px solid #FF6600', margin: 0, width: '100%' }}
-          >
-            <span className="icon-box">📝</span> REGISTRAR
-          </div>
+<div 
+  className="filter-item" 
+  onClick={() => navigate("/registro")}
+  style={{ backgroundColor: "#fff4e6", border: "1px solid #FF6600", margin: 0, width: "100%" }}
+>
+  <span className="icon-box">📝</span> REGISTRAR
+</div>
         </div>
 
         <UniversalSearch 
@@ -146,9 +148,11 @@ const VistaUsuarios = () => {
           placeholder="BUSCAR..."
         />
 
-        {/* CONTENEDOR CON SCROLL RESPONSIVO */}
-        <div className="table-wrapper-scroll" style={{ width: '100%', overflowX: 'auto', borderRadius: '8px' }}>
-          <table className="modern-table" style={{ minWidth: '800px' }}>
+        {/* 🔥 CONTENEDOR LIMPIO */}
+        <div className="table-wrapper-scroll">
+          
+          {/* 🔥 TABLA SIN estilos inline */}
+          <table className="modern-table">
             <thead>
               <tr>
                 <th>PHOTO</th>
@@ -156,33 +160,36 @@ const VistaUsuarios = () => {
                 <th>CORREO</th>
                 <th>ROL</th>
                 <th>ESTADO</th>
-                <th className="text-center">ACCIONES</th>
+                <th>ACCIONES</th>
               </tr>
             </thead>
             <tbody>
               {cargando ? (
-                <tr><td colSpan="6" className="text-center">Cargando usuarios... ⏳</td></tr>
+                <tr><td colSpan="6">Cargando usuarios... ⏳</td></tr>
               ) : usuariosFiltrados.length > 0 ? (
                 usuariosFiltrados.map((u) => (
                   <tr key={u.id} className={u.bloqueado ? "user-row-blocked" : ""}>
-                    <td className="text-center">
+                    
+                    <td>
                       <div className="avatar-circle">
                         {u.profile_picture_url ? (
                           <img src={u.profile_picture_url} alt="Perfil" className="perfil-photo" />
-                        ) : <span>👤</span>}
+                        ) : "👤"}
                       </div>
                     </td>
+
                     <td 
                       className={u.rol === "CLIENTE" ? "clickable-name" : ""} 
                       onClick={() => u.rol === "CLIENTE" && navigate("/detalle-cliente", { state: { cliente: u } })}
-                      style={{ whiteSpace: 'nowrap' }}
                     >
                       {u.nombre} {u.bloqueado && <span className="blocked-tag">BLOQUEADO</span>}
                     </td>
-                    <td style={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.correo}</td>
+
+                    <td>{u.correo}</td>
+
                     <td>
                       {u.role_id === 0 ? (
-                        <span className="badge-rol root text-center block">ROOT</span>
+                        <span className="badge-rol root">ROOT</span>
                       ) : (
                         <select 
                           className={`badge-rol ${u.rol.toLowerCase()} select-rol-inline`}
@@ -195,26 +202,32 @@ const VistaUsuarios = () => {
                         </select>
                       )}
                     </td>
+
                     <td>
                       <span className={`status-dot ${u.bloqueado ? "status-off" : "status-on"}`} />
                       {u.bloqueado ? "Inactivo" : u.estado}
                     </td>
+
                     <td className="actions-cell">
-                      <div style={{ display: 'flex', gap: '5px' }}>
-                        <button 
-                          className={`btn-table-oval ${u.bloqueado ? "is-blocked" : "is-unblocked"}`} 
-                          onClick={() => toggleBloqueo(u.id, u.role_id, u.bloqueado)}
-                        >
-                          <span className="oval-icon">{u.bloqueado ? "🔓" : "🔒"}</span>
-                          <span className="oval-text">{u.bloqueado ? "OK" : "Bloq"}</span>
-                        </button>
-                        <button className="btn-table-oval-small delete-oval" onClick={() => eliminarUsuario(u.id, u.role_id)}>🗑️</button>
-                      </div>
+                      <button 
+                        className={`btn-table-oval ${u.bloqueado ? "is-blocked" : "is-unblocked"}`} 
+                        onClick={() => toggleBloqueo(u.id, u.role_id, u.bloqueado)}
+                      >
+                        {u.bloqueado ? "🔓 OK" : "🔒 Bloq"}
+                      </button>
+
+                      <button 
+                        className="btn-table-oval-small delete-oval" 
+                        onClick={() => eliminarUsuario(u.id, u.role_id)}
+                      >
+                        🗑️
+                      </button>
                     </td>
+
                   </tr>
                 ))
               ) : (
-                <tr><td colSpan="6" className="text-center">No se encontraron usuarios.</td></tr>
+                <tr><td colSpan="6">No se encontraron usuarios.</td></tr>
               )}
             </tbody>
           </table>
