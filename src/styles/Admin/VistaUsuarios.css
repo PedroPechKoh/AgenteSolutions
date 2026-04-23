@@ -1,7 +1,6 @@
 /* =========================================
    1. LAYOUT PRINCIPAL Y CONTENEDORES
    ========================================= */
-
 .bg-light { 
     background-color: #ffffff; 
     min-height: 100vh; 
@@ -12,11 +11,12 @@
 .top-bar-orange { height: 8px; background: #ff8800; width: 100%; }
 .top-bar-black { height: 40px; background: #1a1a1a; width: 100%; margin-bottom: 20px; }
 
-/* Contenedor de contenido con padding adaptable */
 .content-area {
     padding: 20px;
     max-width: 1400px;
     margin: 0 auto;
+    /* Evita que el desbordamiento de la tabla rompa el layout global */
+    overflow-x: hidden; 
 }
 
 /* AVATAR */
@@ -40,172 +40,198 @@
 }
 
 /* =========================================
-   2. FILTROS RESPONSIVOS (CORREGIDO)
+   2. FILTROS Y BUSCADOR (ADAPTABLES)
    ========================================= */
-
+.filter-grid {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los botones bajen a otra fila en móvil */
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+    padding: 0 10px;
+}
 
 .filter-item {
     background: #f9f9f9;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    width: 100px; /* Un poco más angosto para móviles */
-    padding: 10px 5px;
+    min-width: 100px;
+    flex: 1 1 120px; /* Crecen y se ajustan según el espacio */
+    max-width: 160px;
+    padding: 12px 5px;
     text-align: center;
     cursor: pointer;
+    transition: 0.3s;
     color: #333;
     font-weight: 600;
-    font-size: 0.75rem; /* Fuente más pequeña para móviles */
-    transition: 0.3s;
-    flex: 1 1 120px;       /* Los botones crecen y se ajustan solos */
-    max-width: 150px;
+    font-size: 0.85rem;
 }
 
-.filter-item.active { border: 2px solid #ff8800; background: #fff; }
+.filter-item.active {
+    border: 2px solid #ff8800;
+    background: #fff;
+}
 
-/* =========================================
-   3. BUSCADOR ADAPTABLE
-   ========================================= */
-.search-wrapper-full { display: flex; justify-content: center; margin-bottom: 30px; padding: 0 10px; }
+.icon-box { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+
+.search-wrapper-full {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 0 15px;
+}
 
 .search-input-container {
     position: relative;
-  width: 95%;            /* Un poco menos del 100% para dejar margen */
+    width: 100%;
     max-width: 900px;
 }
 
 .search-input-large {
     width: 100%;
-    padding: 12px 20px; 
+    padding: 14px 25px;
     border-radius: 30px;
     border: 1px solid #ddd;
     background: #f2f2f2;
-    font-size: 0.95rem;
+    font-size: 1rem;
     outline: none;
-    text-indent: 10px; 
+    text-indent: 20px;
 }
 
 /* =========================================
-   4. TABLA RESPONSIVA (EL CAMBIO CLAVE)
+   3. TABLA RESPONSIVA (SOLUCIÓN AL CORTE LATERAL)
    ========================================= */
+
+/* Este contenedor es el que permite el deslizamiento lateral */
 .table-wrapper-scroll {
-  width: 100%;            /* Ocupa todo el ancho de la pantalla */
+    width: 100% !important;
     margin: 0 auto 40px;
-    max-height: 450px;
-    overflow-y: auto;       /* Scroll vertical para ver más usuarios */
-    overflow-x: auto;       /* ¡CRUCIAL! Esto permite el scroll lateral en móvil */
-    display: block;         /* Asegura que el contenedor respete el overflow */
+    max-height: 500px;
+    overflow-y: auto;       /* Scroll vertical */
+    overflow-x: auto !important; /* FORZAR SCROLL HORIZONTAL */
+    display: block !important;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     background: white;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch; /* Scroll suave en móviles */
+    border: 1px solid #eee;
 }
 
 .modern-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px; /* Al obligar a la tabla a medir 800px, activarás el scroll en celulares */
+    /* EL SECRETO: Forzar un ancho mínimo para que no se "apriete" en el celular */
+    min-width: 900px !important; 
+    table-layout: auto;
 }
 
-.modern-table th, .modern-table td {
-    white-space: nowrap; /* Evita que el nombre o correo se rompan en dos líneas */
-    padding: 15px;
-}
-
-/* Ajuste para los filtros para que no se amontonen en móvil */
-.filter-grid {
-    display: flex;
-    flex-wrap: wrap; /* Si no caben en una línea, bajan a la siguiente */
-    justify-content: center;
-    gap: 10px;
-    padding: 0 10px;
-}
-
-.filter-item {
-    flex: 1 1 auto; /* Permite que los botones se ajusten al texto */
-    min-width: 100px;
-    max-width: 150px;
-}
 .modern-table th {
     background: #1a1a1a;
     color: white;
-    padding: 12px;
+    padding: 15px;
     position: sticky;
     top: 0;
     z-index: 10;
-    font-size: 0.75rem;
-    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-align: center;
 }
 
 .modern-table td {
-    padding: 12px 10px;
+    padding: 15px;
     border-bottom: 1px solid #f0f0f0;
     text-align: center;
     vertical-align: middle;
-    font-size: 0.85rem;
+    color: #333;
+    font-weight: 500;
+    /* Evita que el texto largo (correos) rompa el diseño */
+    white-space: nowrap !important; 
 }
 
-/* Evitar que el nombre y correo se rompan en mil líneas */
-.modern-table td:nth-child(2), 
-.modern-table td:nth-child(3) {
-    white-space: nowrap;
+/* Scrollbar Personalizado (Naranja) */
+.table-wrapper-scroll::-webkit-scrollbar { height: 8px; width: 8px; }
+.table-wrapper-scroll::-webkit-scrollbar-thumb {
+    background: #ff8800;
+    border-radius: 10px;
 }
 
 /* =========================================
-   5. BOTONES Y ACCIONES
+   4. ACCIONES Y ESTADOS
    ========================================= */
-.actions-cell { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 8px; 
+.actions-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
-.btn-table-oval { 
-    padding: 6px 12px; 
-    gap: 5px; 
-    min-width: 100px; 
+.btn-table-oval, .btn-table-oval-small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e0e0e0;
+    background: white;
     border-radius: 50px;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-.btn-table-oval-small { width: 40px; height: 32px; border-radius: 50px; }
+.btn-table-oval { padding: 6px 15px; gap: 8px; min-width: 115px; }
+.btn-table-oval-small { width: 50px; height: 32px; }
 
-/* Scrollbar Naranja */
-.table-wrapper-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-.table-wrapper-scroll::-webkit-scrollbar-thumb { background: #ff8800; border-radius: 10px; }
+.oval-text { font-size: 0.8rem; color: #333; font-weight: 600; }
+
+.is-blocked {
+    background-color: #ff8800 !important;
+    border-color: #ff8800 !important;
+}
+.is-blocked .oval-text, .is-blocked .oval-icon { color: white !important; }
+
+.delete-oval:hover { background-color: #333; border-color: #333; color: white; }
+
+/* BADGES DE ROLES */
+.badge-rol {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.cliente { background: #E6FFFA; color: #00664F; }
+.tecnico { background: #EBF5FF; color: #004A99; }
+.admin { background: #FFF5F0; color: #9C4221; }
+.root { background: #ffebee; color: #c62828; }
+
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.status-on { background: #2ecc71; }
+.status-off { background: #e74c3c; }
+
+/* SELECTOR DE ROL */
+.select-rol-inline {
+    appearance: none;
+    padding: 4px 25px 4px 12px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23333" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 12px;
+}
 
 /* =========================================
-   6. MEDIA QUERIES (PARA MÓVILES)
+   5. MEDIA QUERIES (MÓVIL)
    ========================================= */
 @media (max-width: 768px) {
-    .header-admin {
-        padding: 10px 20px;
+    .filter-item {
+        flex: 1 1 45%; /* Dos botones por fila en móvil */
+        font-size: 0.75rem;
     }
     
-    .filter-item {
-        width: 30%; /* Tres por fila en tablets/móviles grandes */
-        flex-grow: 1;
-    }
+    .search-input-large { font-size: 0.9rem; text-indent: 10px; }
 
-    .oval-text {
-        display: none; /* Ocultamos el texto "Bloquear" en móviles para ahorrar espacio */
-    }
-
-    .btn-table-oval {
-        min-width: 40px;
-        padding: 6px;
-    }
-
-    .search-input-large {
-        font-size: 0.85rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .filter-item {
-        width: 45%; /* Dos por fila en móviles pequeños */
-    }
-    
-    .content-area {
-        padding: 10px;
-    }
+    /* Ocultamos el texto de los botones en la tabla para que no sea tan gigante */
+    .oval-text { display: none; }
+    .btn-table-oval { min-width: 40px; padding: 6px; }
 }
