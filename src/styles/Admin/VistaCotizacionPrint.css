@@ -207,16 +207,30 @@ body {
 /* 🖨️ PRINT */
 @media print {
   body {
-    background: white;
+    background: white !important;
+    visibility: hidden;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+
+  .cotizacion-container, .cotizacion-container * {
+    visibility: visible;
   }
 
   .cotizacion-container {
-    max-width: 100%;
-    padding: 10px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
   }
 
   .tabla-container {
-    overflow: visible;
+    overflow: visible !important;
   }
 }
 .tabla-container {

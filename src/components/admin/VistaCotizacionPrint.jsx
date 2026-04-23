@@ -90,15 +90,15 @@ const VistaCotizacionPrint = () => {
   };
 
   const handleDescargar = () => {
-    if (pdfUrl) {
-      const link = document.createElement('a');
-      link.href = pdfUrl;
-      link.download = `cotizacion_${cotizacion.folio}.pdf`;
-      link.target = "_blank";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    const elemento = document.getElementById('cotizacion-pdf');
+    const opciones = {
+      margin: 0,
+      filename: `cotizacion_${cotizacion.folio}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+    html2pdf().set(opciones).from(elemento).save();
   };
 
   const handleImprimir = () => {
