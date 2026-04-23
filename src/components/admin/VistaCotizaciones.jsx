@@ -86,6 +86,120 @@ const VistaCotizaciones = () => {
   };
   // 👆 👆 👆
 
+  const renderConceptoDetalle = (conceptoStr) => {
+    try {
+      const detalle = typeof conceptoStr === 'string' ? JSON.parse(conceptoStr) : conceptoStr;
+      
+      if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.materiales || detalle.herramientas_basicas)) {
+        return (
+          <div className="detalle-parseado">
+            {/* Conceptos / Servicios */}
+            {detalle.conceptos && detalle.conceptos.some(c => c.descripcion) && (
+              <div className="detalle-seccion">
+                <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px' }}>Servicios / Conceptos</h4>
+                <table className="modal-items-table">
+                  <thead>
+                    <tr>
+                      <th>Descripción</th>
+                      <th style={{ textAlign: 'center' }}>Cant.</th>
+                      <th style={{ textAlign: 'center' }}>Precio U.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detalle.conceptos.filter(c => c.descripcion).map((c, i) => (
+                      <tr key={i}>
+                        <td>{c.descripcion}</td>
+                        <td style={{ textAlign: 'center' }}>{c.cantidad || 1}</td>
+                        <td style={{ textAlign: 'center' }}>${parseFloat(c.precio_u || 0).toLocaleString('es-MX')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Materiales */}
+            {detalle.materiales && detalle.materiales.some(m => m.nombre) && (
+              <div className="detalle-seccion" style={{ marginTop: '15px' }}>
+                <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px' }}>Materiales</h4>
+                <table className="modal-items-table">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th style={{ textAlign: 'center' }}>Cant.</th>
+                      <th style={{ textAlign: 'center' }}>Costo U.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detalle.materiales.filter(m => m.nombre).map((m, i) => (
+                      <tr key={i}>
+                        <td>{m.nombre}</td>
+                        <td style={{ textAlign: 'center' }}>{m.cantidad || 1}</td>
+                        <td style={{ textAlign: 'center' }}>${parseFloat(m.costo_u || 0).toLocaleString('es-MX')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Herramientas (Básicas y Especiales) */}
+            {((detalle.herramientas_basicas && detalle.herramientas_basicas.length > 0) || 
+              (detalle.herramientas_especiales && detalle.herramientas_especiales.length > 0)) && (
+              <div className="detalle-seccion" style={{ marginTop: '15px' }}>
+                <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px' }}>Herramientas</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  {detalle.herramientas_basicas && detalle.herramientas_basicas.length > 0 && (
+                    <div>
+                      <p style={{ fontWeight: 'bold', fontSize: '0.85rem', margin: '5px 0' }}>Básicas:</p>
+                      <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem' }}>
+                        {detalle.herramientas_basicas.map((h, i) => (
+                          <li key={i}>{h.nombre} {h.cantidad > 1 ? `(x${h.cantidad})` : ''}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {detalle.herramientas_especiales && detalle.herramientas_especiales.length > 0 && (
+                    <div>
+                      <p style={{ fontWeight: 'bold', fontSize: '0.85rem', margin: '5px 0' }}>Especiales:</p>
+                      <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.9rem' }}>
+                        {detalle.herramientas_especiales.map((h, i) => (
+                          <li key={i}>{h.nombre} {h.cantidad > 1 ? `(x${h.cantidad})` : ''}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+    } catch (e) {
+      console.log("No es un JSON de detalle, se muestra como texto.");
+    }
+
+    // Fallback: Mostrar como antes si no es el JSON esperado
+    return (
+      <table className="modal-items-table">
+        <thead>
+          <tr>
+            <th>Descripción</th>
+            <th style={{ textAlign: 'center' }}>Total Estimado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{conceptoStr}</td>
+            <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
+              ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    );
+  };
+
   return (
     <div className="cotiz-page">
       <div className="top-bar-orange"></div>
@@ -212,25 +326,7 @@ const VistaCotizaciones = () => {
                   </div>
 
                 ) : (
-                  
-                  <>
-                    <table className="modal-items-table">
-                      <thead>
-                        <tr>
-                          <th>Descripción</th>
-                          <th style={{ textAlign: 'center' }}>Total Estimado</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>{cotizacionSeleccionada.concepto}</td>
-                          <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                            ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </>
+                  renderConceptoDetalle(cotizacionSeleccionada.concepto)
                 )}
 
                 <div className="modal-total-section">

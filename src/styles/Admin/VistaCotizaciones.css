@@ -150,9 +150,35 @@
 
 .modal-total-section { text-align: right; margin-top: 25px; color: #ff8800; border-top: 2px solid #eee; padding-top: 10px; }
 
-.modal-footer-btns { background: #f8f8f8; padding: 20px 30px; display: flex; justify-content: flex-end; gap: 15px; }
-.btn-modal-print { background: #333; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
-.btn-modal-close { background: #aaa; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+.modal-footer-btns { background: #f8f8f8; padding: 20px 30px; display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid #eee; }
+.btn-modal-print { 
+    background: #444; 
+    color: white; 
+    border: none; 
+    padding: 12px 30px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    transition: background 0.3s;
+}
+.btn-modal-print:hover { background: #222; }
+
+.btn-modal-close { 
+    background: #1c252e; 
+    color: white; 
+    border: none; 
+    padding: 12px 35px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.3s;
+}
+.btn-modal-close:hover { background: #000; }
 
 /* --- EXTRAS --- */
 .back-arrow-fixed { 
@@ -189,6 +215,22 @@
     padding: 12px 10px; 
     border-bottom: 1px solid #eee; 
     color: #333; /* <--- Texto oscuro para la tabla */
+}
+
+/* Estilos para el detalle parseado */
+.detalle-seccion h4 {
+    margin: 15px 0 10px 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.detalle-seccion ul {
+    list-style-type: disc;
+    color: #555;
+}
+
+.detalle-seccion li {
+    margin-bottom: 5px;
 }
 /* CONTENEDOR DE IMPRESIÓN */
 .printable-quote {
