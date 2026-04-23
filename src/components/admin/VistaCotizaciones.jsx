@@ -67,31 +67,35 @@ const VistaCotizaciones = () => {
   };
 
   return (
-    <div className="cotiz-page">
+    // ✅ CAMBIAMOS A LAS CLASES GLOBALES PARA ELIMINAR EL HUECO GIGANTE
+    <div className="main-container bg-light">
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
-      {/* ✅ HEADER INTEGRADO */}
       <Header rolTexto="COTIZACIONES" />
 
-      <main className="cotiz-main-content">
+      {/* ✅ USAMOS content-area PARA QUE SE COMPORTE COMO LAS OTRAS PANTALLAS */}
+      <section className="content-area">
         
-        {/* ✅ BOTONES DE PESTAÑAS */}
-        <div className="cotiz-tabs-row" style={{ marginTop: '15px' }}>
-          <button className={`cotiz-tab-btn ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>📩 NUEVAS</button>
-          <button className={`cotiz-tab-btn ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>✅ APROBADAS</button>
-          <button className={`cotiz-tab-btn ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>❌ RECHAZADAS</button>
-        </div>
+        {/* ✅ Agrupamos las pestañas y el buscador para que queden centrados y compactos */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
+          
+          <div className="cotiz-tabs-row" style={{ margin: 0 }}>
+            <button className={`cotiz-tab-btn ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>📩 NUEVAS</button>
+            <button className={`cotiz-tab-btn ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>✅ APROBADAS</button>
+            <button className={`cotiz-tab-btn ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>❌ RECHAZADAS</button>
+          </div>
 
-        {/* ✅ SUPERBUSCADOR CON TAMAÑO FORZADO */}
-        <div style={{ width: '100%', maxWidth: '900px', margin: '20px auto' }}>
-          <UniversalSearch
-            type="COTIZACIONES"
-            data={cotizaciones}
-            setFilteredData={setCotizacionesFiltradas}
-            filtroActual={filtro}
-            placeholder="BUSCAR CLIENTE O FOLIO..."
-          />
+          <div style={{ width: '100%', maxWidth: '900px' }}>
+            <UniversalSearch
+              type="COTIZACIONES"
+              data={cotizaciones}
+              setFilteredData={setCotizacionesFiltradas}
+              filtroActual={filtro}
+              placeholder="BUSCAR CLIENTE O FOLIO..."
+            />
+          </div>
+
         </div>
 
         <div className="cotiz-table-container">
@@ -130,9 +134,9 @@ const VistaCotizaciones = () => {
             </tbody>
           </table>
         </div>
-      </main>
+      </section>
 
-      {/* ✅ MODAL DE DETALLES (Mantenido intacto) */}
+      {/* ✅ MODAL DE DETALLES */}
       {cotizacionSeleccionada && (
         <div className="modal-fixed-overlay" onClick={() => setCotizacionSeleccionada(null)}>
           <div className="modal-box-card" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
