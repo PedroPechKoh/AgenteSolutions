@@ -240,18 +240,7 @@ const VistaCotizaciones = () => {
                                       </div>
                                     )}
 
-                                    {detalle.herramientas_especiales && detalle.herramientas_especiales.length > 0 && detalle.herramientas_especiales.some(h => h.nombre) && (
-                                      <div>
-                                        <strong style={{ color: '#FF6600' }}>Herramientas Especiales:</strong>
-                                        <ul style={{ margin: '5px 0', paddingLeft: '20px', color: '#444' }}>
-                                          {detalle.herramientas_especiales.filter(h => h.nombre).map((item, idx) => (
-                                            <li key={idx}>
-                                              {item.nombre} (Cant: {item.cantidad})
-                                            </li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
+                                    {/* ❌ HERRAMIENTAS OMITIDAS A PETICIÓN ❌ */}
 
                                   </div>
                                 );
