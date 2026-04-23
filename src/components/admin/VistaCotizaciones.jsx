@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Header from '../Shared/Header'; // ✅ IMPORTAMOS EL NUEVO HEADER
+import Header from '../Shared/Header'; 
+import UniversalSearch from '../Shared/UniversalSearch'; // ✅ IMPORTAMOS EL SUPERBUSCADOR
 import '../../styles/Admin/VistaCotizaciones.css';
 
 const VistaCotizaciones = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
+  const [cotizacionesFiltradas, setCotizacionesFiltradas] = useState([]); // ✅ ESTADO PARA EL BUSCADOR
   const [cargando, setCargando] = useState(true);
 
   const [filtro, setFiltro] = useState('Pendiente');
-  const [busqueda, setBusqueda] = useState('');
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
 
   const [esCliente, setEsCliente] = useState(false);
@@ -36,17 +37,6 @@ const VistaCotizaciones = () => {
       setCargando(false);
     }
   };
-
-  const filtradas = cotizaciones.filter(c => {
-    const coincideFiltro =
-      (filtro === 'Pendiente' && (c.estado === 'Pendiente' || c.estado === 'En proceso')) ||
-      (filtro === 'Aprobado' && c.estado === 'Aprobado') ||
-      (filtro === 'Rechazado' && c.estado === 'Rechazado');
-
-    const coincideBusqueda = c.cliente.toLowerCase().includes(busqueda.toLowerCase()) ||
-                             c.folio.includes(busqueda);
-    return coincideFiltro && coincideBusqueda;
-  });
 
   const verPantallaCompleta = (url) => {
     window.open(url, '_blank');
@@ -81,28 +71,25 @@ const VistaCotizaciones = () => {
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
-      {/* ✅ AQUÍ REEMPLAZAMOS EL VIEJO HEADER POR EL NUEVO GLOBAL */}
       <Header rolTexto="COTIZACIONES" />
 
       <main className="cotiz-main-content">
-        <div className="cotiz-search-wrapper">
-          <div className="cotiz-search-bar">
-            <input
-              type="text"
-              placeholder="BUSCAR CLIENTE O FOLIO..."
-              className="cotiz-input-field"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-            <span className="cotiz-search-icon">🔍</span>
-          </div>
-        </div>
-
-        <div className="cotiz-tabs-row">
+        
+        {/* ✅ BOTONES DE PESTAÑAS */}
+        <div className="cotiz-tabs-row" style={{ marginTop: '15px' }}>
           <button className={`cotiz-tab-btn ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>📩 NUEVAS</button>
           <button className={`cotiz-tab-btn ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>✅ APROBADAS</button>
           <button className={`cotiz-tab-btn ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>❌ RECHAZADAS</button>
         </div>
+
+        {/* ✅ SUPERBUSCADOR INTEGRADO */}
+        <UniversalSearch
+          type="COTIZACIONES"
+          data={cotizaciones}
+          setFilteredData={setCotizacionesFiltradas}
+          filtroActual={filtro}
+          placeholder="BUSCAR CLIENTE O FOLIO..."
+        />
 
         <div className="cotiz-table-container">
           <table className="cotiz-data-table">
@@ -117,8 +104,8 @@ const VistaCotizaciones = () => {
             <tbody>
               {cargando ? (
                 <tr><td colSpan="4" className="no-data">Cargando cotizaciones...</td></tr>
-              ) : filtradas.length > 0 ? (
-                filtradas.map((c) => (
+              ) : cotizacionesFiltradas.length > 0 ? (
+                cotizacionesFiltradas.map((c) => (
                   <tr key={c.id}>
                     <td className="bold-folio">{c.folio}</td>
                     <td className="cliente-name">{c.cliente}</td>
@@ -300,8 +287,6 @@ const VistaCotizaciones = () => {
           </div>
         </div>
       )}
-
-      <button className="back-arrow-fixed" onClick={() => window.history.back()}>←</button>
     </div>
   );
 };
