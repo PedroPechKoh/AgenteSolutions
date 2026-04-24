@@ -377,3 +377,102 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* Contenedor alineado a la derecha en el medio */
+.sos-sidebar-container {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%); /* Centra exactamente a la mitad */
+  display: flex;
+  flex-direction: row-reverse; /* La burbuja saldrá hacia la izquierda */
+  align-items: center;
+  gap: 15px;
+  z-index: 2000;
+}
+
+/* Botón SOS Grande y Rojo */
+.sos-btn-large {
+  width: 85px; /* Más grande */
+  height: 85px;
+  border-radius: 20px; /* Estilo cuadrado redondeado para que combine con tus cards */
+  background-color: #e63946; /* Rojo intenso */
+  border: 3px solid #ffffff;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sos-btn-large:hover {
+  transform: scale(1.1);
+  background-color: #d62828;
+}
+
+.sos-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sos-emoji {
+  font-size: 32px; /* Emoji más grande */
+}
+
+.sos-label {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+/* Cuadro de confirmación a la izquierda del botón */
+.sos-confirm-box {
+  background-color: #333; /* Negro para contrastar con el botón rojo */
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  text-align: center;
+  width: 150px;
+  animation: slideInRight 0.3s ease;
+}
+
+.sos-confirm-box p {
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.sos-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.sos-btn-yes {
+  background-color: #e63946;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.sos-btn-no {
+  background-color: #666;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Animación de entrada */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
