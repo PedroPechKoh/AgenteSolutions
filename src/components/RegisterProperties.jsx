@@ -186,9 +186,8 @@ const RegisterProperties = () => {
         `${import.meta.env.VITE_API_BASE_URL}/registro-propiedad`, 
         dataToSend,
         {
-          // ✅ INYECTANDO LOS HEADERS NECESARIOS PARA SANCTUM Y ARCHIVOS
+          // ✅ AQUÍ ESTÁ LA MAGIA PARA SAFARI: Quitamos el Content-Type explícito
           headers: {
-            'Content-Type': 'multipart/form-data',
             'Authorization': `Bearer ${token}` 
           }
         }
@@ -258,12 +257,12 @@ const RegisterProperties = () => {
                 >
                     <Camera size={16} /> Seleccionar Archivo
                 </button>
+                {/* ✅ AQUÍ QUITAMOS EL CAPTURE="ENVIRONMENT" PARA QUE IOS NO SE BLOQUEE */}
                 <input 
                     type="file" 
                     ref={cameraRef}
                     accept="image/jpeg,image/png,image/jpg" 
                     onChange={handlePhotoChange}
-                    capture="environment"
                     style={{ display: 'none' }} 
                 />
                 <input 
