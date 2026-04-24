@@ -1,3 +1,4 @@
+// VistaInicioCliente.jsx
 import React, { useState } from 'react';
 import '../../styles/VistaInicioAdmin.css';
 import { useNavigate } from 'react-router-dom';
@@ -13,28 +14,23 @@ const VistaInicioCliente = () => {
     { id: 3, title: 'COTIZACIONES', icon: '🧾', path: '/vista-cotizaciones' },
   ];
 
-  // Redirección a la vista SOS
   const handleConfirmSOS = () => {
     navigate('/SOSView');
   };
 
   return (
     <div className="main-container">
-      {/* Barras decorativas de marca */}
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
-      {/* Cabecera */}
       <Header rolTexto="CLIENTE" />
 
-      {/* Buscador */}
       <div className="search-section">
         <div className="search-input-wrapper">
           <input type="text" placeholder="BUSCAR" />
         </div>
       </div>
       
-      {/* Grid de opciones principales */}
       <div className="admin-grid">
         {menuItems.map((item) => (
           <div 
@@ -54,28 +50,25 @@ const VistaInicioCliente = () => {
         ))}
       </div>
 
-      {/* --- BOTÓN SOS LATERAL (CENTRO-DERECHA) --- */}
-      <div className="sos-sidebar-wrapper">
-        {showConfirm && (
-          <div className="sos-confirm-tooltip">
-            <p className="sos-confirm-text">¿CONFIRMAR EMERGENCIA?</p>
-            <div className="sos-confirm-btns">
-              <button onClick={handleConfirmSOS} className="sos-confirm-yes">SÍ</button>
-              <button onClick={() => setShowConfirm(false)} className="sos-confirm-no">NO</button>
-            </div>
+      {/* --- BOTÓN SOS MEJORADO --- */}
+      <div className="sos-container">
+        <div className={`sos-confirm-popup ${showConfirm ? 'visible' : ''}`}>
+          <p className="sos-confirm-title">⚠️ ¿CONFIRMAR EMERGENCIA?</p>
+          <div className="sos-confirm-buttons">
+            <button onClick={handleConfirmSOS} className="sos-btn-yes">SÍ, ACTIVAR</button>
+            <button onClick={() => setShowConfirm(false)} className="sos-btn-no">CANCELAR</button>
           </div>
-        )}
+        </div>
         
         <button 
-          className={`sos-btn-main ${showConfirm ? 'active' : ''}`}
+          className={`sos-main-button ${showConfirm ? 'active' : ''}`}
           onClick={() => setShowConfirm(!showConfirm)}
         >
-          <span className="sos-btn-icon">🆘</span>
-          <span className="sos-btn-text">SOS</span>
+          <span className="sos-icon-animated">🆘</span>
+          <span className="sos-button-text">SOS</span>
         </button>
       </div>
 
-      {/* Footer con marca de agua */}
       <footer className="footer-watermark">
         <img src="/logo-faded.png" alt="Watermark" className="watermark-img" />
       </footer>

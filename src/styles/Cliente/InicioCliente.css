@@ -1,478 +1,227 @@
-/* Contenedor principal de la cuadrícula */
-.cliente-grid-container {
-  display: grid;
-  /* Esto obliga a que se pongan en columnas de mínimo 300px */
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 40px;
-  padding: 20px;
-  width: 100%;
-  box-sizing: border-box;
-}
+/* Añade o reemplaza estas reglas en tu VistaInicioAdmin.css */
 
-
-/* Contenedor de la tarjeta (Perspectiva 3D) */
-.propiedad-flip-card {
-  background-color: transparent;
-  width: 100%;
-  height: 260px; /* Altura fija para que no se mueva el botón */
-  perspective: 1000px;
-}
-
-/* El cuerpo que gira */
-.propiedad-flip-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  transform-style: preserve-3d;
-}
-
-/* Girar al pasar el mouse */
-.propiedad-flip-card:hover .propiedad-flip-inner {
-  transform: rotateY(180deg);
-}
-
-/* Caras de la tarjeta */
-.propiedad-front, .propiedad-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  border-radius: 25px; /* Bordes redondeados como tu imagen */
-  overflow: hidden;
-}
-
-/* --- LADO FRONTAL (IMAGEN) --- */
-.propiedad-front {
-  background-color: #6b6b6b; /* Gris oscuro de fondo */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.propiedad-front img {
-  width: 92%; /* Deja un pequeño margen para que se vea el fondo gris */
-  height: 90%;
-  object-fit: cover;
-  border-radius: 20px;
-  border: 3px solid #f26624; /* Borde naranja pegado a la foto */
-}
-
-/* Botón VER MÁS */
-.btn-detalle-propiedad {
-  position: absolute;
-  bottom: 25px;
-  left: 50%;
-  transform: translateX(-50%) translateZ(20px); /* translateZ evita que "baile" en el 3D */
-  background-color: #f26624;
-  color: white;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 12px;
-  font-weight: 900;
-  font-size: 12px;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-}
-
-/* --- LADO TRASERO (INFO) --- */
-.propiedad-back {
-  background-color: #bcbcbc; /* Gris claro para la info */
-  color: #333;
-  transform: rotateY(180deg);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 30px;
-  text-align: left;
-  border: 4px solid #f26624; /* El borde naranja de la info */
-  box-sizing: border-box;
-}
-
-.info-item {
-  margin: 8px 0;
-  font-size: 14px;
-  text-transform: uppercase;
-  font-weight: 800;
-}
-
-.info-item span {
-  color: #555;
-  font-weight: 600;
-}
-
-/* Tarjetas vacías (Placeholders) */
-.placeholder-propiedad {
-  background-color: #6b6b6b;
-  border-radius: 25px;
-  height: 260px;
-  width: 100%;
-}
-
-/* Contenedor relativo para poder posicionar el botón de agregar */
-.inicio-cliente-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-/* Cabecera interna de la vista para el botón + */
-.vista-header-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px 50px;
-  margin-bottom: 10px;
-}
-
-.btn-add-property {
-  background-color: #bcbcbc; /* Gris claro como el de tu imagen */
-  color: #333;
-  border: none;
-  width: 60px;
-  height: 45px;
-  border-radius: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-.btn-add-property:hover {
-  background-color: #f26624; /* Cambia a tu naranja al pasar el mouse */
-  color: white;
-  transform: scale(1.05);
-}
-
-/* Ajuste al grid para que no choque con el botón */
-.cliente-grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 40px;
-  padding: 20px 50px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* --- ESTILOS DEL RESUMEN GLOBAL --- */
-.resumen-global-container {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  padding: 10px 50px 30px;
-  flex-wrap: wrap;
-}
-
-.resumen-card {
-  display: flex;
-  align-items: center;
-  padding: 15px 25px;
-  border-radius: 20px;
-  min-width: 140px;
-  gap: 12px;
-  position: relative;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-.resumen-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.resumen-count {
-  font-size: 22px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.resumen-label {
-  font-size: 10px;
-  font-weight: 800;
-  color: #666;
-  text-transform: uppercase;
-}
-
-.icon-resumen {
-  width: 24px;
-  height: 24px;
-}
-
-/* Colores por estado */
-.listos { background-color: #e6fcf5; color: #087f5b; }
-.proceso { background-color: #e7f5ff; color: #1971c2; }
-.pendientes { background-color: #fff9db; color: #f08c00; }
-
-/* Tarjetas de SOS y Cotizaciones (Estilo Botón) */
-.sos-global {
-  background-color: #fff5f5;
-  color: #fa5252;
-  border: 1px solid #ffc9c9;
-  cursor: pointer;
-}
-
-.cotizaciones-global {
-  background-color: #f3f0ff;
-  color: #7950f2;
-  border: 1px solid #d0bfff;
-  cursor: pointer;
-}
-
-/* Badges (los circulitos rojos/azules con el número) */
-.sos-badge-count, .cot-badge-count {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  color: white;
-  font-size: 11px;
-  font-weight: 900;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid white;
-}
-
-.sos-badge-count { background-color: #fa5252; }
-.cot-badge-count { background-color: #4c6ef5; }
-
-/* Ajustes de Cabecera */
-.header-view-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 50px;
-}
-
-.main-title-view {
-  font-weight: 900;
-  font-size: 24px;
-  margin: 0;
-}
-
-/* Tu botón + mejorado */
-.btn-add-property {
-  background-color: #bcbcbc;
-  color: #333;
-  border: none;
-  width: 50px;
-  height: 50px;
-  border-radius: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-add-property:hover {
-  background-color: #f26624;
-  color: white;
-}
-/* Contenedor del SOS Flotante */
-.sos-fixed-container {
+/* --- BOTÓN SOS MEJORADO --- */
+.sos-container {
   position: fixed;
   bottom: 30px;
   right: 30px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 15px;
   z-index: 1000;
 }
 
-/* El botón circular */
-.btn-sos-float {
-  width: 70px;
-  height: 70px;
+/* Botón principal SOS */
+.sos-main-button {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background-color: #f26624; /* Tu naranja de Agente Solutions */
-  border: 4px solid white;
+  background: linear-gradient(135deg, #ff3b30 0%, #d32f2f 100%);
+  border: none;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  transition: all 0.3s ease;
-  animation: pulse-red 2s infinite;
+  gap: 4px;
+  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-sos-float:hover {
+/* Efecto de pulso (más sutil y moderno) */
+.sos-main-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  animation: sosPulse 2s infinite;
+}
+
+@keyframes sosPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.7;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Hover del botón principal */
+.sos-main-button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 28px rgba(211, 47, 47, 0.5);
+  background: linear-gradient(135deg, #ff5448 0%, #e53935 100%);
+}
+
+/* Estado activo (cuando se muestra el popup) */
+.sos-main-button.active {
+  transform: scale(0.95);
+  background: linear-gradient(135deg, #b71c1c 0%, #8e0000 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sos-main-button.active::before {
+  animation: none;
+}
+
+/* Icono animado */
+.sos-icon-animated {
+  font-size: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  transition: transform 0.2s ease;
+}
+
+.sos-main-button:hover .sos-icon-animated {
   transform: scale(1.1);
-  background-color: #d14d14;
 }
 
-.btn-sos-float.active {
-  transform: rotate(15deg);
-  background-color: #333; /* Cambia a negro cuando está abierto */
+.sos-main-button.active .sos-icon-animated {
+  transform: rotate(90deg);
 }
 
-.sos-icon {
-  font-size: 24px;
-  line-height: 1;
-}
-
-.sos-text {
-  font-size: 10px;
-  font-weight: 900;
-  color: white;
-}
-
-/* Burbuja de confirmación */
-.sos-confirm-bubble {
-  background-color: white;
-  padding: 15px;
-  border-radius: 15px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-  margin-bottom: 15px;
-  width: 180px;
-  text-align: center;
-  border: 2px solid #f26624;
-  animation: fadeIn 0.3s ease;
-}
-
-.sos-confirm-bubble p {
+/* Texto del botón */
+.sos-button-text {
   font-size: 12px;
-  font-weight: 800;
-  margin-bottom: 10px;
-  color: #333;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+/* Popup de confirmación - diseño moderno */
+.sos-confirm-popup {
+  background: #1e1e2f;
+  border-radius: 20px;
+  padding: 16px 20px;
+  min-width: 210px;
+  text-align: center;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  transform: translateX(30px) scale(0.8);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s cubic-bezier(0.34, 1.2, 0.64, 1);
+  backdrop-filter: blur(4px);
+}
+
+.sos-confirm-popup.visible {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Título del popup */
+.sos-confirm-title {
+  color: #ff6b6b;
+  font-size: 13px;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Contenedor de botones del popup */
 .sos-confirm-buttons {
   display: flex;
-  justify-content: space-around;
-}
-
-.btn-confirm-yes {
-  background-color: #f26624;
-  color: white;
-  border: none;
-  padding: 5px 15px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-confirm-no {
-  background-color: #bcbcbc;
-  color: white;
-  border: none;
-  padding: 5px 15px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-/* Animaciones */
-@keyframes pulse-red {
-  0% { box-shadow: 0 0 0 0 rgba(242, 102, 36, 0.7); }
-  70% { box-shadow: 0 0 0 15px rgba(242, 102, 36, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(242, 102, 36, 0); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-/* Contenedor alineado a la derecha en el medio */
-.sos-sidebar-container {
-  position: fixed;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%); /* Centra exactamente a la mitad */
-  display: flex;
-  flex-direction: row-reverse; /* La burbuja saldrá hacia la izquierda */
-  align-items: center;
-  gap: 15px;
-  z-index: 2000;
-}
-
-/* Botón SOS Grande y Rojo */
-.sos-btn-large {
-  width: 85px; /* Más grande */
-  height: 85px;
-  border-radius: 20px; /* Estilo cuadrado redondeado para que combine con tus cards */
-  background-color: #e63946; /* Rojo intenso */
-  border: 3px solid #ffffff;
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.4);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  display: flex;
-  align-items: center;
+  gap: 12px;
   justify-content: center;
 }
 
-.sos-btn-large:hover {
-  transform: scale(1.1);
-  background-color: #d62828;
-}
-
-.sos-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.sos-emoji {
-  font-size: 32px; /* Emoji más grande */
-}
-
-.sos-label {
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-/* Cuadro de confirmación a la izquierda del botón */
-.sos-confirm-box {
-  background-color: #333; /* Negro para contrastar con el botón rojo */
-  padding: 15px;
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  text-align: center;
-  width: 150px;
-  animation: slideInRight 0.3s ease;
-}
-
-.sos-confirm-box p {
-  color: white;
-  font-size: 11px;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.sos-confirm-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-}
-
+/* Botón SÍ (Activar) */
 .sos-btn-yes {
-  background-color: #e63946;
-  color: white;
+  background: linear-gradient(135deg, #ff3b30 0%, #d32f2f 100%);
   border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
-  font-weight: bold;
+  padding: 8px 18px;
+  border-radius: 40px;
+  color: white;
+  font-weight: 800;
+  font-size: 12px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.8px;
+  box-shadow: 0 2px 6px rgba(211, 47, 47, 0.3);
 }
 
+.sos-btn-yes:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #ff5448 0%, #f44336 100%);
+  box-shadow: 0 4px 10px rgba(211, 47, 47, 0.5);
+}
+
+.sos-btn-yes:active {
+  transform: translateY(1px);
+}
+
+/* Botón CANCELAR */
 .sos-btn-no {
-  background-color: #666;
-  color: white;
+  background: #3a3a4a;
   border: none;
-  padding: 6px 12px;
-  border-radius: 5px;
-  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 40px;
+  color: #e0e0e0;
+  font-weight: 700;
+  font-size: 12px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
 }
 
-/* Animación de entrada */
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
+.sos-btn-no:hover {
+  background: #4a4a5e;
+  color: white;
+}
+
+/* Ajustes responsivos para móviles */
+@media (max-width: 768px) {
+  .sos-container {
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .sos-main-button {
+    width: 65px;
+    height: 65px;
+  }
+  
+  .sos-icon-animated {
+    font-size: 26px;
+  }
+  
+  .sos-button-text {
+    font-size: 10px;
+  }
+  
+  .sos-confirm-popup {
+    min-width: 180px;
+    padding: 12px 16px;
+  }
+  
+  .sos-confirm-title {
+    font-size: 11px;
+  }
+  
+  .sos-btn-yes, .sos-btn-no {
+    padding: 6px 14px;
+    font-size: 10px;
+  }
+}
+
+/* Efecto de foco/click */
+.sos-main-button:focus-visible {
+  outline: 3px solid #ffb74d;
+  outline-offset: 2px;
 }
