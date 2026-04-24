@@ -178,6 +178,8 @@ const VistaPropiedades = () => {
                     p.thumbnail || 
                     p.cover || 
                     p.img || 
+                    (p.propiedad && p.propiedad.facade_photo_path) || 
+                    (p.propiedad && p.propiedad.facade_photo) || 
                     'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'
                   } 
                   alt="Propiedad" 
