@@ -117,7 +117,6 @@ const VistaPropiedades = () => {
 
       <section className="content-area">
         
-        {/* ✅ CAMBIO: justifyContent: 'center' para que todo el bloque de botones se centre */}
         <div className="search-header-flex">
           <div className="search-container-center">
             <UniversalSearch
@@ -138,7 +137,6 @@ const VistaPropiedades = () => {
           </button>
         </div>
 
-        {/* Botones de Categoría */}
         <div className="categories-row-container">
           <div className="categories-row">
             {TIPOS_PROPIEDAD.map((tipo) => (
@@ -161,32 +159,14 @@ const VistaPropiedades = () => {
           ) : propiedadesFiltradas.length > 0 ? (
             propiedadesFiltradas.map((p) => (
               <div key={p.id} className="property-card">
+                
+                {/* 👇 AQUÍ ESTÁ LA MAGIA LIMPIA 👇 */}
                 <img 
-                  src={
-                    p.facade_photo_path || 
-                    p.facade_photo || 
-                    p.property_photo || 
-                    p.foto_fachada || 
-                    p.foto_propiedad || 
-                    p.image_path || 
-                    p.picture || 
-                    p.foto || 
-                    p.imagen || 
-                    p.image || 
-                    p.photo || 
-                    p.fachada || 
-                    p.thumbnail || 
-                    p.cover || 
-                    p.img || 
-                    (p.propiedad && p.propiedad.facade_photo_path) || 
-                    (p.propiedad && p.propiedad.facade_photo) || 
-                    'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'
-                  } 
-                  alt="Propiedad" 
+                  src={p.foto_url || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
+                  alt={p.nombre_propiedad || "Propiedad"} 
                   className="property-image" 
                 />
 
-                {/* Overlay de Hover */}
                 <div className="property-overlay">
                   <div className="overlay-icon-actions">
                     <button className="btn-icon-overlay" title="Editar">✏️</button>
@@ -226,7 +206,7 @@ const VistaPropiedades = () => {
 
                     <button 
                       className="btn-overlay outline"
-                      onClick={() => window.open(`https://www.google.com/maps?q=${p.direccion}`, "_blank")}
+                      onClick={() => window.open(`https://www.google.com/maps?q=$${p.direccion}`, "_blank")}
                     >
                       🗺️ VER MAPA
                     </button>
@@ -243,7 +223,7 @@ const VistaPropiedades = () => {
 
       </section>
 
-      {/* 👇 MODAL DE SOLICITAR LEVANTAMIENTO 👇 */}
+      {/* MODAL DE SOLICITAR LEVANTAMIENTO */}
       {mostrarModalServicio && (
         <div
           className="modal-overlay"
