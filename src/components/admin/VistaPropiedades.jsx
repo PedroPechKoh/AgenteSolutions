@@ -161,81 +161,55 @@ const VistaPropiedades = () => {
           ) : propiedadesFiltradas.length > 0 ? (
             propiedadesFiltradas.map((p) => (
               <div key={p.id} className="property-card">
-                {/* Parte superior: Imagen con botón VER MÁS */}
-                <div className="property-image-container">
-                  <img 
-                    src={p.facade_photo_path || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
-                    alt="Propiedad" 
-                    className="property-image" 
-                  />
-                  <div className="ver-mas-overlay">
-                    <button 
-                      className="btn-ver-mas"
-                      onClick={() => navigate(`/propiedad/${p.id}`)}
-                    >
-                      VER MÁS
-                    </button>
-                  </div>
-                </div>
+                <img 
+                  src={p.facade_photo_path || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
+                  alt="Propiedad" 
+                  className="property-image" 
+                />
 
-                {/* Bloque de Información (Aparece en HOVER) */}
-                <div className="property-info-box">
-                  <div className="info-item">
-                    <span className="info-label">ID :</span>
-                    <span className="info-value">#{p.id}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">PROPIETARIO :</span>
-                    <span className="info-value">{p.propietario || "Sin Propietario"}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">DIRECCION :</span>
-                    <span className="info-value">{p.direccion || "Sin dirección registrada"}</span>
-                  </div>
-                </div>
-
-                {/* Botones de Acción Restaurados (Aparecen en HOVER) */}
-                <div className="card-actions-column">
-                  <button
-                    className="btn-restored btn-blue"
-                    title="Ver Tablero de la Propiedad"
-                    onClick={() => navigate(`/propiedad/${p.id}`)}
-                  >
-                    VER TABLERO
-                  </button>
-
-                  {p.has_pending_service ? (
-                    <button className="btn-restored" style={{ backgroundColor: "#e0e0e0", color: "#888" }} disabled>
-                      LEVANTAMIENTO SOLICITADO
-                    </button>
-                  ) : (
-                    <button
-                      className="btn-restored btn-green"
-                      onClick={() => abrirModalParaPropiedad(p)}
-                    >
-                      SOLICITAR LEVANTAMIENTO
-                    </button>
-                  )}
-
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                {/* Overlay de Hover */}
+                <div className="property-overlay">
+                  <div className="overlay-icon-actions">
+                    <button className="btn-icon-overlay" title="Editar">✏️</button>
                     <button 
-                      className="btn-restored btn-maps" 
-                      onClick={() => window.open(`https://www.google.com/maps?q=${p.direccion}`, "_blank")}
-                    >
-                      🗺️ MAPS
-                    </button>
-                    <button 
-                      className="btn-restored btn-orange-action" 
-                      title="Editar"
-                    >
-                      ✏️
-                    </button>
-                    <button 
-                      className="btn-restored btn-red" 
+                      className="btn-icon-overlay" 
                       title="Eliminar"
-                      onClick={() => eliminarPropiedad(p.id)}
+                      onClick={(e) => { e.stopPropagation(); eliminarPropiedad(p.id); }}
                     >
                       🗑️
+                    </button>
+                  </div>
+
+                  <h3 className="property-title-overlay">
+                    {p.propietario || "Sin Propietario"}
+                  </h3>
+
+                  <div className="overlay-actions">
+                    <button
+                      className="btn-overlay secondary"
+                      onClick={() => navigate(`/propiedad/${p.id}`)}
+                    >
+                      VER TABLERO
+                    </button>
+
+                    {p.has_pending_service ? (
+                      <button className="btn-overlay outline" disabled>
+                        YA SOLICITADO
+                      </button>
+                    ) : (
+                      <button
+                        className="btn-overlay primary"
+                        onClick={() => abrirModalParaPropiedad(p)}
+                      >
+                        SOLICITAR VISITA
+                      </button>
+                    )}
+
+                    <button 
+                      className="btn-overlay outline"
+                      onClick={() => window.open(`https://www.google.com/maps?q=${p.direccion}`, "_blank")}
+                    >
+                      🗺️ VER MAPA
                     </button>
                   </div>
                 </div>
