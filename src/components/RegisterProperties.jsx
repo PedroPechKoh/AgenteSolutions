@@ -211,10 +211,19 @@ const RegisterProperties = () => {
       setFotoFile(null);
       setFotoPreview(null);
 
-    } catch (error) {
+    }  catch (error) {
       setTipoMensaje("error");
-      setMensaje("Error al guardar la propiedad. " + (error.response?.data?.message || ""));
+      
+      // Obligamos a sacar el error real
+      const errorDeRed = error.message || "Error desconocido";
+      const errorDelServidor = error.response?.data?.message || error.response?.data?.error || "";
+      
+      const detalleFinal = errorDelServidor ? errorDelServidor : errorDeRed;
+      
+      setMensaje("Fallo en iOS: " + detalleFinal);
+      alert("ATENCIÓN: " + detalleFinal); // Un alert para que no pase desapercibido en el celular
     }
+    
   };
 
   return (
