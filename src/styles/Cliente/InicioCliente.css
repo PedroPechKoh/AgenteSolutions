@@ -1,19 +1,24 @@
 /* --- BOTÓN SOS FLOTANTE (CORREGIDO) --- */
 
 .sos-container {
-  /* position: fixed es clave, pero añadimos !important para asegurar que ignore contenedores padres */
+  /* Forzamos la posición fija respecto a la VENTANA, no al div padre */
   position: fixed !important; 
   bottom: 30px !important;
   right: 30px !important;
   
-  /* Un z-index extremadamente alto para que nada lo tape */
+  /* Un z-index altísimo para que pase por encima de cualquier grid o footer */
   z-index: 999999 !important; 
   
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 15px;
-  pointer-events: auto; /* Asegura que detecte los clics */
+  
+  /* Evita que el contenedor bloquee clics en el resto de la app */
+  pointer-events: none; 
+}
+.sos-container > * {
+  pointer-events: auto;
 }
 
 /* Botón principal SOS */
@@ -28,15 +33,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  
-  /* Sombra más profunda para dar sensación de altura/flotado */
-  box-shadow: 0 10px 25px rgba(211, 47, 47, 0.5); 
+  box-shadow: 0 8px 25px rgba(211, 47, 47, 0.5);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
-  overflow: visible; /* Cambiado de hidden para que el pulso se vea mejor */
 }
-
 /* Efecto de pulso (Aura externa) */
 .sos-main-button::before {
   content: '';
@@ -56,11 +56,9 @@
   80%, 100% { transform: scale(1.6); opacity: 0; }
 }
 
-/* Hover del botón principal */
 .sos-main-button:hover {
   transform: scale(1.1);
-  box-shadow: 0 15px 30px rgba(211, 47, 47, 0.6);
-  background: linear-gradient(135deg, #ff5448 0%, #e53935 100%);
+  box-shadow: 0 12px 30px rgba(211, 47, 47, 0.6);
 }
 
 /* Estado activo (cuando se presiona o abre el popup) */
@@ -93,25 +91,23 @@
 .sos-confirm-popup {
   background: #1e1e2f;
   border-radius: 20px;
-  padding: 18px 22px;
-  min-width: 220px;
+  padding: 16px 20px;
+  min-width: 210px;
   text-align: center;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 59, 48, 0.4);
-  backdrop-filter: blur(8px);
   
-  /* Animación desde abajo hacia arriba al aparecer */
-  transform: translateY(20px) scale(0.8);
+  /* Animación suave */
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  margin-bottom: 5px;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
 }
 
 .sos-confirm-popup.visible {
-  transform: translateY(0) scale(1);
   opacity: 1;
   visibility: visible;
+  transform: translateY(0);
 }
 
 .sos-confirm-title {
