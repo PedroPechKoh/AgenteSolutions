@@ -13,28 +13,28 @@ const VistaInicioCliente = () => {
     { id: 3, title: 'COTIZACIONES', icon: '🧾', path: '/vista-cotizaciones' },
   ];
 
-  // Función para redirigir a la vista de SOS
+  // Redirección a la vista SOS
   const handleConfirmSOS = () => {
     navigate('/SOSView');
   };
 
   return (
     <div className="main-container">
-      {/* Barras superiores de diseño */}
+      {/* Barras decorativas de marca */}
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
-      {/* Componente Header */}
+      {/* Cabecera */}
       <Header rolTexto="CLIENTE" />
 
-      {/* Sección de Búsqueda */}
+      {/* Buscador */}
       <div className="search-section">
         <div className="search-input-wrapper">
           <input type="text" placeholder="BUSCAR" />
         </div>
       </div>
       
-      {/* Cuadrícula de Menú Principal */}
+      {/* Grid de opciones principales */}
       <div className="admin-grid">
         {menuItems.map((item) => (
           <div 
@@ -54,39 +54,28 @@ const VistaInicioCliente = () => {
         ))}
       </div>
 
-      {/* --- SECCIÓN DEL BOTÓN SOS FLOTANTE --- */}
-      <div className="sos-fixed-container">
+      {/* --- BOTÓN SOS LATERAL (CENTRO-DERECHA) --- */}
+      <div className="sos-sidebar-wrapper">
         {showConfirm && (
-          <div className="sos-confirm-bubble">
-            <p>¿Necesitas asistencia inmediata?</p>
-            <div className="sos-confirm-buttons">
-              <button 
-                onClick={handleConfirmSOS} 
-                className="btn-confirm-yes"
-              >
-                SÍ
-              </button>
-              <button 
-                onClick={() => setShowConfirm(false)} 
-                className="btn-confirm-no"
-              >
-                NO
-              </button>
+          <div className="sos-confirm-tooltip">
+            <p className="sos-confirm-text">¿CONFIRMAR EMERGENCIA?</p>
+            <div className="sos-confirm-btns">
+              <button onClick={handleConfirmSOS} className="sos-confirm-yes">SÍ</button>
+              <button onClick={() => setShowConfirm(false)} className="sos-confirm-no">NO</button>
             </div>
           </div>
         )}
         
         <button 
-          className={`btn-sos-float ${showConfirm ? 'active' : ''}`}
+          className={`sos-btn-main ${showConfirm ? 'active' : ''}`}
           onClick={() => setShowConfirm(!showConfirm)}
-          title="Botón de Emergencia"
         >
-          <span className="sos-icon">🆘</span>
-          <span className="sos-text">SOS</span>
+          <span className="sos-btn-icon">🆘</span>
+          <span className="sos-btn-text">SOS</span>
         </button>
       </div>
 
-      {/* Marca de agua / Footer */}
+      {/* Footer con marca de agua */}
       <footer className="footer-watermark">
         <img src="/logo-faded.png" alt="Watermark" className="watermark-img" />
       </footer>
