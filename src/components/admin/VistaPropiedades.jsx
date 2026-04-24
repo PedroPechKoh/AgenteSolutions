@@ -162,7 +162,17 @@ const VistaPropiedades = () => {
             propiedadesFiltradas.map((p) => (
               <div key={p.id} className="property-card">
                 <img 
-                  src={p.facade_photo_path || p.facade_photo || p.foto_fachada || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
+                  src={
+                    p.facade_photo_path || 
+                    p.facade_photo || 
+                    p.foto_fachada || 
+                    p.foto_propiedad || 
+                    p.image_path || 
+                    p.picture || 
+                    p.foto || 
+                    p.imagen || 
+                    'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'
+                  } 
                   alt="Propiedad" 
                   className="property-image" 
                 />
