@@ -242,7 +242,7 @@
     background: #f44336;
 }
 
-/* --- ESTILOS RESPONSIVOS --- */
+/* --- ESTILOS RESPONSIVOS MEJORADOS --- */
 @media (max-width: 1200px) {
     .properties-grid { grid-template-columns: repeat(3, 1fr); }
 }
@@ -251,12 +251,61 @@
     .properties-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+@media (max-width: 768px) {
+    .search-header-flex {
+        flex-direction: column;
+        gap: 15px;
+        padding: 0 20px;
+    }
+
+    .search-container-center {
+        width: 100%;
+    }
+
+    .btn-add-circle {
+        width: 100%;
+        height: 50px;
+        border-radius: 12px;
+    }
+
+    .categories-row {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 0 10px;
+    }
+
+    .cat-btn {
+        padding: 8px 15px;
+        font-size: 0.75rem;
+    }
+}
+
 @media (max-width: 600px) {
     .properties-grid { 
         grid-template-columns: 1fr; 
-        width: 90%;
+        width: 92%;
+        gap: 20px;
     }
-    .property-card { height: 220px; }
+
+    .property-card { 
+        height: 200px; 
+        border-radius: 15px;
+    }
+
+    .property-title-overlay {
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .overlay-actions {
+        width: 95%;
+        gap: 6px;
+    }
+
+    .btn-overlay {
+        padding: 6px 10px;
+        font-size: 0.7rem;
+    }
 }
 
 .btn-icon-action {
@@ -269,36 +318,4 @@
 
 .btn-icon-action:hover {
     transform: scale(1.2);
-}
-
-/* --- ESTILOS RESPONSIVOS PARA MOVILES --- */
-@media (max-width: 768px) {
-    .search-header-flex {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .search-container-center {
-        width: 95%;
-    }
-
-    .btn-add-circle {
-        width: 100%;
-        height: 45px;
-        font-size: 1.5rem;
-    }
-
-    .properties-grid {
-        grid-template-columns: 1fr;
-        width: 95%;
-        gap: 20px;
-    }
-
-    .property-card {
-        border-radius: 20px;
-    }
-
-    .property-image-container {
-        height: 180px;
-    }
 }

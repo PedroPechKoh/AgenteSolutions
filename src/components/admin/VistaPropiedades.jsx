@@ -165,12 +165,19 @@ const VistaPropiedades = () => {
                   src={
                     p.facade_photo_path || 
                     p.facade_photo || 
+                    p.property_photo || 
                     p.foto_fachada || 
                     p.foto_propiedad || 
                     p.image_path || 
                     p.picture || 
                     p.foto || 
                     p.imagen || 
+                    p.image || 
+                    p.photo || 
+                    p.fachada || 
+                    p.thumbnail || 
+                    p.cover || 
+                    p.img || 
                     'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'
                   } 
                   alt="Propiedad" 
