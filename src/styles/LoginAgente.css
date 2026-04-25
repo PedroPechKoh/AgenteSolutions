@@ -347,4 +347,13 @@
 
 .btn-cancelar:hover {
   transform: scale(1.05);
+}
+
+.login-modal-input {
+  background-color: #e8eaed !important;
+  color: #1a1a1a !important;
+}
+
+.login-modal-input::placeholder {
+  color: #555555 !important;
 }
