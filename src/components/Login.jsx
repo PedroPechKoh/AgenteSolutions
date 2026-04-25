@@ -230,9 +230,9 @@ const handleLogin = async (e) => {
       </form>
 
       {isRecoverModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <img src={Logo3} alt="Agente Solutions" className="modal-logo" style={{ width: '150px', marginBottom: '20px' }} />
+        <div className="login-modal-overlay">
+          <div className="login-modal-content">
+            <img src={Logo3} alt="Agente Solutions" className="login-modal-logo" style={{ width: '150px', marginBottom: '20px' }} />
             <h3 style={{ color: 'white', marginBottom: '20px', fontStyle: 'italic' }}>RECUPERAR CONTRASEÑA</h3>
             <form onSubmit={handleRecoverPassword} style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '100%' }}>
               <div className="input-group">
@@ -276,10 +276,10 @@ const handleLogin = async (e) => {
               </button>
               <button 
                 type="button" 
+                className="btn-cancelar"
                 onClick={() => setIsRecoverModalOpen(false)} 
-                style={{ background: 'transparent', border: 'none', color: '#ccc', cursor: 'pointer', marginTop: '10px', textDecoration: 'underline', fontStyle: 'italic', fontWeight: 'bold' }}
               >
-                Cancelar
+                CANCELAR
               </button>
               {recoverMessage && (
                 <p className={`msg-box ${recoverMessage.includes("Error") || recoverMessage.includes("no coinciden") ? "error" : "success"}`} style={{ marginTop: '10px' }}>
