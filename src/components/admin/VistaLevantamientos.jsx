@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/Admin/VistaLevantamientos.css";
-import logo from "../../assets/Logo4.png";
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
+import Header from "../Shared/Header";
 
 const VistaLevantamientos = () => {
   const navigate = useNavigate();
@@ -176,34 +176,17 @@ const VistaLevantamientos = () => {
 
   return (
     <div className="lev-main-page">
-      <div className="lev-top-bar-orange"></div>
-      <div className="lev-top-bar-black"></div>
-
-      <header
-        className="lev-header"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "10px 40px",
-        }}
-      >
-        <img
-          src={logo}
-          alt="Logo"
-          className="lev-logo"
-          style={{ height: "50px" }}
-        />
-        {/* 👇 El botón manda a tu formulario de asignar-servicio 👇 */}
-        <button
-          className="lev-btn-add"
-          onClick={() => navigate("/assign-service")}
-        >
-          {isClient ? "+ PEDIR SERVICIO" : "+ NUEVO LEVANTAMIENTO"}
-        </button>
-      </header>
+      <Header />
 
       <main className="lev-container">
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
+          <button
+            className="lev-btn-add"
+            onClick={() => navigate("/assign-service")}
+          >
+            {isClient ? "+ PEDIR SERVICIO" : "+ NUEVO LEVANTAMIENTO"}
+          </button>
+        </div>
         <div className="lev-search-box">
           <input
             type="text"
