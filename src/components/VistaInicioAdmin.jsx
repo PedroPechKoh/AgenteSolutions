@@ -26,12 +26,7 @@ const VistaInicioAdmin = () => {
 
       <Header rolTexto="ADMINISTRADOR" />
 
-      <div className="search-section">
-        <div className="search-input-wrapper">
-          <input type="text" placeholder="BUSCAR" />
-        </div>
-      </div>
-      
+
       <div className="admin-grid">
         {menuItems.map((item) => (
           <div 
