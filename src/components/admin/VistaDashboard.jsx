@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import { ChevronLeft, Users, Home, Box, AlertTriangle, FileText, ClipboardCheck, DollarSign } from 'lucide-react';
 import '../../styles/Admin/VistaDashboard.css';
+import Header from '../Shared/Header';
 
 
 const VistaDashboard = () => {
@@ -39,12 +40,14 @@ const VistaDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
-        <button className="btn-back-dash" onClick={() => navigate(-1)}>
+      <Header />
+
+      <div style={{ padding: '20px 40px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <button className="btn-back-dash" onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
           <ChevronLeft size={20} /> VOLVER AL MENÚ
         </button>
-        <h1>Panel de Control Administrativo - Agente Solutions</h1>
-      </header>
+        <h2 style={{ margin: 0, color: '#333', fontSize: '1.5rem' }}>Panel de Control Administrativo</h2>
+      </div>
 
       {/* KPIs - Representando las categorías del Menú */}
       <div className="stats-grid">
