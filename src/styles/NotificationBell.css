@@ -84,16 +84,15 @@
   background-color: #f0f0f0;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 500px) {
   .notification-dropdown {
-    width: 290px;
-    right: -65px; /* Shift to the right to fit the screen */
-  }
-}
-
-@media (max-width: 360px) {
-  .notification-dropdown {
-    width: 270px;
-    right: -60px; /* Shift further to fit smaller screens */
+    position: fixed;
+    top: 80px; /* Below the header */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 340px;
+    right: auto;
+    z-index: 1050;
   }
 }
