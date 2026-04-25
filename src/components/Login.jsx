@@ -20,6 +20,8 @@ const LoginAgente = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [recoverMessage, setRecoverMessage] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   //Variablaes para personalizar el Login
 const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000' });
@@ -250,26 +252,32 @@ const handleLogin = async (e) => {
               <div className="input-group">
                 <Lock size={20} strokeWidth={2.5} className="input-icon" />
                 <input
-                  type="password"
+                  type={showNewPassword ? "text" : "password"}
                   placeholder="NUEVA CONTRASEÑA"
                   className="custom-input login-modal-input"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
-                  style={{ paddingLeft: "50px" }}
+                  style={{ paddingLeft: "50px", paddingRight: "45px" }}
                 />
+                <button type="button" className="toggle-password-btn" onClick={() => setShowNewPassword(!showNewPassword)}>
+                  {showNewPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
+                </button>
               </div>
               <div className="input-group">
                 <Lock size={20} strokeWidth={2.5} className="input-icon" />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="CONFIRMAR CONTRASEÑA"
                   className="custom-input login-modal-input"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  style={{ paddingLeft: "50px" }}
+                  style={{ paddingLeft: "50px", paddingRight: "45px" }}
                 />
+                <button type="button" className="toggle-password-btn" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
+                  {showConfirmPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
+                </button>
               </div>
               <button type="submit" className="btn-login" style={{ fontSize: '1.2rem', padding: '10px' }}>
                 ACTUALIZAR
