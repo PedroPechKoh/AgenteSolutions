@@ -13,15 +13,19 @@
     background-color: #e0e0e0;
     border-radius: 40px;
     border: none;
-    padding: 12px 30px;
+    padding: 12px 20px 12px 45px; /* Padding izquierdo para dar espacio al icono */
     font-size: 1.1rem;
-    color: #333;
+    color: #1a1a1a; /* Texto más oscuro */
     font-weight: bold;
     text-transform: uppercase;
     width: 100%;
     box-sizing: border-box;
     transition: all 0.3s ease;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-input-large::placeholder {
+    color: #666; /* Placeholder más visible */
 }
 
 .search-input-large:focus {
@@ -32,11 +36,11 @@
 
 .search-icon-inside {
     position: absolute;
-    right: 20px;
+    left: 15px; /* Icono posicionado a la izquierda */
     top: 50%;
     transform: translateY(-50%);
-    font-size: 1.5rem;
-    color: #000;
-    filter: drop-shadow(0 0 2px rgba(0,0,0,0.3));
+    font-size: 1.3rem;
+    color: #333;
+    filter: drop-shadow(0 0 1px rgba(0,0,0,0.2));
     pointer-events: none;
 }
