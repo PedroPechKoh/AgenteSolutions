@@ -4,7 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import Logo4 from "../assets/Logo4.png";
+import Logo3 from "../assets/Logo3.png";
 
 
 const LoginAgente = () => {
@@ -164,7 +164,7 @@ const handleLogin = async (e) => {
       }} 
     >
       
-      <img src={Logo4} alt="Agente Solutions" className="logo-top-left" />
+      <img src={Logo3} alt="Agente Solutions" className="logo-top-left" />
       <div className="decoration-layer">
         <div className="stripe-top"></div>
         <div className="stripe-bottom"></div>
@@ -232,7 +232,7 @@ const handleLogin = async (e) => {
       {isRecoverModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <img src={Logo4} alt="Agente Solutions" className="modal-logo" style={{ width: '150px', marginBottom: '20px' }} />
+            <img src={Logo3} alt="Agente Solutions" className="modal-logo" style={{ width: '150px', marginBottom: '20px' }} />
             <h3 style={{ color: 'white', marginBottom: '20px', fontStyle: 'italic' }}>RECUPERAR CONTRASEÑA</h3>
             <form onSubmit={handleRecoverPassword} style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '100%' }}>
               <div className="input-group">
