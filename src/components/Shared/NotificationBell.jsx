@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Bell, Check, Info } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import "../../styles/NotificationBell.css";
 
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
@@ -98,48 +99,17 @@ const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div
-          style={{
-            position: "absolute",
-            top: "40px",
-            right: "-10px",
-            width: "320px",
-            backgroundColor: "white",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            borderRadius: "8px",
-            zIndex: 1000,
-            overflow: "hidden",
-            border: "1px solid #eee",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#F26522",
-              padding: "12px 15px",
-              color: "white",
-              fontWeight: "bold",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
+        <div className="notification-dropdown">
+          <div className="notification-header">
             <span>Notificaciones</span>
-            <span
-              style={{
-                fontSize: "0.8rem",
-                backgroundColor: "rgba(255,255,255,0.2)",
-                padding: "2px 8px",
-                borderRadius: "12px",
-              }}
-            >
+            <span className="notification-badge">
               {notifications.length} nuevas
             </span>
           </div>
 
-          <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+          <div className="notification-list">
             {notifications.length === 0 ? (
-              <div
-                style={{ padding: "20px", textAlign: "center", color: "#888" }}
-              >
+              <div className="notification-empty">
                 No tienes notificaciones nuevas.
               </div>
             ) : (
@@ -147,43 +117,16 @@ const NotificationBell = () => {
                 <div
                   key={notif.id}
                   onClick={() => handleNotificationClick(notif)}
-                  style={{
-                    padding: "15px",
-                    borderBottom: "1px solid #eee",
-                    cursor: "pointer",
-                    display: "flex",
-                    gap: "10px",
-                    transition: "background 0.2s",
-                    ":hover": { backgroundColor: "#f9f9f9" },
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = "#f9f9f9")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = "transparent")
-                  }
+                  className="notification-item"
                 >
-                  <div style={{ color: "#F26522", marginTop: "2px" }}>
+                  <div className="notification-item-icon">
                     <Info size={20} />
                   </div>
                   <div>
-                    <h4
-                      style={{
-                        margin: "0 0 5px 0",
-                        fontSize: "0.9rem",
-                        color: "#333",
-                      }}
-                    >
+                    <h4 className="notification-item-title">
                       {notif.data.title}
                     </h4>
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: "0.8rem",
-                        color: "#666",
-                        lineHeight: "1.4",
-                      }}
-                    >
+                    <p className="notification-item-message">
                       {notif.data.message}
                     </p>
                   </div>
@@ -191,16 +134,7 @@ const NotificationBell = () => {
               ))
             )}
             <div
-              style={{
-                padding: "12px",
-                textAlign: "center",
-                backgroundColor: "#f9f9f9",
-                borderTop: "1px solid #eee",
-                cursor: "pointer",
-                fontWeight: "bold",
-                color: "#F26522",
-                fontSize: "0.9rem",
-              }}
+              className="notification-footer"
               onClick={() => {
                 setIsOpen(false);
                 navigate("/notificaciones");
