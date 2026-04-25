@@ -52,6 +52,7 @@
     cursor: pointer;
     font-weight: 600;
     font-size: 0.85rem;
+    color: #444; /* Added specific text color */
     transition: all 0.2s ease;
     margin: 0;
     width: 100%;
