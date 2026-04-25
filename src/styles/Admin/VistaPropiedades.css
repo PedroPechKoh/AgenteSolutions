@@ -33,28 +33,7 @@
     max-width: 700px;
 }
 
-/* Overriding UniversalSearch styles for the mockup look */
-.search-container-center .search-wrapper-full {
-    margin: 0 !important;
-}
-
-.search-container-center .search-input-large {
-    background-color: #e0e0e0 !important;
-    border-radius: 40px !important;
-    border: none !important;
-    padding: 12px 30px !important;
-    font-size: 1.1rem !important;
-    color: #555 !important;
-    font-weight: bold !important;
-    text-transform: uppercase;
-}
-
-.search-container-center .search-icon-inside {
-    right: 25px !important;
-    font-size: 1.5rem !important;
-    color: #000 !important;
-    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
-}
+/* UniversalSearch styles are now handled globally in UniversalSearch.css */
 
 .btn-add-circle {
     background-color: #d1d1d1;

@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../styles/Admin/VistaUsuarios.css'; 
+import '../../styles/UniversalSearch.css';
 
 const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, type }) => {
   const [busqueda, setBusqueda] = React.useState("");
