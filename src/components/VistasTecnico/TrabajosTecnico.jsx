@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import "../../styles/TecnicoStyles/TrabajosTecnico.css";
 import { Search, Package, Wrench, CheckCircle2, Lock } from 'lucide-react';
+import Header from "../Shared/Header";
 
 const TrabajosTecnico = () => {
   const [tabActual, setTabActual] = useState('ASIGNADOS');
@@ -21,6 +22,7 @@ const TrabajosTecnico = () => {
 
   const { user } = useAuth();
   const [servicios, setServicios] = useState([]);
+  const [checklistDinamico, setChecklistDinamico] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +31,7 @@ const TrabajosTecnico = () => {
       const status = localStorage.getItem(`materialRecibido_${user.id}`);
       if (status === 'true') setMaterialRecibido(true);
       fetchServicios();
+      fetchChecklistTemplate();
     }
   }, [user]);
 
@@ -40,6 +43,27 @@ const TrabajosTecnico = () => {
       console.error("Error al obtener trabajos:", error);
     }
   };
+
+  const fetchChecklistTemplate = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/checklist-templates`);
+      // Buscamos un template que se llame "Confirmación de Material" o similar
+      const template = res.data.find(t => t.name.toLowerCase().includes('material') || t.name.toLowerCase().includes('recepción'));
+      if (template) {
+        setChecklistDinamico(template.content);
+        // Inicializar itemsCheck según el contenido del template
+        setItemsCheck({
+          materiales: new Array(template.content.materiales?.length || 0).fill(false),
+          equipo: new Array(template.content.equipo?.length || 0).fill(false)
+        });
+      }
+    } catch (error) {
+      console.error("Error al obtener templates:", error);
+    }
+  };
+
+  // Usar el dinámico si existe, si no el hardcoded
+  const checklistARenderizar = checklistDinamico || checklistGeneral;
 
   // Filtrar servicios por tab
   const serviciosFiltrados = servicios.filter(s => {
@@ -72,6 +96,8 @@ const TrabajosTecnico = () => {
   };
 
   return (
+    <>
+    <Header />
     <div className="tt-body">
       <div className="tt-search-row">
         <div className="tt-search-wrapper">
@@ -173,14 +199,14 @@ const TrabajosTecnico = () => {
                 <div className="checklist-section">
                   <h4><Package size={14} /> Materiales</h4>
                   <div className="items-check-grid">
-                    {checklistGeneral.materiales.map((m, i) => (
+                    {checklistARenderizar.materiales.map((m, i) => (
                       <label key={i} className={`check-item ${itemsCheck.materiales[i] ? 'checked' : ''}`}>
                         <input 
                           type="checkbox" 
                           checked={itemsCheck.materiales[i]} 
                           onChange={() => toggleItem('materiales', i)}
                         />
-                        <span>{m}</span>
+                        <span>{typeof m === 'string' ? m : m.nombre || m.task}</span>
                       </label>
                     ))}
                   </div>
@@ -189,14 +215,14 @@ const TrabajosTecnico = () => {
                 <div className="checklist-section">
                   <h4><Wrench size={14} /> Equipo</h4>
                   <div className="items-check-grid">
-                    {checklistGeneral.equipo.map((e, i) => (
+                    {checklistARenderizar.equipo.map((e, i) => (
                       <label key={i} className={`check-item ${itemsCheck.equipo[i] ? 'checked' : ''}`}>
                         <input 
                           type="checkbox" 
                           checked={itemsCheck.equipo[i]} 
                           onChange={() => toggleItem('equipo', i)}
                         />
-                        <span>{e}</span>
+                        <span>{typeof e === 'string' ? e : e.nombre || e.task}</span>
                       </label>
                     ))}
                   </div>
@@ -220,6 +246,7 @@ const TrabajosTecnico = () => {
         )}
       </AnimatePresence>
     </div>
+    </>
   );
 };
 
