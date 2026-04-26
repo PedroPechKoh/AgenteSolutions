@@ -27,9 +27,25 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
   const [previewImg, setPreviewImg] = useState(null);
   const [actualizando, setActualizando] = useState(false);
   
-  // HOVER EFFECT AND LIGHTBOX
+  // HOVER EFFECT AND LIGHTBOX Y MENÚ FOTO
   const [isHovered, setIsHovered] = useState(false);
   const [imagenAmpliada, setImagenAmpliada] = useState(null);
+  const cameraRef = React.useRef(null);
+  const galleryRef = React.useRef(null);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
+
+  const openPhotoMenu = () => {
+    setIsPhotoMenuOpen(true);
+  };
+
+  const selectPhotoSource = (source) => {
+    if (source === 'camera') {
+      cameraRef.current.click();
+    } else {
+      galleryRef.current.click();
+    }
+    setIsPhotoMenuOpen(false);
+  };
 
   useEffect(() => {
     if (habitacion?.id) {
@@ -185,7 +201,8 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              <input type="file" id="zonaImageInput" hidden accept="image/*" onChange={handleFileSelect} />
+              <input type="file" ref={cameraRef} hidden accept="image/*" onChange={handleFileSelect} />
+              <input type="file" ref={galleryRef} hidden accept="image/*" onChange={handleFileSelect} />
               
               {previewImg ? (
                 <>
@@ -198,7 +215,7 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
                       display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '25px'
                     }}>
                       <button 
-                        onClick={(e) => { e.stopPropagation(); document.getElementById('zonaImageInput').click(); }}
+                        onClick={(e) => { e.stopPropagation(); openPhotoMenu(); }}
                         style={{ background: 'none', border: 'none', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', padding: 0 }}
                       >
                         <Edit3 size={20} />
@@ -215,7 +232,7 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
                   )}
                 </>
               ) : (
-                <div className="dh-image-placeholder" onClick={() => document.getElementById('zonaImageInput').click()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
+                <div className="dh-image-placeholder" onClick={openPhotoMenu} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%' }}>
                   <ImageIcon size={50} color="#636363" />
                   <span style={{ fontSize: '12px', color: '#636363', marginTop: '10px', fontWeight: 'bold' }}>AGREGAR FOTO</span>
                 </div>
@@ -347,6 +364,41 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
               }}>CANCELAR</button>
               <button className="dh-btn-save-3d" style={{ height: '45px', padding: '0 30px', fontSize: '16px' }} onClick={guardarCategoria} disabled={guardando}>
                 {guardando ? <Loader2 size={16} className="animate-spin" /> : 'AGREGAR'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE SELECCIÓN DE FOTO */}
+      {isPhotoMenuOpen && (
+        <div className="rdh-modal-overlay" onClick={() => setIsPhotoMenuOpen(false)} style={{ zIndex: 10000 }}>
+          <div className="rdh-modal-content" style={{ maxWidth: '400px', padding: '0', backgroundColor: '#1a1a1a', border: '1px solid #333' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ color: '#F26522', borderBottom: '1px solid #333', margin: 0, padding: '20px', textAlign: 'center', fontSize: '1.2rem' }}>Seleccionar Foto</h3>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <button 
+                onClick={() => selectPhotoSource('camera')}
+                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#333'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                📷 Tomar Foto
+              </button>
+              <button 
+                onClick={() => selectPhotoSource('gallery')}
+                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#333'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                🖼️ Elegir de la Galería
+              </button>
+              <button 
+                onClick={() => setIsPhotoMenuOpen(false)}
+                style={{ background: 'transparent', border: 'none', padding: '15px', color: '#a0a0a0', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.2s' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#333'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+              >
+                Cancelar
               </button>
             </div>
           </div>
