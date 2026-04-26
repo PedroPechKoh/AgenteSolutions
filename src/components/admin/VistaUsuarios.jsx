@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import UniversalSearch from "../Shared/UniversalSearch"; 
 import Header from "../Shared/Header"; 
+import RegisterModal from "../Register";
 import "../../styles/Admin/VistaUsuarios.css";
 
 const MAPA_ROLES = { 0: "ROOT", 1: "ADMIN", 2: "TECNICO", 3: "CLIENTE" };
@@ -21,29 +22,31 @@ const VistaUsuarios = () => {
   const [cargando, setCargando] = useState(true);
   const [listaUsuarios, setListaUsuarios] = useState([]);
   const [usuariosFiltrados, setUsuariosFiltrados] = useState([]);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+
+  const obtenerUsuarios = async () => {
+    try {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/usuarios`);
+      const formateados = data.map((u) => ({
+        id: u.id,
+        nombre: `${u.first_name} ${u.last_name || ""}`.trim(),
+        correo: u.email,
+        rol: MAPA_ROLES[u.role_id] || "DESCONOCIDO",
+        role_id: u.role_id,
+        estado: u.is_active ? "Activo" : "Inactivo",
+        bloqueado: u.is_active === 0,
+        profile_picture_url: u.profile_picture_url,
+        telefono: u.phone_number || "",
+      }));
+      setListaUsuarios(formateados);
+    } catch (error) {
+      console.error("Error al cargar los usuarios:", error);
+    } finally {
+      setCargando(false);
+    }
+  };
 
   useEffect(() => {
-    const obtenerUsuarios = async () => {
-      try {
-        const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/usuarios`);
-        const formateados = data.map((u) => ({
-          id: u.id,
-          nombre: `${u.first_name} ${u.last_name || ""}`.trim(),
-          correo: u.email,
-          rol: MAPA_ROLES[u.role_id] || "DESCONOCIDO",
-          role_id: u.role_id,
-          estado: u.is_active ? "Activo" : "Inactivo",
-          bloqueado: u.is_active === 0,
-          profile_picture_url: u.profile_picture_url,
-          telefono: u.phone_number || "",
-        }));
-        setListaUsuarios(formateados);
-      } catch (error) {
-        console.error("Error al cargar los usuarios:", error);
-      } finally {
-        setCargando(false);
-      }
-    };
     obtenerUsuarios();
   }, []);
 
@@ -133,7 +136,7 @@ const VistaUsuarios = () => {
 
 <div 
   className="filter-item" 
-  onClick={() => navigate("/registro")}
+  onClick={() => setShowRegisterModal(true)}
   style={{ backgroundColor: "#fff4e6", border: "1px solid #FF6600", margin: 0, width: "100%" }}
 >
   <span className="icon-box">📝</span> REGISTRAR
@@ -146,6 +149,12 @@ const VistaUsuarios = () => {
           setFilteredData={setUsuariosFiltrados}
           filtroActual={filtro}
           placeholder="BUSCAR..."
+        />
+
+        <RegisterModal 
+          isOpen={showRegisterModal} 
+          onClose={() => setShowRegisterModal(false)} 
+          onSuccess={obtenerUsuarios} 
         />
 
         {/* 🔥 CONTENEDOR LIMPIO */}
