@@ -18,7 +18,7 @@ const Header = ({ rolTexto = "USUARIO" }) => {
   // ✅ Función para regresar al panel correcto según el tipo de usuario
   const irAlInicio = () => {
     if (!user) return;
-    switch (user.role_id) {
+    switch (Number(user.role_id)) {
       case 0: navigate('/VistaRoot'); break;
       case 1: navigate('/VistaAdmin'); break;
       case 2: navigate('/VistaTecnico'); break;
