@@ -22,7 +22,7 @@ const Header = ({ rolTexto = "USUARIO" }) => {
       case 0: navigate('/VistaRoot'); break;
       case 1: navigate('/VistaAdmin'); break;
       case 2: navigate('/VistaTecnico'); break;
-      case 3: navigate('/VistaCliente'); break;
+      case 3: navigate('/VistaInicioCliente'); break;
       default: navigate('/'); break;
     }
   };
