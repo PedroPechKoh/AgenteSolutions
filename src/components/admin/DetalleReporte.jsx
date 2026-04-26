@@ -19,6 +19,19 @@ const DetalleReporte = () => {
     const [archivoPreview, setArchivoPreview] = useState(null);
     const [archivoFisico, setArchivoFisico] = useState(null);
     
+    // --- REFERENCIAS Y ESTADOS PARA SUBIR ARCHIVOS ---
+    const cameraRef = React.useRef(null);
+    const galleryRef = React.useRef(null);
+    const fileRef = React.useRef(null);
+    const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
+
+    const selectFileSource = (source) => {
+        if (source === 'camera') cameraRef.current.click();
+        else if (source === 'gallery') galleryRef.current.click();
+        else fileRef.current.click();
+        setIsFileMenuOpen(false);
+    };
+    
     // Tablas dinámicas del cotizador
     const [filasConceptos, setFilasConceptos] = useState([{ descripcion: '', cantidad: 0, precio_u: 0 }]);
     const [filasMateriales, setFilasMateriales] = useState([{ nombre: '', cantidad: 0, costo_u: 0 }]);
@@ -275,14 +288,25 @@ const DetalleReporte = () => {
                                     </div>
                                 </>
                             ) : (
-                                <div className="cot-upload-container">
-                                    <input type="file" onChange={manejarArchivo} accept="image/*,application/pdf" />
+                                <div className="cot-upload-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+                                    <button 
+                                        className="btn-primario" 
+                                        style={{ backgroundColor: '#f26624', padding: '12px 25px', borderRadius: '8px', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', width: '100%' }}
+                                        onClick={() => setIsFileMenuOpen(true)}
+                                    >
+                                        SELECCIONAR ARCHIVO
+                                    </button>
+                                    
+                                    <input type="file" ref={cameraRef} hidden accept="image/*" onChange={manejarArchivo} />
+                                    <input type="file" ref={galleryRef} hidden accept="image/*" onChange={manejarArchivo} />
+                                    <input type="file" ref={fileRef} hidden accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={manejarArchivo} />
+
                                     {archivoPreview && (
-                                        <div className="preview-box">
+                                        <div className="preview-box" onClick={() => setIsFileMenuOpen(true)} style={{ cursor: 'pointer', border: '2px dashed #999', padding: '15px', borderRadius: '10px', width: '100%', display: 'flex', justifyContent: 'center', backgroundColor: '#f5f5f5' }}>
                                             {archivoFisico?.type === 'application/pdf' ? (
-                                                <div className="pdf-placeholder">📄 {archivoFisico.name}</div>
+                                                <div className="pdf-placeholder" style={{ fontSize: '1.2rem', color: '#555', fontWeight: 'bold' }}>📄 {archivoFisico.name}</div>
                                             ) : (
-                                                <img src={archivoPreview} className="img-preview" alt="Vista previa" />
+                                                <img src={archivoPreview} className="img-preview" alt="Vista previa" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px' }} />
                                             )}
                                         </div>
                                     )}
@@ -299,6 +323,41 @@ const DetalleReporte = () => {
                                 <button className="btn-secundario" onClick={() => setMostrarCotizacion(false)}>CANCELAR</button>
                                 <button className="btn-primario" onClick={guardarCotizacion}>GUARDAR COTIZACIÓN</button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- MODAL SELECCIONAR ARCHIVO --- */}
+            {isFileMenuOpen && (
+                <div className="lev-modal-overlay" onClick={() => setIsFileMenuOpen(false)} style={{ zIndex: 10000 }}>
+                    <div className="cot-modal-card" style={{ maxWidth: '400px', padding: '0', backgroundColor: '#1a1a1a', border: '1px solid #333' }} onClick={e => e.stopPropagation()}>
+                        <h3 style={{ color: '#F26522', borderBottom: '1px solid #333', margin: 0, padding: '20px', textAlign: 'center', fontSize: '1.2rem' }}>Seleccionar Archivo</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <button 
+                                onClick={() => selectFileSource('camera')}
+                                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer' }}
+                            >
+                                📷 Tomar Foto
+                            </button>
+                            <button 
+                                onClick={() => selectFileSource('gallery')}
+                                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer' }}
+                            >
+                                🖼️ Elegir Imagen
+                            </button>
+                            <button 
+                                onClick={() => selectFileSource('file')}
+                                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer' }}
+                            >
+                                📄 Subir Documento (PDF, DOC)
+                            </button>
+                            <button 
+                                onClick={() => setIsFileMenuOpen(false)}
+                                style={{ background: 'transparent', border: 'none', padding: '15px', color: '#a0a0a0', fontSize: '1rem', cursor: 'pointer' }}
+                            >
+                                Cancelar
+                            </button>
                         </div>
                     </div>
                 </div>
