@@ -303,3 +303,12 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   padding: 2px 8px;
   border-radius: 10px;
 }
+
+.empty-state-msg {
+  text-align: center;
+  color: white;
+  padding: 40px 20px;
+  font-style: italic;
+  font-weight: 700;
+  opacity: 0.7;
+}

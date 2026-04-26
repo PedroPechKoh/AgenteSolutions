@@ -1,4 +1,6 @@
-import React, { useState } from 'react'; // Eliminado useEffect para evitar el error
+import React, { useState, useEffect } from 'react'; 
+import axios from 'axios';
+import { useAuth } from "../../context/AuthContext";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import "../../styles/TecnicoStyles/TrabajosTecnico.css";
@@ -17,13 +19,36 @@ const TrabajosTecnico = () => {
     equipo: [false, false, false, false]
   });
 
+  const { user } = useAuth();
+  const [servicios, setServicios] = useState([]);
   const navigate = useNavigate();
 
-  const trabajos = [
-    { folio: "1234", id: "JDJF123", fecha: "06-02-2026" },
-    { folio: "1234", id: "JDJF123", fecha: "06-02-2026" },
-    { folio: "1234", id: "JDJF123", fecha: "06-02-2026" },
-  ];
+  useEffect(() => {
+    // Cargar estado de material desde localStorage (específico por usuario)
+    if (user?.id) {
+      const status = localStorage.getItem(`materialRecibido_${user.id}`);
+      if (status === 'true') setMaterialRecibido(true);
+      fetchServicios();
+    }
+  }, [user]);
+
+  const fetchServicios = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/tecnico/${user.id}/servicios`);
+      setServicios(res.data);
+    } catch (error) {
+      console.error("Error al obtener trabajos:", error);
+    }
+  };
+
+  // Filtrar servicios por tab
+  const serviciosFiltrados = servicios.filter(s => {
+    const status = s.status?.toLowerCase();
+    if (tabActual === 'ASIGNADOS') return status !== 'completed' && status !== 'finalizado' && status !== 'in_progress';
+    if (tabActual === 'EN PROCESO') return status === 'in_progress';
+    if (tabActual === 'FINALIZADOS') return status === 'completed' || status === 'finalizado';
+    return true;
+  });
 
   const checklistGeneral = {
     materiales: ["Foco LED 12W", "Cable Calibre 12 (5m)", "Cinta de aislar", "Socket cerámico"],
@@ -40,6 +65,9 @@ const TrabajosTecnico = () => {
 
   const confirmarRecepcion = () => {
     setMaterialRecibido(true);
+    if (user?.id) {
+      localStorage.setItem(`materialRecibido_${user.id}`, 'true');
+    }
     setMostrarModalChecklist(false);
   };
 
@@ -85,27 +113,40 @@ const TrabajosTecnico = () => {
         </div>
 
         <div className="tt-scroll-area">
-          {trabajos.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.08 }}
-            >
-              <button 
-                type="button"
-                className="tt-row-button" 
-                onClick={() => materialRecibido && navigate('/trabajo-propiedad')}
-                disabled={!materialRecibido}
+          {serviciosFiltrados.length > 0 ? (
+            serviciosFiltrados.map((item, index) => (
+              <motion.div
+                key={item.id || index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.08 }}
               >
-                <div className="tt-grid-system">
-                  <span className="col-text">{item.folio}</span>
-                  <span className="col-text">{item.id}</span>
-                  <span className="col-text">{item.fecha}</span>
-                </div>
-              </button>
-            </motion.div>
-          ))}
+                <button 
+                  type="button"
+                  className="tt-row-button" 
+                  onClick={() => {
+                    if (materialRecibido) {
+                      // Si el servicio tiene un checklist personalizado, vamos allá
+                      if (item.custom_checklist) {
+                        navigate(`/Checklist/${item.id}`);
+                      } else {
+                        navigate(`/trabajo-propiedad/${item.id}`);
+                      }
+                    }
+                  }}
+                  disabled={!materialRecibido}
+                >
+                  <div className="tt-grid-system">
+                    <span className="col-text">{item.id}</span>
+                    <span className="col-text">{item.property_name || "Sin Nombre"}</span>
+                    <span className="col-text">{new Date(item.scheduled_start || item.created_at).toLocaleDateString()}</span>
+                  </div>
+                </button>
+              </motion.div>
+            ))
+          ) : (
+            <div className="empty-state-msg">No hay trabajos en esta sección.</div>
+          )}
         </div>
         {!materialRecibido && (
           <div className="lock-overlay-msg">Debe confirmar recepción de material para desbloquear</div>
