@@ -124,7 +124,7 @@ function App() {
 
           {/* ------RUTAS DE LA VISTA DEL TECNICO ------*/}
           <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
-          <Route path="/Checklist" element={<CheckList />} />
+          <Route path="/Checklist/:id" element={<CheckList />} />
           <Route path="/detalleTrabajo" element={<DetalleTrabajo />} />
           <Route path="/galeria-reportes" element={<GaleriaReportes />} />
           <Route path="/reporte-individual" element={<ReporteIndividual />} />

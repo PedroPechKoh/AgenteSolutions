@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "../../styles/Admin/VistaCotizaciones.css";
 import Header from "../Shared/Header";
+import AssignWorkModal from "./AssignWorkModal";
 
 const VistaCotizaciones = () => {
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [cotizacionParaAsignar, setCotizacionParaAsignar] = useState(null);
   const [cotizaciones, setCotizaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
 
@@ -217,9 +220,23 @@ const VistaCotizaciones = () => {
                       {c.tipo === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
                     </td>
                     <td>
-                      <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)}>
-                        👁️ VER DETALLE
-                      </button>
+                      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                        <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)}>
+                          👁️ VER DETALLE
+                        </button>
+                        {!esCliente && filtro === 'Aprobado' && (
+                          <button 
+                            className="btn-view-detail" 
+                            style={{ background: '#2e7d32' }}
+                            onClick={() => {
+                              setCotizacionParaAsignar(c);
+                              setShowAssignModal(true);
+                            }}
+                          >
+                            🛠️ ASIGNAR TRABAJO
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -384,6 +401,21 @@ const VistaCotizaciones = () => {
       )}
 
       <button className="back-arrow-fixed" onClick={() => window.history.back()}>←</button>
+
+      {showAssignModal && cotizacionParaAsignar && (
+        <AssignWorkModal 
+          cotizacion={cotizacionParaAsignar} 
+          onClose={() => {
+            setShowAssignModal(false);
+            setCotizacionParaAsignar(null);
+          }}
+          onAssign={() => {
+            setShowAssignModal(false);
+            setCotizacionParaAsignar(null);
+            cargarCotizaciones();
+          }}
+        />
+      )}
     </div>
   );
 };

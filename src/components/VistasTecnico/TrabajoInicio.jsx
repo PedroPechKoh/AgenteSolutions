@@ -1,10 +1,12 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import "../../styles/TecnicoStyles/TrabajoInicio.css";
 import { User } from 'lucide-react';
 
 const TrabajoInicio = () => {
   const navigate = useNavigate();
+
+    const { id } = useParams();
 
   const trabajo = {
     folio: "1234",
@@ -89,7 +91,7 @@ const TrabajoInicio = () => {
 
         {/* BOTONES DE ACCIÓN */}
         <div className="tt-footer-actions">
-          <button className="tt-btn-action orange" onClick={() => navigate('/checklist')}>
+          <button className="tt-btn-action orange" onClick={() => navigate('/Checklist/' + id)}>
             INICIAR
           </button>
           <button className="tt-btn-action purple" onClick={() => navigate('/agendar')}>
