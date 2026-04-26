@@ -55,6 +55,8 @@ import Pago from "./components/VistaCliente/Pago";
 import SOSView from "./components/VistaCliente/SOSView";
 import TableroScrum from "./components/VistaCliente/TableroScrum";
 import VistaDetallePropiedadCliente from "./components/VistaCliente/VistaDetallePropiedad";
+import DetallePropiedad from "./components/VistaCliente/DetallePropiedad";
+import ReporteTrabajo from "./components/VistaCliente/ReporteTrabajo";
 
 import RegisteRoot from "./components/Register"; 
 import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
@@ -165,8 +167,11 @@ function App() {
            <Route path="/Cotizaciones" element={<Cotizaciones />} />
            <Route path="/Pago" element={<Pago />} />
            <Route path="/SOSView" element={<SOSView />} />
-<Route path="/propiedad/:id/tablero" element={<TableroScrum />} />           <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
-           <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
+            <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />
+            <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
+            <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
+            <Route path="/DetallePropiedad" element={<DetallePropiedad />} />
+            <Route path="/ReporteTrabajo" element={<ReporteTrabajo />} />
 
           <Route path="/registro" element={<RegisteRoot />} />
           <Route path="/imprimir-cotizacion" element={<VistaCotizacionPrint />} />
