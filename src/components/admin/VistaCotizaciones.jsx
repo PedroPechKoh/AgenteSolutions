@@ -275,7 +275,7 @@ const VistaCotizaciones = () => {
                     {cotizacionSeleccionada.archivo_url ? (
                       cotizacionSeleccionada.archivo_url.endsWith('.pdf') ? (
                         <iframe 
-                          src={cotizacionSeleccionada.archivo_url} 
+                          src={`https://docs.google.com/viewer?url=${encodeURIComponent(cotizacionSeleccionada.archivo_url)}&embedded=true`}
                           title="Vista previa del documento"
                           style={{ width: '100%', height: '50vh', border: 'none', borderRadius: '4px', background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                         />
