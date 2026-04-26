@@ -313,7 +313,7 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
             
             <div className="rdh-modal-form">
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{fontWeight: 900, fontSize: 14, marginBottom: 5}}>
+                <label style={{fontWeight: 900, fontSize: 14, marginBottom: 5, color: '#333'}}>
                   SELECCIONA O AGREGA UNA CATEGORÍA
                 </label>
                 
