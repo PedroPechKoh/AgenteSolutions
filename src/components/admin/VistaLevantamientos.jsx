@@ -241,8 +241,8 @@ const VistaLevantamientos = () => {
               ) : filtrados.length > 0 ? (
                 filtrados.map((s) => (
                   <tr key={s.id}>
-                    <td>#{s.id || "0"}</td>
-                    <td className="lev-bold">{s.title}</td>
+                    <td style={{ color: '#333', fontWeight: '900' }}>#{s.id || "0"}</td>
+                    <td className="lev-bold">{s.title === "Levantamiento Inicial" && s.cliente_nombre ? `Levantamiento de ${s.cliente_nombre}` : s.title}</td>
                     <td>
                       <span
                         className={`prio-${s.priority?.toLowerCase()}`}
