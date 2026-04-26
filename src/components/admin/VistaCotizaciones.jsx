@@ -274,11 +274,16 @@ const VistaCotizaciones = () => {
 
                     {cotizacionSeleccionada.archivo_url ? (
                       cotizacionSeleccionada.archivo_url.endsWith('.pdf') ? (
-                        <iframe 
-                          src={`https://docs.google.com/viewer?url=${encodeURIComponent(cotizacionSeleccionada.archivo_url)}&embedded=true`}
-                          title="Vista previa del documento"
-                          style={{ width: '100%', height: '50vh', border: 'none', borderRadius: '4px', background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                        />
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', width: '100%', padding: '40px 0' }}>
+                          <span style={{ fontSize: '5rem', marginBottom: '15px' }}>📄</span>
+                          <p style={{ fontWeight: 'bold', color: '#555', marginBottom: '20px', textAlign: 'center', fontSize: '1.2rem' }}>Documento PDF Adjunto</p>
+                          <button 
+                            onClick={() => verPantallaCompleta(cotizacionSeleccionada.archivo_url)}
+                            style={{ background: '#ff8800', color: 'white', padding: '12px 30px', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 10px rgba(255, 136, 0, 0.3)' }}
+                          >
+                            ABRIR PDF
+                          </button>
+                        </div>
                       ) : (
                         <img 
                           src={cotizacionSeleccionada.archivo_url} 
