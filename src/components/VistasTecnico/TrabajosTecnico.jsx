@@ -62,6 +62,11 @@ const TrabajosTecnico = () => {
     }
   };
 
+  const checklistGeneral = {
+    materiales: ["Foco LED 12W", "Cable Calibre 12 (5m)", "Cinta de aislar", "Socket cerámico"],
+    equipo: ["Multímetro", "Escalera de tijera", "Taladro inalámbrico", "Kit de desarmadores"]
+  };
+
   // Usar el dinámico si existe, si no el hardcoded
   const checklistARenderizar = checklistDinamico || checklistGeneral;
 
@@ -73,11 +78,6 @@ const TrabajosTecnico = () => {
     if (tabActual === 'FINALIZADOS') return status === 'completed' || status === 'finalizado';
     return true;
   });
-
-  const checklistGeneral = {
-    materiales: ["Foco LED 12W", "Cable Calibre 12 (5m)", "Cinta de aislar", "Socket cerámico"],
-    equipo: ["Multímetro", "Escalera de tijera", "Taladro inalámbrico", "Kit de desarmadores"]
-  };
 
   const toggleItem = (tipo, index) => {
     const nuevosItems = { ...itemsCheck };
