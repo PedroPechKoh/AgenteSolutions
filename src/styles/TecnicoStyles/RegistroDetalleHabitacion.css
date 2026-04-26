@@ -210,3 +210,68 @@
 .rdh-gallery-box:hover .gallery-text {
   color: #f26624 !important;
 }
+
+/* --- RESPONSIVIDAD PARA CELULAR --- */
+@media (max-width: 768px) {
+  /* Envoltura general */
+  .dh-body-wrapper {
+    padding: 15px !important;
+  }
+
+  /* Barra superior (Volver y Burbujas) */
+  .dh-modal-container > div:first-child {
+    flex-direction: column-reverse !important;
+    align-items: stretch !important;
+    gap: 15px !important;
+  }
+  .dh-modal-container > div:first-child > button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .dh-modal-container > div:first-child > div {
+    flex-wrap: wrap;
+    justify-content: center !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Grid superior (Nombre, Foto, Descripción) */
+  .dh-top-grid {
+    flex-direction: column !important;
+  }
+  .dh-name-pill {
+    width: 100% !important;
+  }
+  .dh-image-upload {
+    width: 100% !important;
+    min-height: 150px !important;
+  }
+  .dh-description-box {
+    width: 100% !important;
+  }
+
+  /* Fila inferior (Mantenimiento y Botones Finales) */
+  .dh-main-card > div:nth-child(2) {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  
+  .dh-bottom-grid {
+    width: 100% !important;
+  }
+
+  .dh-pills-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Botones Finales */
+  .dh-footer-actions {
+    width: 100% !important;
+  }
+  .dh-btn-save-3d {
+    width: 100% !important;
+    padding: 15px !important;
+    height: auto !important;
+    font-size: 16px !important;
+  }
+}
