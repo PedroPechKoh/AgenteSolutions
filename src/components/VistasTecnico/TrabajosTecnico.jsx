@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import "../../styles/TecnicoStyles/TrabajosTecnico.css";
-import { Search, Package, Wrench, CheckCircle2, Lock } from 'lucide-react';
+import { Search, Package, Wrench, CheckCircle2, Lock, Settings } from 'lucide-react';
 import Header from "../Shared/Header";
 
 const TrabajosTecnico = () => {
@@ -17,7 +17,8 @@ const TrabajosTecnico = () => {
   // Estado para los items individuales del checklist
   const [itemsCheck, setItemsCheck] = useState({
     materiales: [false, false, false, false],
-    equipo: [false, false, false, false]
+    equipo: [false, false, false, false],
+    herramientas: [false, false, false, false]
   });
 
   const { user } = useAuth();
@@ -47,15 +48,24 @@ const TrabajosTecnico = () => {
   const fetchChecklistTemplate = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/checklist-templates`);
-      // Buscamos un template que se llame "Confirmación de Material" o similar
-      const template = res.data.find(t => t.name.toLowerCase().includes('material') || t.name.toLowerCase().includes('recepción'));
-      if (template) {
-        setChecklistDinamico(template.content);
-        // Inicializar itemsCheck según el contenido del template
-        setItemsCheck({
-          materiales: new Array(template.content.materiales?.length || 0).fill(false),
-          equipo: new Array(template.content.equipo?.length || 0).fill(false)
-        });
+      if (res.data && res.data.length > 0) {
+        // Intentamos buscar uno de "materiales", si no, agarramos el primero disponible ("Checklist asigando")
+        const template = res.data.find(t => 
+          t.name.toLowerCase().includes('material') || 
+          t.name.toLowerCase().includes('recepción')
+        ) || res.data[0];
+
+        if (template) {
+          const content = typeof template.content === 'string' ? JSON.parse(template.content) : template.content;
+          setChecklistDinamico(content);
+          
+          // Inicializar itemsCheck según el contenido del template
+          setItemsCheck({
+            materiales: new Array(content.materiales?.length || content.material?.length || 0).fill(false),
+            equipo: new Array(content.equipo?.length || 0).fill(false),
+            herramientas: new Array(content.herramientas?.length || 0).fill(false)
+          });
+        }
       }
     } catch (error) {
       console.error("Error al obtener templates:", error);
@@ -64,7 +74,8 @@ const TrabajosTecnico = () => {
 
   const checklistGeneral = {
     materiales: ["Foco LED 12W", "Cable Calibre 12 (5m)", "Cinta de aislar", "Socket cerámico"],
-    equipo: ["Multímetro", "Escalera de tijera", "Taladro inalámbrico", "Kit de desarmadores"]
+    equipo: ["Multímetro", "Escalera de tijera", "Taladro inalámbrico", "Kit de desarmadores"],
+    herramientas: []
   };
 
   // Usar el dinámico si existe, si no el hardcoded
@@ -85,7 +96,11 @@ const TrabajosTecnico = () => {
     setItemsCheck(nuevosItems);
   };
 
-  const todoMarcado = [...itemsCheck.materiales, ...itemsCheck.equipo].every(item => item === true);
+  const todoMarcado = [
+    ...itemsCheck.materiales, 
+    ...itemsCheck.equipo, 
+    ...itemsCheck.herramientas
+  ].every(item => item === true);
 
   const confirmarRecepcion = () => {
     setMaterialRecibido(true);
@@ -199,14 +214,14 @@ const TrabajosTecnico = () => {
                 <div className="checklist-section">
                   <h4><Package size={14} /> Materiales</h4>
                   <div className="items-check-grid">
-                    {checklistARenderizar.materiales.map((m, i) => (
+                    {(checklistARenderizar.materiales || checklistARenderizar.material || []).map((m, i) => (
                       <label key={i} className={`check-item ${itemsCheck.materiales[i] ? 'checked' : ''}`}>
                         <input 
                           type="checkbox" 
                           checked={itemsCheck.materiales[i]} 
                           onChange={() => toggleItem('materiales', i)}
                         />
-                        <span>{typeof m === 'string' ? m : m.nombre || m.task}</span>
+                        <span>{typeof m === 'string' ? m : m.nombre || m.task || m.concepto}</span>
                       </label>
                     ))}
                   </div>
@@ -215,18 +230,36 @@ const TrabajosTecnico = () => {
                 <div className="checklist-section">
                   <h4><Wrench size={14} /> Equipo</h4>
                   <div className="items-check-grid">
-                    {checklistARenderizar.equipo.map((e, i) => (
+                    {(checklistARenderizar.equipo || []).map((e, i) => (
                       <label key={i} className={`check-item ${itemsCheck.equipo[i] ? 'checked' : ''}`}>
                         <input 
                           type="checkbox" 
                           checked={itemsCheck.equipo[i]} 
                           onChange={() => toggleItem('equipo', i)}
                         />
-                        <span>{typeof e === 'string' ? e : e.nombre || e.task}</span>
+                        <span>{typeof e === 'string' ? e : e.nombre || e.task || e.concepto}</span>
                       </label>
                     ))}
                   </div>
                 </div>
+
+                {checklistARenderizar.herramientas && checklistARenderizar.herramientas.length > 0 && (
+                  <div className="checklist-section">
+                    <h4><Settings size={14} /> Herramientas</h4>
+                    <div className="items-check-grid">
+                      {checklistARenderizar.herramientas.map((h, i) => (
+                        <label key={i} className={`check-item ${itemsCheck.herramientas[i] ? 'checked' : ''}`}>
+                          <input 
+                            type="checkbox" 
+                            checked={itemsCheck.herramientas[i]} 
+                            onChange={() => toggleItem('herramientas', i)}
+                          />
+                          <span>{typeof h === 'string' ? h : h.nombre || h.task || h.concepto}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="tt-modal-footer">
