@@ -325,3 +325,42 @@
   font-weight: 600;
   color: #333;
 }
+
+/* --- RESPONSIVIDAD PARA CELULAR --- */
+@media (max-width: 768px) {
+  .rz-body-wrapper {
+    padding: 15px;
+  }
+
+  .rz-top-info-row {
+    flex-direction: column-reverse; /* Ponemos el FOLIO arriba y botones abajo */
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .rz-bubbles-group {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .rz-bubble-info {
+    font-size: 12px;
+    padding: 6px 15px;
+    text-align: center;
+  }
+
+  .rz-action-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .rz-btn-main {
+    width: 100%;
+    justify-content: center;
+    font-size: 14px;
+    padding: 12px 15px;
+  }
+}
