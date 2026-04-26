@@ -288,28 +288,53 @@ const DetalleReporte = () => {
                                     </div>
                                 </>
                             ) : (
-                                <div className="cot-upload-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-                                    <button 
-                                        className="btn-primario" 
-                                        style={{ backgroundColor: '#f26624', padding: '12px 25px', borderRadius: '8px', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem', width: '100%' }}
+                                <div className="cot-upload-container">
+                                    <div 
                                         onClick={() => setIsFileMenuOpen(true)}
+                                        style={{ 
+                                            display: 'flex', 
+                                            flexDirection: 'column', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'center',
+                                            gap: '15px',
+                                            border: '3px dashed #f26624',
+                                            borderRadius: '15px',
+                                            padding: '40px 20px',
+                                            backgroundColor: '#fff5f0',
+                                            cursor: 'pointer',
+                                            minHeight: '250px',
+                                            textAlign: 'center',
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ffe5d9'}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff5f0'}
                                     >
-                                        SELECCIONAR ARCHIVO
-                                    </button>
+                                        {!archivoPreview ? (
+                                            <>
+                                                <div style={{ backgroundColor: '#f26624', color: 'white', borderRadius: '50%', width: '70px', height: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '30px' }}>
+                                                    📁
+                                                </div>
+                                                <h3 style={{ color: '#f26624', margin: '10px 0 0 0' }}>Toca aquí para subir un archivo</h3>
+                                                <p style={{ color: '#666', margin: 0, fontSize: '0.9rem' }}>Soporta PDF, DOC, JPG, PNG o usa tu cámara</p>
+                                            </>
+                                        ) : (
+                                            <div className="preview-box" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                {archivoFisico?.type === 'application/pdf' ? (
+                                                    <>
+                                                        <div style={{ fontSize: '60px' }}>📄</div>
+                                                        <div className="pdf-placeholder" style={{ fontSize: '1.2rem', color: '#f26624', fontWeight: 'bold', marginTop: '10px' }}>{archivoFisico.name}</div>
+                                                    </>
+                                                ) : (
+                                                    <img src={archivoPreview} className="img-preview" alt="Vista previa" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', border: '2px solid #f26624' }} />
+                                                )}
+                                                <p style={{ color: '#666', marginTop: '15px', fontSize: '0.9rem', textDecoration: 'underline' }}>Haz clic para cambiar de archivo</p>
+                                            </div>
+                                        )}
+                                    </div>
                                     
                                     <input type="file" ref={cameraRef} hidden accept="image/*" onChange={manejarArchivo} />
                                     <input type="file" ref={galleryRef} hidden accept="image/*" onChange={manejarArchivo} />
                                     <input type="file" ref={fileRef} hidden accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={manejarArchivo} />
-
-                                    {archivoPreview && (
-                                        <div className="preview-box" onClick={() => setIsFileMenuOpen(true)} style={{ cursor: 'pointer', border: '2px dashed #999', padding: '15px', borderRadius: '10px', width: '100%', display: 'flex', justifyContent: 'center', backgroundColor: '#f5f5f5' }}>
-                                            {archivoFisico?.type === 'application/pdf' ? (
-                                                <div className="pdf-placeholder" style={{ fontSize: '1.2rem', color: '#555', fontWeight: 'bold' }}>📄 {archivoFisico.name}</div>
-                                            ) : (
-                                                <img src={archivoPreview} className="img-preview" alt="Vista previa" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px' }} />
-                                            )}
-                                        </div>
-                                    )}
                                 </div>
                             )}
                         </div>
