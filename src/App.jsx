@@ -56,6 +56,7 @@ import SOSView from "./components/VistaCliente/SOSView";
 import TableroScrum from "./components/VistaCliente/TableroScrum";
 import DetallePropiedad from "./components/VistaCliente/DetallePropiedad";
 import ReporteTrabajo from "./components/VistaCliente/ReporteTrabajo";
+import DetallePropiedadadmin from "./components/admin/DetallePropiedad";
 
 import RegisteRoot from "./components/Register"; 
 import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
@@ -155,7 +156,7 @@ function App() {
           <Route path="/customize-login" element={<CustomizeLogin />} />
           <Route path="/assign-service" element={<AssignServiceForm />} />
           <Route path="/bodeguero" element={<VistaBodeguero/>} />
-          <Route path="/detalle-propiedad/:id" element={<DetallePropiedad/>} />
+          <Route path="/detalle-propiedad/:id" element={<DetallePropiedadadmin/>} />
 
           {/* La redirección por defecto siempre es mejor ponerla al final */}
           <Route path="*" element={<Navigate to="/" replace />} />
