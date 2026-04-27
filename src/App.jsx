@@ -54,7 +54,6 @@ import Cotizaciones from "./components/VistaCliente/Cotizaciones";
 import Pago from "./components/VistaCliente/Pago";
 import SOSView from "./components/VistaCliente/SOSView";
 import TableroScrum from "./components/VistaCliente/TableroScrum";
-import VistaDetallePropiedadCliente from "./components/VistaCliente/VistaDetallePropiedad";
 import DetallePropiedad from "./components/VistaCliente/DetallePropiedad";
 import ReporteTrabajo from "./components/VistaCliente/ReporteTrabajo";
 
@@ -156,6 +155,7 @@ function App() {
           <Route path="/customize-login" element={<CustomizeLogin />} />
           <Route path="/assign-service" element={<AssignServiceForm />} />
           <Route path="/bodeguero" element={<VistaBodeguero/>} />
+          <Route path="/detalle-propiedad/:id" element={<DetallePropiedad/>} />
 
           {/* La redirección por defecto siempre es mejor ponerla al final */}
           <Route path="*" element={<Navigate to="/" replace />} />

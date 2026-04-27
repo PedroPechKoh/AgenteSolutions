@@ -186,7 +186,7 @@ const VistaPropiedades = () => {
                   <div className="overlay-actions">
                     <button
                       className="btn-overlay secondary"
-                      onClick={() => navigate(`/propiedad/${p.id}`)}
+                      onClick={() => navigate(`/detalle-propiedad/${p.id}`)}
                     >
                       VER TABLERO
                     </button>
