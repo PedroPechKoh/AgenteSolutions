@@ -53,7 +53,7 @@ const VistaPropiedades = () => {
     try {
       const token = localStorage.getItem('agente_token');
 
-      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/detalle-propiedad/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
