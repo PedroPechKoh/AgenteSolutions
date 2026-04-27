@@ -22,6 +22,10 @@ const VistaDetalleCliente = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // --- 1. Obtener usuario actual y verificar si es admin ---
+  const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isAdmin = currentUser?.rol === "admin";
+
   const [cliente, setCliente] = useState(
     location.state?.cliente || location.state?.u || null
   );
@@ -35,6 +39,7 @@ const VistaDetalleCliente = () => {
     telefono: cliente?.phone || cliente?.telefono || "",
     direccion: cliente?.address || cliente?.direccion || "",
     estado: cliente?.estado || "Activo",
+    password: "", // para cambio de contraseña
   });
 
   useEffect(() => {
@@ -46,6 +51,7 @@ const VistaDetalleCliente = () => {
           `${import.meta.env.VITE_API_BASE_URL}/propiedades`
         );
 
+        // Normalizar el ID del cliente para la comparación
         const idBuscado =
           typeof cliente.id === "string"
             ? parseInt(cliente.id.replace(/[^\d]/g, ""), 10)
@@ -70,33 +76,48 @@ const VistaDetalleCliente = () => {
     setFormData({ ...formData, [name]: value });
   };
 
- const guardarCambios = async (e) => {
+  const guardarCambios = async (e) => {
     e.preventDefault();
     try {
       const payload = {
-        id: cliente.id, 
+        id: cliente.id,
         first_name: formData.nombre.split(" ")[0] || "",
         last_name: formData.nombre.split(" ").slice(1).join(" ") || "",
         email: formData.correo,
         phone_number: formData.telefono,
         address: formData.direccion,
-        is_active: formData.estado === "Activo" ? 1 : 0, 
+        is_active: formData.estado === "Activo" ? 1 : 0,
       };
 
       if (formData.password) {
         payload.password = formData.password;
       }
 
-      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, payload);
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`,
+        payload
+      );
 
       setCliente({ ...cliente, ...formData });
       setIsModalOpen(false);
       alert(data.message || "¡Expediente actualizado con éxito!");
-      
     } catch (error) {
       console.error("Error al actualizar perfil:", error);
-      alert("No se pudieron guardar los cambios: " + (error.response?.data?.message || error.message));
+      alert(
+        "No se pudieron guardar los cambios: " +
+          (error.response?.data?.message || error.message)
+      );
     }
+  };
+
+  // --- 2. Navegar a registro de propiedad pasando el ID del cliente ---
+  const irARegistroPropiedad = () => {
+    navigate("/registro-propiedades", {
+      state: {
+        clienteId: cliente.id,
+        clienteNombre: cliente.name || cliente.nombre,
+      },
+    });
   };
 
   if (!cliente)
@@ -114,7 +135,6 @@ const VistaDetalleCliente = () => {
       </header>
 
       <div className="detalle-main-wrapper">
-        
         <aside className="cliente-data-card">
           <div className="avatar-header-section">
             <div className="avatar-container-large">
@@ -156,7 +176,9 @@ const VistaDetalleCliente = () => {
               <MapPin size={18} className="icon-orange" />
               <div>
                 <label>DIRECCIÓN PARTICULAR</label>
-                <p>{cliente.address || cliente.direccion || "No especificada"}</p>
+                <p>
+                  {cliente.address || cliente.direccion || "No especificada"}
+                </p>
               </div>
             </div>
 
@@ -182,12 +204,16 @@ const VistaDetalleCliente = () => {
             <h3>
               <Home size={22} /> PROPIEDADES REGISTRADAS
             </h3>
-            <button
-              className="btn-add-propiedad"
-              onClick={() => navigate("/registro-propiedades")}
-            >
-              <Plus size={18} /> NUEVA PROPIEDAD
-            </button>
+
+            {/* --- 3. Botón solo visible para admin --- */}
+            {isAdmin && (
+              <button
+                className="btn-add-propiedad"
+                onClick={irARegistroPropiedad}
+              >
+                <Plus size={18} /> NUEVA PROPIEDAD
+              </button>
+            )}
           </div>
 
           <div className="propiedades-list">
@@ -222,119 +248,122 @@ const VistaDetalleCliente = () => {
           </div>
         </main>
 
-      {isModalOpen && (
-        <div className="modal-overlay-new">
-          <div className="modal-card-new">
-            <div className="modal-header-new">
-              <div className="header-icon-box">
-                <User size={24} />
-              </div>
-              <div>
-                <h3>Editar Perfil</h3>
-                <p>Actualizando información de {cliente.nombre || cliente.name}</p>
-              </div>
-              <button
-                className="btn-close-new"
-                onClick={() => setIsModalOpen(false)}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={guardarCambios} className="modal-body-new">
-              <div className="input-grid-new">
-                <div className="input-box-new">
-                  <label>
-                    <User size={14} /> Nombre Completo
-                  </label>
-                  <input
-                    type="text"
-                    name="nombre"
-                    value={formData.nombre}
-                    onChange={handleInputChange}
-                    required
-                  />
+        {isModalOpen && (
+          <div className="modal-overlay-new">
+            <div className="modal-card-new">
+              <div className="modal-header-new">
+                <div className="header-icon-box">
+                  <User size={24} />
                 </div>
-                <div className="input-box-new">
-                  <label>
-                    <Mail size={14} /> Correo Electrónico
-                  </label>
-                  <input
-                    type="email"
-                    name="correo"
-                    value={formData.correo}
-                    onChange={handleInputChange}
-                    required
-                  />
+                <div>
+                  <h3>Editar Perfil</h3>
+                  <p>
+                    Actualizando información de{" "}
+                    {cliente.nombre || cliente.name}
+                  </p>
                 </div>
-                <div className="input-box-new">
-                  <label>
-                    <Phone size={14} /> Número de Teléfono
-                  </label>
-                  <input
-                    type="text"
-                    name="telefono"
-                    value={formData.telefono}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="input-box-new">
-                  <label>
-                    <Lock size={14} /> Nueva Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    placeholder="En blanco para no cambiar"
-                  />
-                </div>
-                
-                <div className="input-box-new full-width">
-                  <label>
-                    <MapPin size={14} /> Dirección Particular
-                  </label>
-                  <input
-                    type="text"
-                    name="direccion"
-                    value={formData.direccion}
-                    onChange={handleInputChange}
-                    placeholder="Ej. Calle 23 #137, Col. Xcanatun..."
-                  />
-                </div>
-
-                <div className="input-box-new full-width">
-                  <label>
-                    <CheckCircle size={14} /> Estatus del Cliente
-                  </label>
-                  <select
-                    name="estado"
-                    value={formData.estado}
-                    onChange={handleInputChange}
-                  >
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
-                  </select>
-                </div>
-              </div>
-              <div className="modal-actions-new">
                 <button
-                  type="button"
-                  className="btn-secondary-new"
+                  className="btn-close-new"
                   onClick={() => setIsModalOpen(false)}
                 >
-                  Cancelar
-                </button>
-                <button type="submit" className="btn-primary-new">
-                  <Save size={18} /> Guardar Cambios
+                  <X size={20} />
                 </button>
               </div>
-            </form>
+
+              <form onSubmit={guardarCambios} className="modal-body-new">
+                <div className="input-grid-new">
+                  <div className="input-box-new">
+                    <label>
+                      <User size={14} /> Nombre Completo
+                    </label>
+                    <input
+                      type="text"
+                      name="nombre"
+                      value={formData.nombre}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="input-box-new">
+                    <label>
+                      <Mail size={14} /> Correo Electrónico
+                    </label>
+                    <input
+                      type="email"
+                      name="correo"
+                      value={formData.correo}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="input-box-new">
+                    <label>
+                      <Phone size={14} /> Número de Teléfono
+                    </label>
+                    <input
+                      type="text"
+                      name="telefono"
+                      value={formData.telefono}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="input-box-new">
+                    <label>
+                      <Lock size={14} /> Nueva Contraseña
+                    </label>
+                    <input
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="En blanco para no cambiar"
+                    />
+                  </div>
+
+                  <div className="input-box-new full-width">
+                    <label>
+                      <MapPin size={14} /> Dirección Particular
+                    </label>
+                    <input
+                      type="text"
+                      name="direccion"
+                      value={formData.direccion}
+                      onChange={handleInputChange}
+                      placeholder="Ej. Calle 23 #137, Col. Xcanatun..."
+                    />
+                  </div>
+
+                  <div className="input-box-new full-width">
+                    <label>
+                      <CheckCircle size={14} /> Estatus del Cliente
+                    </label>
+                    <select
+                      name="estado"
+                      value={formData.estado}
+                      onChange={handleInputChange}
+                    >
+                      <option value="Activo">Activo</option>
+                      <option value="Inactivo">Inactivo</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="modal-actions-new">
+                  <button
+                    type="button"
+                    className="btn-secondary-new"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn-primary-new">
+                    <Save size={18} /> Guardar Cambios
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
     </div>
   );
 };
