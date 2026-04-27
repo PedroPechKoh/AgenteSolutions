@@ -133,7 +133,7 @@ const DetallePropiedad = () => {
     Swal.fire({ icon: 'success', title: 'Técnico Asignado', text: 'Estatus actualizado a ASIGNADO.', timer: 1500, showConfirmButton: false });
   };
 
-  const [historialFinalizados,] = useState([
+  const [historialFinalizados, _setHistorialFinalizados] = useState([
     {
       id: 1,
       producto: "Revisión Eléctrica",
