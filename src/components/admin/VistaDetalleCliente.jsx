@@ -184,7 +184,7 @@ const VistaDetalleCliente = () => {
             </h3>
             <button
               className="btn-add-propiedad"
-              onClick={() => navigate("/registro-propiedad")}
+              onClick={() => navigate("/registro-propiedades")}
             >
               <Plus size={18} /> NUEVA PROPIEDAD
             </button>
