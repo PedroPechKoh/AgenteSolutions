@@ -1,353 +1,673 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import '../styles/DetallePr.css';
+import Swal from 'sweetalert2';
 import { 
-  Layout, CheckCircle2, ListTodo, Timer, AlertCircle, 
-  FileText, History, ChevronDown, ChevronUp, X, 
-  User, Eye, MapPin, Tag, PlusCircle, 
-  Home, Wrench, MessageSquare, Camera 
+  MapPin, User, AlertTriangle, Settings, CheckCircle, 
+  X, LayoutDashboard, FileText, Send, Trash2, Clock, Briefcase, MessageSquare,
+  CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye  
 } from 'lucide-react';
-import '../../styles/Cliente/DetallePropiedad.css';
 
-const VistaDetallePropiedad = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+const DetallePropiedad = () => {
+  // --- ESTADOS ---
+  const [isModalPerfilOpen, setIsModalPerfilOpen] = useState(false);
+  const [isModalCotizarEmergenciaOpen, setIsModalCotizarEmergenciaOpen] = useState(false);
+  const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
+  const [emergenciaACotizar, setEmergenciaACotizar] = useState(null);
+  const [colaTrabajos, setColaTrabajos] = useState([]);
+  const [isModalHistorialOpen, setIsModalHistorialOpen] = useState(false);
+  const [trabajoSeleccionado, setTrabajoSeleccionado] = useState(null);
   
-  // --- ESTADOS DE DATOS (Backend) ---
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Modales de chat y detalle cotización
+  const [isModalChatOpen, setIsModalChatOpen] = useState(false);
+  const [chatCotizacion, setChatCotizacion] = useState(null);
+  const [isModalCotizacionDetailOpen, setIsModalCotizacionDetailOpen] = useState(false);
+  const [cotizacionDetail, setCotizacionDetail] = useState(null);
 
-  // --- ESTADOS DE UI (Modales y Toggles) ---
-  const [mostrarHistorial, setMostrarHistorial] = useState(true);
-  const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
-  const [mostrarPerfilPropiedad, setMostrarPerfilPropiedad] = useState(false);
-  const [mostrarModalServicio, setMostrarModalServicio] = useState(false);
-  
-  // --- ESTADOS FORMULARIO NUEVO SERVICIO ---
-  const equiposPorZona = {
-    sala: ['Aire Acondicionado', 'Smart TV', 'Lámpara de pie'],
-    cocina: ['Refrigerador', 'Estufa', 'Microondas', 'Lavavajillas'],
-    recamara: ['Aire Acondicionado', 'Ventilador de techo'],
-    jardin: ['Bomba de piscina', 'Sistema de riego', 'Iluminación exterior']
+  // DATOS DE LA PROPIEDAD
+  const datosPropiedad = {
+    personaCargo: "Alejandra Alcocer",
+    curp: "ALCA800101HDFLNR01",
+    direccion: "Calle 60 #123 x 45 y 47, Centro, CP 97000",
+    mapsUrl: "https://goo.gl/maps/b5R4D8GgJ5Q2" 
   };
-  const [equiposDisponibles, setEquiposDisponibles] = useState([]);
-  const [nuevoServicio, setNuevoServicio] = useState({
-    zona: '', equipo: '', descripcion: '', foto: null
+
+  const [cotizaciones, setCotizaciones] = useState([
+    { id: 101, fecha: "20/Mar", status: "ACEPTADA", producto: "Revisión Eléctrica", zona: "PLANTA ALTA", comentario: "Autorizado por el dueño.", esEmergencia: false, items: [] },
+    { id: 103, fecha: "16/Mar", status: "RECHAZADA", producto: "Limpieza Profunda", zona: "GENERAL", comentario: "Precio muy alto.", esEmergencia: false, items: [] }
+  ]);
+
+  const [sosPendientes, setSosPendientes] = useState([
+    { id: 501, producto: "FUGA DE AGUA EN COCINA", descripcion: "Tubería rota bajo el fregadero", zona: "COCINA", cliente: "Alejandra V." }
+  ]);
+
+  const [itemsCotizacion, setItemsCotizacion] = useState([
+    { id: 1, concepto: "Mano de Obra Emergencia", cantidad: 1, precio: "" },
+    { id: 2, concepto: "Materiales e Insumos", cantidad: 1, precio: "" }
+  ]);
+
+  const [formPlanificacion, setFormPlanificacion] = useState({ 
+    tecnico: "", 
+    fecha: "", 
+    prioridad: "ALTA",
+    descripcionTrabajo: ""
   });
 
-  // --- EFECTO DE CARGA INICIAL ---
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`);
-        setData(response.data);
-      } catch (error) {
-        console.error("Error cargando el dashboard:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) fetchDashboardData();
-  }, [id]);
-
-  // Manejador del select de zonas en el modal
-  const handleZonaChange = (zona) => {
-    setNuevoServicio({ ...nuevoServicio, zona, equipo: '' }); 
-    setEquiposDisponibles(equiposPorZona[zona] || []);
+  const obtenerFechaHoy = () => {
+    const hoy = new Date();
+    const año = hoy.getFullYear();
+    const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dia = String(hoy.getDate()).padStart(2, '0');
+    return `${año}-${mes}-${dia}`;
   };
 
-  // --- RENDERIZADO CONDICIONAL MIENTRAS CARGA ---
-  if (loading) return <div className="loading" style={{textAlign: 'center', padding: '50px'}}>Cargando Tablero...</div>;
-  if (!data) return <div className="error" style={{textAlign: 'center', padding: '50px'}}>No se encontró la información de la propiedad.</div>;
+  // --- FUNCIONES ---
+  const abrirModalCotizar = (sos) => {
+    setEmergenciaACotizar(sos);
+    setIsModalCotizarEmergenciaOpen(true);
+  };
 
-  // Extraemos la información del JSON que mandó Laravel
-  const { propiedad, stats, historial, cotizaciones_pendientes, avance_obra } = data;
+  const calcularTotalCotizacion = () => {
+    return itemsCotizacion.reduce((acc, item) => acc + (Number(item.precio || 0) * Number(item.cantidad || 0)), 0);
+  };
+
+  const agregarFila = () => {
+    const nuevoItem = {
+      id: Date.now(),
+      concepto: "",
+      cantidad: 1,
+      precio: ""
+    };
+    setItemsCotizacion([...itemsCotizacion, nuevoItem]);
+  };
+
+  const enviarCotizacionFinal = (e) => {
+    e.preventDefault();
+    const itemsActuales = itemsCotizacion.map(item => ({...item}));
+    const nuevaCot = {
+      id: emergenciaACotizar.id,
+      fecha: "Hoy",
+      status: "ENVIADA", 
+      producto: emergenciaACotizar.producto,
+      comentario: "Esperando respuesta del cliente...",
+      esEmergencia: true,
+      items: itemsActuales
+    };
+
+    const nuevoTrabajoPendiente = {
+        id: nuevaCot.id,
+        producto: nuevaCot.producto,
+        tecnico: "Por confirmar",
+        fecha: "---",
+        prioridad: "SOS",
+        estado: "ESPERANDO" 
+    };
+
+    setCotizaciones([nuevaCot, ...cotizaciones]);
+    setColaTrabajos([nuevoTrabajoPendiente, ...colaTrabajos]);
+    setSosPendientes(sosPendientes.filter(s => s.id !== emergenciaACotizar.id));
+    setIsModalCotizarEmergenciaOpen(false);
+    Swal.fire({ icon: 'info', title: 'Presupuesto Enviado', text: 'Pendiente de aprobación.' });
+  };
+
+  const asignarTecnicoFinal = (e) => {
+    e.preventDefault();
+    const nuevoTrabajo = {
+      id: Date.now(),
+      producto: cotizacionSeleccionada.producto,
+      tecnico: formPlanificacion.tecnico,
+      fecha: formPlanificacion.fecha,
+      prioridad: formPlanificacion.prioridad,
+      comentario: cotizacionSeleccionada.comentario,
+      descripcion: formPlanificacion.descripcionTrabajo,
+      estado: cotizacionSeleccionada.esEmergencia ? "SOS" : "PENDIENTE"
+    };
+
+    setCotizaciones(cotizaciones.map(cot => 
+      cot.id === cotizacionSeleccionada.id 
+      ? { ...cot, status: "ASIGNADO" } 
+      : cot
+    ));
+
+    setColaTrabajos([nuevoTrabajo, ...colaTrabajos]);
+    setCotizacionSeleccionada(null);
+    Swal.fire({ icon: 'success', title: 'Técnico Asignado', text: 'Estatus actualizado a ASIGNADO.', timer: 1500, showConfirmButton: false });
+  };
+
+  const [historialFinalizados, _setHistorialFinalizados] = useState([
+    {
+      id: 1,
+      producto: "Revisión Eléctrica",
+      tecnico: "Tec. Mario",
+      fecha: "25/Mar/2026",
+      evidencias: [
+        "https://via.placeholder.com/150",
+        "https://via.placeholder.com/150"
+      ]
+    },
+    {
+      id: 2,
+      producto: "Fuga de Agua",
+      tecnico: "Ing. Jorge",
+      fecha: "28/Mar/2026",
+      evidencias: [
+        "https://via.placeholder.com/150"
+      ]
+    }
+  ]);
 
   return (
-    <div className="view-container">
-      <div className="main-layout-detail">
-        
-        {/* ==========================================
-            COLUMNA IZQUIERDA (Info + Historial)
-            ========================================== */}
-        <div className="left-column">
-          <div className="property-id-header">
-            <button className="btn-id-profile" onClick={() => setMostrarPerfilPropiedad(true)}>
-              <Tag size={16} /> ID REGISTRO: <strong>{propiedad.custom_curp || propiedad.id}</strong>
-            </button>
-          </div>
-
-          <div className="hero-section-compact">
-            {/* ✅ CORRECCIÓN CLAVE: Usamos la URL de Cloudinary directamente, sin 'http://127.0.0.1...' */}
-            <img 
-              src={propiedad.facade_photo_path ? propiedad.facade_photo_path : 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
-              alt="Propiedad" 
-              className="hero-img" 
-            />
-          </div>
-
-          <div className="info-card-premium historial-section">
-            <div className="card-header-clean historial-trigger" onClick={() => setMostrarHistorial(!mostrarHistorial)}>
-              <div className="header-title-flex">
-                <History size={20} className="icon-orange" />
-                <h3>Historial de Trabajos</h3>
-              </div>
-              {mostrarHistorial ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+    <div className="app-container">
+      {/* MAIN CONTENT – SIN SIDEBAR */}
+      <main className="main-content" style={{ marginLeft: 0 }}>
+        {/* HEADER SUPERIOR REDISEÑADO */}
+        <header className="top-bar" style={{ 
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+          padding: '12px 30px', background: 'white', borderBottom: '1px solid #e2e8f0', 
+          flexWrap: 'wrap' 
+        }}>
+          {/* Logo + Navegación */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
+            <div className="logo-brand" style={{ fontSize: '1.3rem', fontWeight: 'bold' }}>
+              AGENTE <span className="logo-solutions" style={{ color: '#ff6b00' }}>SOLUTIONS</span>
             </div>
+            <nav style={{ display: 'flex', gap: '15px' }}>
+              <button className="nav-item active" style={{ 
+                background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', 
+                gap: '6px', cursor: 'pointer', fontWeight: 'bold', color: '#ff6b00' 
+              }}>
+                <LayoutDashboard size={18}/> Dashboard
+              </button>
+              <button className="nav-item" onClick={() => setIsModalPerfilOpen(true)} style={{ 
+                background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', 
+                gap: '6px', cursor: 'pointer', color: '#333' 
+              }}>
+                <User size={18}/> Perfil Propiedad
+              </button>
+            </nav>
+          </div>
 
-            {mostrarHistorial && (
-              <div className="historial-list-container">
-                {historial && historial.length > 0 ? (
-                  historial.map((trabajo) => (
-                    <div key={trabajo.id} className="historial-card-item" onClick={() => setReporteSeleccionado(trabajo)}>
-                      <div className="h-card-left">
-                        <span className="h-card-date">{new Date(trabajo.updated_at).toLocaleDateString()}</span>
-                        <h4 className="h-card-title">{trabajo.title || 'Trabajo Finalizado'}</h4>
-                        <span className="h-card-tech">Por: <strong>{trabajo.tecnico_nombre || 'Técnico'}</strong></span>
-                      </div>
-                      <div className="h-card-right">
-                        <div className="h-card-photos-stack">
-                          {trabajo.fotos && trabajo.fotos.length > 0 ? (
-                            <img src={trabajo.fotos[0]} alt="evidencia" className="stack-img img-0" />
-                          ) : (
-                            <div style={{width: '40px', height: '40px', background: '#ccc', borderRadius: '8px'}}></div>
-                          )}
+          {/* Info de la propiedad y usuario */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div className="prop-info" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h1 style={{ fontSize: '1.2rem', margin: 0 }}>Propiedad <span style={{ color: '#ff6b00' }}>#101</span></h1>
+              <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px', color: '#555' }}>
+                <MapPin size={14}/> Mérida, Yuc.
+              </p>
+            </div>
+            <div className="user-badge" onClick={() => setIsModalPerfilOpen(true)} style={{ 
+              display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' 
+            }}>
+              <div className="avatar" style={{ 
+                background: '#ff6b00', color: 'white', borderRadius: '50%', 
+                width: '36px', height: '36px', display: 'flex', alignItems: 'center', 
+                justifyContent: 'center', fontWeight: 'bold' 
+              }}>AV</div>
+              <span>Alejandra Alcocer</span>
+            </div>
+          </div>
+        </header>
+
+        {sosPendientes.length > 0 && (
+          <div className="sos-alert-banner">
+            <div className="sos-banner-content">
+              <div className="icon-pulse"><AlertTriangle size={24} /></div>
+              <div>
+                <strong>NUEVA EMERGENCIA DETECTADA</strong>
+                <p>{sosPendientes[0].producto}</p>
+              </div>
+            </div>
+            <button className="btn-atender-ahora" onClick={() => abrirModalCotizar(sosPendientes[0])}>COTIZAR AHORA</button>
+          </div>
+        )}
+
+        <div className="management-grid">
+          {/* Historial de Servicios (TABLA PRINCIPAL) */}
+          <section className="glass-card">
+            <div className="card-header-ui"><CheckCircle size={20} className="icon-blue"/> <h2>Historial de Servicios</h2></div>
+            <div className="table-wrapper">
+              <table className="modern-table">
+                <thead>
+                  <tr>
+                    <th>Servicio</th>
+                    <th>Estatus</th>
+                    <th>Comentario Cliente</th>
+                    <th>Acción Principal</th>
+                    <th style={{ textAlign: 'center' }}>Acciones rápidas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cotizaciones.map(cot => (
+                    <tr key={cot.id} className={cot.esEmergencia ? 'row-priority-sos' : ''}>
+                      <td><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
+                      <td><span className={`status-pill pill-${cot.status.toLowerCase()}`}>{cot.status}</span></td>
+                      <td className="comment-cell">
+                        <div className="flex-comment"><MessageSquare size={14} className="icon-gray"/><span>{cot.comentario || "Sin observaciones"}</span></div>
+                      </td>
+                      <td>
+                        {cot.status === "ACEPTADA" ? (
+                          <button className="btn-planificar" onClick={() => {
+                            setCotizacionSeleccionada(cot);
+                            setFormPlanificacion({ 
+                              tecnico: "", 
+                              fecha: cot.esEmergencia ? obtenerFechaHoy() : "", 
+                              prioridad: cot.esEmergencia ? "SOS" : "ALTA",
+                              descripcionTrabajo: ""
+                            });
+                          }}><Settings size={14}/> ASIGNAR</button>
+                        ) : cot.status === "ASIGNADO" ? (
+                           <span className="text-assigned"><CheckCircle size={14}/> EN TABLERO</span>
+                        ) : (
+                          <span className="text-closed">{cot.status === "ENVIADA" ? "ESPERANDO..." : "CERRADO"}</span>
+                        )}
+                      </td>
+                      {/* NUEVOS BOTONES CON DISEÑO MEJORADO */}
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                          <button
+                            onClick={() => {
+                              setChatCotizacion(cot);
+                              setIsModalChatOpen(true);
+                            }}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              border: '1px solid #cbd5e1',
+                              background: 'white',
+                              cursor: 'pointer',
+                              fontSize: '0.85rem',
+                              color: '#334155',
+                              fontWeight: '500'
+                            }}
+                            title="Ver conversación con el cliente"
+                          >
+                            <MessageCircle size={15} /> Chat
+                          </button>
+                          <button
+                            onClick={() => {
+                              setCotizacionDetail(cot);
+                              setIsModalCotizacionDetailOpen(true);
+                            }}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              border: '1px solid #cbd5e1',
+                              background: 'white',
+                              cursor: 'pointer',
+                              fontSize: '0.85rem',
+                              color: '#334155',
+                              fontWeight: '500'
+                            }}
+                            title="Ver detalle de la cotización"
+                          >
+                            <Eye size={15} /> Ver cotización
+                          </button>
                         </div>
-                        <Eye size={18} className="view-icon" />
-                      </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Formulario Asignación */}
+          <div className="form-container-ui">
+            {cotizacionSeleccionada ? (
+              <section className={`glass-card planning-section ${cotizacionSeleccionada.esEmergencia ? 'border-sos' : ''}`}>
+                <div className="card-header-ui">
+                  <Briefcase size={20} className={cotizacionSeleccionada.esEmergencia ? 'icon-red' : 'icon-orange'}/>
+                  <h2>{cotizacionSeleccionada.esEmergencia ? "ASIGNAR SOS" : "Planificar"}</h2>
+                  <button className="btn-close-form" onClick={() => setCotizacionSeleccionada(null)}><X size={16}/></button>
+                </div>
+                <form className="modern-form" onSubmit={asignarTecnicoFinal}>
+                  <div className="input-group">
+                    <label>Técnico Responsable</label>
+                    <select required value={formPlanificacion.tecnico} onChange={(e) => setFormPlanificacion({...formPlanificacion, tecnico: e.target.value})}>
+                      <option value="">Seleccionar...</option>
+                      <option value="Mario">Tec. Mario</option>
+                      <option value="Jorge">Ing. Jorge</option>
+                    </select>
+                  </div>
+                  <div className="input-row">
+                    <div className="input-group">
+                      <label>Fecha Inicio</label>
+                      <input 
+                        type="date" 
+                        value={formPlanificacion.fecha} 
+                        onChange={(e) => setFormPlanificacion({...formPlanificacion, fecha: e.target.value})} 
+                        required 
+                      />
                     </div>
-                  ))
-                ) : (
-                  <p style={{padding: '20px', textAlign: 'center', color: '#666'}}>No hay historial de trabajos aún.</p>
-                )}
+                    <div className="input-group">
+                      <label>Prioridad</label>
+                      <select value={formPlanificacion.prioridad} onChange={(e) => setFormPlanificacion({...formPlanificacion, prioridad: e.target.value})}>
+                        <option value="SOS">SOS</option>
+                        <option value="ALTA">ALTA</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="input-group">
+                    <label>Descripción del trabajo (visible para el técnico)</label>
+                    <textarea
+                      rows="3"
+                      placeholder="Describe detalladamente lo que debe hacer el técnico…"
+                      value={formPlanificacion.descripcionTrabajo}
+                      onChange={(e) => setFormPlanificacion({ ...formPlanificacion, descripcionTrabajo: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <button type="submit" className={cotizacionSeleccionada.esEmergencia ? 'btn-sos-confirm' : 'btn-primary-ui'}>CONFIRMAR ASIGNACIÓN</button>
+                </form>
+              </section>
+            ) : (
+              <div className="empty-state-card">
+                <Settings size={32} className="icon-ghost"/>
+                <p>Selecciona una cotización aceptada para asignar técnico.</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* ==========================================
-            COLUMNA DERECHA (Tablero + Acciones)
-            ========================================== */}
-        <div className="right-column">
-          <div className="action-header-right">
-            <button className="btn-add-service-full" onClick={() => setMostrarModalServicio(true)}>
-              <PlusCircle size={20} /> AGREGAR SERVICIO
-            </button>
-          </div>
-
-          <div className="info-card-premium sticky-card">
-            <div className="card-header-clean">
-              <Layout size={20} className="icon-orange" />
-              <h3>Tablero de Control</h3>
-            </div>
-            
-            <div className="jira-stats-grid quad">
-              <div className="stat-box sos-urgent-stat" onClick={() => navigate('/sos')}>
-                <AlertCircle size={24} />
-                <span className="stat-number">{stats.sos || 0}</span>
-                <span className="stat-label">SOS</span>
-              </div>
-              <div className="stat-box todo">
-                <ListTodo size={24} />
-                <span className="stat-number">{stats.pendientes || 0}</span>
-                <span className="stat-label">POR HACER</span>
-              </div>
-              <div className="stat-box in-progress">
-                <Timer size={24} />
-                <span className="stat-number">{stats.proceso || 0}</span>
-                <span className="stat-label">PROCESO</span>
-              </div>
-              <div className="stat-box done">
-                <CheckCircle2 size={24} />
-                <span className="stat-number">{stats.listos || 0}</span>
-                <span className="stat-label">LISTOS</span>
-              </div>
-            </div>
-
-            <div className="tablero-actions-center">
-              <button className="btn-orange-small" onClick={() => navigate('/Tablero')}>
-                Ver tablero detallado
-              </button>
-            </div>
-            
-            <div className="sprint-footer">
-              <div className="sprint-progress-meta">
-                <span>Avance de Obra</span>
-                <span>{avance_obra || 0}%</span>
-              </div>
-              <div className="sprint-progress-bar">
-                <div className="sprint-progress-fill" style={{ width: `${avance_obra || 0}%` }}></div>
-              </div>
-            </div>
-            
-            <div className="quote-section-link" onClick={() => navigate('/cotizacion1')}>
-              <div className="quote-content">
-                <FileText size={20} />
-                <span>Ver Cotizaciones Pendientes</span>
-              </div>
-              <div className="quote-badge-large">{cotizaciones_pendientes || 0}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ==========================================
-          MODAL 1: DETALLE DE TRABAJO (HISTORIAL)
-          ========================================== */}
-      {reporteSeleccionado && (
-        <div className="modal-overlay" onClick={() => setReporteSeleccionado(null)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-modal" onClick={() => setReporteSeleccionado(null)}><X /></button>
-            <div className="modal-header">
-              <div className="modal-tag">TRABAJO FINALIZADO</div>
-              <h2>{reporteSeleccionado.title || reporteSeleccionado.labor}</h2>
-              <p className="modal-subtitle">
-                {new Date(reporteSeleccionado.updated_at || reporteSeleccionado.fecha).toLocaleDateString()} | Técnico: {reporteSeleccionado.tecnico_nombre || reporteSeleccionado.tecnico}
-              </p>
-            </div>
-            <div className="modal-body">
-              <p>{reporteSeleccionado.description || reporteSeleccionado.descripcion}</p>
-              <div className="evidence-container" style={{ marginTop: '15px' }}>
-                <h4>Evidencia:</h4>
-                {reporteSeleccionado.fotos && reporteSeleccionado.fotos.map((f, i) => (
-                  <img key={i} src={f} alt="foto" style={{ width: '100%', borderRadius: '8px', marginTop: '10px' }} />
-                ))}
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button className="btn-modal-close" onClick={() => setReporteSeleccionado(null)}>Cerrar Reporte</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ==========================================
-          MODAL 2: AGREGAR SERVICIO
-          ========================================== */}
-      {mostrarModalServicio && (
-        <div className="modal-overlay" onClick={() => setMostrarModalServicio(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-modal" onClick={() => setMostrarModalServicio(false)}><X /></button>
-            <div className="modal-header">
-              <div className="modal-tag">NUEVA SOLICITUD</div>
-              <h2>Reportar Problema</h2>
-            </div>
-            <form className="modal-body service-form" onSubmit={(e) => { e.preventDefault(); setMostrarModalServicio(false); }}>
-              <div className="form-group">
-                <label><Home size={16}/> Zona de la propiedad *</label>
-                <select 
-                  required 
-                  value={nuevoServicio.zona}
-                  onChange={(e) => handleZonaChange(e.target.value)}
-                >
-                  <option value="">Seleccionar zona...</option>
-                  <option value="sala">Sala</option>
-                  <option value="cocina">Cocina</option>
-                  <option value="recamara">Recámara</option>
-                  <option value="jardin">Jardín</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label><Wrench size={16}/> Equipo afectado (Opcional)</label>
-                <select 
-                  value={nuevoServicio.equipo}
-                  disabled={!nuevoServicio.zona}
-                  onChange={(e) => setNuevoServicio({...nuevoServicio, equipo: e.target.value})}
-                >
-                  <option value="">{nuevoServicio.zona ? "Seleccionar equipo..." : "Primero selecciona una zona"}</option>
-                  {equiposDisponibles.map((item, index) => (
-                    <option key={index} value={item.toLowerCase().replace(/\s+/g, '-')}>
-                      {item}
-                    </option>
+        {/* Tablero Kanban */}
+        <section className="kanban-section-full">
+          <div className="section-title"><LayoutDashboard size={20}/> <h2>Tablero de Control de Servicios</h2></div>
+          <div className="kanban-container-ui">
+            {["ESPERANDO", "SOS", "PENDIENTE"].map((estado, idx) => (
+              <div key={idx} className={`k-column ${estado === 'SOS' ? 'sos-line' : estado === 'ESPERANDO' ? 'orange-line' : 'yellow-line'}`}>
+                <div className={`k-header ${estado === 'SOS' ? 'red-text' : estado === 'ESPERANDO' ? 'orange-text' : ''}`}>
+                  {estado === 'SOS' ? 'SOS ACTIVO' : estado === 'ESPERANDO' ? 'POR AUTORIZAR' : 'POR HACER'} 
+                  <span>{colaTrabajos.filter(t=>t.estado === estado).length}</span>
+                </div>
+                <div className="k-body">
+                  {colaTrabajos.filter(t => t.estado === estado).map(t => (
+                    <div key={t.id} className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}>
+                      <h4>{t.producto}</h4>
+                      {t.descripcion && (
+                        <p style={{ fontSize: '0.85em', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>
+                          {t.descripcion.length > 60 
+                            ? t.descripcion.substring(0, 60) + '…' 
+                            : t.descripcion}
+                        </p>
+                      )}
+                      <div className="k-footer">
+                        <span className={estado === 'SOS' ? 'badge-sos' : estado === 'ESPERANDO' ? 'badge-status-waiting' : 'badge-prio alta'}>
+                          {estado === 'PENDIENTE' ? t.tecnico : (estado === 'SOS' ? 'CRÍTICO' : 'ENVIADO')}
+                        </span>
+                        <span className={estado === 'SOS' ? 'date-text-red' : 'date-text'}><Clock size={12}/> {t.fecha}</span>
+                      </div>
+                    </div>
                   ))}
-                  <option value="otro">Otro (No está en la lista)</option>
-                </select>
+                </div>
               </div>
-              <div className="form-group">
-                <label><MessageSquare size={16}/> Descripción *</label>
-                <textarea required rows="4" placeholder="Describe el problema..." onChange={(e) => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})}></textarea>
-              </div>
+            ))}
+            <div className="k-column blue-line"><div className="k-header">EN PROCESO <span>0</span></div><div className="k-body"></div></div>
+            <div className="k-column green-line"><div className="k-header">FINALIZADO <span>0</span></div><div className="k-body"></div></div>
+          </div>
+        </section>
 
-              <div className="form-group">
-                <label><Camera size={16}/> Evidencia Visual (Cámara o Galería)</label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  capture="environment" 
-                  className="file-input-custom"
-                  onChange={(e) => setNuevoServicio({...nuevoServicio, foto: e.target.files[0]})}
-                  style={{ marginTop: '5px', width: '100%' }}
-                />
-                <small style={{ color: '#666', fontSize: '11px', marginTop: '4px', display: 'block' }}>
-                  * En móvil, puedes tomar una foto o elegir una de tu álbum.
-                </small>
+        {/* HISTORIAL DE TRABAJOS FINALIZADOS */}
+        <section className="history-section-container">
+          <div className="card-header-ui">
+            <CheckCircle size={20} className="icon-blue"/>
+            <h2>Historial de Trabajos Finalizados</h2>
+          </div>
+          <div className="history-grid-layout">
+            {historialFinalizados.map((item) => (
+              <div 
+                key={item.id} 
+                className="history-log-card clickable-card"
+                onClick={() => {
+                  setTrabajoSeleccionado(item);
+                  setIsModalHistorialOpen(true);
+                }}
+              >
+                <div className="log-status"><CheckCircle size={12}/> FINALIZADO</div>
+                <div className="log-content">
+                  <h4>{item.producto}</h4>
+                  <div className="log-meta">
+                    <span><User size={14}/> {item.tecnico}</span>
+                    <span><Clock size={14}/> {item.fecha}</span>
+                  </div>
+                </div>
+                <div className="photo-grid-report">
+                  {item.evidencias.map((img, index) => (
+                    <div key={index} className="photo-item">
+                      <img src={img} alt="evidencia"/>
+                    </div>
+                  ))}
+                </div>
               </div>
+            ))}
+          </div>
+        </section>
+      </main>
 
-              <div className="modal-footer">
-                <button type="submit" className="btn-modal-close">Levantar Reporte</button>
+      {/* MODAL DE COTIZACIÓN EMERGENCIA */}
+      {isModalCotizarEmergenciaOpen && (
+        <div className="modal-overlay-ui">
+          <div className="modal-card-ui invoice-modal animate-fade-in">
+            <div className="modal-header-sos">
+              <div className="header-info">
+                <div className="icon-circle-white"><FileText size={20} /></div>
+                <div><h3>Presupuesto Emergencia</h3><span>ID: #{emergenciaACotizar?.id}</span></div>
+              </div>
+              <button className="btn-close-modal" onClick={() => setIsModalCotizarEmergenciaOpen(false)}><X size={20}/></button>
+            </div>
+            <form onSubmit={enviarCotizacionFinal} className="invoice-form">
+              <div className="invoice-container">
+                <div className="invoice-body-scrollable" style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '5px' }}>
+                  {itemsCotizacion.map((item, index) => (
+                    <div key={item.id} className="invoice-row animate-fade-in">
+                      <div className="col-desc"><input type="text" placeholder="Concepto" value={item.concepto} onChange={(e) => { const n = [...itemsCotizacion]; n[index].concepto = e.target.value; setItemsCotizacion(n); }} required /></div>
+                      <div className="col-qty"><input type="number" value={item.cantidad} onChange={(e) => { const n = [...itemsCotizacion]; n[index].cantidad = e.target.value; setItemsCotizacion(n); }} /></div>
+                      <div className="col-price"><input type="number" placeholder="0" value={item.precio} onChange={(e) => { const n = [...itemsCotizacion]; n[index].precio = e.target.value; setItemsCotizacion(n); }} required /></div>
+                      <div className="col-total">${(Number(item.cantidad) * Number(item.precio)).toLocaleString()}</div>
+                      <div className="col-actions">
+                        {itemsCotizacion.length > 1 && (
+                          <button type="button" className="btn-delete-row" onClick={() => setItemsCotizacion(itemsCotizacion.filter(i => i.id !== item.id))}><Trash2 size={16} /></button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="add-row-container" style={{ margin: '15px 0' }}>
+                    <button type="button" className="btn-add-item-orange" onClick={agregarFila} style={{ backgroundColor: '#ff6b00', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '25px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'bold', width: 'fit-content' }}>
+                      <Plus size={18} /> Agregar concepto
+                    </button>
+                  </div>
+                </div>
+                <div className="invoice-summary">
+                  <div className="summary-row">
+                    <span>Total</span>
+                    <span className="grand-total">${calcularTotalCotizacion().toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="invoice-actions-footer">
+                <button type="button" className="btn-cancel" onClick={() => setIsModalCotizarEmergenciaOpen(false)}>Cancelar</button>
+                <button type="submit" className="btn-send-invoice"><Send size={18}/> ENVIAR COTIZACIÓN</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* ==========================================
-          MODAL 3: PERFIL DE LA PROPIEDAD
-          ========================================== */}
-      {mostrarPerfilPropiedad && (
-        <div className="modal-overlay" onClick={() => setMostrarPerfilPropiedad(false)}>
-          <div className="modal-content profile-modal" onClick={e => e.stopPropagation()}>
-            <button className="close-modal" onClick={() => setMostrarPerfilPropiedad(false)}><X /></button>
-            <div className="modal-header-profile">
-              <Tag size={28} className="icon-orange" />
-              <div>
-                <h2>Perfil de la Propiedad</h2>
-                <p className="id-badge-text">ID Registro: {propiedad.id}</p>
+      {/* Modal Perfil */}
+      {isModalPerfilOpen && (
+        <div className="modal-overlay-ui" onClick={() => setIsModalPerfilOpen(false)}>
+          <div className="modal-card-ui profile-modern animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="modal-header-premium">
+              <div className="header-content">
+                <div className="icon-badge-white"><User size={24} /></div>
+                <div><h3>Perfil de Propiedad</h3><span>Datos Identificatorios</span></div>
+              </div>
+              <button className="btn-close-light" onClick={() => setIsModalPerfilOpen(false)}><X size={20}/></button>
+            </div>
+            <div className="modal-body modern-body">
+              <div className="info-grid">
+                <div className="info-item-card"><div className="item-icon"><User size={18} /></div><div className="item-details"><label>Responsable</label><p>{datosPropiedad.personaCargo}</p></div></div>
+                <div className="info-item-card"><div className="item-icon"><CreditCard size={18} /></div><div className="item-details"><label>CURP</label><p className="mono-text">{datosPropiedad.curp}</p></div></div>
+                <div className="info-item-card full-width"><div className="item-icon"><MapPin size={18} /></div><div className="item-details"><label>Dirección Física</label><p>{datosPropiedad.direccion}</p></div></div>
+              </div>
+              <div className="modal-footer-actions">
+                <a href={datosPropiedad.mapsUrl} target="_blank" rel="noopener noreferrer" className="btn-gps-premium"><Map size={18} /><span>Abrir Ubicación en Google Maps</span><ExternalLink size={14} className="icon-ext" /></a>
               </div>
             </div>
-            <div className="modal-body detailed-info">
-              <div className="profile-data-group">
-                <User size={20} className="icon-gray" />
-                <div>
-                  <span className="profile-label">CLIENTE ASOCIADO</span>
-                  <span className="profile-value">{propiedad.client_id || 'Sin asignar'}</span>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DETALLE HISTORIAL */}
+      {isModalHistorialOpen && trabajoSeleccionado && (
+        <div className="modal-overlay-ui" onClick={() => setIsModalHistorialOpen(false)}>
+          <div className="modal-card-ui report-modal animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="modal-header-premium">
+              <div className="header-content">
+                <div className="icon-badge-white"><CheckCircle size={22} /></div>
+                <div><h3>Detalle del Trabajo</h3><span>{trabajoSeleccionado.producto}</span></div>
+              </div>
+              <button className="btn-close-light" onClick={() => setIsModalHistorialOpen(false)}><X size={20}/></button>
+            </div>
+            <div className="modal-body modern-body">
+              <div className="info-grid">
+                <div className="info-item-card">
+                  <div className="item-icon"><User size={18} /></div>
+                  <div className="item-details"><label>Técnico</label><p>{trabajoSeleccionado.tecnico}</p></div>
+                </div>
+                <div className="info-item-card">
+                  <div className="item-icon"><Clock size={18} /></div>
+                  <div className="item-details"><label>Fecha</label><p>{trabajoSeleccionado.fecha}</p></div>
+                </div>
+                <div className="info-item-card full-width">
+                  <div className="item-icon"><Briefcase size={18} /></div>
+                  <div className="item-details"><label>Servicio</label><p>{trabajoSeleccionado.producto}</p></div>
                 </div>
               </div>
-              <div className="profile-data-group">
-                <FileText size={20} className="icon-gray" />
-                <div>
-                  <span className="profile-label">CURP INMUEBLE</span>
-                  <span className="profile-value highlight-curp">{propiedad.custom_curp || 'S/N'}</span>
-                </div>
-              </div>
-              <div className="profile-data-group">
-                <Home size={20} className="icon-gray" />
-                <div>
-                  <span className="profile-label">DIRECCIÓN</span>
-                  <span className="profile-value">{propiedad.address}</span>
-                </div>
-              </div>
-              <div className="profile-data-group">
-                <MapPin size={20} className="icon-gray" />
-                <div>
-                  <span className="profile-label">UBICACIÓN GPS</span>
-                  <a 
-                    href={`https://maps.google.com/?q=${propiedad.coordinates}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="gps-link-container"
-                  >
-                    <span className="profile-value gps-text">{propiedad.coordinates || 'Sin coordenadas'}</span>
-                    <Eye size={16} className="icon-blue" />
-                  </a>
+              <div style={{ marginTop: "20px" }}>
+                <h4 style={{ marginBottom: "10px" }}>Evidencias</h4>
+                <div className="photo-grid-report">
+                  {trabajoSeleccionado.evidencias.map((img, index) => (
+                    <div key={index} className="photo-item"><img src={img} alt="evidencia" /></div>
+                  ))}
                 </div>
               </div>
             </div>
-            <div className="modal-footer">
-               <button className="btn-orange-full" onClick={() => setMostrarPerfilPropiedad(false)}>
-                 Cerrar Detalles
-               </button>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL CHAT */}
+      {isModalChatOpen && chatCotizacion && (
+        <div className="modal-overlay-ui" onClick={() => setIsModalChatOpen(false)}>
+          <div className="modal-card-ui report-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className="modal-header-premium">
+              <div className="header-content">
+                <div className="icon-badge-white"><MessageCircle size={22} /></div>
+                <div>
+                  <h3>Chat con Cliente</h3>
+                  <span>Cotización #{chatCotizacion.id} – {chatCotizacion.producto}</span>
+                </div>
+              </div>
+              <button className="btn-close-light" onClick={() => setIsModalChatOpen(false)}><X size={20}/></button>
+            </div>
+            <div className="modal-body modern-body" style={{ maxHeight: '400px', overflowY: 'auto', padding: '20px' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ fontSize: '0.85em', color: '#888', marginBottom: '8px' }}>Admin • 10:30 AM</div>
+                <div style={{ background: '#f1f5f9', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '80%', marginBottom: '12px' }}>
+                  Hola Alejandra, hemos preparado el presupuesto para la {chatCotizacion.producto.toLowerCase()}. ¿Tienes alguna duda?
+                </div>
+              </div>
+              <div style={{ marginBottom: '16px', textAlign: 'right' }}>
+                <div style={{ fontSize: '0.85em', color: '#888', marginBottom: '8px' }}>Cliente • 10:32 AM</div>
+                <div style={{ background: '#e0f2fe', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '80%', marginBottom: '12px' }}>
+                  Gracias, lo reviso. ¿Cuánto tiempo tomaría el trabajo?
+                </div>
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ fontSize: '0.85em', color: '#888', marginBottom: '8px' }}>Admin • 10:33 AM</div>
+                <div style={{ background: '#f1f5f9', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '80%', marginBottom: '12px' }}>
+                  Aproximadamente 2-3 horas. Podemos agendar para mañana si confirmas hoy.
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '0.85em', color: '#888', marginBottom: '8px' }}>Cliente • 10:35 AM</div>
+                <div style={{ background: '#e0f2fe', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '80%' }}>
+                  Perfecto, adelante. Autorizado.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DETALLE COTIZACIÓN */}
+      {isModalCotizacionDetailOpen && cotizacionDetail && (
+        <div className="modal-overlay-ui" onClick={() => setIsModalCotizacionDetailOpen(false)}>
+          <div className="modal-card-ui invoice-modal animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="modal-header-premium">
+              <div className="header-content">
+                <div className="icon-badge-white"><FileText size={22} /></div>
+                <div>
+                  <h3>Detalle de Cotización #{cotizacionDetail.id}</h3>
+                  <span>{cotizacionDetail.producto}</span>
+                </div>
+              </div>
+              <button className="btn-close-light" onClick={() => setIsModalCotizacionDetailOpen(false)}><X size={20}/></button>
+            </div>
+            <div className="modal-body modern-body" style={{ padding: '20px' }}>
+              <div className="info-grid">
+                <div className="info-item-card">
+                  <div className="item-icon"><Briefcase size={18} /></div>
+                  <div className="item-details"><label>Estado</label><p>{cotizacionDetail.status}</p></div>
+                </div>
+                <div className="info-item-card">
+                  <div className="item-icon"><Clock size={18} /></div>
+                  <div className="item-details"><label>Fecha</label><p>{cotizacionDetail.fecha}</p></div>
+                </div>
+                <div className="info-item-card full-width">
+                  <div className="item-icon"><MessageSquare size={18} /></div>
+                  <div className="item-details"><label>Comentario</label><p>{cotizacionDetail.comentario || "Sin comentarios"}</p></div>
+                </div>
+              </div>
+
+              {cotizacionDetail.items && cotizacionDetail.items.length > 0 ? (
+                <div style={{ marginTop: '20px' }}>
+                  <h4 style={{ marginBottom: '10px' }}>Conceptos</h4>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid #ddd' }}>
+                        <th style={{ textAlign: 'left', padding: '8px' }}>Concepto</th>
+                        <th style={{ textAlign: 'center', padding: '8px' }}>Cantidad</th>
+                        <th style={{ textAlign: 'right', padding: '8px' }}>Precio</th>
+                        <th style={{ textAlign: 'right', padding: '8px' }}>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cotizacionDetail.items.map((item, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '8px' }}>{item.concepto}</td>
+                          <td style={{ textAlign: 'center', padding: '8px' }}>{item.cantidad}</td>
+                          <td style={{ textAlign: 'right', padding: '8px' }}>${Number(item.precio).toLocaleString()}</td>
+                          <td style={{ textAlign: 'right', padding: '8px' }}>${(Number(item.cantidad) * Number(item.precio)).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td colSpan={3} style={{ textAlign: 'right', fontWeight: 'bold', padding: '8px' }}>Total</td>
+                        <td style={{ textAlign: 'right', fontWeight: 'bold', padding: '8px' }}>
+                          ${cotizacionDetail.items.reduce((acc, item) => acc + (Number(item.cantidad) * Number(item.precio)), 0).toLocaleString()}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p style={{ marginTop: '20px', color: '#888' }}>No se encontró desglose de conceptos para esta cotización.</p>
+              )}
             </div>
           </div>
         </div>
@@ -356,4 +676,4 @@ const VistaDetallePropiedad = () => {
   );
 };
 
-export default VistaDetallePropiedad;
+export default DetallePropiedad;
