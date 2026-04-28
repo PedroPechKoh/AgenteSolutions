@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../styles/Cliente/DetallePr.css';
+import '../styles/DetallePr.css';
 import Swal from 'sweetalert2';
 import { 
   MapPin, User, AlertTriangle, Settings, CheckCircle, 
