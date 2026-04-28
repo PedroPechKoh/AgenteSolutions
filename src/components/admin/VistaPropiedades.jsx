@@ -31,7 +31,7 @@ const VistaPropiedades = () => {
         const token = localStorage.getItem('agente_token'); 
 
         const { data } = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/detalle-propiedad`,
+          `${import.meta.env.VITE_API_BASE_URL}/propiedades`,
           {
             headers: {
               'Authorization': `Bearer ${token}` 
