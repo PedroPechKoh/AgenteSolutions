@@ -182,16 +182,25 @@ const VistaPropiedades = () => {
                   <h3 className="property-title-overlay">
                     {p.propietario || "Sin Propietario"}
                   </h3>
-
-                  <div className="overlay-actions">
+<div className="overlay-actions">
+                    {/* BOTÓN 1: DETALLES DE PROPIEDAD */}
                     <button
                       className="btn-overlay secondary"
                       onClick={() => navigate(`/detalle-propiedad/${p.id}`)}
                     >
-                      VER TABLERO
+                      DETALLES DE PROPIEDAD
                     </button>
 
-                    {p.has_pending_service ? (
+                    {/* BOTÓN 2: SOLICITAR LEVANTAMIENTO (Dinámico) */}
+                    {p.levantamiento_realizado ? (
+                      <button 
+                        className="btn-overlay outline" 
+                        disabled 
+                        style={{ backgroundColor: '#4CAF50', color: 'white', borderColor: '#4CAF50', opacity: 0.9 }}
+                      >
+                        ✓ LEVANTAMIENTO REALIZADO
+                      </button>
+                    ) : p.has_pending_service ? (
                       <button className="btn-overlay outline" disabled>
                         YA SOLICITADO
                       </button>
@@ -200,15 +209,19 @@ const VistaPropiedades = () => {
                         className="btn-overlay primary"
                         onClick={() => abrirModalParaPropiedad(p)}
                       >
-                        SOLICITAR VISITA
+                        SOLICITAR LEVANTAMIENTO
                       </button>
                     )}
 
-                    <button 
-                      className="btn-overlay outline"
-                      onClick={() => window.open(`https://www.google.com/maps?q=$${p.direccion}`, "_blank")}
+                    {/* BOTÓN 3: REALIZAR MI PROPIO LEVANTAMIENTO */}
+                    <button
+                      className="btn-overlay primary"
+                      style={{ backgroundColor: '#F26522', color: 'white', border: 'none' }}
+                      // Por ahora lo dejo apuntando a RegistroZonas como lo teníamos, 
+                      // ¡tú me dices luego a dónde lo mandamos!
+                      onClick={() => navigate(`/RegistroZonas/${p.curp}`)} 
                     >
-                      🗺️ VER MAPA
+                      📸 REALIZAR MI PROPIO LEVANTAMIENTO
                     </button>
                   </div>
                 </div>
