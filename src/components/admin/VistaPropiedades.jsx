@@ -202,7 +202,7 @@ const VistaPropiedades = () => {
                       </button>
                     ) : p.has_pending_service ? (
                       <button className="btn-overlay outline" disabled>
-                        YA SOLICITADO
+                        LEVANTAMIENTO SOLICITADO
                       </button>
                     ) : (
                       <button
