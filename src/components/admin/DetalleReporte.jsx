@@ -132,9 +132,12 @@ const DetalleReporte = () => {
                     <div className="rep-direccion-box">
                         <p><strong>Dirección:</strong><br/>{datosBD.direccion}</p>
                     </div>
-                    <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>
-                        + GENERAR COTIZACIÓN
-                    </button>
+                    {/* Solo el Admin puede generar cotizaciones */}
+                    {JSON.parse(localStorage.getItem('agente_session'))?.userData?.role_id !== 3 && (
+                        <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>
+                            + GENERAR COTIZACIÓN
+                        </button>
+                    )}
                     <hr className="side-hr" />
                     <p><strong>Técnico:</strong><br/>{datosBD.tecnico}</p>
                     <p><strong>Visita:</strong><br/>{datosBD.fecha_programada}</p>

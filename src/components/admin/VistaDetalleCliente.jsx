@@ -245,9 +245,9 @@ const VistaDetalleCliente = () => {
                   </div>
                   <button
                     className="btn-ver-propiedad"
-                    onClick={() => navigate("/propiedades")}
+                    onClick={() => navigate(`/propiedad/${prop.id}`)}
                   >
-                    GESTIONAR <ArrowRight size={18} />
+                    Ver detalles de la Propiedad <ArrowRight size={18} />
                   </button>
                 </div>
               ))
