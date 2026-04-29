@@ -813,28 +813,27 @@
   .rep-sidebar {
     width: 100%;
     height: auto;
-    min-height: auto;
     padding: 20px;
     position: relative;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  }
-
-  .side-logo {
-    width: 180px;
-    margin: 0 auto 15px;
   }
 
   .rep-main-content {
     width: 100%;
-    padding: 15px;
+    padding: 10px; /* Reducido para aprovechar espacio */
     margin: 0;
-    overflow-y: visible;
+    overflow-x: hidden;
   }
 
   .main-banner {
-    height: 160px;
-    margin-bottom: 25px;
+    height: 200px;
+    margin-bottom: 20px;
     border-radius: 8px;
+    width: 100%;
+  }
+
+  .main-banner img {
+    object-fit: cover;
+    object-position: center;
   }
 
   .banner-text {
@@ -842,54 +841,79 @@
   }
 
   .banner-text h1 {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
+    text-align: center;
   }
 
+  /* Bloques de sección más compactos */
   .seccion-bloque {
-    padding: 15px;
-    margin-bottom: 20px;
+    padding: 15px 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
   }
 
+  .seccion-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .subseccion-caja {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .sub-titulo h4 {
+    font-size: 0.95rem;
+  }
+
+  /* Tablas súper compactas */
   .tabla-inventario {
     display: block;
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    border: 1px solid #eee;
   }
 
-  .tabla-inventario th, .tabla-inventario td {
-    padding: 8px;
+  .tabla-inventario th {
+    padding: 8px 10px;
+    font-size: 0.7rem;
+  }
+
+  .tabla-inventario td {
+    padding: 8px 10px;
     font-size: 0.75rem;
-    white-space: nowrap;
   }
 
-  .sub-titulo {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+  .col-cant {
+    font-size: 0.9rem !important;
+  }
+
+  .nota-tecnica {
+    font-size: 0.75rem;
+    padding: 3px 10px;
   }
 
   .btn-regresar {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 15px;
   }
 }
 
 @media (max-width: 480px) {
-  .rep-sidebar {
-    padding: 15px;
+  .rep-main-content {
+    padding: 5px; /* Mínimo padding para maximizar área de lectura */
   }
 
-  .side-info h2 {
+  .main-banner {
+    height: 150px;
+  }
+
+  .banner-text h1 {
     font-size: 1.1rem;
-    text-align: center;
   }
-
-  .rep-direccion-box {
-    text-align: center;
-  }
-
-  .side-hr {
-    margin: 15px 0;
+  
+  .seccion-header {
+    padding-left: 10px;
+    margin-bottom: 15px;
   }
 }
