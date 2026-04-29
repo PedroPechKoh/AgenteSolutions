@@ -219,15 +219,29 @@ const VistaDetalleCliente = () => {
             ) : propiedades.length > 0 ? (
               propiedades.map((prop) => (
                 <div key={prop.id} className="propiedad-item-card">
-                  <div className="prop-icon">
-                    <MapPin size={24} />
+                  <div className="prop-image-container">
+                    {prop.foto_url ? (
+                      <img
+                        src={prop.foto_url}
+                        alt="Fachada"
+                        className="prop-facade-img"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="prop-icon-fallback">
+                        <MapPin size={24} />
+                      </div>
+                    )}
                   </div>
                   <div className="prop-details">
-                    <h4>
-                      {prop.type} - {prop.custom_curp || "S/N"}
-                    </h4>
-                    <p>{prop.address}</p>
-                    <span className="equipos-count">Propiedad Activa</span>
+                    <h4>{prop.nombre_propiedad || "Propiedad sin nombre"}</h4>
+                    <p className="prop-address-text">{prop.direccion}</p>
+                    <div className="prop-meta">
+                      <span className="badge-tipo">{prop.tipo}</span>
+                      <span className="equipos-count">Activa</span>
+                    </div>
                   </div>
                   <button
                     className="btn-ver-propiedad"
