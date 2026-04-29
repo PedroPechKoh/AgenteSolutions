@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 import UniversalSearch from "../Shared/UniversalSearch"; 
 import Header from "../Shared/Header"; 
 import "../../styles/Admin/VistaPropiedades.css";
@@ -59,19 +60,39 @@ const VistaPropiedades = () => {
     obtenerPropiedades();
   }, []);
 
-  const eliminarPropiedad = async (id) => {
-    if (!window.confirm("¿Estás seguro de eliminar esta propiedad?")) return;
-    try {
-      const token = localStorage.getItem('agente_token');
+  const eliminarPropiedad = async (propiedad) => {
+    const { id, nombre_propiedad } = propiedad;
+    
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Quieres eliminar la propiedad "${nombre_propiedad}"? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
 
-      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/detalle-propiedad/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      setListaPropiedades((prev) => prev.filter((p) => p.id !== id));
-    } catch (error) {
-      alert("Error al eliminar la propiedad.");
+    if (result.isConfirmed) {
+      try {
+        const token = localStorage.getItem('agente_token');
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setListaPropiedades((prev) => prev.filter((p) => p.id !== id));
+        Swal.fire({
+          title: '¡Eliminado!',
+          text: 'La propiedad ha sido eliminada con éxito.',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (error) {
+        Swal.fire('Error', 'Hubo un problema al eliminar la propiedad.', 'error');
+      }
     }
   };
 
@@ -169,7 +190,7 @@ const VistaPropiedades = () => {
       <div className="top-bar-orange" />
       <div className="top-bar-black" />
 
-      <Header rolTexto={isClient ? "MIS PROPIEDADES" : "ADMINISTRACIÓN DE PROPIEDADES"} />
+      <Header rolTexto="ADMINISTRACIÓN DE PROPIEDADES" />
 
       <section className="content-area">
         
@@ -184,15 +205,13 @@ const VistaPropiedades = () => {
             />
           </div>
 
-          {!isClient && (
-            <button
-              className="btn-add-circle"
-              onClick={() => navigate("/registro-propiedades")}
-              title="NUEVA PROPIEDAD"
-            >
-              +
-            </button>
-          )}
+          <button
+            className="btn-add-circle"
+            onClick={() => navigate("/registro-propiedades")}
+            title="NUEVA PROPIEDAD"
+          >
+            +
+          </button>
         </div>
 
         <div className="categories-row-container">
@@ -225,87 +244,70 @@ const VistaPropiedades = () => {
                   className="property-image" 
                 />
 
-                  {!isClient && (
-                    <div className="property-overlay">
-                      <div className="overlay-icon-actions">
+                  <div className="property-overlay">
+                    <div className="overlay-icon-actions">
+                      <button 
+                        className="btn-icon-overlay" 
+                        title="Editar"
+                        onClick={(e) => { e.stopPropagation(); abrirModalEditar(p); }}
+                      >
+                        ✏️
+                      </button>
+                      
+                      {/* La papelera si la dejamos solo para Admin por seguridad, o tú me dices */}
+                      <button 
+                        className="btn-icon-overlay" 
+                        title="Eliminar"
+                        onClick={(e) => { e.stopPropagation(); eliminarPropiedad(p); }}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+
+                    <h3 className="property-title-overlay">
+                      {p.propietario || "Sin Propietario"}
+                    </h3>
+                    <div className="overlay-actions">
+                      {/* BOTÓN 1: DETALLES DE PROPIEDAD */}
+                      <button
+                        className="btn-overlay secondary"
+                        onClick={() => navigate(`/detalle-propiedad/${p.id}`)}
+                      >
+                        DETALLES DE PROPIEDAD
+                      </button>
+
+                      {/* BOTÓN 2: SOLICITAR LEVANTAMIENTO (Dinámico) */}
+                      {p.levantamiento_realizado ? (
                         <button 
-                          className="btn-icon-overlay" 
-                          title="Editar"
-                          onClick={(e) => { e.stopPropagation(); abrirModalEditar(p); }}
+                          className="btn-overlay outline" 
+                          disabled 
+                          style={{ backgroundColor: '#4CAF50', color: 'white', borderColor: '#4CAF50', opacity: 0.9 }}
                         >
-                          ✏️
+                          ✓ LEVANTAMIENTO REALIZADO
                         </button>
-                        <button 
-                          className="btn-icon-overlay" 
-                          title="Eliminar"
-                          onClick={(e) => { e.stopPropagation(); eliminarPropiedad(p.id); }}
-                        >
-                          🗑️
+                      ) : p.has_pending_service ? (
+                        <button className="btn-overlay outline" disabled>
+                          LEVANTAMIENTO SOLICITADO
                         </button>
-                      </div>
-
-                      <h3 className="property-title-overlay">
-                        {p.propietario || "Sin Propietario"}
-                      </h3>
-                      <div className="overlay-actions">
-                        {/* BOTÓN 1: DETALLES DE PROPIEDAD */}
-                        <button
-                          className="btn-overlay secondary"
-                          onClick={() => navigate(`/detalle-propiedad/${p.id}`)}
-                        >
-                          DETALLES DE PROPIEDAD
-                        </button>
-
-                        {/* BOTÓN 2: SOLICITAR LEVANTAMIENTO (Dinámico) */}
-                        {p.levantamiento_realizado ? (
-                          <button 
-                            className="btn-overlay outline" 
-                            disabled 
-                            style={{ backgroundColor: '#4CAF50', color: 'white', borderColor: '#4CAF50', opacity: 0.9 }}
-                          >
-                            ✓ LEVANTAMIENTO REALIZADO
-                          </button>
-                        ) : p.has_pending_service ? (
-                          <button className="btn-overlay outline" disabled>
-                            LEVANTAMIENTO SOLICITADO
-                          </button>
-                        ) : (
-                          <button
-                            className="btn-overlay primary"
-                            onClick={() => abrirModalParaPropiedad(p)}
-                          >
-                            SOLICITAR LEVANTAMIENTO
-                          </button>
-                        )}
-
-                        {/* BOTÓN 3: REALIZAR MI PROPIO LEVANTAMIENTO */}
+                      ) : (
                         <button
                           className="btn-overlay primary"
-                          style={{ backgroundColor: '#F26522', color: 'white', border: 'none' }}
-                          onClick={() => navigate(`/RegistroZonas/${p.curp}`)} 
+                          onClick={() => abrirModalParaPropiedad(p)}
                         >
-                          📸 REALIZAR MI PROPIO LEVANTAMIENTO
+                          SOLICITAR LEVANTAMIENTO
                         </button>
-                      </div>
-                    </div>
-                  )}
+                      )}
 
-                  {isClient && (
-                    <div 
-                      className="property-overlay clickable-overlay"
-                      onClick={() => navigate(`/propiedad/${p.id}`)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <h3 className="property-title-overlay">
-                        {p.nombre_propiedad || "Mi Propiedad"}
-                      </h3>
-                      <div className="overlay-actions">
-                        <button className="btn-overlay primary">
-                          VER DETALLES
-                        </button>
-                      </div>
+                      {/* BOTÓN 3: REALIZAR MI PROPIO LEVANTAMIENTO */}
+                      <button
+                        className="btn-overlay primary"
+                        style={{ backgroundColor: '#F26522', color: 'white', border: 'none' }}
+                        onClick={() => navigate(`/RegistroZonas/${p.curp}`)} 
+                      >
+                        📸 REALIZAR MI PROPIO LEVANTAMIENTO
+                      </button>
                     </div>
-                  )}
+                  </div>
               </div>
             ))
           ) : (
