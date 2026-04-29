@@ -271,7 +271,13 @@ const VistaPropiedades = () => {
                       {/* BOTÓN 1: DETALLES DE PROPIEDAD */}
                       <button
                         className="btn-overlay secondary"
-                        onClick={() => navigate(`/detalle-propiedad/${p.id}`)}
+                        onClick={() => {
+                          if (isClient && p.id_levantamiento) {
+                            navigate(`/detalle-reporte/${p.id_levantamiento}`);
+                          } else {
+                            navigate(`/detalle-propiedad/${p.id}`);
+                          }
+                        }}
                       >
                         DETALLES DE PROPIEDAD
                       </button>
