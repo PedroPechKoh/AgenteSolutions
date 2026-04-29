@@ -148,7 +148,7 @@ const DetalleReporte = () => {
             {/* --- CONTENIDO PRINCIPAL (LEVANTAMIENTO) --- */}
             <main className="rep-main-content">
                 <header className="main-banner">
-                    <img src={datosBD.foto_propiedad || casaImg} alt="Propiedad" />
+                    <img src={datosBD.foto_fachada || casaImg} alt="Propiedad" />
                     <div className="banner-text">
                         <h1>{datosBD.titulo}</h1>
                     </div>
