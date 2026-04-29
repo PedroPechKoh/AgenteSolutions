@@ -802,32 +802,47 @@
    MEDIA QUERIES (RESPONSIVO)
    ========================================= */
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .rep-container {
     flex-direction: column;
-    overflow-y: auto;
     height: auto;
+    overflow-y: auto;
+    width: 100%;
   }
 
   .rep-sidebar {
     width: 100%;
     height: auto;
+    min-height: auto;
     padding: 20px;
     position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  .side-logo {
+    width: 180px;
+    margin: 0 auto 15px;
   }
 
   .rep-main-content {
+    width: 100%;
     padding: 15px;
-    overflow-y: visible; /* El scroll lo tendrá el contenedor principal */
+    margin: 0;
+    overflow-y: visible;
   }
 
   .main-banner {
-    height: 180px;
-    margin-bottom: 20px;
+    height: 160px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+  }
+
+  .banner-text {
+    padding: 15px;
   }
 
   .banner-text h1 {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
   }
 
   .seccion-bloque {
@@ -835,55 +850,46 @@
     margin-bottom: 20px;
   }
 
-  .subseccion-caja {
-    padding: 15px;
+  .tabla-inventario {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabla-inventario th, .tabla-inventario td {
+    padding: 8px;
+    font-size: 0.75rem;
+    white-space: nowrap;
   }
 
   .sub-titulo {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 5px;
   }
 
-  /* Hacer tablas scrollable horizontalmente si son muy anchas */
-  .tabla-inventario {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-
-  .cot-grid-tools {
-    flex-direction: column;
-  }
-
-  .cot-modal-card.wide {
-    width: 98%;
-    margin: 10px;
-  }
-
-  .cot-modal-footer.dinamico {
-    flex-direction: column;
-    gap: 15px;
-    align-items: stretch;
-    text-align: center;
-  }
-
-  .footer-actions {
-    justify-content: center;
+  .btn-regresar {
+    width: 100%;
+    margin-top: 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .side-logo {
-    width: 150px;
-    margin: 0 auto 20px;
+  .rep-sidebar {
+    padding: 15px;
   }
 
-  .rep-direccion-box p {
-    font-size: 0.85rem;
+  .side-info h2 {
+    font-size: 1.1rem;
+    text-align: center;
   }
 
-  .btn-regresar {
-    margin-top: 20px;
+  .rep-direccion-box {
+    text-align: center;
+  }
+
+  .side-hr {
+    margin: 15px 0;
   }
 }
