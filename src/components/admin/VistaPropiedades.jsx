@@ -578,7 +578,14 @@ const VistaPropiedades = () => {
                   value={editNombre}
                   onChange={(e) => setEditNombre(e.target.value)}
                   placeholder="Ej. Casa de la Playa"
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px', 
+                    borderRadius: '6px', 
+                    border: '1px solid #ddd',
+                    backgroundColor: 'white',
+                    color: '#333'
+                  }}
                 />
               </div>
 
@@ -602,8 +609,10 @@ const VistaPropiedades = () => {
                     flex: 1,
                     padding: '12px',
                     borderRadius: '8px',
-                    border: '1px solid #ddd',
-                    backgroundColor: 'white',
+                    border: '1px solid #ccc',
+                    backgroundColor: '#f8f9fa',
+                    color: '#333',
+                    fontWeight: 'bold',
                     cursor: 'pointer'
                   }}
                 >
