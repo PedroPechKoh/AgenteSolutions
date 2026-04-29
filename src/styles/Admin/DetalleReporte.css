@@ -798,3 +798,92 @@
     font-weight: bold;
     cursor: pointer;
 }
+/* =========================================
+   MEDIA QUERIES (RESPONSIVO)
+   ========================================= */
+
+@media (max-width: 768px) {
+  .rep-container {
+    flex-direction: column;
+    overflow-y: auto;
+    height: auto;
+  }
+
+  .rep-sidebar {
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    position: relative;
+  }
+
+  .rep-main-content {
+    padding: 15px;
+    overflow-y: visible; /* El scroll lo tendrá el contenedor principal */
+  }
+
+  .main-banner {
+    height: 180px;
+    margin-bottom: 20px;
+  }
+
+  .banner-text h1 {
+    font-size: 1.4rem;
+  }
+
+  .seccion-bloque {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .subseccion-caja {
+    padding: 15px;
+  }
+
+  .sub-titulo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* Hacer tablas scrollable horizontalmente si son muy anchas */
+  .tabla-inventario {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .cot-grid-tools {
+    flex-direction: column;
+  }
+
+  .cot-modal-card.wide {
+    width: 98%;
+    margin: 10px;
+  }
+
+  .cot-modal-footer.dinamico {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .footer-actions {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .side-logo {
+    width: 150px;
+    margin: 0 auto 20px;
+  }
+
+  .rep-direccion-box p {
+    font-size: 0.85rem;
+  }
+
+  .btn-regresar {
+    margin-top: 20px;
+  }
+}
