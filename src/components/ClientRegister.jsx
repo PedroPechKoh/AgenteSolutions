@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Lock, Eye, EyeOff, Mail, Phone } from "lucide-react";
 import "../styles/LoginAgente.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
+import Logo4 from "../assets/Logo4.png";
 
 ////Comentario
 
@@ -20,8 +21,24 @@ const ClientRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000' });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`);
+        if (response.data.success) {
+          setBackgroundSettings(response.data.settings);
+        }
+      } catch (error) {
+        console.error("Error al cargar configuraciones visuales:", error);
+        setBackgroundSettings({ imageUrl: null, colorHex: '#000000' });
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleCaptchaChange = (value) => {
     setIsCaptchaValid(!!value);
@@ -69,9 +86,19 @@ const ClientRegister = () => {
   };
 
   return (
-    <div className="main-viewport">
+    <div 
+      className="main-viewport"
+      style={{ 
+        backgroundColor: backgroundSettings.colorHex, 
+        backgroundImage: backgroundSettings.imageUrl ? `url(${backgroundSettings.imageUrl})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        transition: 'background-image 0.5s ease-in-out'
+      }} 
+    >
       <img
-        src="/src/assets/Logo4.png"
+        src={Logo4}
         alt="Agente Solutions"
         className="logo-top-left"
       />
