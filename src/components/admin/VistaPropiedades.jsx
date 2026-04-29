@@ -24,6 +24,13 @@ const VistaPropiedades = () => {
   const [propiedadSeleccionada, setPropiedadSeleccionada] = useState(null);
   const [pasoModal, setPasoModal] = useState(1); 
   const [nombreResponsable, setNombreResponsable] = useState("");
+
+  // ESTADOS PARA EDICIÓN
+  const [mostrarModalEditar, setMostrarModalEditar] = useState(false);
+  const [propiedadAEditar, setPropiedadAEditar] = useState(null);
+  const [editNombre, setEditNombre] = useState("");
+  const [editFoto, setEditFoto] = useState(null);
+  const [editando, setEditando] = useState(false);
   
   // ROLE CHECK
   const user = JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData;
@@ -112,6 +119,51 @@ const VistaPropiedades = () => {
     navigate("/levantamientos"); 
   };
 
+  const abrirModalEditar = (propiedad) => {
+    setPropiedadAEditar(propiedad);
+    setEditNombre(propiedad.nombre_propiedad || "");
+    setEditFoto(null);
+    setMostrarModalEditar(true);
+  };
+
+  const handleUpdateProperty = async (e) => {
+    e.preventDefault();
+    setEditando(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      const formData = new FormData();
+      formData.append('property_name', editNombre);
+      if (editFoto) {
+        formData.append('facade_photo', editFoto);
+      }
+
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/propiedades/${propiedadAEditar.id}/update`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      // Actualizar lista local
+      setListaPropiedades(prev => prev.map(p => 
+        p.id === propiedadAEditar.id 
+          ? { ...p, nombre_propiedad: data.property.property_name, foto_url: data.foto_url } 
+          : p
+      ));
+
+      setMostrarModalEditar(false);
+    } catch (error) {
+      console.error("Error al actualizar:", error);
+      alert("Hubo un error al actualizar la propiedad.");
+    } finally {
+      setEditando(false);
+    }
+  };
+
   return (
     <div className="main-container bg-light">
       <div className="top-bar-orange" />
@@ -176,7 +228,13 @@ const VistaPropiedades = () => {
                   {!isClient && (
                     <div className="property-overlay">
                       <div className="overlay-icon-actions">
-                        <button className="btn-icon-overlay" title="Editar">✏️</button>
+                        <button 
+                          className="btn-icon-overlay" 
+                          title="Editar"
+                          onClick={(e) => { e.stopPropagation(); abrirModalEditar(p); }}
+                        >
+                          ✏️
+                        </button>
                         <button 
                           className="btn-icon-overlay" 
                           title="Eliminar"
@@ -458,6 +516,109 @@ const VistaPropiedades = () => {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* MODAL DE EDICIÓN DE PROPIEDAD */}
+      {mostrarModalEditar && (
+        <div
+          className="modal-overlay"
+          onClick={() => !editando && setMostrarModalEditar(false)}
+          style={{
+            zIndex: 1100,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.7)",
+          }}
+        >
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "450px",
+              width: "100%",
+              padding: "30px",
+              borderRadius: "12px",
+              backgroundColor: "white",
+              position: "relative",
+              boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+            }}
+          >
+            <button
+              className="close-modal"
+              onClick={() => setMostrarModalEditar(false)}
+              style={{
+                position: "absolute",
+                top: "15px",
+                right: "15px",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              <X size={24} color="#666" />
+            </button>
+
+            <form onSubmit={handleUpdateProperty}>
+              <h2 style={{ marginBottom: '20px', color: '#333', textAlign: 'center' }}>Editar Propiedad</h2>
+              
+              <div style={{ marginBottom: '15px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9rem' }}>Nombre de la Propiedad</label>
+                <input 
+                  type="text" 
+                  value={editNombre}
+                  onChange={(e) => setEditNombre(e.target.value)}
+                  placeholder="Ej. Casa de la Playa"
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '25px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', fontSize: '0.9rem' }}>Nueva Foto de Fachada</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => setEditFoto(e.target.files[0])}
+                  style={{ width: '100%', fontSize: '0.8rem' }}
+                />
+                <small style={{ color: '#888' }}>* Dejar vacío para mantener la foto actual.</small>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setMostrarModalEditar(false)}
+                  disabled={editando}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    backgroundColor: 'white',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={editando}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    backgroundColor: '#ff6b00',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {editando ? "Guardando..." : "Guardar Cambios"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
