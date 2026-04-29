@@ -51,14 +51,11 @@ const VistaDetalleCliente = () => {
           `${import.meta.env.VITE_API_BASE_URL}/propiedades`
         );
 
-        // Normalizar el ID del cliente para la comparación
-        const idBuscado =
-          typeof cliente.id === "string"
-            ? parseInt(cliente.id.replace(/[^\d]/g, ""), 10)
-            : cliente.id;
+        // Buscamos propiedades que coincidan con el correo del cliente (forma más robusta)
+        const emailCliente = (cliente.email || cliente.correo || "").toLowerCase();
 
         const misPropiedades = data.filter(
-          (p) => Number(p.client_id) === idBuscado
+          (p) => (p.client_email || "").toLowerCase() === emailCliente
         );
 
         setPropiedades(misPropiedades);
