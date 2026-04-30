@@ -39,8 +39,13 @@ const VistaDetallePropiedad = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`);
+        const token = localStorage.getItem('agente_token');
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`,
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
         setData(response.data);
+
       } catch (error) {
         console.error("Error cargando el dashboard:", error);
       } finally {
