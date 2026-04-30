@@ -28,36 +28,41 @@ const MainLayoutCliente = ({ children }) => {
     { label: 'COTIZACIONES', path: '/Cotizaciones', icon: <FileText size={18} /> },
   ];
 
+  const isHomeView = location.pathname === '/VistaInicioCliente';
+
   return (
     <div className="tt-container">
-      <aside className={`tt-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-        {isMobileMenuOpen && (
-          <button className="btn-close-mobile" onClick={() => setIsMobileMenuOpen(false)}>
-            <X size={24} color="white" />
-          </button>
-        )}
-
-        <div className="logo-section">
-           <img src={logo} alt="Agente Logo" className="main-logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/propiedades')} />
-        </div>
-
-        {/* Botón Volver */}
-        <button className="tt-nav-btn btn-volver-sidebar" onClick={() => navigate(-1)} style={{ marginBottom: '20px', backgroundColor: '#444', color: 'white' }}>
-           <ChevronLeft size={18} /> <span>VOLVER</span>
-        </button>
-        
-        <div className="tt-nav">
-          {navButtons.map((btn) => (
-            <button 
-              key={btn.label}
-              className={`tt-nav-btn ${location.pathname === btn.path ? 'active' : ''}`} 
-              onClick={() => navigate(btn.path)}
-            >
-              {btn.icon} <span>{btn.label}</span>
+      {!isHomeView && (
+        <aside className={`tt-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+          {isMobileMenuOpen && (
+            <button className="btn-close-mobile" onClick={() => setIsMobileMenuOpen(false)}>
+              <X size={24} color="white" />
             </button>
-          ))}
-        </div>
-      </aside>
+          )}
+  
+          <div className="logo-section">
+             <img src={logo} alt="Agente Logo" className="main-logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/propiedades')} />
+          </div>
+  
+          {/* Botón Volver */}
+          <button className="tt-nav-btn btn-volver-sidebar" onClick={() => navigate(-1)} style={{ marginBottom: '20px', backgroundColor: '#444', color: 'white' }}>
+             <ChevronLeft size={18} /> <span>VOLVER</span>
+          </button>
+          
+          <div className="tt-nav">
+            {navButtons.map((btn) => (
+              <button 
+                key={btn.label}
+                className={`tt-nav-btn ${location.pathname === btn.path ? 'active' : ''}`} 
+                onClick={() => navigate(btn.path)}
+              >
+                {btn.icon} <span>{btn.label}</span>
+              </button>
+            ))}
+          </div>
+        </aside>
+      )}
+
 
       <main className="tt-main">
         <header className="tt-header">

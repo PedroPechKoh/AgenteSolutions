@@ -46,10 +46,11 @@ const VistaCotizaciones = () => {
       (filtro === 'Aprobado' && c.estado === 'Aprobado') ||
       (filtro === 'Rechazado' && c.estado === 'Rechazado');
 
-    const coincideBusqueda = c.cliente.toLowerCase().includes(busqueda.toLowerCase()) || 
-                             c.folio.includes(busqueda);
+    const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
+                             (c.folio?.toString() || "").includes(busqueda || "");
     return coincideFiltro && coincideBusqueda;
   });
+
 
   const verPantallaCompleta = (url) => {
     window.open(url, '_blank');
@@ -175,7 +176,8 @@ const VistaCotizaciones = () => {
     <div className="cotiz-page">
       
       {/* 👇 AQUÍ ESTÁ EL NUEVO HEADER GLOBAL 👇 */}
-      <Header />
+      {!esCliente && <Header />}
+
       {/* 👆 Se eliminaron los div de las barras manuales y el tag <header> 👆 */}
 
       <main className="cotiz-main-content">

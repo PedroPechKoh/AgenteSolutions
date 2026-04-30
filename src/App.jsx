@@ -131,14 +131,24 @@ const AppRoutes = () => {
       <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
 
       {/* ------RUTAS DE LA VISTA DEL ADMIN (PROTEGIDAS POR ROL) ------*/}
+      {/* RUTAS ACCESIBLES POR ADMIN Y CLIENTE */}
+      <Route element={<ProtectedRoute allowedRoles={[0, 1, 3]} />}>
+        <Route path="/vista-cotizaciones" element={
+          user?.role_id === 3 ? <MainLayoutCliente><VistaCotizaciones /></MainLayoutCliente> : <VistaCotizaciones />
+        } />
+        <Route path="/levantamientos" element={
+          user?.role_id === 3 ? <MainLayoutCliente><VistaLevantamientos /></MainLayoutCliente> : <VistaLevantamientos />
+        } />
+      </Route>
+
       <Route element={<ProtectedRoute allowedRoles={[0, 1]} />}>
         <Route path="/detalle-producto" element={<ProductoDetalleView />} />
         <Route path="/vista-producto" element={<ProductosView />} />
-        <Route path="/vista-cotizaciones" element={<VistaCotizaciones />} />
         <Route path="/dashboard" element={<VistaDashboard />} />
         <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
-        <Route path="/levantamientos" element={<VistaLevantamientos />} />
         <Route path="/usuarios" element={<VistaUsuarios />} />
+
+
         <Route path="/mi-perfil" element={<Profile />} />
         <Route path="/map" element={<Map />} />
         <Route path="/registro-cliente" element={<RegistroCliente />} />
@@ -151,9 +161,15 @@ const AppRoutes = () => {
       <Route path="/notificaciones" element={<VistaNotificaciones />} />
       <Route path="/trabajos-asignados" element={<TrabajosAsignados />} />
 
-      {/* ------RUTAS DE LA VISTA DEL CLIENTE (CON SIDEBAR) ------*/}
+      {/* Vista de inicio del cliente sin Sidebar */}
+      <Route path="/VistaInicioCliente" element={
+        <ProtectedRoute allowedRoles={[3]}>
+          <VistaInicioCliente />
+        </ProtectedRoute>
+      } />
+
+      {/* Rutas del cliente con Sidebar */}
       <Route element={<ProtectedRoute allowedRoles={[3]}><MainLayoutCliente /></ProtectedRoute>}>
-        <Route path="/VistaInicioCliente" element={<VistaInicioCliente />} />
         <Route path="/Cotizaciones" element={<Cotizaciones />} />
         <Route path="/Pago" element={<Pago />} />
         <Route path="/SOSView" element={<SOSView />} />
@@ -163,6 +179,8 @@ const AppRoutes = () => {
         <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
         <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
       </Route>
+
+
 
 
 
