@@ -16,8 +16,9 @@ const MainLayoutCliente = ({ children }) => {
   const currentId = matchId ? matchId[0] : null;
   
   // Rutas dinámicas basadas en la propiedad actual
-  const detailPath = currentId ? `/propiedad/${currentId}` : '/propiedades';
+  const detailPath = currentId ? `/detalle-reporte/${currentId}` : '/propiedades';
   const tableroPath = currentId ? `/DetallePropiedad/${currentId}` : '/propiedades';
+
 
   const navButtons = [
     { label: 'DETALLES PROPIEDAD', path: detailPath, icon: <Home size={18} /> },

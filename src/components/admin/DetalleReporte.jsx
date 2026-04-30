@@ -43,8 +43,13 @@ const DetalleReporte = () => {
     useEffect(() => {
         const cargarReporte = async () => {
             try {
-                const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
+                const token = localStorage.getItem('agente_token');
+                const respuesta = await axios.get(
+                    `${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`,
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
                 setDatosBD(respuesta.data);
+
             } catch (error) {
                 console.error("Error al cargar el reporte:", error);
             } finally {
