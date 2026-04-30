@@ -1,44 +1,81 @@
 import React from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
-import { Settings, User, ArrowLeft, Home, Bell, LayoutGrid, FileText } from 'lucide-react';
+import { Settings, User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X } from 'lucide-react';
 
-const MainLayoutCliente = () => {
+import logo from "../../assets/Logo4.png";
+
+const MainLayoutCliente = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
+  const userData = JSON.parse(localStorage.getItem('agente_session'))?.userData;
+  const userName = userData?.name || "CLIENTE";
+
+  // Recuperamos los IDs guardados para mantener el contexto de la propiedad
+  const savedPropertyId = localStorage.getItem('current_property_id');
+  const savedLevantamientoId = localStorage.getItem('current_levantamiento_id');
+  
+  // Rutas dinámicas basadas en el contexto guardado
+  const detailPath = savedLevantamientoId ? `/detalle-reporte/${savedLevantamientoId}` : '/propiedades';
+  const tableroPath = savedPropertyId ? `/DetallePropiedad/${savedPropertyId}` : '/propiedades';
 
   const navButtons = [
-    { label: 'PROPIEDADES', path: '/inicio', icon: <Home size={18} /> },
-    { label: 'SOS', path: '/sos', icon: <Bell size={18} /> },
-    { label: 'COTIZACIONES', path: '/vista-cotizaciones', icon: <FileText size={18} /> },
-
+    { label: 'DETALLES PROPIEDAD', path: detailPath, icon: <Home size={18} /> },
+    { label: 'VER TABLERO', path: tableroPath, icon: <LayoutDashboard size={18} /> },
+    { label: 'SOS', path: '/SOSView', icon: <Bell size={18} /> },
+    { label: 'COTIZACIONES', path: '/Cotizaciones', icon: <FileText size={18} /> },
   ];
+
+  const isHomeView = location.pathname === '/VistaInicioCliente';
 
   return (
     <div className="tt-container">
-      <aside className="tt-sidebar">
-        <div className="logo-section">
-        </div>
-        
-        <div className="tt-nav">
-          {navButtons.map((btn) => (
-            <button 
-              key={btn.path}
-              className={`tt-nav-btn ${location.pathname === btn.path ? 'active' : ''}`} 
-              onClick={() => navigate(btn.path)}
-            >
-              {btn.icon} <span>{btn.label}</span>
+      {!isHomeView && (
+        <aside className={`tt-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+          {isMobileMenuOpen && (
+            <button className="btn-close-mobile" onClick={() => setIsMobileMenuOpen(false)}>
+              <X size={24} color="white" />
             </button>
-          ))}
-        </div>
-      </aside>
+          )}
+  
+          <div className="logo-section">
+             <img src={logo} alt="Agente Logo" className="main-logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/propiedades')} />
+          </div>
+  
+          {/* Botón Volver */}
+          <button className="tt-nav-btn btn-volver-sidebar" onClick={() => navigate(-1)} style={{ marginBottom: '20px', backgroundColor: '#444', color: 'white' }}>
+             <ChevronLeft size={18} /> <span>VOLVER</span>
+          </button>
+          
+          <div className="tt-nav">
+            {navButtons.map((btn) => (
+              <button 
+                key={btn.label}
+                className={`tt-nav-btn ${location.pathname === btn.path ? 'active' : ''}`} 
+                onClick={() => navigate(btn.path)}
+              >
+                {btn.icon} <span>{btn.label}</span>
+              </button>
+            ))}
+          </div>
+        </aside>
+      )}
+
 
       <main className="tt-main">
         <header className="tt-header">
-          <div className="header-left-group" onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <ArrowLeft size={35} strokeWidth={3} />
-            <h2 className="header-title">JOSE</h2>
+          <div className="header-left-group" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <button className="btn-menu-mobile" onClick={() => setIsMobileMenuOpen(true)} style={{ display: 'none' }}>
+              <Menu size={30} />
+            </button>
+            <div onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <ArrowLeft size={35} strokeWidth={3} className="header-arrow" />
+              <h2 className="header-title">{userName?.toUpperCase() || "CLIENTE"}</h2>
+            </div>
           </div>
+
           
           <div className="header-right-group" style={{ display: 'flex', gap: '15px' }}>
             <Settings size={30} />
@@ -49,7 +86,7 @@ const MainLayoutCliente = () => {
         <div className="tt-orange-bar"></div>
 
         <div className="tt-body">
-          <Outlet />
+          {children || <Outlet />}
         </div>
       </main>
     </div>

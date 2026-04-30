@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./context/ProtectedRoute";
 import LoginAgente from "./components/Login";
 import RegisterProperties from "./components/RegisterProperties";
@@ -42,13 +42,13 @@ import TrabajoInicio from "./components/VistasTecnico/TrabajoInicio";
 import TrabajoPropiedad from "./components/VistasTecnico/TrabajosPropiedad";
 import VentaCruzada from "./components/VistasTecnico/VentaCruzada";
 import RegistrarVentaCruzada from "./components/VistasTecnico/RegistrarVentaCruzada";
+import LevantamientoPropiedad from "./components/VistasTecnico/LevantamientoPropiedad";
 
 
 
 // 👇 1. IMPORTAMOS AXIOS Y CONFIGURAMOS EL TOKEN GLOBAL 👇
 import axios from "axios";
 import TrabajosAsignados from "./components/VistasTecnico/TrabajosAsignados";
-import LevantamientoPropiedad from "./components/VistasTecnico/LevantamientoPropiedad";
 import Cotizaciones from "./components/VistaCliente/Cotizaciones";
 
 import Pago from "./components/VistaCliente/Pago";
@@ -60,126 +60,140 @@ import DetallePropiedadadmin from "./components/admin/DetallePropiedad";
 
 import RegisteRoot from "./components/Register"; 
 import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
-// Le decimos a Laravel que siempre queremos JSON de regreso (Evita el error 'Route [login] not defined')
+
+// Accept JSON
 axios.defaults.headers.common["Accept"] = "application/json";
 
-const token = localStorage.getItem("agente_token");
-if (token) {
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-}
+const AppRoutes = () => {
+
+  const { user } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/" element={<LoginAgente />} />
+
+      {/* RUTA COMPARTIDA PROPIEDADES (Sin Sidebar para clientes) */}
+      <Route path="/propiedades" element={
+        <ProtectedRoute allowedRoles={[0, 1, 3]}>
+          <VistaPropiedades />
+        </ProtectedRoute>
+      } />
+
+      {/* RUTA COMPARTIDA DETALLE REPORTE (Con Sidebar para clientes) */}
+      <Route path="/detalle-reporte/:id" element={
+        <ProtectedRoute allowedRoles={[0, 1, 3]}>
+          {user?.role_id === 3 
+            ? <MainLayoutCliente><DetalleReporte /></MainLayoutCliente> 
+            : <DetalleReporte />
+          }
+        </ProtectedRoute>
+      } />
+
+      <Route
+        path="/VistaRoot"
+        element={
+          <ProtectedRoute allowedRoles={[0]}>
+            <VistaInicioAdmin />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/VistaTecnico"
+        element={
+          <ProtectedRoute allowedRoles={[1, 2]}>
+            <VistaInicioTecnico />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/registro-propiedades"
+        element={
+          <ProtectedRoute allowedRoles={[0, 1, 3]}>
+            <RegisterProperties />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ------RUTAS DE LA VISTA DEL TECNICO ------*/}
+      <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
+      <Route path="/Checklist/:id" element={<CheckList />} />
+      <Route path="/detalleTrabajo" element={<DetalleTrabajo />} />
+      <Route path="/galeria-reportes" element={<GaleriaReportes />} />
+      <Route path="/reporte-individual" element={<ReporteIndividual />} />
+      <Route path="/nuevo-reporte" element={<NuevoReporte />} />
+      <Route path="/trabajo-inicio/:id" element={<TrabajoInicio />} />
+      <Route path="/trabajo-propiedad/:id" element={<TrabajoPropiedad />} />
+      <Route path="/venta-cruzada" element={<VentaCruzada />} />
+      <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
+      <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />
+      <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
+
+      {/* ------RUTAS DE LA VISTA DEL ADMIN (PROTEGIDAS POR ROL) ------*/}
+      {/* RUTAS ACCESIBLES POR ADMIN Y CLIENTE */}
+      <Route element={<ProtectedRoute allowedRoles={[0, 1, 3]} />}>
+        <Route path="/vista-cotizaciones" element={<VistaCotizaciones />} />
+        <Route path="/levantamientos" element={<VistaLevantamientos />} />
+      </Route>
+
+
+      <Route element={<ProtectedRoute allowedRoles={[0, 1]} />}>
+        <Route path="/detalle-producto" element={<ProductoDetalleView />} />
+        <Route path="/vista-producto" element={<ProductosView />} />
+        <Route path="/dashboard" element={<VistaDashboard />} />
+        <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
+        <Route path="/usuarios" element={<VistaUsuarios />} />
+
+
+        <Route path="/mi-perfil" element={<Profile />} />
+        <Route path="/map" element={<Map />} />
+        <Route path="/registro-cliente" element={<RegistroCliente />} />
+        <Route path="/customize-login" element={<CustomizeLogin />} />
+        <Route path="/assign-service" element={<AssignServiceForm />} />
+        <Route path="/bodeguero" element={<VistaBodeguero/>} />
+        <Route path="/detalle-propiedad/:id" element={<DetallePropiedadadmin/>} />
+      </Route>
+
+      <Route path="/notificaciones" element={<VistaNotificaciones />} />
+      <Route path="/trabajos-asignados" element={<TrabajosAsignados />} />
+
+      {/* Vista de inicio del cliente sin Sidebar */}
+      <Route path="/VistaInicioCliente" element={
+        <ProtectedRoute allowedRoles={[3]}>
+          <VistaInicioCliente />
+        </ProtectedRoute>
+      } />
+
+      {/* Rutas del cliente con Sidebar */}
+      <Route element={<ProtectedRoute allowedRoles={[3]}><MainLayoutCliente /></ProtectedRoute>}>
+        <Route path="/Cotizaciones" element={<Cotizaciones />} />
+        <Route path="/Pago" element={<Pago />} />
+        <Route path="/SOSView" element={<SOSView />} />
+        <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />
+        <Route path="/DetallePropiedad/:id" element={<DetallePropiedad />} />
+        <Route path="/ReporteTrabajo" element={<ReporteTrabajo />} />
+        <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
+        <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
+      </Route>
+
+
+
+
+
+      <Route path="/registro" element={<RegisteRoot />} />
+      <Route path="/imprimir-cotizacion" element={<VistaCotizacionPrint />} />
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LoginAgente />} />
-
-          <Route
-            path="/VistaRoot"
-            element={
-              <ProtectedRoute allowedRoles={[0]}>
-                <VistaInicioAdmin />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Se eliminó el Login duplicado que estaba aquí */}
-
-          <Route
-            path="/VistaTecnico"
-            element={
-              <ProtectedRoute allowedRoles={[1, 2]}>
-                <VistaInicioTecnico />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/registro-propiedades"
-            element={
-              <ProtectedRoute allowedRoles={[0, 1, 3]}>
-                {" "}
-                {/* 👇 ¡Agregamos el 3 aquí! */}
-                <RegisterProperties />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* 👇 2. PROTEGEMOS LA RUTA DEL CLIENTE (Rol 3) 👇 */}
-          <Route
-            path="/VistaInicioCliente"
-            element={
-              <ProtectedRoute allowedRoles={[3]}>
-                <VistaInicioCliente />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/MenuCliente"
-            element={
-              <ProtectedRoute allowedRoles={[3]}>
-                <MainLayoutCliente />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ------RUTAS DE LA VISTA DEL TECNICO ------*/}
-          <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
-          <Route path="/Checklist/:id" element={<CheckList />} />
-          <Route path="/detalleTrabajo" element={<DetalleTrabajo />} />
-          <Route path="/galeria-reportes" element={<GaleriaReportes />} />
-          <Route path="/reporte-individual" element={<ReporteIndividual />} />
-          <Route path="/nuevo-reporte" element={<NuevoReporte />} />
-          <Route path="/trabajo-inicio/:id" element={<TrabajoInicio />} />
-          <Route path="/trabajo-propiedad/:id" element={<TrabajoPropiedad />} />
-          <Route path="/venta-cruzada" element={<VentaCruzada />} />
-          <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
-          <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />
-         <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
-
-
-
-          {/* ------RUTAS DE LA VISTA DEL ADMIN ------*/}
-          <Route path="/detalle-reporte/:id" element={<DetalleReporte />} />
-          <Route path="/detalle-producto" element={<ProductoDetalleView />} />
-          <Route path="/vista-producto" element={<ProductosView />} />
-          <Route path="/vista-cotizaciones" element={<VistaCotizaciones />} />
-          <Route path="/dashboard" element={<VistaDashboard />} />
-          <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
-          <Route path="/levantamientos" element={<VistaLevantamientos />} />
-          <Route path="/propiedades" element={<VistaPropiedades />} />
-          <Route path="/usuarios" element={<VistaUsuarios />} />
-          <Route path="/mi-perfil" element={<Profile />} />
-          <Route path="/map" element={<Map />} />
-          <Route path="/registro-cliente" element={<RegistroCliente />} />
-          <Route path="/customize-login" element={<CustomizeLogin />} />
-          <Route path="/assign-service" element={<AssignServiceForm />} />
-          <Route path="/bodeguero" element={<VistaBodeguero/>} />
-          <Route path="/detalle-propiedad/:id" element={<DetallePropiedadadmin/>} />
-
-          {/* La redirección por defecto siempre es mejor ponerla al final */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-
-          <Route path="/notificaciones" element={<VistaNotificaciones />} />
-          <Route path="/trabajos-asignados" element={<TrabajosAsignados />} />
-
-           {/* ------RUTAS DE LA VISTA DEL CLIENTE ------*/}
-           <Route path="/Cotizaciones" element={<Cotizaciones />} />
-           <Route path="/Pago" element={<Pago />} />
-           <Route path="/SOSView" element={<SOSView />} />
-            <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />
-            <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
-            <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
-            <Route path="/DetallePropiedad" element={<DetallePropiedad />} />
-            <Route path="/ReporteTrabajo" element={<ReporteTrabajo />} />
-
-          <Route path="/registro" element={<RegisteRoot />} />
-          <Route path="/imprimir-cotizacion" element={<VistaCotizacionPrint />} />
-
-
-
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </AuthProvider>
   );

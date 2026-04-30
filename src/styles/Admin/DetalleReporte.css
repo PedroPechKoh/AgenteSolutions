@@ -8,6 +8,28 @@
   font-family: 'Segoe UI', sans-serif;
 }
 
+
+/* Ajustes para cuando se ve dentro del Layout de Cliente */
+.rep-container.is-client-view {
+  display: block;
+  height: auto;
+  width: 100%;
+  overflow: visible;
+  background: transparent;
+  padding: 0;
+}
+
+.rep-container.is-client-view .rep-main-content {
+  padding: 0;
+  height: auto;
+  overflow: visible;
+  max-width: 100%;
+  font-size: 0.9rem;
+  display: block;
+}
+
+
+
 /* Sidebar Estático */
 .rep-sidebar {
   width: 280px;
@@ -76,11 +98,11 @@
 
 .main-banner {
   width: 100%;
-  height: 250px;
+  height: 160px;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 .main-banner img { width: 100%; height: 100%; object-fit: cover; }
 .banner-text { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: white; padding: 20px 30px; }
@@ -284,11 +306,12 @@
 .seccion-bloque {
   background: #ffffff;
   border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Sombra elegante */
-  border-left: 6px solid #ff7f00; /* Línea lateral naranja corporativa */
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-left: 6px solid #ff7f00;
 }
+
 
 .seccion-header h3 {
   font-size: 1.4rem;
@@ -365,11 +388,12 @@
 }
 
 .tabla-inventario td {
-  padding: 12px 15px;
+  padding: 8px 12px;
   color: #444;
   border-bottom: 1px solid #f1f1f1;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
+
 
 /* Efecto hover en las filas de la tabla */
 .tabla-inventario tbody tr:hover td {
@@ -407,7 +431,10 @@
 .table-responsive {
   overflow-x: auto;
   width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
 }
+
 .cot-modal-card.wide {
     width: 90%;
     max-width: 1000px;

@@ -85,10 +85,11 @@ const VistaLevantamientos = () => {
         ? (s.status === "Finalizado" || s.status === "completed")
         : (s.status !== "Finalizado" && s.status !== "completed");
     const coincideBusqueda =
-      s.title?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      s.id.toString().includes(busqueda);
+      s.title?.toLowerCase().includes(busqueda?.toLowerCase() || "") ||
+      s.id?.toString().includes(busqueda || "");
     return coincideTab && coincideBusqueda;
   });
+
 
   const abrirAsignacion = (servicio) => {
     setServicioSeleccionado(servicio);
@@ -177,6 +178,8 @@ const VistaLevantamientos = () => {
   return (
     <div className="lev-main-page">
       <Header />
+
+
 
       <main className="lev-container">
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>

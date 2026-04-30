@@ -1,5 +1,4 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthContext'; 
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -10,10 +9,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role_id)) {
-    return <h1>Acceso Denegado. Solo para nivel ROOT.</h1>; 
+    return <h1>Acceso Denegado. No tienes permisos para ver esta sección.</h1>; 
   }
 
-  return children;
+  return children ? children : <Outlet />;
 };
+
 
 export default ProtectedRoute;

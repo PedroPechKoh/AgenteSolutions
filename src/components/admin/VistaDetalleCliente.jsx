@@ -245,10 +245,19 @@ const VistaDetalleCliente = () => {
                   </div>
                   <button
                     className="btn-ver-propiedad"
-                    onClick={() => navigate(`/propiedad/${prop.id}`)}
+                    onClick={() => {
+                      const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+                      const role = session?.userData?.role_id;
+                      if (role === 0 || role === 1) {
+                        navigate(`/detalle-propiedad/${prop.id}`);
+                      } else {
+                        navigate(`/propiedad/${prop.id}`);
+                      }
+                    }}
                   >
                     Ver detalles de la Propiedad <ArrowRight size={18} />
                   </button>
+
                 </div>
               ))
             ) : (

@@ -52,3 +52,4 @@ const VistaInicioCliente = () => {
 };
 
 export default VistaInicioCliente;
+

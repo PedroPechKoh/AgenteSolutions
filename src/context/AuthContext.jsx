@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -12,6 +13,13 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('agente_session');
         return null;
       }
+
+      // Configurar token inicial
+      const token = localStorage.getItem("agente_token");
+      if (token) {
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      }
+
       return sessionData.userData; 
     }
     return null;
@@ -26,9 +34,15 @@ export const AuthProvider = ({ children }) => {
       expirationTime: expirationTime
     };
 
+    const token = localStorage.getItem("agente_token");
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    }
+
     setUser(userData);
     localStorage.setItem('agente_session', JSON.stringify(sessionData));
   };
+
 
   const logoutGlobal = () => {
     setUser(null);

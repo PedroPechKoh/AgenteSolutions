@@ -43,8 +43,13 @@ const DetalleReporte = () => {
     useEffect(() => {
         const cargarReporte = async () => {
             try {
-                const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
+                const token = localStorage.getItem('agente_token');
+                const respuesta = await axios.get(
+                    `${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`,
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
                 setDatosBD(respuesta.data);
+
             } catch (error) {
                 console.error("Error al cargar el reporte:", error);
             } finally {
@@ -121,29 +126,35 @@ const DetalleReporte = () => {
     if (cargando) return <div className="loading-screen">Cargando datos del reporte...</div>;
     if (!datosBD) return <div className="loading-screen">Error: Reporte no encontrado.</div>;
 
+    const userData = JSON.parse(localStorage.getItem('agente_session'))?.userData;
+    const isClient = userData?.role_id === 3;
+
     return (
-        <div className="rep-container">
-            {/* --- SIDEBAR --- */}
-            <aside className="rep-sidebar">
-                <img src={logo} alt="Logo" className="side-logo" onClick={() => navigate('/')} />
-                <div className="side-info">
-                    <span className="id-badge">{datosBD.identificador_curp}</span>
-                    <h2>{datosBD.propietario}</h2>
-                    <div className="rep-direccion-box">
-                        <p><strong>Dirección:</strong><br/>{datosBD.direccion}</p>
+        <div className={`rep-container ${isClient ? 'is-client-view' : ''}`}>
+            {/* --- SIDEBAR (Oculto para clientes) --- */}
+            {!isClient && (
+                <aside className="rep-sidebar">
+                    <img src={logo} alt="Logo" className="side-logo" onClick={() => navigate('/')} />
+                    <div className="side-info">
+                        <span className="id-badge">{datosBD.identificador_curp}</span>
+                        <h2>{datosBD.propietario}</h2>
+                        <div className="rep-direccion-box">
+                            <p><strong>Dirección:</strong><br/>{datosBD.direccion}</p>
+                        </div>
+                        {/* Solo el Admin puede generar cotizaciones */}
+                        {userData?.role_id !== 3 && (
+                            <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>
+                                + GENERAR COTIZACIÓN
+                            </button>
+                        )}
+                        <hr className="side-hr" />
+                        <p><strong>Técnico:</strong><br/>{datosBD.tecnico}</p>
+                        <p><strong>Visita:</strong><br/>{datosBD.fecha_programada}</p>
                     </div>
-                    {/* Solo el Admin puede generar cotizaciones */}
-                    {JSON.parse(localStorage.getItem('agente_session'))?.userData?.role_id !== 3 && (
-                        <button className="btn-cotizacion" onClick={() => setMostrarCotizacion(true)}>
-                            + GENERAR COTIZACIÓN
-                        </button>
-                    )}
-                    <hr className="side-hr" />
-                    <p><strong>Técnico:</strong><br/>{datosBD.tecnico}</p>
-                    <p><strong>Visita:</strong><br/>{datosBD.fecha_programada}</p>
-                </div>
-                <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER</button>
-            </aside>
+                    <button className="btn-regresar" onClick={() => navigate(-1)}>← VOLVER</button>
+                </aside>
+            )}
+
 
             {/* --- CONTENIDO PRINCIPAL (LEVANTAMIENTO) --- */}
             <main className="rep-main-content">
