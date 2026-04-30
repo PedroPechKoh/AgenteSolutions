@@ -8,6 +8,23 @@
   font-family: 'Segoe UI', sans-serif;
 }
 
+/* Ajustes para cuando se ve dentro del Layout de Cliente */
+.rep-container.is-client-view {
+  height: auto;
+  width: 100%;
+  min-height: unset;
+  overflow: visible;
+  background: transparent;
+}
+
+.rep-container.is-client-view .rep-main-content {
+  padding: 0;
+  height: auto;
+  overflow: visible;
+  max-width: 100%;
+}
+
+
 /* Sidebar Estático */
 .rep-sidebar {
   width: 280px;

@@ -141,22 +141,25 @@ function App() {
 
 
           {/* ------RUTAS DE LA VISTA DEL ADMIN ------*/}
-          <Route path="/detalle-reporte/:id" element={<DetalleReporte />} />
-          <Route path="/detalle-producto" element={<ProductoDetalleView />} />
-          <Route path="/vista-producto" element={<ProductosView />} />
-          <Route path="/vista-cotizaciones" element={<VistaCotizaciones />} />
-          <Route path="/dashboard" element={<VistaDashboard />} />
-          <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
-          <Route path="/levantamientos" element={<VistaLevantamientos />} />
-          <Route path="/propiedades" element={<VistaPropiedades />} />
-          <Route path="/usuarios" element={<VistaUsuarios />} />
-          <Route path="/mi-perfil" element={<Profile />} />
-          <Route path="/map" element={<Map />} />
-          <Route path="/registro-cliente" element={<RegistroCliente />} />
-          <Route path="/customize-login" element={<CustomizeLogin />} />
-          <Route path="/assign-service" element={<AssignServiceForm />} />
-          <Route path="/bodeguero" element={<VistaBodeguero/>} />
-          <Route path="/detalle-propiedad/:id" element={<DetallePropiedadadmin/>} />
+          <Route element={<ProtectedRoute allowedRoles={[0, 1]} />}>
+            <Route path="/detalle-reporte/:id" element={<DetalleReporte />} />
+            <Route path="/detalle-producto" element={<ProductoDetalleView />} />
+            <Route path="/vista-producto" element={<ProductosView />} />
+            <Route path="/vista-cotizaciones" element={<VistaCotizaciones />} />
+            <Route path="/dashboard" element={<VistaDashboard />} />
+            <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
+            <Route path="/levantamientos" element={<VistaLevantamientos />} />
+            <Route path="/propiedades" element={<VistaPropiedades />} />
+            <Route path="/usuarios" element={<VistaUsuarios />} />
+            <Route path="/mi-perfil" element={<Profile />} />
+            <Route path="/map" element={<Map />} />
+            <Route path="/registro-cliente" element={<RegistroCliente />} />
+            <Route path="/customize-login" element={<CustomizeLogin />} />
+            <Route path="/assign-service" element={<AssignServiceForm />} />
+            <Route path="/bodeguero" element={<VistaBodeguero/>} />
+            <Route path="/detalle-propiedad/:id" element={<DetallePropiedadadmin/>} />
+          </Route>
+
 
           {/* La redirección por defecto siempre es mejor ponerla al final */}
           <Route path="*" element={<Navigate to="/" replace />} />
