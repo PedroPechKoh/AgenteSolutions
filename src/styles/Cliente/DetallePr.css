@@ -555,20 +555,22 @@
 
 .kanban-container-ui {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 20px;
 }
 
+
 .k-column {
   flex: 1;
-  min-width: 280px; /* Más ancho para que luzca mejor abajo */
+  min-width: 200px; /* Reducido para que quepan las 5 columnas en la mayoría de laptops sin scroll */
   background: #f8fafc;
   border-radius: 16px;
   padding: 20px;
   min-height: 400px;
   border-top: 6px solid #cbd5e1;
 }
+
 
 /* Colores de Columnas */
 .sos-line { border-top-color: #ef4444; background: #fff1f2; }
