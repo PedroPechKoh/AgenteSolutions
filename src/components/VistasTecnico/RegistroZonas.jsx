@@ -27,17 +27,36 @@ const RegistroZonas = () => {
   const [selectedFile, setSelectedFile] = useState(null); // Archivo real
   const [previewImg, setPreviewImg] = useState(null);    // Vista previa
 
+  const [idPropiedadReal, setIdPropiedadReal] = useState(propertyId);
+
   useEffect(() => {
-    if (propertyId) {
+    const fetchPropertyByCurp = async () => {
+      if (!idPropiedadReal && curp) {
+        try {
+          const token = localStorage.getItem('agente_token');
+          const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/by-curp/${curp}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          setIdPropiedadReal(res.data.id);
+        } catch (error) {
+          console.error("Error al buscar propiedad por CURP:", error);
+        }
+      }
+    };
+    fetchPropertyByCurp();
+  }, [curp, idPropiedadReal]);
+
+  useEffect(() => {
+    if (idPropiedadReal) {
       fetchZonas();
     }
-  }, [propertyId]);
+  }, [idPropiedadReal]);
 
   const fetchZonas = async () => {
     try {
       // ✅ INYECTAMOS EL TOKEN PARA LEER LAS ZONAS
       const token = localStorage.getItem('agente_token');
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${propertyId}/areas`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${idPropiedadReal}/areas`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -47,6 +66,7 @@ const RegistroZonas = () => {
       console.error("Error al cargar zonas:", error);
     }
   };
+
 
   // Manejador de selección de archivo
   const handleFileSelect = (e) => {
@@ -64,8 +84,9 @@ const RegistroZonas = () => {
 
     // USAMOS FORMDATA PARA ENVIAR LA IMAGEN
     const formData = new FormData();
-    formData.append('property_id', propertyId);
+    formData.append('property_id', idPropiedadReal);
     formData.append('name', nuevaZona.nombre);
+
     formData.append('description', nuevaZona.descripcion || '');
     
     if (selectedFile) {
