@@ -3,9 +3,12 @@ import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
 import { Settings, User, ArrowLeft, Home, Bell, LayoutGrid, FileText } from 'lucide-react';
 
-const MainLayoutCliente = () => {
+const MainLayoutCliente = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const userData = JSON.parse(localStorage.getItem('agente_session'))?.userData;
+  const userName = userData?.name || "CLIENTE";
 
   const navButtons = [
     { label: 'PROPIEDADES', path: '/propiedades', icon: <Home size={18} /> },
@@ -37,7 +40,8 @@ const MainLayoutCliente = () => {
         <header className="tt-header">
           <div className="header-left-group" onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <ArrowLeft size={35} strokeWidth={3} />
-            <h2 className="header-title">JOSE</h2>
+            <h2 className="header-title">{userName?.toUpperCase() || "CLIENTE"}</h2>
+
           </div>
           
           <div className="header-right-group" style={{ display: 'flex', gap: '15px' }}>
@@ -49,7 +53,8 @@ const MainLayoutCliente = () => {
         <div className="tt-orange-bar"></div>
 
         <div className="tt-body">
-          <Outlet />
+          {children || <Outlet />}
+
         </div>
       </main>
     </div>
