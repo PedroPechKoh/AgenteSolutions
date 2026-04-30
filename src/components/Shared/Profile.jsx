@@ -149,15 +149,27 @@ const Profile = () => {
       <div className="profile-page-scrollable-content">
         <div className="profile-card full-screen-card">
           
-          <div className="profile-banner" style={{ backgroundImage: user?.cover_picture ? `url(${user.cover_picture})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+          <div 
+            className="profile-banner" 
+            style={{ backgroundImage: user?.cover_picture ? `url(${user.cover_picture})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center'}}
+            onClick={() => openPhotoMenu('cover_picture')}
+          >
             <div className="banner-overlay"></div>
-            <button className="back-oval-btn" onClick={() => navigate(-1)}>
+            <div className="banner-hover-overlay">
+              <Camera size={48} color="white" />
+              <span>Cambiar Portada</span>
+            </div>
+            
+            <button className="back-oval-btn" onClick={(e) => { e.stopPropagation(); navigate(-1); }}>
               <X size={20} className="close-icon" />
               <span className="back-text">Regresar</span>
             </button>
-            <div className="banner-logo-wrapper"><img src={logo} alt="Agente Solutions" className="banner-logo" /></div>
             
-            <button className="btn-edit-cover" onClick={() => openPhotoMenu('cover_picture')} disabled={isUploading}>
+            <div className="banner-logo-wrapper" onClick={(e) => e.stopPropagation()}>
+              <img src={logo} alt="Agente Solutions" className="banner-logo" />
+            </div>
+            
+            <button className="btn-edit-cover" onClick={(e) => { e.stopPropagation(); openPhotoMenu('cover_picture'); }} disabled={isUploading}>
                <Camera size={20} /> {isUploading ? 'Subiendo...' : 'Cambiar Portada'}
             </button>
           </div>

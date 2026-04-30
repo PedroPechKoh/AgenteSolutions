@@ -39,6 +39,8 @@ html, body {
   border-bottom: 10px solid #ff6600; 
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
+  cursor: pointer;
+  overflow: hidden;
 }
 
 /* BOTÓN REGRESAR ANIMADO PARA PORTADA */
@@ -336,8 +338,35 @@ html, body {
   z-index: 1;
 }
 
-.btn-back-arrow, .banner-logo-wrapper, .banner-text, .btn-edit-cover {
+.btn-back-arrow, .banner-logo-wrapper, .banner-text, .btn-edit-cover, .banner-hover-overlay {
   z-index: 2;
+}
+
+.banner-hover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  color: white;
+  gap: 10px;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.profile-banner:hover .banner-hover-overlay {
+  opacity: 1;
+}
+
+.profile-banner:hover .banner-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .btn-edit-cover {
@@ -382,7 +411,7 @@ html, body {
   align-items: center;
   opacity: 0;
   transition: opacity 0.3s ease;
-  border-radius: 12px;
+  border-radius: 50%;
 }
 
 .avatar-wrapper:hover .avatar-hover-overlay {
