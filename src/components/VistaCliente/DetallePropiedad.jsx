@@ -6,8 +6,9 @@ import Swal from 'sweetalert2';
 import { 
   MapPin, User, AlertTriangle, Settings, CheckCircle, 
   X, LayoutDashboard, FileText, Send, Trash2, Clock, Briefcase, MessageSquare,
-  CreditCard, Map, ExternalLink, Plus 
+  CreditCard, Map, ExternalLink, Plus, Eye
 } from 'lucide-react';
+
 
 const DetallePropiedad = () => {
   const { id } = useParams();

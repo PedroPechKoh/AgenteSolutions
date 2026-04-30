@@ -161,8 +161,8 @@ function App() {
           </Route>
 
 
-          {/* La redirección por defecto siempre es mejor ponerla al final */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+
+
 
           <Route path="/notificaciones" element={<VistaNotificaciones />} />
           <Route path="/trabajos-asignados" element={<TrabajosAsignados />} />
@@ -186,8 +186,8 @@ function App() {
           <Route path="/registro" element={<RegisteRoot />} />
           <Route path="/imprimir-cotizacion" element={<VistaCotizacionPrint />} />
 
-
-
+          {/* La redirección por defecto siempre al final */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
