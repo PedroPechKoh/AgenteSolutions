@@ -64,12 +64,8 @@ import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
 // Accept JSON
 axios.defaults.headers.common["Accept"] = "application/json";
 
-const token = localStorage.getItem("agente_token");
-if (token) {
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-}
-
 const AppRoutes = () => {
+
   const { user } = useAuth();
 
   return (

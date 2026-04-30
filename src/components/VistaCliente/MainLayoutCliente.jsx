@@ -11,14 +11,13 @@ const MainLayoutCliente = ({ children }) => {
   const userData = JSON.parse(localStorage.getItem('agente_session'))?.userData;
   const userName = userData?.name || "CLIENTE";
 
-  // Intentamos extraer el ID de la propiedad de la URL actual para los botones contextuales
-  const matchId = location.pathname.match(/\d+$/);
-  const currentId = matchId ? matchId[0] : null;
+  // Recuperamos los IDs guardados para mantener el contexto de la propiedad
+  const savedPropertyId = localStorage.getItem('current_property_id');
+  const savedLevantamientoId = localStorage.getItem('current_levantamiento_id');
   
-  // Rutas dinámicas basadas en la propiedad actual
-  const detailPath = currentId ? `/detalle-reporte/${currentId}` : '/propiedades';
-  const tableroPath = currentId ? `/DetallePropiedad/${currentId}` : '/propiedades';
-
+  // Rutas dinámicas basadas en el contexto guardado
+  const detailPath = savedLevantamientoId ? `/detalle-reporte/${savedLevantamientoId}` : '/propiedades';
+  const tableroPath = savedPropertyId ? `/DetallePropiedad/${savedPropertyId}` : '/propiedades';
 
   const navButtons = [
     { label: 'DETALLES PROPIEDAD', path: detailPath, icon: <Home size={18} /> },
