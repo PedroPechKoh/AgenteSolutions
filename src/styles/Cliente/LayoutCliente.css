@@ -72,7 +72,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -100,10 +100,11 @@
 .tt-body {
   padding: 10px 20px;
   flex: 1;
+  min-height: 0;  /* Critical: allows flex child to scroll */
   overflow-y: auto;
+  overflow-x: hidden;
   background-color: #fcfcfc;
   scroll-behavior: smooth;
-  min-height: 0;
 }
 
 
