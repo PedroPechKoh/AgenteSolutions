@@ -10,11 +10,12 @@
 .app-container {
   display: flex;
   background: var(--bg-app);
-  height: 100vh; /* Altura fija de la ventana */
+  height: auto;
+  min-height: 100%;
   font-family: 'Inter', sans-serif;
   color: var(--text-main);
-  overflow: hidden; /* Evita scroll doble */
 }
+
 
 /* SIDEBAR FIJA */
 .sidebar {
@@ -44,9 +45,9 @@
 .main-content {
   flex: 1;
   padding: 30px;
-  overflow-y: auto; /* PERMITE SUBIR Y BAJAR */
-  height: 100%;
+  height: auto;
 }
+
 
 /* DISEÑO DE SCROLLBAR PROFESIONAL */
 .main-content::-webkit-scrollbar { width: 8px; }

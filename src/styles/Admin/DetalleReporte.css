@@ -12,10 +12,12 @@
 .rep-container.is-client-view {
   height: auto;
   width: 100%;
-  min-height: unset;
+  min-height: auto;
   overflow: visible;
   background: transparent;
+  padding: 0;
 }
+
 
 .rep-container.is-client-view .rep-main-content {
   padding: 0;

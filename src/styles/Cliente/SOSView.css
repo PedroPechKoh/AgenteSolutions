@@ -232,15 +232,13 @@
 /* Contenedor Principal Corregido */
 .sos-main-layout-premium {
   width: 100%;
-  padding: 40px 20px; /* Añadimos un poco de aire a los lados */
-  background-color: #fcfcfc;
+  padding: 20px 0;
+  background-color: transparent;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* Alineamos al inicio para que el scroll sea natural */
-  min-height: 100vh;
+  align-items: flex-start;
+  min-height: auto;
   position: relative;
-  /* CAMBIO CLAVE: Quitamos overflow hidden y permitimos el scroll vertical */
- 
 }
 
 /* Ajuste del área de contenido para dejar espacio al final */

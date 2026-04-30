@@ -2,10 +2,11 @@
 .tt-container {
   display: flex;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
   background-color: white;
   overflow: hidden;
 }
+
 
 .tt-sidebar {
   width: 260px;
@@ -94,11 +95,68 @@
 }
 
 .tt-body {
-  padding: 40px 50px;
+  padding: 20px;
   flex: 1;
   overflow-y: auto;
-  background-color: #fff;
+  background-color: #fcfcfc;
+  scroll-behavior: smooth;
 }
+
+/* Scrollbar styling for better visibility */
+.tt-body::-webkit-scrollbar {
+  width: 8px;
+}
+.tt-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+.tt-body::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+.tt-body::-webkit-scrollbar-thumb:hover {
+  background: #f26624;
+}
+
+@media (max-width: 768px) {
+  .tt-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    height: 100vh;
+    z-index: 1000;
+    transition: 0.3s ease-in-out;
+    display: flex !important;
+  }
+  .tt-sidebar.mobile-open {
+    left: 0;
+  }
+  .btn-menu-mobile {
+    display: block !important;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+  }
+  .btn-close-mobile {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .header-arrow {
+    display: none !important;
+  }
+  .tt-header {
+    padding: 15px;
+  }
+  .header-title {
+    font-size: 16px !important;
+  }
+}
+
+
 
 /* --- GRID DE PROPIEDADES --- */
 .propiedades-grid {
