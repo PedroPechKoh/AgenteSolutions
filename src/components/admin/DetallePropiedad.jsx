@@ -237,35 +237,32 @@ const DetallePropiedad = () => {
       {/* MAIN CONTENT – SIN SIDEBAR */}
       <main className="main-content" style={{ marginLeft: 0 }}>
         {/* HEADER SUPERIOR REDISEÑADO */}
-        <header className="top-bar" style={{ 
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-          padding: '12px 30px', background: 'white', borderBottom: '1px solid #e2e8f0', 
-          flexWrap: 'wrap' 
-        }}>
+        <header className="top-bar">
+
           {/* Logo + Navegación */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
-            <div className="logo-brand" style={{ fontSize: '1.3rem', fontWeight: 'bold' }}>
-              AGENTE <span className="logo-solutions" style={{ color: '#ff6b00' }}>SOLUTIONS</span>
+          <div className="top-bar-left">
+
+            <div className="logo-brand">
+              AGENTE <span className="logo-solutions">SOLUTIONS</span>
             </div>
-            <nav style={{ display: 'flex', gap: '15px' }}>
-              <button className="nav-item active" style={{ 
-                background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', 
-                gap: '6px', cursor: 'pointer', fontWeight: 'bold', color: '#ff6b00' 
-              }}>
+
+            <nav className="top-nav">
+
+              <button className="nav-item active">
                 <LayoutDashboard size={18}/> Dashboard
               </button>
-              <button className="nav-item" onClick={() => setIsModalPerfilOpen(true)} style={{ 
-                background: 'transparent', border: 'none', display: 'flex', alignItems: 'center', 
-                gap: '6px', cursor: 'pointer', color: '#333' 
-              }}>
+
+              <button className="nav-item" onClick={() => setIsModalPerfilOpen(true)}>
                 <User size={18}/> Perfil Propiedad
               </button>
+
             </nav>
           </div>
 
           {/* Info de la propiedad y usuario */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div className="prop-info" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="top-bar-right">
+            <div className="prop-info">
+
               <h1 style={{ fontSize: '1.2rem', margin: 0 }}>
                 {datosPropiedad.nombre_propiedad || "Propiedad"} <span style={{ color: '#ff6b00' }}>#{id}</span>
               </h1>
@@ -273,19 +270,14 @@ const DetallePropiedad = () => {
                 <MapPin size={14}/> {datosPropiedad.location || "Mérida, Yuc."}
               </p>
             </div>
-            <div className="user-badge" onClick={() => setIsModalPerfilOpen(true)} style={{ 
-              display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' 
-            }}>
-              <div className="avatar" style={{ 
-                background: '#ff6b00', color: 'white', borderRadius: '50%', 
-                width: '36px', height: '36px', display: 'flex', alignItems: 'center', 
-                justifyContent: 'center', fontWeight: 'bold' 
-              }}>
+            <div className="user-badge" onClick={() => setIsModalPerfilOpen(true)}>
+              <div className="avatar">
                 {datosPropiedad.personaCargo.charAt(0).toUpperCase()}
               </div>
               <span>{datosPropiedad.personaCargo}</span>
             </div>
           </div>
+
         </header>
 
 
