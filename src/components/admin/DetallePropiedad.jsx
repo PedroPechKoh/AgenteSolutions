@@ -19,7 +19,6 @@ const DetallePropiedad = () => {
   const [isModalCotizarEmergenciaOpen, setIsModalCotizarEmergenciaOpen] = useState(false);
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
   const [emergenciaACotizar, setEmergenciaACotizar] = useState(null);
-  const [colaTrabajos, setColaTrabajos] = useState([]);
   const [isModalHistorialOpen, setIsModalHistorialOpen] = useState(false);
   const [trabajoSeleccionado, setTrabajoSeleccionado] = useState(null);
   
