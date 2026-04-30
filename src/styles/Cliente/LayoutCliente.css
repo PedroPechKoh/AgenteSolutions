@@ -72,8 +72,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100vh;
   overflow: hidden;
 }
+
 
 .tt-header {
   display: flex;
@@ -101,8 +103,9 @@
   overflow-y: auto;
   background-color: #fcfcfc;
   scroll-behavior: smooth;
-  height: 0; /* Important for flex child to allow scrolling */
+  min-height: 0;
 }
+
 
 
 /* Scrollbar styling for better visibility */
