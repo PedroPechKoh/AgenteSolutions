@@ -24,9 +24,10 @@
 }
 
 .main-logo {
-  width: 180px;
+  width: 140px;
   height: auto;
 }
+
 
 .tt-nav {
   display: flex;
@@ -95,12 +96,14 @@
 }
 
 .tt-body {
-  padding: 20px;
+  padding: 10px 20px;
   flex: 1;
   overflow-y: auto;
   background-color: #fcfcfc;
   scroll-behavior: smooth;
+  height: 0; /* Important for flex child to allow scrolling */
 }
+
 
 /* Scrollbar styling for better visibility */
 .tt-body::-webkit-scrollbar {

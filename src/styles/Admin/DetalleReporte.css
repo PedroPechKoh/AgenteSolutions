@@ -24,7 +24,9 @@
   height: auto;
   overflow: visible;
   max-width: 100%;
+  font-size: 0.9rem;
 }
+
 
 
 /* Sidebar Estático */
@@ -303,11 +305,12 @@
 .seccion-bloque {
   background: #ffffff;
   border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 25px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Sombra elegante */
-  border-left: 6px solid #ff7f00; /* Línea lateral naranja corporativa */
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-left: 6px solid #ff7f00;
 }
+
 
 .seccion-header h3 {
   font-size: 1.4rem;
@@ -384,11 +387,12 @@
 }
 
 .tabla-inventario td {
-  padding: 12px 15px;
+  padding: 8px 12px;
   color: #444;
   border-bottom: 1px solid #f1f1f1;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
+
 
 /* Efecto hover en las filas de la tabla */
 .tabla-inventario tbody tr:hover td {
@@ -426,7 +430,10 @@
 .table-responsive {
   overflow-x: auto;
   width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
 }
+
 .cot-modal-card.wide {
     width: 90%;
     max-width: 1000px;
