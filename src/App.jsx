@@ -155,7 +155,6 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute allowedRoles={[3]}><MainLayoutCliente /></ProtectedRoute>}>
         <Route path="/VistaInicioCliente" element={<VistaInicioCliente />} />
         <Route path="/Cotizaciones" element={<Cotizaciones />} />
-        <Route path="/levantamientos-cliente" element={<VistaLevantamientos />} />
         <Route path="/Pago" element={<Pago />} />
         <Route path="/SOSView" element={<SOSView />} />
         <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />
@@ -164,6 +163,7 @@ const AppRoutes = () => {
         <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
         <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
       </Route>
+
 
 
       <Route path="/registro" element={<RegisteRoot />} />
