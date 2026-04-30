@@ -1,7 +1,8 @@
 import React from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
-import { Settings, User, ArrowLeft, Home, Bell, LayoutGrid, FileText } from 'lucide-react';
+import { Settings, User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft } from 'lucide-react';
+import logo from "../../assets/Logo4.png";
 
 const MainLayoutCliente = ({ children }) => {
   const navigate = useNavigate();
@@ -10,23 +11,33 @@ const MainLayoutCliente = ({ children }) => {
   const userData = JSON.parse(localStorage.getItem('agente_session'))?.userData;
   const userName = userData?.name || "CLIENTE";
 
+  // Intentamos extraer el ID de la propiedad de la URL actual para el botón de "Detalles"
+  const matchId = location.pathname.match(/\d+$/);
+  const currentId = matchId ? matchId[0] : null;
+  const detailPath = currentId ? `/DetallePropiedad/${currentId}` : '/propiedades';
+
   const navButtons = [
-    { label: 'PROPIEDADES', path: '/propiedades', icon: <Home size={18} /> },
+    { label: 'DETALLES PROPIEDAD', path: detailPath, icon: <Home size={18} /> },
     { label: 'SOS', path: '/SOSView', icon: <Bell size={18} /> },
     { label: 'COTIZACIONES', path: '/Cotizaciones', icon: <FileText size={18} /> },
   ];
-
 
   return (
     <div className="tt-container">
       <aside className="tt-sidebar">
         <div className="logo-section">
+           <img src={logo} alt="Agente Logo" className="main-logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/propiedades')} />
         </div>
+
+        {/* Botón Volver */}
+        <button className="tt-nav-btn btn-volver-sidebar" onClick={() => navigate(-1)} style={{ marginBottom: '20px', backgroundColor: '#444', color: 'white' }}>
+           <ChevronLeft size={18} /> <span>VOLVER</span>
+        </button>
         
         <div className="tt-nav">
           {navButtons.map((btn) => (
             <button 
-              key={btn.path}
+              key={btn.label}
               className={`tt-nav-btn ${location.pathname === btn.path ? 'active' : ''}`} 
               onClick={() => navigate(btn.path)}
             >
@@ -41,7 +52,6 @@ const MainLayoutCliente = ({ children }) => {
           <div className="header-left-group" onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <ArrowLeft size={35} strokeWidth={3} />
             <h2 className="header-title">{userName?.toUpperCase() || "CLIENTE"}</h2>
-
           </div>
           
           <div className="header-right-group" style={{ display: 'flex', gap: '15px' }}>
@@ -54,7 +64,6 @@ const MainLayoutCliente = ({ children }) => {
 
         <div className="tt-body">
           {children || <Outlet />}
-
         </div>
       </main>
     </div>

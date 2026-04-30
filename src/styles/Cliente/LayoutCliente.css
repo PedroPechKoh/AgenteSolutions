@@ -53,6 +53,19 @@
   background-color: #f26624 !important;
 }
 
+.btn-volver-sidebar {
+  background-color: #444 !important;
+  color: white !important;
+  margin-bottom: 25px !important;
+  border: 1px solid #555 !important;
+}
+
+.btn-volver-sidebar:hover {
+  background-color: #f26624 !important;
+  border-color: #f26624 !important;
+}
+
+
 .tt-main {
   flex: 1;
   display: flex;
