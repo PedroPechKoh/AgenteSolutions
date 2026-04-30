@@ -77,8 +77,12 @@ const DetallePropiedad = () => {
         setHistorialFinalizados(histMapeado);
 
         // 2. Cotizaciones
-        const resCot = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones?property_id=${id}`, { headers });
-        const cots = resCot.data.filter(c => c.property_id == id || !c.property_id); // Fallback filter
+        const resCot = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, { 
+          params: { property_id: id },
+          headers 
+        });
+        const cots = resCot.data.filter(c => String(c.property_id) === String(id));
+
         
         const cotsMapeadas = cots.map(c => ({
           id: c.id,
@@ -97,8 +101,12 @@ const DetallePropiedad = () => {
 
         // 4. Cola de trabajos (Podrían venir de otro lado, por ahora simulamos con cotizaciones aceptadas/asignadas)
         // O si hay un endpoint de /servicios/propiedad/${id}
-        const resServ = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios?property_id=${id}`, { headers });
-        const servs = resServ.data.filter(s => s.property_id == id);
+        const resServ = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios`, { 
+          params: { property_id: id },
+          headers 
+        });
+        const servs = resServ.data.filter(s => String(s.property_id) === String(id));
+
         
         const colaMapeada = servs.map(s => ({
           id: s.id,
