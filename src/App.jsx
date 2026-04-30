@@ -133,13 +133,10 @@ const AppRoutes = () => {
       {/* ------RUTAS DE LA VISTA DEL ADMIN (PROTEGIDAS POR ROL) ------*/}
       {/* RUTAS ACCESIBLES POR ADMIN Y CLIENTE */}
       <Route element={<ProtectedRoute allowedRoles={[0, 1, 3]} />}>
-        <Route path="/vista-cotizaciones" element={
-          user?.role_id === 3 ? <MainLayoutCliente><VistaCotizaciones /></MainLayoutCliente> : <VistaCotizaciones />
-        } />
-        <Route path="/levantamientos" element={
-          user?.role_id === 3 ? <MainLayoutCliente><VistaLevantamientos /></MainLayoutCliente> : <VistaLevantamientos />
-        } />
+        <Route path="/vista-cotizaciones" element={<VistaCotizaciones />} />
+        <Route path="/levantamientos" element={<VistaLevantamientos />} />
       </Route>
+
 
       <Route element={<ProtectedRoute allowedRoles={[0, 1]} />}>
         <Route path="/detalle-producto" element={<ProductoDetalleView />} />
