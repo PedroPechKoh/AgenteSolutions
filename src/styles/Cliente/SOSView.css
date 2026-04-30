@@ -1,14 +1,12 @@
 /* Contenedor Principal con patrón de fondo profesional */
 .sos-main-layout-premium {
   width: 100%;
-  padding: 40px;
+  padding: 15px 20px;
   background-color: #fcfcfc;
   display: flex;
   justify-content: center;
-  min-height: 100vh;
+  min-height: auto;
   position: relative;
- 
-  
 }
 
 .sos-main-layout-premium::before {
@@ -63,17 +61,19 @@
 /* Tarjeta Principal */
 .sos-form-card-premium {
   background: white;
-  border-radius: 30px;
-  padding: 45px;
-  box-shadow: 0 15px 50px rgba(0,0,0,0.04);
+  border-radius: 20px;
+  padding: 25px 35px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
   border: 1px solid #f0f0f0;
 }
+
 
 /* Intro y Animación de Alerta */
 .sos-intro-premium {
   text-align: center;
-  margin-bottom: 35px;
+  margin-bottom: 20px;
 }
+
 
 .icon-emergency-flash-premium {
   color: #f26624;
@@ -88,11 +88,12 @@
 }
 
 .sos-intro-premium h1 {
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: 900;
   color: #222;
-  margin: 0 0 8px 0;
+  margin: 0 0 5px 0;
 }
+
 
 .sos-intro-premium p {
   color: #999;
@@ -101,9 +102,10 @@
 
 /* Sección WhatsApp Directo */
 .wa-direct-container-premium {
-  margin-bottom: 35px;
+  margin-bottom: 20px;
   text-align: center;
 }
+
 
 .btn-wa-direct-premium {
   display: flex;
