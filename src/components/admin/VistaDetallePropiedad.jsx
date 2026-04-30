@@ -40,14 +40,28 @@ const VistaDetallePropiedad = () => {
     const fetchDashboardData = async () => {
       try {
         const token = localStorage.getItem('agente_token');
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`,
-          { headers: { 'Authorization': `Bearer ${token}` } }
-        );
+        const headers = { 'Authorization': `Bearer ${token}` };
+        
+        // Intentar primero el dashboard
+        let response;
+        try {
+          response = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`,
+            { headers }
+          );
+        } catch (dashError) {
+          console.warn("Dashboard no encontrado, intentando detalle base...");
+          // Fallback al detalle base de la propiedad
+          response = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`,
+            { headers }
+          );
+        }
+        
         setData(response.data);
 
       } catch (error) {
-        console.error("Error cargando el dashboard:", error);
+        console.error("Error cargando la información:", error);
       } finally {
         setLoading(false);
       }
@@ -55,6 +69,7 @@ const VistaDetallePropiedad = () => {
 
     if (id) fetchDashboardData();
   }, [id]);
+
 
   // Manejador del select de zonas en el modal
   const handleZonaChange = (zona) => {

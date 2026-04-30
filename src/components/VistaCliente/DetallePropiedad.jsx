@@ -48,8 +48,16 @@ const DetallePropiedad = () => {
         const headers = { 'Authorization': `Bearer ${token}` };
 
         // 1. Dashboard data
-        const resDash = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`, { headers });
+        let resDash;
+        try {
+          resDash = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`, { headers });
+        } catch (err) {
+          console.warn("Dashboard fail, falling back to base property data");
+          resDash = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`, { headers });
+        }
+        
         const { propiedad, stats: backStats, historial } = resDash.data;
+
 
         setDatosPropiedad({
           personaCargo: propiedad.propietario || "Sin asignar",
