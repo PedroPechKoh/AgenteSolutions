@@ -169,9 +169,6 @@ const Profile = () => {
               <img src={logo} alt="Agente Solutions" className="banner-logo" />
             </div>
             
-            <button className="btn-edit-cover" onClick={(e) => { e.stopPropagation(); openPhotoMenu('cover_picture'); }} disabled={isUploading}>
-               <Camera size={20} /> {isUploading ? 'Subiendo...' : 'Cambiar Portada'}
-            </button>
           </div>
 
           <div className="profile-content">
