@@ -175,43 +175,59 @@ const DetalleReporte = () => {
                                     {sec.descripcion && <p className="sec-desc">{sec.descripcion}</p>}
                                 </div>
 
-                                {Array.isArray(sec.subSecciones) && sec.subSecciones.map((sub, sIdx) => (
-                                    <div key={`sub-${idx}-${sIdx}`} className="subseccion-caja">
-                                        <div className="sub-titulo">
-                                            <h4>{sub.nombre}</h4>
-                                            {sub.nota && <span className="nota-tecnica">Nota: {sub.nota}</span>}
-                                        </div>
+                                {Array.isArray(sec.subSecciones) && sec.subSecciones.map((sub, sIdx) => {
+                                    const areaFoto = sub.foto || sub.image_path;
+                                    return (
+                                        <div key={`sub-${idx}-${sIdx}`} className="subseccion-caja">
+                                            <div className="subseccion-contenido">
+                                                {/* Si tiene foto, la mostramos a la izquierda */}
+                                                {areaFoto && (
+                                                    <div className="subseccion-foto-wrapper">
+                                                        <img src={areaFoto} alt={sub.nombre} className="subseccion-foto" />
+                                                    </div>
+                                                )}
+                                                
+                                                <div className="subseccion-info">
+                                                    <div className="sub-titulo">
+                                                        <h4>{sub.nombre}</h4>
+                                                        {sub.nota && <span className="nota-tecnica">Nota: {sub.nota}</span>}
+                                                    </div>
 
-                                        <div className="table-responsive">
-                                            <table className="tabla-inventario">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Categoría</th>
-                                                        <th>Marca</th>
-                                                        <th>Modelo</th>
-                                                        <th className="txt-center">Cant.</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {Array.isArray(sub.inventario) && sub.inventario.map((inv, iIdx) => (
-                                                        <tr key={`inv-${idx}-${sIdx}-${iIdx}`}>
-                                                            <td className="bold">{inv.categoria}</td>
-                                                            <td>{inv.marca || '-'}</td>
-                                                            <td>{inv.modelo || '-'}</td>
-                                                            <td className="col-cant">{inv.cantidad}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                                    <div className="table-responsive">
+                                                        <table className="tabla-inventario">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Categoría</th>
+                                                                    <th>Marca</th>
+                                                                    <th>Modelo</th>
+                                                                    <th className="txt-center">Cant.</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {Array.isArray(sub.inventario) && sub.inventario.map((inv, iIdx) => (
+                                                                    <tr key={`inv-${idx}-${sIdx}-${iIdx}`}>
+                                                                        <td className="bold">{inv.categoria}</td>
+                                                                        <td>{inv.marca || '-'}</td>
+                                                                        <td>{inv.modelo || '-'}</td>
+                                                                        <td className="col-cant">{inv.cantidad}</td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
+
                             </div>
                         ))
                     ) : (
                         <div className="empty-state">No hay áreas ni inventario registrado para esta propiedad.</div>
                     )}
                 </section>
+
             </main>
 
             {/* --- MODAL DEL COTIZADOR --- */}
