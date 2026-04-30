@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
-import { Settings, User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft } from 'lucide-react';
+import { Settings, User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard } from 'lucide-react';
 import logo from "../../assets/Logo4.png";
 
 const MainLayoutCliente = ({ children }) => {
@@ -11,13 +11,17 @@ const MainLayoutCliente = ({ children }) => {
   const userData = JSON.parse(localStorage.getItem('agente_session'))?.userData;
   const userName = userData?.name || "CLIENTE";
 
-  // Intentamos extraer el ID de la propiedad de la URL actual para el botón de "Detalles"
+  // Intentamos extraer el ID de la propiedad de la URL actual para los botones contextuales
   const matchId = location.pathname.match(/\d+$/);
   const currentId = matchId ? matchId[0] : null;
-  const detailPath = currentId ? `/DetallePropiedad/${currentId}` : '/propiedades';
+  
+  // Rutas dinámicas basadas en la propiedad actual
+  const detailPath = currentId ? `/propiedad/${currentId}` : '/propiedades';
+  const tableroPath = currentId ? `/DetallePropiedad/${currentId}` : '/propiedades';
 
   const navButtons = [
     { label: 'DETALLES PROPIEDAD', path: detailPath, icon: <Home size={18} /> },
+    { label: 'VER TABLERO', path: tableroPath, icon: <LayoutDashboard size={18} /> },
     { label: 'SOS', path: '/SOSView', icon: <Bell size={18} /> },
     { label: 'COTIZACIONES', path: '/Cotizaciones', icon: <FileText size={18} /> },
   ];
