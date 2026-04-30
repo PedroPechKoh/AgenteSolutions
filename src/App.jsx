@@ -164,15 +164,21 @@ function App() {
           <Route path="/notificaciones" element={<VistaNotificaciones />} />
           <Route path="/trabajos-asignados" element={<TrabajosAsignados />} />
 
-           {/* ------RUTAS DE LA VISTA DEL CLIENTE ------*/}
-           <Route path="/Cotizaciones" element={<Cotizaciones />} />
-           <Route path="/Pago" element={<Pago />} />
-           <Route path="/SOSView" element={<SOSView />} />
-            <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />
-            <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
-            <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
-            <Route path="/DetallePropiedad" element={<DetallePropiedad />} />
-            <Route path="/ReporteTrabajo" element={<ReporteTrabajo />} />
+           {/* ------RUTAS DE LA VISTA DEL CLIENTE (CON SIDEBAR) ------*/}
+           <Route element={<ProtectedRoute allowedRoles={[3]}><MainLayoutCliente /></ProtectedRoute>}>
+             <Route path="/VistaInicioCliente" element={<VistaInicioCliente />} />
+             <Route path="/Cotizaciones" element={<Cotizaciones />} />
+             <Route path="/Pago" element={<Pago />} />
+             <Route path="/SOSView" element={<SOSView />} />
+             <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />
+             <Route path="/DetallePropiedad/:id" element={<DetallePropiedad />} />
+             <Route path="/ReporteTrabajo" element={<ReporteTrabajo />} />
+             <Route path="/detalle-reporte/:id" element={<DetalleReporte />} />
+             <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
+
+             <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
+           </Route>
+
 
           <Route path="/registro" element={<RegisteRoot />} />
           <Route path="/imprimir-cotizacion" element={<VistaCotizacionPrint />} />
