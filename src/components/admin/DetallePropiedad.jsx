@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../../styles/Cliente/DetallePr.css';
 import Swal from 'sweetalert2';
 import { 
@@ -8,6 +10,10 @@ import {
 } from 'lucide-react';
 
 const DetallePropiedad = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   // --- ESTADOS ---
   const [isModalPerfilOpen, setIsModalPerfilOpen] = useState(false);
   const [isModalCotizarEmergenciaOpen, setIsModalCotizarEmergenciaOpen] = useState(false);
@@ -24,21 +30,97 @@ const DetallePropiedad = () => {
   const [cotizacionDetail, setCotizacionDetail] = useState(null);
 
   // DATOS DE LA PROPIEDAD
-  const datosPropiedad = {
-    personaCargo: "Alejandra Alcocer",
-    curp: "ALCA800101HDFLNR01",
-    direccion: "Calle 60 #123 x 45 y 47, Centro, CP 97000",
-    mapsUrl: "https://goo.gl/maps/b5R4D8GgJ5Q2" 
-  };
+  const [datosPropiedad, setDatosPropiedad] = useState({
+    personaCargo: "Cargando...",
+    curp: "...",
+    direccion: "Cargando...",
+    mapsUrl: "#" 
+  });
 
-  const [cotizaciones, setCotizaciones] = useState([
-    { id: 101, fecha: "20/Mar", status: "ACEPTADA", producto: "Revisión Eléctrica", zona: "PLANTA ALTA", comentario: "Autorizado por el dueño.", esEmergencia: false, items: [] },
-    { id: 103, fecha: "16/Mar", status: "RECHAZADA", producto: "Limpieza Profunda", zona: "GENERAL", comentario: "Precio muy alto.", esEmergencia: false, items: [] }
-  ]);
+  const [cotizaciones, setCotizaciones] = useState([]);
+  const [sosPendientes, setSosPendientes] = useState([]);
+  const [colaTrabajos, setColaTrabajos] = useState([]);
+  const [stats, setStats] = useState({
+    sos: 0, pendientes: 0, proceso: 0, listos: 0
+  });
 
-  const [sosPendientes, setSosPendientes] = useState([
-    { id: 501, producto: "FUGA DE AGUA EN COCINA", descripcion: "Tubería rota bajo el fregadero", zona: "COCINA", cliente: "Alejandra V." }
-  ]);
+  // EFECTO DE CARGA
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('agente_token');
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        // 1. Dashboard data (Propiedad, Stats, Historial)
+        const resDash = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`, { headers });
+        const { propiedad, stats: backStats, historial } = resDash.data;
+
+        setDatosPropiedad({
+          personaCargo: propiedad.propietario || "Sin asignar",
+          curp: propiedad.custom_curp || propiedad.id,
+          direccion: propiedad.address || "Sin dirección",
+          mapsUrl: propiedad.coordinates ? `https://maps.google.com/?q=${propiedad.coordinates}` : "#",
+          nombre_propiedad: propiedad.nombre_propiedad,
+          location: propiedad.location || "Mérida, Yuc."
+        });
+
+        setStats(backStats || { sos: 0, pendientes: 0, proceso: 0, listos: 0 });
+        
+        // Mapear historial
+        const histMapeado = (historial || []).map(h => ({
+          id: h.id,
+          producto: h.title || h.labor || "Trabajo",
+          tecnico: h.tecnico_nombre || "Técnico",
+          fecha: new Date(h.updated_at || h.fecha).toLocaleDateString(),
+          evidencias: h.fotos || []
+        }));
+        setHistorialFinalizados(histMapeado);
+
+        // 2. Cotizaciones
+        const resCot = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones?property_id=${id}`, { headers });
+        const cots = resCot.data.filter(c => c.property_id == id || !c.property_id); // Fallback filter
+        
+        const cotsMapeadas = cots.map(c => ({
+          id: c.id,
+          fecha: c.fecha || new Date(c.created_at).toLocaleDateString(),
+          status: c.estado || "Pendiente",
+          producto: c.descripcion || c.folio,
+          zona: c.zona || "General",
+          comentario: c.observaciones || "",
+          esEmergencia: c.is_emergency || false,
+          items: c.items || []
+        }));
+        setCotizaciones(cotsMapeadas);
+
+        // 3. SOS Pendientes (Filtrar de cotizaciones o endpoint específico)
+        setSosPendientes(cotsMapeadas.filter(c => c.esEmergencia && c.status === "Pendiente"));
+
+        // 4. Cola de trabajos (Podrían venir de otro lado, por ahora simulamos con cotizaciones aceptadas/asignadas)
+        // O si hay un endpoint de /servicios/propiedad/${id}
+        const resServ = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios?property_id=${id}`, { headers });
+        const servs = resServ.data.filter(s => s.property_id == id);
+        
+        const colaMapeada = servs.map(s => ({
+          id: s.id,
+          producto: s.title || s.labor,
+          tecnico: s.tecnico_nombre || "Por asignar",
+          fecha: s.scheduled_date || "---",
+          prioridad: s.priority || "ALTA",
+          estado: s.status === "SOS" ? "SOS" : (s.status === "Pendiente" ? "PENDIENTE" : "ESPERANDO")
+        }));
+        setColaTrabajos(colaMapeada);
+
+      } catch (error) {
+        console.error("Error al cargar datos de la propiedad:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) fetchAllData();
+  }, [id]);
+
 
   const [itemsCotizacion, setItemsCotizacion] = useState([
     { id: 1, concepto: "Mano de Obra Emergencia", cantidad: 1, precio: "" },
@@ -133,27 +215,23 @@ const DetallePropiedad = () => {
     Swal.fire({ icon: 'success', title: 'Técnico Asignado', text: 'Estatus actualizado a ASIGNADO.', timer: 1500, showConfirmButton: false });
   };
 
-  const [historialFinalizados, _setHistorialFinalizados] = useState([
-    {
-      id: 1,
-      producto: "Revisión Eléctrica",
-      tecnico: "Tec. Mario",
-      fecha: "25/Mar/2026",
-      evidencias: [
-        "https://via.placeholder.com/150",
-        "https://via.placeholder.com/150"
-      ]
-    },
-    {
-      id: 2,
-      producto: "Fuga de Agua",
-      tecnico: "Ing. Jorge",
-      fecha: "28/Mar/2026",
-      evidencias: [
-        "https://via.placeholder.com/150"
-      ]
-    }
-  ]);
+  const [historialFinalizados, setHistorialFinalizados] = useState([]);
+
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '20px' }}>
+        <div className="spinner" style={{ border: '8px solid #f3f3f3', borderTop: '8px solid #ff6b00', borderRadius: '50%', width: '60px', height: '60px', animation: 'spin 2s linear infinite' }}></div>
+        <p style={{ fontWeight: 'bold', color: '#555' }}>Cargando detalles de la propiedad...</p>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
@@ -189,9 +267,11 @@ const DetallePropiedad = () => {
           {/* Info de la propiedad y usuario */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <div className="prop-info" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h1 style={{ fontSize: '1.2rem', margin: 0 }}>Propiedad <span style={{ color: '#ff6b00' }}>#101</span></h1>
+              <h1 style={{ fontSize: '1.2rem', margin: 0 }}>
+                {datosPropiedad.nombre_propiedad || "Propiedad"} <span style={{ color: '#ff6b00' }}>#{id}</span>
+              </h1>
               <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px', color: '#555' }}>
-                <MapPin size={14}/> Mérida, Yuc.
+                <MapPin size={14}/> {datosPropiedad.location || "Mérida, Yuc."}
               </p>
             </div>
             <div className="user-badge" onClick={() => setIsModalPerfilOpen(true)} style={{ 
@@ -201,11 +281,14 @@ const DetallePropiedad = () => {
                 background: '#ff6b00', color: 'white', borderRadius: '50%', 
                 width: '36px', height: '36px', display: 'flex', alignItems: 'center', 
                 justifyContent: 'center', fontWeight: 'bold' 
-              }}>AV</div>
-              <span>Alejandra Alcocer</span>
+              }}>
+                {datosPropiedad.personaCargo.charAt(0).toUpperCase()}
+              </div>
+              <span>{datosPropiedad.personaCargo}</span>
             </div>
           </div>
         </header>
+
 
         {sosPendientes.length > 0 && (
           <div className="sos-alert-banner">
