@@ -12,6 +12,14 @@ const DetalleReporte = () => {
     // --- ESTADOS DE LA VISTA PRINCIPAL (LEVANTAMIENTO) ---
     const [datosBD, setDatosBD] = useState(null);
     const [cargando, setCargando] = useState(true);
+    const [seccionesAbiertas, setSeccionesAbiertas] = useState({}); // Estado para el acordeón de zonas
+
+    const toggleSeccion = (idx) => {
+        setSeccionesAbiertas(prev => ({
+            ...prev,
+            [idx]: !prev[idx]
+        }));
+    };
 
     // --- ESTADOS DEL COTIZADOR ---
     const [mostrarCotizacion, setMostrarCotizacion] = useState(false);
@@ -171,73 +179,106 @@ const DetalleReporte = () => {
                         datosBD.secciones.map((sec, idx) => {
                             // La foto de la zona principal (ej. BAÑO, COCINA)
                             const zonaFoto = sec.foto || sec.image_path || sec.image;
+                            const isAbierta = seccionesAbiertas[idx];
 
                             return (
                                 <div key={`sec-${idx}`} className="seccion-bloque">
-                                    <div className="seccion-header">
+                                    <div 
+                                        className="seccion-header accordion-header" 
+                                        onClick={() => toggleSeccion(idx)}
+                                        style={{ cursor: 'pointer', transition: 'background-color 0.3s' }}
+                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f3f5'}
+                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                                    >
                                         <div className="sec-header-info">
                                             <h3>{sec.titulo}</h3>
-                                            {sec.descripcion && <p className="sec-desc">{sec.descripcion}</p>}
+                                            {sec.descripcion && <p className="sec-desc" style={{ marginBottom: 0 }}>{sec.descripcion}</p>}
                                         </div>
-                                        {zonaFoto && (
-                                            <img src={zonaFoto} alt={sec.titulo} className="sec-foto-header" />
-                                        )}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                            {zonaFoto && (
+                                                <img src={zonaFoto} alt={sec.titulo} className="sec-foto-header" />
+                                            )}
+                                            <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f26624', width: '24px', textAlign: 'center' }}>
+                                                {isAbierta ? '▲' : '▼'}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <div className="seccion-body">
-                                        {Array.isArray(sec.subSecciones) && sec.subSecciones.map((sub, sIdx) => {
-                                            // Probamos todas las posibles propiedades de imagen de la sub-área
-                                            const areaFoto = sub.foto || sub.image_path || sub.image || sub.foto_url;
-                                            
-                                            return (
-                                                <div key={`sub-${idx}-${sIdx}`} className="subseccion-caja">
-                                                    <div className="subseccion-contenido">
-                                                        {/* Si tiene foto, la mostramos a la izquierda */}
-                                                        {areaFoto && (
-                                                            <div className="subseccion-foto-wrapper">
-                                                                <img src={areaFoto} alt={sub.nombre} className="subseccion-foto" />
-                                                            </div>
-                                                        )}
-                                                        
-                                                        <div className="subseccion-info">
-                                                            <div className="sub-titulo">
-                                                                <h4>{sub.nombre}</h4>
-                                                                {sub.nota && <span className="nota-tecnica">Nota: {sub.nota}</span>}
-                                                            </div>
+                                    {isAbierta && (
+                                        <div className="seccion-body" style={{ borderTop: '1px solid #eee' }}>
+                                            {Array.isArray(sec.subSecciones) && sec.subSecciones.length > 0 ? (
+                                                sec.subSecciones.map((sub, sIdx) => {
+                                                    // Probamos todas las posibles propiedades de imagen de la sub-área
+                                                    const areaFoto = sub.foto || sub.image_path || sub.image || sub.foto_url;
+                                                    
+                                                    return (
+                                                        <div key={`sub-${idx}-${sIdx}`} className="subseccion-caja">
+                                                            <div className="subseccion-contenido">
+                                                                {/* Si tiene foto, la mostramos a la izquierda */}
+                                                                {areaFoto && (
+                                                                    <div className="subseccion-foto-wrapper">
+                                                                        <img src={areaFoto} alt={sub.nombre} className="subseccion-foto" />
+                                                                    </div>
+                                                                )}
+                                                                
+                                                                <div className="subseccion-info">
+                                                                    <div className="sub-titulo">
+                                                                        <h4>{sub.nombre}</h4>
+                                                                        {sub.nota && <span className="nota-tecnica">Nota: {sub.nota}</span>}
+                                                                    </div>
 
-                                                            <div className="table-responsive">
-                                                                <table className="tabla-inventario">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Categoría</th>
-                                                                            <th>Marca</th>
-                                                                            <th>Modelo</th>
-                                                                            <th className="txt-center">Cant.</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        {Array.isArray(sub.inventario) && sub.inventario.map((inv, iIdx) => (
-                                                                            <tr key={`inv-${idx}-${sIdx}-${iIdx}`}>
-                                                                                <td className="bold">{inv.categoria}</td>
-                                                                                <td>{inv.marca || '-'}</td>
-                                                                                <td>{inv.modelo || '-'}</td>
-                                                                                <td className="col-cant">{inv.cantidad}</td>
-                                                                            </tr>
-                                                                        ))}
-                                                                    </tbody>
-                                                                </table>
+                                                                    <div className="table-responsive">
+                                                                        <table className="tabla-inventario">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Categoría</th>
+                                                                                    <th>Marca</th>
+                                                                                    <th>Modelo</th>
+                                                                                    <th className="txt-center">Cant.</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                {Array.isArray(sub.inventario) && sub.inventario.length > 0 ? (
+                                                                                    sub.inventario.map((inv, iIdx) => (
+                                                                                        <tr key={`inv-${idx}-${sIdx}-${iIdx}`}>
+                                                                                            <td className="bold">{inv.categoria}</td>
+                                                                                            <td>{inv.marca || '-'}</td>
+                                                                                            <td>{inv.modelo || '-'}</td>
+                                                                                            <td className="col-cant">{inv.cantidad}</td>
+                                                                                        </tr>
+                                                                                    ))
+                                                                                ) : (
+                                                                                    <tr>
+                                                                                        <td colSpan="4" className="txt-center" style={{ padding: '15px', color: '#888', fontStyle: 'italic' }}>
+                                                                                            Sin ítems en esta categoría
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                )}
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    );
+                                                })
+                                            ) : (
+                                                <div className="empty-zone-message" style={{ textAlign: 'center', padding: '30px 20px', color: '#666', backgroundColor: '#fcfcfc', borderRadius: '8px', border: '1px dashed #ccc' }}>
+                                                    <div style={{ fontSize: '2rem', marginBottom: '10px', color: '#ccc' }}>📦</div>
+                                                    <p style={{ margin: 0, fontStyle: 'italic' }}>No hay componentes ni inventario registrados en esta zona ({sec.titulo}).</p>
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })
                     ) : (
-                        <div className="empty-state">No hay áreas ni inventario registrado para esta propiedad.</div>
+                        <div className="empty-state" style={{ textAlign: 'center', padding: '50px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+                            <div style={{ fontSize: '3rem', marginBottom: '15px' }}>🏢</div>
+                            <h3 style={{ color: '#444' }}>No hay áreas registradas</h3>
+                            <p style={{ color: '#888' }}>Esta propiedad no tiene zonas ni inventario registrado aún.</p>
+                        </div>
                     )}
                 </section>
 
