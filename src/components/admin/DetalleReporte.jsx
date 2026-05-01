@@ -142,7 +142,7 @@ const DetalleReporte = () => {
     return (
         <div 
             className={`rep-container ${isClient ? 'is-client-view' : ''}`}
-            style={isClient ? { height: 'auto', minHeight: '100%', overflow: 'visible', display: 'block' } : {}}
+            style={isClient ? { height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' } : {}}
         >
             {/* --- SIDEBAR (Oculto para clientes) --- */}
             {!isClient && (
@@ -172,9 +172,9 @@ const DetalleReporte = () => {
             {/* --- CONTENIDO PRINCIPAL (LEVANTAMIENTO) --- */}
             <main 
                 className="rep-main-content"
-                style={isClient ? { height: 'auto', overflow: 'visible', display: 'block', padding: '10px 0', maxWidth: '1000px', margin: '0 auto' } : {}}
+                style={isClient ? { flex: 1, overflowY: 'auto', display: 'block', padding: '10px 0', maxWidth: '100%', width: '100%', margin: 0 } : {}}
             >
-                <header className="main-banner">
+                <header className="main-banner" style={isClient ? { maxWidth: '1000px', margin: '0 auto 20px auto', width: '100%' } : {}}>
                     <img src={datosBD.foto_fachada || casaImg} alt="Propiedad" />
                     <div className="banner-text">
                         <h1 style={{ margin: 0 }}>{datosBD.propiedad_nombre || datosBD.titulo}</h1>
@@ -184,7 +184,7 @@ const DetalleReporte = () => {
                     </div>
                 </header>
 
-                <section className="reporte-flujo">
+                <section className="reporte-flujo" style={isClient ? { maxWidth: '1000px', margin: '0 auto', width: '100%' } : {}}>
                     {/* VALIDACIÓN DE SEGURIDAD PARA EVITAR EL ERROR .MAP */}
                     {Array.isArray(datosBD.secciones) && datosBD.secciones.length > 0 ? (
                         datosBD.secciones.map((sec, idx) => {
