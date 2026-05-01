@@ -257,25 +257,45 @@ const DetalleReporte = () => {
                                                                         <table className="tabla-inventario">
                                                                             <thead>
                                                                                 <tr>
-                                                                                    <th>Categoría</th>
-                                                                                    <th>Marca</th>
-                                                                                    <th>Modelo</th>
+                                                                                    <th>Elemento</th>
+                                                                                    <th>Marca / Modelo</th>
+                                                                                    <th>Estado</th>
                                                                                     <th className="txt-center">Cant.</th>
+                                                                                    <th className="txt-center">Foto</th>
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
                                                                                 {Array.isArray(sub.inventario) && sub.inventario.length > 0 ? (
                                                                                     sub.inventario.map((inv, iIdx) => (
                                                                                         <tr key={`inv-${idx}-${sIdx}-${iIdx}`}>
-                                                                                            <td className="bold">{inv.categoria}</td>
-                                                                                            <td>{inv.marca || '-'}</td>
-                                                                                            <td>{inv.modelo || '-'}</td>
+                                                                                            <td className="bold">{inv.nombre || inv.categoria}</td>
+                                                                                            <td>
+                                                                                                {inv.marca || '-'} {inv.modelo && inv.modelo !== 'N/A' ? `/ ${inv.modelo}` : ''}
+                                                                                                {inv.observaciones && <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>Nota: {inv.observaciones}</div>}
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                {inv.estado ? (
+                                                                                                    <span style={{ padding: '3px 8px', borderRadius: '12px', fontSize: '0.8rem', background: '#e9ecef', color: '#495057' }}>{inv.estado}</span>
+                                                                                                ) : '-'}
+                                                                                            </td>
                                                                                             <td className="col-cant">{inv.cantidad}</td>
+                                                                                            <td className="txt-center">
+                                                                                                {inv.foto ? (
+                                                                                                    <img 
+                                                                                                        src={inv.foto} 
+                                                                                                        alt={inv.nombre} 
+                                                                                                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'zoom-in', border: '1px solid #ddd' }} 
+                                                                                                        onClick={() => setSelectedImage(inv.foto)}
+                                                                                                    />
+                                                                                                ) : (
+                                                                                                    <span style={{ color: '#ccc', fontSize: '0.8rem' }}>S/F</span>
+                                                                                                )}
+                                                                                            </td>
                                                                                         </tr>
                                                                                     ))
                                                                                 ) : (
                                                                                     <tr>
-                                                                                        <td colSpan="4" className="txt-center" style={{ padding: '15px', color: '#888', fontStyle: 'italic' }}>
+                                                                                        <td colSpan="5" className="txt-center" style={{ padding: '15px', color: '#888', fontStyle: 'italic' }}>
                                                                                             Sin ítems en esta categoría
                                                                                         </td>
                                                                                     </tr>
