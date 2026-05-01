@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom'; // IMPORTANTE
 import axios from 'axios';
 import '../../styles/Admin/DetalleReporte.css';
@@ -311,8 +312,8 @@ const DetalleReporte = () => {
             </main>
 
             {/* --- MODAL DEL COTIZADOR --- */}
-            {mostrarCotizacion && (
-                <div className="lev-modal-overlay">
+            {mostrarCotizacion && createPortal(
+                <div className="lev-modal-overlay" style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh' }}>
                     <div className="cot-modal-card wide">
                         <div className="cot-modal-header">
                             <h3>NUEVA COTIZACIÓN - {datosBD.identificador_curp}</h3>
@@ -460,12 +461,13 @@ const DetalleReporte = () => {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* --- MODAL SELECCIONAR ARCHIVO --- */}
-            {isFileMenuOpen && (
-                <div className="lev-modal-overlay" onClick={() => setIsFileMenuOpen(false)} style={{ zIndex: 10000 }}>
+            {isFileMenuOpen && createPortal(
+                <div className="lev-modal-overlay" onClick={() => setIsFileMenuOpen(false)} style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh' }}>
                     <div className="cot-modal-card" style={{ maxWidth: '400px', padding: '0', backgroundColor: '#1a1a1a', border: '1px solid #333' }} onClick={e => e.stopPropagation()}>
                         <h3 style={{ color: '#F26522', borderBottom: '1px solid #333', margin: 0, padding: '20px', textAlign: 'center', fontSize: '1.2rem' }}>Seleccionar Archivo</h3>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -495,15 +497,16 @@ const DetalleReporte = () => {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* --- MODAL VISOR DE IMAGEN (LIGHTBOX) --- */}
-            {selectedImage && (
+            {selectedImage && createPortal(
                 <div 
                     className="lev-modal-overlay" 
                     onClick={() => setSelectedImage(null)} 
-                    style={{ zIndex: 15000, cursor: 'zoom-out', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                    style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', cursor: 'zoom-out', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
                 >
                     <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}>
                         <img 
@@ -542,7 +545,8 @@ const DetalleReporte = () => {
                             ×
                         </button>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
