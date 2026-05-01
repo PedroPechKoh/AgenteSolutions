@@ -142,7 +142,7 @@ const DetalleReporte = () => {
     return (
         <div 
             className={`rep-container ${isClient ? 'is-client-view' : ''}`}
-            style={isClient ? { height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' } : {}}
+            style={isClient ? { height: 'auto', minHeight: '100%', overflow: 'visible', display: 'block' } : {}}
         >
             {/* --- SIDEBAR (Oculto para clientes) --- */}
             {!isClient && (
@@ -172,7 +172,7 @@ const DetalleReporte = () => {
             {/* --- CONTENIDO PRINCIPAL (LEVANTAMIENTO) --- */}
             <main 
                 className="rep-main-content"
-                style={isClient ? { flex: 1, overflowY: 'auto', display: 'block', padding: '10px' } : {}}
+                style={isClient ? { height: 'auto', overflow: 'visible', display: 'block', padding: '10px 0', maxWidth: '1000px', margin: '0 auto' } : {}}
             >
                 <header className="main-banner">
                     <img src={datosBD.foto_fachada || casaImg} alt="Propiedad" />
