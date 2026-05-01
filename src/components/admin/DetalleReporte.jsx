@@ -13,6 +13,7 @@ const DetalleReporte = () => {
     const [datosBD, setDatosBD] = useState(null);
     const [cargando, setCargando] = useState(true);
     const [seccionesAbiertas, setSeccionesAbiertas] = useState({}); // Estado para el acordeón de zonas
+    const [selectedImage, setSelectedImage] = useState(null); // Estado para ver la imagen en grande
 
     const toggleSeccion = (idx) => {
         setSeccionesAbiertas(prev => ({
@@ -205,7 +206,16 @@ const DetalleReporte = () => {
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                             {zonaFoto && (
-                                                <img src={zonaFoto} alt={sec.titulo} className="sec-foto-header" />
+                                                <img 
+                                                    src={zonaFoto} 
+                                                    alt={sec.titulo} 
+                                                    className="sec-foto-header" 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Evitar que el acordeón se abra/cierre al clickear la foto
+                                                        setSelectedImage(zonaFoto);
+                                                    }}
+                                                    style={{ cursor: 'zoom-in' }}
+                                                />
                                             )}
                                             <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f26624', width: '24px', textAlign: 'center' }}>
                                                 {isAbierta ? '▲' : '▼'}
@@ -226,7 +236,13 @@ const DetalleReporte = () => {
                                                                 {/* Si tiene foto, la mostramos a la izquierda */}
                                                                 {areaFoto && (
                                                                     <div className="subseccion-foto-wrapper">
-                                                                        <img src={areaFoto} alt={sub.nombre} className="subseccion-foto" />
+                                                                        <img 
+                                                                            src={areaFoto} 
+                                                                            alt={sub.nombre} 
+                                                                            className="subseccion-foto" 
+                                                                            onClick={() => setSelectedImage(areaFoto)}
+                                                                            style={{ cursor: 'zoom-in' }}
+                                                                        />
                                                                     </div>
                                                                 )}
                                                                 
@@ -478,6 +494,53 @@ const DetalleReporte = () => {
                                 Cancelar
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- MODAL VISOR DE IMAGEN (LIGHTBOX) --- */}
+            {selectedImage && (
+                <div 
+                    className="lev-modal-overlay" 
+                    onClick={() => setSelectedImage(null)} 
+                    style={{ zIndex: 15000, cursor: 'zoom-out', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                >
+                    <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}>
+                        <img 
+                            src={selectedImage} 
+                            alt="Vista ampliada" 
+                            style={{ 
+                                maxWidth: '100%', 
+                                maxHeight: '90vh', 
+                                objectFit: 'contain', 
+                                borderRadius: '8px', 
+                                boxShadow: '0 5px 25px rgba(0,0,0,0.5)' 
+                            }} 
+                            onClick={(e) => e.stopPropagation()} /* Para que no se cierre si hace click en la imagen misma */
+                        />
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+                            style={{ 
+                                position: 'absolute', 
+                                top: '-15px', 
+                                right: '-15px', 
+                                background: '#f26624', 
+                                color: 'white', 
+                                border: '2px solid white', 
+                                borderRadius: '50%', 
+                                width: '40px', 
+                                height: '40px', 
+                                fontSize: '1.5rem', 
+                                cursor: 'pointer', 
+                                fontWeight: 'bold', 
+                                boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            ×
+                        </button>
                     </div>
                 </div>
             )}
