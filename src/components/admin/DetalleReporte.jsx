@@ -169,7 +169,10 @@ const DetalleReporte = () => {
                 <header className="main-banner">
                     <img src={datosBD.foto_fachada || casaImg} alt="Propiedad" />
                     <div className="banner-text">
-                        <h1>{datosBD.titulo}</h1>
+                        <h1 style={{ margin: 0 }}>{datosBD.propiedad_nombre || datosBD.titulo}</h1>
+                        <p style={{ margin: '5px 0 0 0', opacity: 0.9, fontSize: '1.1rem', fontWeight: '500' }}>
+                            {datosBD.titulo}
+                        </p>
                     </div>
                 </header>
 
