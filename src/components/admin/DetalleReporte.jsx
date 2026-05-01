@@ -135,10 +135,13 @@ const DetalleReporte = () => {
     if (!datosBD) return <div className="loading-screen">Error: Reporte no encontrado.</div>;
 
     const userData = JSON.parse(localStorage.getItem('agente_session'))?.userData;
-    const isClient = userData?.role_id === 3;
+    const isClient = Number(userData?.role_id) === 3;
 
     return (
-        <div className={`rep-container ${isClient ? 'is-client-view' : ''}`}>
+        <div 
+            className={`rep-container ${isClient ? 'is-client-view' : ''}`}
+            style={isClient ? { height: 'auto', overflow: 'visible', minHeight: '100%', display: 'block' } : {}}
+        >
             {/* --- SIDEBAR (Oculto para clientes) --- */}
             {!isClient && (
                 <aside className="rep-sidebar">
@@ -165,7 +168,10 @@ const DetalleReporte = () => {
 
 
             {/* --- CONTENIDO PRINCIPAL (LEVANTAMIENTO) --- */}
-            <main className="rep-main-content">
+            <main 
+                className="rep-main-content"
+                style={isClient ? { height: 'auto', overflow: 'visible', display: 'block', padding: '0 10px' } : {}}
+            >
                 <header className="main-banner">
                     <img src={datosBD.foto_fachada || casaImg} alt="Propiedad" />
                     <div className="banner-text">
