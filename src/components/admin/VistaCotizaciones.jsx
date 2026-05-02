@@ -29,6 +29,8 @@ const VistaCotizaciones = () => {
     cargarCotizaciones();
   }, []);
 
+ 
+
   const cargarCotizaciones = async () => {
     try {
       const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
@@ -212,43 +214,64 @@ const VistaCotizaciones = () => {
               </tr>
             </thead>
             <tbody>
-              {cargando ? (
-                <tr><td colSpan="4" className="no-data">Cargando cotizaciones...</td></tr>
-              ) : filtradas.length > 0 ? (
-                filtradas.map((c) => (
-                  <tr key={c.id}>
-                    <td className="bold-folio">{c.folio}</td>
-                    <td className="cliente-name">{c.cliente}</td>
-                    <td className="monto-final">
-                      {c.tipo === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                        <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)}>
-                          👁️ VER DETALLE
-                        </button>
-                        {!esCliente && filtro === 'Aprobado' && (
-                          <button 
-                            className="btn-view-detail" 
-                            style={{ background: '#2e7d32' }}
-                            onClick={() => {
-                              setCotizacionParaAsignar(c);
-                              setShowAssignModal(true);
-                            }}
-                          >
-                            🛠️ ASIGNAR TRABAJO
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
+  {cargando ? (
+    <tr><td colSpan="4" className="no-data">Cargando cotizaciones...</td></tr>
+  ) : filtradas.length > 0 ? (
+    filtradas.map((c) => (
+      <tr key={c.id}>
+        <td className="bold-folio">{c.folio}</td>
+        <td className="cliente-name">{c.cliente}</td>
+        <td className="monto-final">
+          {c.tipo === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
+        </td>
+        <td>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
+            <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)}>
+              👁️ VER DETALLE
+            </button>
+            {/* Solo mostrar acciones de asignación si es admin y está aprobada */}
+            {!esCliente && filtro === 'Aprobado' && (
+              c.asignado ? (
+                // Mostrar cuando YA está asignado
+                <>
+                  <span style={{ fontWeight: 'bold', color: '#2e7d32', margin: '0 5px' }}>Asignado</span>
+                  <button
+                    className="btn-view-detail"
+                    style={{ background: '#fb8c00' }}
+                    onClick={() => {
+                      setCotizacionParaAsignar(c);
+                      setShowAssignModal(true);
+                      // Podrías marcar una bandera extra para saber que es reasignación
+                      // setModoReasignar(true) o pasar una función específica
+                    }}
+                  >
+                    🔄 REASIGNAR
+                  </button>
+                </>
               ) : (
-                <tr>
-                  <td colSpan="4" className="no-data">No se encontraron resultados</td>
-                </tr>
-              )}
-            </tbody>
+                // Mostrar cuando NO está asignado
+                <button
+                  className="btn-view-detail"
+                  style={{ background: '#2e7d32' }}
+                  onClick={() => {
+                    setCotizacionParaAsignar(c);
+                    setShowAssignModal(true);
+                  }}
+                >
+                  🛠️ ASIGNAR TRABAJO
+                </button>
+              )
+            )}
+          </div>
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="4" className="no-data">No se encontraron resultados</td>
+    </tr>
+  )}
+</tbody>
           </table>
         </div>
       </main>
