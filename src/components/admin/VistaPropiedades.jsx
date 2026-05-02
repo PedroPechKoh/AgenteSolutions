@@ -197,39 +197,51 @@ const VistaPropiedades = () => {
 
       <section className="content-area">
         
-        <div className="search-header-flex">
-          <div className="search-container-center">
+        <div className="search-header-flex" style={isClient ? { flexDirection: 'column', gap: '15px', width: '100%', maxWidth: '800px', margin: '0 auto', paddingBottom: '20px' } : {}}>
+          <div className="search-container-center" style={isClient ? { width: '100%' } : {}}>
             <UniversalSearch
               type="PROPIEDADES"
               data={listaPropiedades}
               setFilteredData={setPropiedadesFiltradas}
               filtroActual={categoria}
-              placeholder="PROPIEDADES"
+              placeholder={isClient ? "BUSCAR POR NOMBRE, DIRECCIÓN O FOLIO..." : "PROPIEDADES"}
             />
           </div>
 
-          <button
-            className="btn-add-circle"
-            onClick={() => navigate("/registro-propiedades")}
-            title="NUEVA PROPIEDAD"
-          >
-            +
-          </button>
+          {isClient ? (
+            <button
+              className="btn-add-wide"
+              style={{ width: '100%', padding: '15px', backgroundColor: '#e0e0e0', color: '#333', border: 'none', borderRadius: '15px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
+              onClick={() => navigate("/registro-propiedades")}
+            >
+              <span style={{ fontSize: '1.8rem', fontWeight: '900' }}>+</span> AGREGAR PROPIEDAD
+            </button>
+          ) : (
+            <button
+              className="btn-add-circle"
+              onClick={() => navigate("/registro-propiedades")}
+              title="NUEVA PROPIEDAD"
+            >
+              +
+            </button>
+          )}
         </div>
 
-        <div className="categories-row-container">
-          <div className="categories-row">
-            {TIPOS_PROPIEDAD.map((tipo) => (
-              <button
-                key={tipo.label}
-                className={`cat-btn ${categoria === tipo.label ? "active" : ""}`}
-                onClick={() => setCategoria(tipo.label)}
-              >
-                <span className="btn-icon-small">{tipo.icon}</span> {tipo.title}
-              </button>
-            ))}
+        {!isClient && (
+          <div className="categories-row-container">
+            <div className="categories-row">
+              {TIPOS_PROPIEDAD.map((tipo) => (
+                <button
+                  key={tipo.label}
+                  className={`cat-btn ${categoria === tipo.label ? "active" : ""}`}
+                  onClick={() => setCategoria(tipo.label)}
+                >
+                  <span className="btn-icon-small">{tipo.icon}</span> {tipo.title}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="properties-grid">
           {cargando ? (

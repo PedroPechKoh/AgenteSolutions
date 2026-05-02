@@ -2,16 +2,17 @@ import React from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
 import { Settings, User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X } from 'lucide-react';
-
+import { useAuth } from '../../context/AuthContext';
+import NotificationBell from '../Shared/NotificationBell';
 import logo from "../../assets/Logo4.png";
 
 const MainLayoutCliente = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logoutGlobal } = useAuth();
+  const [menuAbierto, setMenuAbierto] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-
-  const userData = JSON.parse(localStorage.getItem('agente_session'))?.userData;
-  const userName = userData?.name || "CLIENTE";
+  const userName = user?.first_name || user?.name || "CLIENTE";
 
   // Recuperamos los IDs guardados para mantener el contexto de la propiedad
   const savedPropertyId = localStorage.getItem('current_property_id');
@@ -84,14 +85,54 @@ const MainLayoutCliente = ({ children }) => {
             </button>
             <div onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <ArrowLeft size={35} strokeWidth={3} className="header-arrow" />
-              <h2 className="header-title">{userName?.toUpperCase() || "CLIENTE"}</h2>
             </div>
           </div>
 
+          <div className="center-title-section" style={{ flexGrow: 1, textAlign: 'center' }}>
+             <h2 className="header-title" style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>
+               Hola {userName.toUpperCase()}. Gracias por trabajar con nosotros.
+             </h2>
+          </div>
           
-          <div className="header-right-group" style={{ display: 'flex', gap: '15px' }}>
-            <Settings size={30} />
-            <User size={30} />
+          <div className="header-right-group" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+            <NotificationBell />
+            <div style={{ position: "relative" }}>
+              <button
+                className="icon-btn"
+                style={{ padding: 0, overflow: "hidden", display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%' }}
+                onClick={() => setMenuAbierto(!menuAbierto)}
+              >
+                {user?.profile_picture ? (
+                  <img
+                    src={user.profile_picture}
+                    alt="Foto de perfil"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <span style={{ fontSize: '1.5rem' }}>👤</span>
+                )}
+              </button>
+
+              {menuAbierto && (
+                <div className="profile-dropdown-menu" style={{ position: 'absolute', right: 0, top: '50px', background: 'white', border: '1px solid #ccc', borderRadius: '8px', zIndex: 1000, minWidth: '150px' }}>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => navigate("/mi-perfil")}
+                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', fontSize: '1rem' }}
+                  >
+                    👤 Mi Perfil
+                  </button>
+                  <div className="dropdown-divider" style={{ borderBottom: '1px solid #eee', margin: '5px 0' }}></div>
+                  <button
+                    className="dropdown-item logout"
+                    onClick={() => { logoutGlobal(); navigate("/"); }}
+                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', color: 'red', fontSize: '1rem' }}
+                  >
+                    🚪 Cerrar Sesión
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
         
