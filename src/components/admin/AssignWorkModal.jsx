@@ -115,80 +115,43 @@ const AssignWorkModal = ({ cotizacion, onClose, onAssign }) => {
     setSavingTemplate(false);
   };
 
-  // Busca la función handleSubmit actual y modifícala así:
-
-const handleSubmit = async () => {
-  if (!tecnicoId || !fechaInicio) {
-    return alert("Por favor selecciona un técnico y una fecha/hora.");
-  }
-  setLoading(true);
-  try {
-    const token = localStorage.getItem('agente_token');
-    const serviceId = cotizacion.service_id || cotizacion.id;
-    
-    // 1. Asignar el trabajo al técnico (lo que ya haces)
-    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/servicios/${serviceId}/asignar-trabajo`, {
-      method: 'PUT',
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        tecnico_id: tecnicoId,
-        scheduled_start: fechaInicio,
-        custom_checklist: checklist
-      })
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.message);
+  const handleSubmit = async () => {
+    if (!tecnicoId || !fechaInicio) {
+      return alert("Por favor selecciona un técnico y una fecha/hora.");
     }
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      // The API uses the service ID. The cotizacion should have a service_id or be linked.
+      // Wait, let's assume cotizacion has service_id.
+      const serviceId = cotizacion.service_id || cotizacion.id; // Fallback
+      
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/servicios/${serviceId}/asignar-trabajo`, {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          tecnico_id: tecnicoId,
+          scheduled_start: fechaInicio,
+          custom_checklist: checklist
+        })
+      });
 
-    // ──────────────────────────────────────────────
-    // 🆕 NUEVO: Enviar los materiales y equipo al bodeguero
-    // ──────────────────────────────────────────────
-    const materiales = checklist.material.map(item => ({
-      nombre: item.task,                // toma el texto que ingresó el admin
-      cantidad: "1",                    // si no hay campo cantidad, pon un valor por defecto
-      // Si el texto incluye cantidad (ej: "Foco LED 12W - 10 pzas") podrías parsearlo, 
-      // pero lo recomendable es mejorar el formulario más adelante.
-    }));
-
-    const equipo = checklist.equipo.map(item => ({
-      nombre: item.task,
-      cantidad: "1",                    // lo mismo para equipo
-    }));
-
-    // También puedes incluir las herramientas si el bodeguero las necesita
-    // const herramientas = checklist.herramientas.map(item => ({ nombre: item.task }));
-
-    const nombreTecnico = tecnicos.find(t => t.id == tecnicoId)?.name || '';
-
-    await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/despacho`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        cotizacion_id: cotizacion.id,
-        tecnico: nombreTecnico,
-        fecha_entrega: fechaInicio,
-        materiales: materiales,
-        equipo: equipo
-      })
-    });
-    // ──────────────────────────────────────────────
-
-    alert("Trabajo asignado correctamente");
-    onAssign();
-  } catch (e) {
-    console.error(e);
-    alert("Error: " + (e.message || "Error de red"));
-  }
-  setLoading(false);
-};
+      const data = await res.json();
+      if (res.ok) {
+        alert("Trabajo asignado correctamente");
+        onAssign();
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error de red");
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="modal-fixed-overlay" onClick={onClose}>
