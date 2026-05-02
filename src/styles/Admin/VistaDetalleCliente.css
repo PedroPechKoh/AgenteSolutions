@@ -423,3 +423,44 @@
 .btn-primary-new:hover { background: #e67a00; transform: translateY(-1px); }
 
 @keyframes modalPop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.accordion-item {
+  border-bottom: 1px solid #eee;
+  margin-bottom: 1rem;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.section-header.clickable {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  transition: background 0.3s;
+}
+
+.section-header.clickable:hover {
+  background: #fdf2f2; /* Un naranja muy suave de Agente Solutions */
+}
+
+.arrow-icon {
+  transition: transform 0.3s ease;
+  transform: rotate(-90deg); /* Apuntando hacia abajo por defecto */
+}
+
+.accordion-item.is-open .arrow-icon {
+  transform: rotate(90deg); /* Gira hacia arriba cuando abre */
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out, padding 0.3s ease;
+  padding: 0 20px;
+}
+
+.accordion-item.is-open .accordion-content {
+  max-height: 1000px; /* Suficiente para el contenido */
+  padding: 10px 20px 20px 20px;
+}

@@ -76,7 +76,12 @@ const VistaDetalleTecnico = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+// Puedes inicializarlo con 'trabajos' para que la primera esté abierta por defecto
+const [seccionAbierta, setSeccionAbierta] = useState("trabajos");
 
+const toggleSeccion = (seccion) => {
+  setSeccionAbierta(seccionAbierta === seccion ? null : seccion);
+};
   const guardarCambios = async (e) => {
     e.preventDefault();
     try {
@@ -177,108 +182,108 @@ const VistaDetalleTecnico = () => {
           </button>
         </aside>
 
-        <main className="propiedades-section">
-          {/* SECCIÓN TRABAJOS REALIZADOS */}
-          <div className="section-header">
-            <h3>
-              <Briefcase size={22} /> TRABAJOS REALIZADOS
-            </h3>
-          </div>
-          <div className="propiedades-list">
-            {cargando ? (
-              <p className="text-center p-5">Cargando trabajos... ⏳</p>
-            ) : trabajos.length > 0 ? (
-              trabajos.map((trabajo) => (
-                <div key={trabajo.id} className="propiedad-item-card">
-                  <div className="prop-details">
-                    <h4>{trabajo.titulo || trabajo.descripcion || "Trabajo #" + trabajo.id}</h4>
-                    <p className="prop-address-text">{trabajo.direccion || trabajo.ubicacion}</p>
-                    <div className="prop-meta">
-                      <span className="badge-tipo">{trabajo.estado}</span>
-                      <span className="equipos-count">{trabajo.fecha}</span>
-                    </div>
-                  </div>
-                  <button
-                    className="btn-ver-propiedad"
-                    onClick={() => {
-                      // Navegar al detalle del trabajo (ajusta la ruta)
-                      navigate(`/detalle-trabajo/${trabajo.id}`);
-                    }}
-                  >
-                    Ver detalles <ArrowRight size={18} />
-                  </button>
+       <main className="propiedades-section">
+  {/* SECCIÓN TRABAJOS REALIZADOS */}
+  <div className={`accordion-item ${seccionAbierta === "trabajos" ? "is-open" : ""}`}>
+    <div className="section-header clickable" onClick={() => toggleSeccion("trabajos")}>
+      <h3>
+        <Briefcase size={22} /> TRABAJOS REALIZADOS
+      </h3>
+      <ChevronLeft className="arrow-icon" size={20} />
+    </div>
+    <div className="accordion-content">
+      <div className="propiedades-list">
+        {cargando ? (
+          <p className="text-center p-5">Cargando trabajos... ⏳</p>
+        ) : trabajos.length > 0 ? (
+          trabajos.map((trabajo) => (
+            <div key={trabajo.id} className="propiedad-item-card">
+              <div className="prop-details">
+                <h4>{trabajo.titulo || trabajo.descripcion || "Trabajo #" + trabajo.id}</h4>
+                <p className="prop-address-text">{trabajo.direccion || trabajo.ubicacion}</p>
+                <div className="prop-meta">
+                  <span className="badge-tipo">{trabajo.estado}</span>
+                  <span className="equipos-count">{trabajo.fecha}</span>
                 </div>
-              ))
-            ) : (
-              <p className="text-center p-5">Sin trabajos registrados</p>
-            )}
-          </div>
+              </div>
+              <button className="btn-ver-propiedad" onClick={() => navigate(`/detalle-trabajo/${trabajo.id}`)}>
+                Ver detalles <ArrowRight size={18} />
+              </button>
+            </div>
+          ))
+        ) : (
+          <p className="text-center p-5">Sin trabajos registrados</p>
+        )}
+      </div>
+    </div>
+  </div>
 
-          {/* SECCIÓN LEVANTAMIENTOS REALIZADOS */}
-          <div className="section-header" style={{ marginTop: "2rem" }}>
-            <h3>
-              <Clipboard size={22} /> LEVANTAMIENTOS REALIZADOS
-            </h3>
-          </div>
-          <div className="propiedades-list">
-            {cargando ? null : levantamientos.length > 0 ? (
-              levantamientos.map((lev) => (
-                <div key={lev.id} className="propiedad-item-card">
-                  <div className="prop-details">
-                    <h4>{lev.nombre || "Levantamiento #" + lev.id}</h4>
-                    <p className="prop-address-text">{lev.direccion}</p>
-                    <div className="prop-meta">
-                      <span className="badge-tipo">{lev.tipo}</span>
-                      <span className="equipos-count">{lev.fecha}</span>
-                    </div>
-                  </div>
-                  <button
-                    className="btn-ver-propiedad"
-                    onClick={() => navigate(`/detalle-levantamiento/${lev.id}`)}
-                  >
-                    Ver detalles <ArrowRight size={18} />
-                  </button>
+  {/* SECCIÓN LEVANTAMIENTOS REALIZADOS */}
+  <div className={`accordion-item ${seccionAbierta === "levantamientos" ? "is-open" : ""}`}>
+    <div className="section-header clickable" onClick={() => toggleSeccion("levantamientos")}>
+      <h3>
+        <Clipboard size={22} /> LEVANTAMIENTOS REALIZADOS
+      </h3>
+      <ChevronLeft className="arrow-icon" size={20} />
+    </div>
+    <div className="accordion-content">
+      <div className="propiedades-list">
+        {cargando ? null : levantamientos.length > 0 ? (
+          levantamientos.map((lev) => (
+            <div key={lev.id} className="propiedad-item-card">
+              <div className="prop-details">
+                <h4>{lev.nombre || "Levantamiento #" + lev.id}</h4>
+                <p className="prop-address-text">{lev.direccion}</p>
+                <div className="prop-meta">
+                  <span className="badge-tipo">{lev.tipo}</span>
+                  <span className="equipos-count">{lev.fecha}</span>
                 </div>
-              ))
-            ) : (
-              <p className="text-center p-5">Sin levantamientos registrados</p>
-            )}
-          </div>
+              </div>
+              <button className="btn-ver-propiedad" onClick={() => navigate(`/detalle-levantamiento/${lev.id}`)}>
+                Ver detalles <ArrowRight size={18} />
+              </button>
+            </div>
+          ))
+        ) : (
+          <p className="text-center p-5">Sin levantamientos registrados</p>
+        )}
+      </div>
+    </div>
+  </div>
 
-          {/* SECCIÓN COTIZACIONES REALIZADAS */}
-          <div className="section-header" style={{ marginTop: "2rem" }}>
-            <h3>
-              <FileText size={22} /> COTIZACIONES REALIZADAS
-            </h3>
-          </div>
-          <div className="propiedades-list">
-            {cargando ? null : cotizaciones.length > 0 ? (
-              cotizaciones.map((cot) => (
-                <div key={cot.id} className="propiedad-item-card">
-                  <div className="prop-details">
-                    <h4>Cotización #{cot.folio}</h4>
-                    <p className="prop-address-text">{cot.cliente}</p>
-                    <div className="prop-meta">
-                      <span className="badge-tipo">{cot.estado}</span>
-                      <span className="equipos-count">${parseFloat(cot.total).toLocaleString()}</span>
-                    </div>
-                  </div>
-                  <button
-                    className="btn-ver-propiedad"
-                    onClick={() => {
-                      // Podrías abrir el detalle de la cotización
-                      // navigate(`/detalle-cotizacion/${cot.id}`);
-                    }}
-                  >
-                    Ver detalles <ArrowRight size={18} />
-                  </button>
+  {/* SECCIÓN COTIZACIONES REALIZADAS */}
+  <div className={`accordion-item ${seccionAbierta === "cotizaciones" ? "is-open" : ""}`}>
+    <div className="section-header clickable" onClick={() => toggleSeccion("cotizaciones")}>
+      <h3>
+        <FileText size={22} /> COTIZACIONES REALIZADAS
+      </h3>
+      <ChevronLeft className="arrow-icon" size={20} />
+    </div>
+    <div className="accordion-content">
+      <div className="propiedades-list">
+        {cargando ? null : cotizaciones.length > 0 ? (
+          cotizaciones.map((cot) => (
+            <div key={cot.id} className="propiedad-item-card">
+              <div className="prop-details">
+                <h4>Cotización #{cot.folio}</h4>
+                <p className="prop-address-text">{cot.cliente}</p>
+                <div className="prop-meta">
+                  <span className="badge-tipo">{cot.estado}</span>
+                  <span className="equipos-count">${parseFloat(cot.total).toLocaleString()}</span>
                 </div>
-              ))
-            ) : (
-              <p className="text-center p-5">Sin cotizaciones realizadas</p>
-            )}
-          </div>
-        </main>
+              </div>
+              <button className="btn-ver-propiedad" onClick={() => navigate(`/detalle-cotizacion/${cot.id}`)}>
+                Ver detalles <ArrowRight size={18} />
+              </button>
+            </div>
+          ))
+        ) : (
+          <p className="text-center p-5">Sin cotizaciones realizadas</p>
+        )}
+      </div>
+    </div>
+  </div>
+</main>
 
         {/* MODAL DE EDICIÓN (igual que antes) */}
         {isModalOpen && (
