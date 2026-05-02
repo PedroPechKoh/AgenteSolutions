@@ -13,8 +13,9 @@ const DetalleReporte = () => {
     // --- ESTADOS DE LA VISTA PRINCIPAL (LEVANTAMIENTO) ---
     const [datosBD, setDatosBD] = useState(null);
     const [cargando, setCargando] = useState(true);
-    const [seccionesAbiertas, setSeccionesAbiertas] = useState({}); // Estado para el acordeón de zonas
+    const [seccionesAbiertas, setSeccionesAbiertas] = useState({}); // Estado para el acordeón de zonas (DEPRECATED)
     const [selectedImage, setSelectedImage] = useState(null); // Estado para ver la imagen en grande
+    const [selectedSubseccion, setSelectedSubseccion] = useState(null); // Estado para el modal de la cuadrícula
 
     const toggleSeccion = (idx) => {
         setSeccionesAbiertas(prev => ({
@@ -191,131 +192,34 @@ const DetalleReporte = () => {
                             // La foto de la zona principal (ej. BAÑO, COCINA)
                             const zonaFoto = sec.foto || sec.image_path || sec.image;
                             const isAbierta = seccionesAbiertas[idx];
-
                             return (
-                                <div key={`sec-${idx}`} className="seccion-bloque">
-                                    <div 
-                                        className="seccion-header accordion-header" 
-                                        onClick={() => toggleSeccion(idx)}
-                                        style={{ cursor: 'pointer', transition: 'background-color 0.3s' }}
-                                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f3f5'}
-                                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
-                                    >
-                                        <div className="sec-header-info">
-                                            <h3>{sec.titulo}</h3>
-                                            {sec.descripcion && <p className="sec-desc" style={{ marginBottom: 0 }}>{sec.descripcion}</p>}
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                            {zonaFoto && (
-                                                <img 
-                                                    src={zonaFoto} 
-                                                    alt={sec.titulo} 
-                                                    className="sec-foto-header" 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation(); // Evitar que el acordeón se abra/cierre al clickear la foto
-                                                        setSelectedImage(zonaFoto);
-                                                    }}
-                                                    style={{ cursor: 'zoom-in' }}
-                                                />
-                                            )}
-                                            <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f26624', width: '24px', textAlign: 'center' }}>
-                                                {isAbierta ? '▲' : '▼'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {isAbierta && (
-                                        <div className="seccion-body" style={{ borderTop: '1px solid #eee' }}>
-                                            {Array.isArray(sec.subSecciones) && sec.subSecciones.length > 0 ? (
-                                                sec.subSecciones.map((sub, sIdx) => {
-                                                    // Probamos todas las posibles propiedades de imagen de la sub-área
-                                                    const areaFoto = sub.foto || sub.image_path || sub.image || sub.foto_url;
-                                                    
-                                                    return (
-                                                        <div key={`sub-${idx}-${sIdx}`} className="subseccion-caja">
-                                                            <div className="subseccion-contenido">
-                                                                {/* Si tiene foto, la mostramos a la izquierda */}
-                                                                {areaFoto && (
-                                                                    <div className="subseccion-foto-wrapper">
-                                                                        <img 
-                                                                            src={areaFoto} 
-                                                                            alt={sub.nombre} 
-                                                                            className="subseccion-foto" 
-                                                                            onClick={() => setSelectedImage(areaFoto)}
-                                                                            style={{ cursor: 'zoom-in' }}
-                                                                        />
-                                                                    </div>
-                                                                )}
-                                                                
-                                                                <div className="subseccion-info">
-                                                                    <div className="sub-titulo">
-                                                                        <h4>{sub.nombre}</h4>
-                                                                        {sub.nota && <span className="nota-tecnica">Nota: {sub.nota}</span>}
-                                                                    </div>
-
-                                                                    <div className="table-responsive">
-                                                                        <table className="tabla-inventario">
-                                                                            <thead>
-                                                                                <tr>
-                                                                                    <th>Elemento</th>
-                                                                                    <th>Marca / Modelo</th>
-                                                                                    <th>Estado</th>
-                                                                                    <th className="txt-center">Cant.</th>
-                                                                                    <th className="txt-center">Foto</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                {Array.isArray(sub.inventario) && sub.inventario.length > 0 ? (
-                                                                                    sub.inventario.map((inv, iIdx) => (
-                                                                                        <tr key={`inv-${idx}-${sIdx}-${iIdx}`}>
-                                                                                            <td className="bold">{inv.nombre || inv.categoria}</td>
-                                                                                            <td>
-                                                                                                {inv.marca || '-'} {inv.modelo && inv.modelo !== 'N/A' ? `/ ${inv.modelo}` : ''}
-                                                                                                {inv.observaciones && <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>Nota: {inv.observaciones}</div>}
-                                                                                            </td>
-                                                                                            <td>
-                                                                                                {inv.estado ? (
-                                                                                                    <span style={{ padding: '3px 8px', borderRadius: '12px', fontSize: '0.8rem', background: '#e9ecef', color: '#495057' }}>{inv.estado}</span>
-                                                                                                ) : '-'}
-                                                                                            </td>
-                                                                                            <td className="col-cant">{inv.cantidad}</td>
-                                                                                            <td className="txt-center">
-                                                                                                {inv.foto ? (
-                                                                                                    <img 
-                                                                                                        src={inv.foto} 
-                                                                                                        alt={inv.nombre} 
-                                                                                                        style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'zoom-in', border: '1px solid #ddd' }} 
-                                                                                                        onClick={() => setSelectedImage(inv.foto)}
-                                                                                                    />
-                                                                                                ) : (
-                                                                                                    <span style={{ color: '#ccc', fontSize: '0.8rem' }}>S/F</span>
-                                                                                                )}
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    ))
-                                                                                ) : (
-                                                                                    <tr>
-                                                                                        <td colSpan="5" className="txt-center" style={{ padding: '15px', color: '#888', fontStyle: 'italic' }}>
-                                                                                            Sin ítems en esta categoría
-                                                                                        </td>
-                                                                                    </tr>
-                                                                                )}
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
+                                <div key={`sec-${idx}`} className="seccion-bloque" style={{ padding: '25px', backgroundColor: '#fff', borderLeft: '6px solid #ff7f00' }}>
+                                    <h3 className="coti-section-title" style={{ fontSize: '1.4rem', borderBottom: 'none', marginBottom: '5px' }}>{sec.titulo}</h3>
+                                    {sec.descripcion && <p className="sec-desc">{sec.descripcion}</p>}
+                                    
+                                    <div className="properties-grid" style={{ justifyContent: 'flex-start' }}>
+                                        {Array.isArray(sec.subSecciones) && sec.subSecciones.length > 0 ? (
+                                            sec.subSecciones.map((sub, sIdx) => {
+                                                const areaFoto = sub.foto || sub.image_path || sub.image || sub.foto_url || casaImg;
+                                                return (
+                                                    <div key={`sub-${idx}-${sIdx}`} className="property-card" onClick={() => setSelectedSubseccion(sub)}>
+                                                        <img src={areaFoto} alt={sub.nombre} className="property-image" />
+                                                        <div className="property-overlay">
+                                                            <h3 className="property-title-overlay">{sub.nombre}</h3>
+                                                            <button className="btn-overlay">
+                                                                VER INVENTARIO ({sub.inventario?.length || 0})
+                                                            </button>
                                                         </div>
-                                                    );
-                                                })
-                                            ) : (
-                                                <div className="empty-zone-message" style={{ textAlign: 'center', padding: '30px 20px', color: '#666', backgroundColor: '#fcfcfc', borderRadius: '8px', border: '1px dashed #ccc' }}>
-                                                    <div style={{ fontSize: '2rem', marginBottom: '10px', color: '#ccc' }}>📦</div>
-                                                    <p style={{ margin: 0, fontStyle: 'italic' }}>No hay componentes ni inventario registrados en esta zona ({sec.titulo}).</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
+                                                    </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <div className="empty-zone-message" style={{ width: '100%', textAlign: 'center', padding: '30px', color: '#666', fontStyle: 'italic', border: '1px dashed #ccc', borderRadius: '8px' }}>
+                                                <div style={{ fontSize: '2rem', marginBottom: '10px', color: '#ccc' }}>📦</div>
+                                                <p style={{ margin: 0 }}>No hay cuartos ni inventario registrados en esta zona ({sec.titulo}).</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })
@@ -515,6 +419,85 @@ const DetalleReporte = () => {
                             >
                                 Cancelar
                             </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* --- MODAL PARA VER INVENTARIO DE SUBSECCIÓN --- */}
+            {selectedSubseccion && createPortal(
+                <div className="lev-modal-overlay" onClick={() => setSelectedSubseccion(null)} style={{ zIndex: 999998, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh' }}>
+                    <div className="cot-modal-card wide" onClick={(e) => e.stopPropagation()} style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+                        <div className="cot-modal-header">
+                            <div className="header-content">
+                                <span className="header-icon" style={{ padding: '5px 10px', fontSize: '1.2rem', background: '#333' }}>📋</span>
+                                <div>
+                                    <h3 style={{ textTransform: 'uppercase' }}>{selectedSubseccion.nombre}</h3>
+                                    {selectedSubseccion.nota && <p>Nota: {selectedSubseccion.nota}</p>}
+                                </div>
+                            </div>
+                            <button className="close-x" onClick={() => setSelectedSubseccion(null)}>×</button>
+                        </div>
+                        
+                        <div className="cot-modal-body dinamico" style={{ padding: '20px', overflowY: 'auto' }}>
+                            {selectedSubseccion.foto && (
+                                <div style={{ width: '100%', height: '200px', marginBottom: '20px', borderRadius: '8px', overflow: 'hidden' }}>
+                                    <img src={selectedSubseccion.foto || selectedSubseccion.image_path || selectedSubseccion.image || selectedSubseccion.foto_url} alt="Referencia" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                            )}
+
+                            <h4 className="coti-section-title" style={{ width: '100%', borderBottom: '2px solid #ddd', paddingBottom: '10px' }}>INVENTARIO DEL ÁREA</h4>
+                            <div className="table-responsive">
+                                <table className="tabla-inventario">
+                                    <thead>
+                                        <tr>
+                                            <th>Elemento</th>
+                                            <th>Marca / Modelo</th>
+                                            <th>Estado</th>
+                                            <th className="txt-center">Cant.</th>
+                                            <th className="txt-center">Foto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {Array.isArray(selectedSubseccion.inventario) && selectedSubseccion.inventario.length > 0 ? (
+                                            selectedSubseccion.inventario.map((inv, iIdx) => (
+                                                <tr key={`mod-inv-${iIdx}`}>
+                                                    <td className="bold">{inv.nombre || inv.categoria}</td>
+                                                    <td>
+                                                        {inv.marca || '-'} {inv.modelo && inv.modelo !== 'N/A' ? `/ ${inv.modelo}` : ''}
+                                                        {inv.observaciones && <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>Nota: {inv.observaciones}</div>}
+                                                    </td>
+                                                    <td>
+                                                        {inv.estado ? (
+                                                            <span style={{ padding: '3px 8px', borderRadius: '12px', fontSize: '0.8rem', background: '#e9ecef', color: '#495057' }}>{inv.estado}</span>
+                                                        ) : '-'}
+                                                    </td>
+                                                    <td className="col-cant">{inv.cantidad}</td>
+                                                    <td className="txt-center">
+                                                        {inv.foto ? (
+                                                            <img 
+                                                                src={inv.foto} 
+                                                                alt={inv.nombre} 
+                                                                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'zoom-in', border: '1px solid #ddd' }} 
+                                                                onClick={() => setSelectedImage(inv.foto)}
+                                                            />
+                                                        ) : (
+                                                            <span style={{ color: '#ccc', fontSize: '0.8rem' }}>S/F</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="5" className="txt-center" style={{ padding: '15px', color: '#888', fontStyle: 'italic' }}>
+                                                    Sin ítems en esta categoría
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>,
