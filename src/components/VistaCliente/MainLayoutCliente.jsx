@@ -23,7 +23,7 @@ const MainLayoutCliente = ({ children }) => {
   const tableroPath = savedPropertyId ? `/DetallePropiedad/${savedPropertyId}` : '/propiedades';
 
   // Check if we are in a global route
-  const globalRoutes = ['/propiedades', '/levantamientos', '/vista-cotizaciones'];
+  const globalRoutes = ['/propiedades', '/levantamientos', '/vista-cotizaciones', '/registro-propiedades'];
   const isGlobalRoute = globalRoutes.includes(location.pathname);
 
   const globalNavButtons = [
@@ -57,10 +57,12 @@ const MainLayoutCliente = ({ children }) => {
              <img src={logo} alt="Agente Logo" className="main-logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/propiedades')} />
           </div>
   
-          {/* Botón Volver */}
-          <button className="tt-nav-btn btn-volver-sidebar" onClick={() => navigate(-1)} style={{ marginBottom: '20px', backgroundColor: '#444', color: 'white' }}>
-             <ChevronLeft size={18} /> <span>VOLVER</span>
-          </button>
+          {/* Botón Volver - Solo visible en detalles de propiedad */}
+          {!isGlobalRoute && (
+            <button className="tt-nav-btn btn-volver-sidebar" onClick={() => navigate(-1)} style={{ marginBottom: '20px', backgroundColor: '#444', color: 'white' }}>
+               <ChevronLeft size={18} /> <span>VOLVER</span>
+            </button>
+          )}
           
           <div className="tt-nav">
             {currentNavButtons.map((btn) => (

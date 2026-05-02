@@ -183,8 +183,8 @@ const VistaCotizaciones = () => {
 
       {/* 👆 Se eliminaron los div de las barras manuales y el tag <header> 👆 */}
 
-      <main className="cotiz-main-content">
-        <div className="cotiz-search-wrapper">
+      <main className="cotiz-main-content" style={esCliente ? { padding: '20px 0', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
+        <div className="cotiz-search-wrapper" style={esCliente ? { width: '100%' } : {}}>
           <div className="cotiz-search-bar">
             <input 
               type="text" 
@@ -426,7 +426,7 @@ const VistaCotizaciones = () => {
         </div>
       )}
 
-      <button className="back-arrow-fixed" onClick={() => window.history.back()}>←</button>
+      {!esCliente && <button className="back-arrow-fixed" onClick={() => window.history.back()}>←</button>}
 
       {showAssignModal && cotizacionParaAsignar && (
         <AssignWorkModal 

@@ -111,7 +111,7 @@ const AppRoutes = () => {
         path="/registro-propiedades"
         element={
           <ProtectedRoute allowedRoles={[0, 1, 3]}>
-            <RegisterProperties />
+            {user?.role_id === 3 ? <MainLayoutCliente><RegisterProperties /></MainLayoutCliente> : <RegisterProperties />}
           </ProtectedRoute>
         }
       />

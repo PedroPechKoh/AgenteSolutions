@@ -181,8 +181,8 @@ const VistaLevantamientos = () => {
 
 
 
-      <main className="lev-container">
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
+      <main className="lev-container" style={isClient ? { padding: '20px 0', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
+        <div style={{ display: "flex", justifyContent: isClient ? "center" : "flex-end", marginBottom: "20px" }}>
           <button
             className="lev-btn-add"
             onClick={() => navigate("/assign-service")}
@@ -190,7 +190,7 @@ const VistaLevantamientos = () => {
             {isClient ? "+ PEDIR SERVICIO" : "+ NUEVO LEVANTAMIENTO"}
           </button>
         </div>
-        <div className="lev-search-box">
+        <div className="lev-search-box" style={isClient ? { width: '100%' } : {}}>
           <input
             type="text"
             placeholder="BUSCAR POR TÍTULO O ID..."
