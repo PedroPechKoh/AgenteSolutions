@@ -231,7 +231,7 @@ const VistaCotizaciones = () => {
             </button>
             {/* Solo mostrar acciones de asignación si es admin y está aprobada */}
             {!esCliente && filtro === 'Aprobado' && (
-              c.asignado ? (
+              c.tecnico ? (
                 // Mostrar cuando YA está asignado
                 <>
                   <span style={{ fontWeight: 'bold', color: '#2e7d32', margin: '0 5px' }}>Asignado</span>
