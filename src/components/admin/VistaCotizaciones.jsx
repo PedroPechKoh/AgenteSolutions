@@ -203,7 +203,7 @@ const VistaCotizaciones = () => {
           <button className={`cotiz-tab-btn ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>❌ RECHAZADAS</button>
         </div>
 
-        <div className="cotiz-table-container">
+        <div className="cotiz-table-container" style={esCliente ? { width: '100%' } : {}}>
           <table className="cotiz-data-table">
             <thead>
               <tr>

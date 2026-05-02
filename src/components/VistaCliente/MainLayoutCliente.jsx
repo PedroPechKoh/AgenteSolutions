@@ -91,7 +91,7 @@ const MainLayoutCliente = ({ children }) => {
           </div>
 
           <div className="center-title-section" style={{ flexGrow: 1, textAlign: 'center' }}>
-             <h2 className="header-title" style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}>
+             <h2 className="header-title" style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#000' }}>
                Hola {userName.toUpperCase()}. Gracias por trabajar con nosotros.
              </h2>
           </div>
