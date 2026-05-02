@@ -192,7 +192,7 @@ const VistaUsuarios = () => {
   onClick={() => {
     if (u.rol === "CLIENTE") {
       navigate("/detalle-cliente", { state: { cliente: u } });
-    } else if (u.rol === "TECNICO") {
+    } if (u.rol === "TECNICO") {
       navigate("/detalle-tecnico", { state: { tecnico: u } });
     }
   }}
