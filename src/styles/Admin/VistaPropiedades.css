@@ -99,10 +99,12 @@
 
 /* --- GRID DE PROPIEDADES (4 POR FILA) --- */
 .properties-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
     width: 95%;
+    max-width: 1300px;
     margin: 30px auto;
     padding-bottom: 50px;
 }
@@ -114,6 +116,8 @@
     overflow: hidden;
     position: relative;
     height: 250px; /* Altura compacta */
+    width: 280px; /* Ancho fijo para flexbox */
+    flex: 0 0 auto;
     box-shadow: 0 8px 15px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
     cursor: pointer;
@@ -221,14 +225,7 @@
     background: #f44336;
 }
 
-/* --- ESTILOS RESPONSIVOS MEJORADOS --- */
-@media (max-width: 1200px) {
-    .properties-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (max-width: 992px) {
-    .properties-grid { grid-template-columns: repeat(2, 1fr); }
-}
+/* Removidos grid-template-columns de responsividad porque ahora es flexbox */
 
 @media (max-width: 768px) {
     .search-header-flex {
@@ -261,12 +258,12 @@
 
 @media (max-width: 600px) {
     .properties-grid { 
-        grid-template-columns: 1fr; 
-        width: 92%;
         gap: 20px;
     }
 
     .property-card { 
+        width: 100%;
+        max-width: 350px;
         height: 200px; 
         border-radius: 15px;
     }
