@@ -100,7 +100,7 @@ const handleLogin = async (e) => {
         setTimeout(() => navigate("/VistaTecnico"), 1000);
       } else if (role_id === 3) {
         setMensaje(`¡Bienvenido CLIENTE ${first_name}! Abriendo tu portal...`);
-        setTimeout(() => navigate("/VistaInicioCliente"), 1000);
+        setTimeout(() => navigate("/propiedades"), 1000);
       } else {
         setMensaje(`Error: Tu usuario no tiene permisos válidos.`);
       }

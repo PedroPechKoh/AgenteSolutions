@@ -21,12 +21,24 @@ const MainLayoutCliente = ({ children }) => {
   const detailPath = savedLevantamientoId ? `/detalle-reporte/${savedLevantamientoId}` : '/propiedades';
   const tableroPath = savedPropertyId ? `/DetallePropiedad/${savedPropertyId}` : '/propiedades';
 
-  const navButtons = [
+  // Check if we are in a global route
+  const globalRoutes = ['/propiedades', '/levantamientos', '/vista-cotizaciones'];
+  const isGlobalRoute = globalRoutes.includes(location.pathname);
+
+  const globalNavButtons = [
+    { label: 'PROPIEDADES', path: '/propiedades', icon: <Home size={18} /> },
+    { label: 'LEVANTAMIENTOS', path: '/levantamientos', icon: <LayoutDashboard size={18} /> },
+    { label: 'COTIZACIONES', path: '/vista-cotizaciones', icon: <FileText size={18} /> },
+  ];
+
+  const propertyNavButtons = [
     { label: 'DETALLES PROPIEDAD', path: detailPath, icon: <Home size={18} /> },
     { label: 'VER TABLERO', path: tableroPath, icon: <LayoutDashboard size={18} /> },
     { label: 'SOS', path: '/SOSView', icon: <Bell size={18} /> },
     { label: 'COTIZACIONES', path: '/Cotizaciones', icon: <FileText size={18} /> },
   ];
+
+  const currentNavButtons = isGlobalRoute ? globalNavButtons : propertyNavButtons;
 
   const isHomeView = location.pathname === '/VistaInicioCliente';
 
@@ -50,7 +62,7 @@ const MainLayoutCliente = ({ children }) => {
           </button>
           
           <div className="tt-nav">
-            {navButtons.map((btn) => (
+            {currentNavButtons.map((btn) => (
               <button 
                 key={btn.label}
                 className={`tt-nav-btn ${location.pathname === btn.path ? 'active' : ''}`} 

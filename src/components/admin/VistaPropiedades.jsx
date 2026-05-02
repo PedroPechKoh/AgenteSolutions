@@ -187,10 +187,13 @@ const VistaPropiedades = () => {
 
   return (
     <div className="main-container bg-light">
-      <div className="top-bar-orange" />
-      <div className="top-bar-black" />
-
-      <Header rolTexto="ADMINISTRACIÓN DE PROPIEDADES" />
+      {!isClient && (
+        <>
+          <div className="top-bar-orange" />
+          <div className="top-bar-black" />
+          <Header rolTexto="ADMINISTRACIÓN DE PROPIEDADES" />
+        </>
+      )}
 
       <section className="content-area">
         

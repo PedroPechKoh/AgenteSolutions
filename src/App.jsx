@@ -72,10 +72,10 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<LoginAgente />} />
 
-      {/* RUTA COMPARTIDA PROPIEDADES (Sin Sidebar para clientes) */}
+      {/* RUTA COMPARTIDA PROPIEDADES (Sin Sidebar para admin, con Sidebar para clientes) */}
       <Route path="/propiedades" element={
         <ProtectedRoute allowedRoles={[0, 1, 3]}>
-          <VistaPropiedades />
+          {user?.role_id === 3 ? <MainLayoutCliente><VistaPropiedades /></MainLayoutCliente> : <VistaPropiedades />}
         </ProtectedRoute>
       } />
 
@@ -134,8 +134,12 @@ const AppRoutes = () => {
       {/* ------RUTAS DE LA VISTA DEL ADMIN (PROTEGIDAS POR ROL) ------*/}
       {/* RUTAS ACCESIBLES POR ADMIN Y CLIENTE */}
       <Route element={<ProtectedRoute allowedRoles={[0, 1, 3]} />}>
-        <Route path="/vista-cotizaciones" element={<VistaCotizaciones />} />
-        <Route path="/levantamientos" element={<VistaLevantamientos />} />
+        <Route path="/vista-cotizaciones" element={
+          user?.role_id === 3 ? <MainLayoutCliente><VistaCotizaciones /></MainLayoutCliente> : <VistaCotizaciones />
+        } />
+        <Route path="/levantamientos" element={
+          user?.role_id === 3 ? <MainLayoutCliente><VistaLevantamientos /></MainLayoutCliente> : <VistaLevantamientos />
+        } />
       </Route>
 
 

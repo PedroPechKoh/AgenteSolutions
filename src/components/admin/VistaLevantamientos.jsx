@@ -177,7 +177,7 @@ const VistaLevantamientos = () => {
 
   return (
     <div className="lev-main-page">
-      <Header />
+      {!isClient && <Header />}
 
 
 
