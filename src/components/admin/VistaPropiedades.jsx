@@ -265,7 +265,7 @@ const VistaPropiedades = () => {
                     </div>
 
                     <h3 className="property-title-overlay">
-                      {p.propietario || "Sin Propietario"}
+                      {p.nombre_propiedad || "Propiedad sin nombre"}
                     </h3>
                     <div className="overlay-actions">
                       {/* BOTÓN 1: DETALLES DE PROPIEDAD */}
