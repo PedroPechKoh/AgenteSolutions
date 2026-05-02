@@ -187,12 +187,18 @@ const VistaUsuarios = () => {
                       </div>
                     </td>
 
-                    <td 
-                      className={u.rol === "CLIENTE" ? "clickable-name" : ""} 
-                      onClick={() => u.rol === "CLIENTE" && navigate("/detalle-cliente", { state: { cliente: u } })}
-                    >
-                      {u.nombre} {u.bloqueado && <span className="blocked-tag">BLOQUEADO</span>}
-                    </td>
+                   <td 
+  className={u.rol === "CLIENTE" || u.rol === "TECNICO" ? "clickable-name" : ""} 
+  onClick={() => {
+    if (u.rol === "CLIENTE") {
+      navigate("/detalle-cliente", { state: { cliente: u } });
+    } else if (u.rol === "TECNICO") {
+      navigate("/detalle-tecnico", { state: { tecnico: u } });
+    }
+  }}
+>
+  {u.nombre} {u.bloqueado && <span className="blocked-tag">BLOQUEADO</span>}
+</td>
 
                     <td>{u.correo}</td>
 

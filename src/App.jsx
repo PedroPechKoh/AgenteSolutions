@@ -43,7 +43,7 @@ import TrabajoPropiedad from "./components/VistasTecnico/TrabajosPropiedad";
 import VentaCruzada from "./components/VistasTecnico/VentaCruzada";
 import RegistrarVentaCruzada from "./components/VistasTecnico/RegistrarVentaCruzada";
 import LevantamientoPropiedad from "./components/VistasTecnico/LevantamientoPropiedad";
-
+import VistaDetalleTecnico from "./components/admin/VistaDetalleTecnico";
 
 
 // 👇 1. IMPORTAMOS AXIOS Y CONFIGURAMOS EL TOKEN GLOBAL 👇
@@ -129,6 +129,7 @@ const AppRoutes = () => {
       <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
       <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />
       <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
+      <Route path="/detalle-tecnico" element={<VistaDetalleTecnico />} />
 
       {/* ------RUTAS DE LA VISTA DEL ADMIN (PROTEGIDAS POR ROL) ------*/}
       {/* RUTAS ACCESIBLES POR ADMIN Y CLIENTE */}
