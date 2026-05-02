@@ -307,13 +307,13 @@ const VistaPropiedades = () => {
                         </button>
                       )}
 
-                      {/* BOTÓN 3: REALIZAR MI PROPIO LEVANTAMIENTO */}
+                      {/* BOTÓN 3: REALIZAR MI PROPIO LEVANTAMIENTO / EDITAR */}
                       <button
                         className="btn-overlay primary"
                         style={{ backgroundColor: '#F26522', color: 'white', border: 'none' }}
                         onClick={() => navigate(`/RegistroZonas/${p.curp}`)} 
                       >
-                        📸 REALIZAR MI PROPIO LEVANTAMIENTO
+                        {p.levantamiento_realizado ? "✏️ EDITAR LEVANTAMIENTO" : "📸 REALIZAR MI PROPIO LEVANTAMIENTO"}
                       </button>
                     </div>
                   </div>
