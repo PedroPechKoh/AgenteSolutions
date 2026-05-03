@@ -219,7 +219,11 @@ const DetalleReporte = () => {
 
     const guardarCategoria = async () => {
         if (!nuevaCategoria) return alert("Ingresa el nombre de la categoría.");
-        const idArea = selectedSubseccion.id;
+        
+        let idArea = selectedSubseccion.id;
+        if (!idArea) {
+            idArea = await obtenerIdZona(selectedSubseccion.nombre);
+        }
         if (!idArea) return alert("Error: No se encontró el ID de la habitación.");
 
         try {
@@ -243,7 +247,10 @@ const DetalleReporte = () => {
     const guardarElemento = async () => {
         if (!elementoActual.sub_category) return alert("El nombre/tipo del elemento es obligatorio.");
         
-        const idArea = selectedSubseccion.id;
+        let idArea = selectedSubseccion.id;
+        if (!idArea) {
+            idArea = await obtenerIdZona(selectedSubseccion.nombre);
+        }
         if (!idArea) return alert("Error: No se encontró el ID de la habitación. (Intenta recargar la página)");
 
         try {
