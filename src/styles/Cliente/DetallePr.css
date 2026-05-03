@@ -144,14 +144,23 @@
   background: var(--glass); border-radius: 20px; padding: 25px;
   border: 1px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
   margin-bottom: 25px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .card-header-ui { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
 .card-header-ui h2 { font-size: 1.1rem; font-weight: 700; }
 
 /* TABLA */
-.table-wrapper { overflow-x: auto; background: white; border-radius: 15px; }
-.modern-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+.table-wrapper { 
+  overflow-x: auto; 
+  background: white; 
+  border-radius: 15px; 
+  width: 100%; 
+  -webkit-overflow-scrolling: touch; 
+}
+.modern-table { width: 100%; border-collapse: collapse; min-width: 700px; }
 .modern-table th { padding: 12px; color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; text-align: left; }
 .modern-table td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
 
@@ -169,15 +178,25 @@
 .comentario-rechazo { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #64748b; font-style: italic; }
 
 /* KANBAN */
+.kanban-section-full {
+  width: 100%;
+  overflow: hidden;
+}
+
 .kanban-container-ui {
   display: flex;
   gap: 15px;
   overflow-x: auto; /* Permite scroll horizontal si la pantalla es chica */
   padding-bottom: 10px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
 }
 .k-column {
-  flex: 1; /* Todas las columnas miden lo mismo */
-  min-width: 240px; /* Tamaño mínimo para que no se aplasten */
+  flex: 1 0 auto; /* Asegura que no se encoja menos del min-width */
+  width: 280px; /* Tamaño fijo en móvil para hacer scroll horizontal */
+  max-width: 320px;
+  scroll-snap-align: center;
   background: #f1f5f9;
   border-radius: 12px;
   padding: 15px;
@@ -367,6 +386,7 @@
 @media (max-width: 992px) {
   .management-grid {
     grid-template-columns: 1fr;
+    width: 100%;
   }
   
   .top-bar-left {
@@ -563,8 +583,10 @@
 
 
 .k-column {
-  flex: 1;
-  min-width: 200px; /* Reducido para que quepan las 5 columnas en la mayoría de laptops sin scroll */
+  flex: 1 0 auto;
+  width: 280px;
+  max-width: 320px;
+  scroll-snap-align: center;
   background: #f8fafc;
   border-radius: 16px;
   padding: 20px;
