@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom'; // IMPORTANTE
 import axios from 'axios';
+import { Plus, ArrowLeft, ImageIcon, Loader2, Edit3, Eye, X } from 'lucide-react';
 import '../../styles/Admin/DetalleReporte.css';
+import '../../styles/TecnicoStyles/RegistroDetalleHabitacion.css';
 import logo from "../../assets/Logo4.png";
 import casaImg from '../../assets/propiedad_ejemplo.jpg';
 
@@ -15,8 +17,20 @@ const DetalleReporte = () => {
     const [cargando, setCargando] = useState(true);
     const [editandoZonaId, setEditandoZonaId] = useState(null);
     const [nuevoNombreZona, setNuevoNombreZona] = useState('');
+    
+    // --- ESTADOS PARA ELEMENTOS ---
     const [modalElementoVisible, setModalElementoVisible] = useState(false);
-    const [elementoActual, setElementoActual] = useState({ id: null, nombre: '', marca: '', modelo: '', cantidad: 1, categoria: '' });
+    const [elementoActual, setElementoActual] = useState({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: '', serial_number: '', observations: '' });
+    const [previewImg, setPreviewImg] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [galeriaArchivos, setGaleriaArchivos] = useState([]);
+    const [galeriaExistente, setGaleriaExistente] = useState([]);
+
+    // --- ESTADOS PARA CATEGORÍAS ---
+    const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
+    const [nuevaCategoria, setNuevaCategoria] = useState('');
+    const [creandoNuevaCategoria, setCreandoNuevaCategoria] = useState(false);
+
     const [seccionesAbiertas, setSeccionesAbiertas] = useState({}); // Estado para el acordeón de zonas (DEPRECATED)
     const [selectedImage, setSelectedImage] = useState(null); // Estado para ver la imagen en grande
     const [selectedSubseccion, setSelectedSubseccion] = useState(null); // Estado para el modal de la cuadrícula
@@ -156,25 +170,78 @@ const DetalleReporte = () => {
         }
     };
 
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+            setPreviewImg(URL.createObjectURL(file));
+        }
+    };
+
+    const handleGallerySelect = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            setGaleriaArchivos([...galeriaArchivos, ...files]);
+        }
+    };
+
     const abrirModalAgregarElemento = (categoriaNombre) => {
-        setElementoActual({ id: null, nombre: '', marca: '', modelo: '', cantidad: 1, categoria: categoriaNombre });
+        setElementoActual({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: categoriaNombre, serial_number: '', observations: '' });
+        setPreviewImg(null);
+        setSelectedFile(null);
+        setGaleriaArchivos([]);
+        setGaleriaExistente([]);
         setModalElementoVisible(true);
     };
 
     const abrirModalEditarElemento = (inv, categoriaNombre) => {
         setElementoActual({ 
             id: inv.id || inv.component_id, 
-            nombre: inv.nombre || inv.categoria || '', 
-            marca: inv.marca || '', 
-            modelo: inv.modelo || '', 
-            cantidad: inv.cantidad || 1, 
-            categoria: categoriaNombre 
+            sub_category: inv.nombre || inv.categoria || '', 
+            brand: inv.marca || '', 
+            model_or_color: inv.modelo || '', 
+            quantity: inv.cantidad || 1, 
+            category: categoriaNombre,
+            serial_number: inv.serial_number || '',
+            observations: inv.observations || ''
         });
+
+        if (inv.foto || inv.image_path) {
+            setPreviewImg(inv.foto || inv.image_path);
+        } else {
+            setPreviewImg(null);
+        }
+
+        setGaleriaArchivos([]);
+        setGaleriaExistente(inv.galleries || []);
         setModalElementoVisible(true);
     };
 
+    const guardarCategoria = async () => {
+        if (!nuevaCategoria) return alert("Ingresa el nombre de la categoría.");
+        const idArea = selectedSubseccion.id;
+        if (!idArea) return alert("Error: No se encontró el ID de la habitación.");
+
+        try {
+            const token = localStorage.getItem('agente_token');
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-categories`, {
+                property_area_id: idArea,
+                name: nuevaCategoria
+            }, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            setModalCategoriaVisible(false);
+            setNuevaCategoria('');
+            setCreandoNuevaCategoria(false);
+            window.location.reload(); 
+        } catch (error) {
+            console.error(error);
+            alert("Hubo un error al registrar la categoría.");
+        }
+    };
+
     const guardarElemento = async () => {
-        if (!elementoActual.nombre) return alert("El nombre del elemento es obligatorio.");
+        if (!elementoActual.sub_category) return alert("El nombre/tipo del elemento es obligatorio.");
         
         const idArea = selectedSubseccion.id;
         if (!idArea) return alert("Error: No se encontró el ID de la habitación. (Intenta recargar la página)");
@@ -183,22 +250,27 @@ const DetalleReporte = () => {
             const token = localStorage.getItem('agente_token');
             const formData = new FormData();
             formData.append('property_area_id', idArea);
-            formData.append('category', elementoActual.categoria);
-            formData.append('sub_category', elementoActual.nombre);
-            formData.append('brand', elementoActual.marca);
-            formData.append('model_or_color', elementoActual.modelo);
-            formData.append('quantity', elementoActual.cantidad);
+            formData.append('category', elementoActual.category);
+            formData.append('sub_category', elementoActual.sub_category);
+            formData.append('brand', elementoActual.brand);
+            formData.append('model_or_color', elementoActual.model_or_color);
+            formData.append('quantity', elementoActual.quantity);
+            formData.append('serial_number', elementoActual.serial_number);
+            formData.append('observations', elementoActual.observations);
             formData.append('status', 'Bueno');
             formData.append('unit', 'PZA');
+
+            if (selectedFile) formData.append('image', selectedFile);
+            galeriaArchivos.forEach((file) => formData.append('gallery[]', file));
 
             if (elementoActual.id) {
                 formData.append('_method', 'PUT');
                 await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-components/${elementoActual.id}`, formData, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${token}` }
                 });
             } else {
                 await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-components`, formData, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${token}` }
                 });
             }
             alert(elementoActual.id ? "Elemento actualizado." : "Elemento agregado.");
@@ -698,6 +770,12 @@ const DetalleReporte = () => {
                                 </div>
                             )}
 
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
+                                <button onClick={() => setModalCategoriaVisible(true)} style={{ padding: '10px 20px', background: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Plus size={18} /> NUEVA CATEGORÍA
+                                </button>
+                            </div>
+
                             {Array.isArray(selectedSubseccion.categorias) && selectedSubseccion.categorias.length > 0 ? (
                                 selectedSubseccion.categorias.map((cat, catIdx) => (
                                     <div key={`cat-${catIdx}`} style={{ marginBottom: '30px' }}>
@@ -828,36 +906,187 @@ const DetalleReporte = () => {
                 document.body
             )}
 
+            {/* --- MODAL PARA AGREGAR NUEVA CATEGORÍA --- */}
+            {modalCategoriaVisible && createPortal(
+                <div className="rdh-modal-overlay" style={{ zIndex: 9999999 }}>
+                    <div className="rdh-modal-content" style={{ width: '450px' }}>
+                        <div className="rdh-modal-title">
+                            <h2>NUEVA CATEGORÍA</h2>
+                        </div>
+                        
+                        <div className="rdh-modal-form">
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <label style={{fontWeight: 900, fontSize: 14, marginBottom: 5, color: '#333'}}>
+                                    SELECCIONA O AGREGA UNA CATEGORÍA
+                                </label>
+                                
+                                <div style={{ display: 'flex', gap: '10px' }}>
+                                    {creandoNuevaCategoria ? (
+                                        <input 
+                                            className="rdh-modal-input" 
+                                            style={{ flex: 1 }}
+                                            type="text" 
+                                            value={nuevaCategoria} 
+                                            onChange={(e) => setNuevaCategoria(e.target.value.toUpperCase())} 
+                                            placeholder="Escribe la nueva categoría..." 
+                                            autoFocus 
+                                        />
+                                    ) : (
+                                        <select 
+                                            className="rdh-modal-input" 
+                                            style={{ flex: 1, cursor: 'pointer' }}
+                                            value={nuevaCategoria}
+                                            onChange={(e) => setNuevaCategoria(e.target.value)}
+                                        >
+                                            <option value="">Selecciona una opción...</option>
+                                            <option value="ELÉCTRICO">ELÉCTRICO</option>
+                                            <option value="ELECTRODOMÉSTICOS">ELECTRODOMÉSTICOS</option>
+                                            <option value="MUEBLES">MUEBLES</option>
+                                            <option value="PLOMERÍA">PLOMERÍA</option>
+                                            <option value="CARPINTERÍA">CARPINTERÍA</option>
+                                        </select>
+                                    )}
+
+                                    <button 
+                                        onClick={() => {
+                                            setCreandoNuevaCategoria(!creandoNuevaCategoria);
+                                            setNuevaCategoria('');
+                                        }}
+                                        style={{ backgroundColor: creandoNuevaCategoria ? '#666' : '#f26624', border: 'none', borderRadius: '15px', width: '45px', color: 'white', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                                    >
+                                        {creandoNuevaCategoria ? <ArrowLeft size={20} /> : <Plus size={20} strokeWidth={3} />}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="rdh-modal-btn-container" style={{ gap: '15px', marginTop: '30px' }}>
+                            <button className="dh-btn-save-3d" style={{ background: '#777', boxShadow: '0 6px 0px #444', height: '45px', padding: '0 30px', fontSize: '16px' }} onClick={() => {
+                                setModalCategoriaVisible(false);
+                                setCreandoNuevaCategoria(false);
+                            }}>CANCELAR</button>
+                            <button className="dh-btn-save-3d" style={{ height: '45px', padding: '0 30px', fontSize: '16px' }} onClick={guardarCategoria}>
+                                AGREGAR
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
             {/* --- MODAL PARA AGREGAR/EDITAR ELEMENTO (INVENTARIO) --- */}
             {modalElementoVisible && createPortal(
-                <div className="lev-modal-overlay" style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div className="cot-modal-card" style={{ width: '400px', maxWidth: '90vw', backgroundColor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
-                        <div className="cot-modal-header" style={{ padding: '15px 20px', background: '#333', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase' }}>{elementoActual.id ? 'EDITAR' : 'NUEVO'} - {elementoActual.categoria}</h3>
-                            <button className="cot-close-btn" onClick={() => setModalElementoVisible(false)} style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
-                        </div>
-                        <div className="cot-modal-body dinamico" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Nombre / Tipo de Elemento *</label>
-                                <input type="text" value={elementoActual.nombre} onChange={e => setElementoActual({...elementoActual, nombre: e.target.value.toUpperCase()})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none' }} placeholder="Ej. FOCO, ENCHUFE, INODORO" />
-                            </div>
-                            <div style={{ display: 'flex', gap: '10px' }}>
-                                <div style={{ flex: 1 }}>
-                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Marca</label>
-                                    <input type="text" value={elementoActual.marca} onChange={e => setElementoActual({...elementoActual, marca: e.target.value.toUpperCase()})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none' }} placeholder="Ej. TRUPER" />
+                <div className="rdh-modal-overlay" style={{ zIndex: 9999999 }}>
+                    <div className="rdh-modal-content" style={{ width: '500px' }}>
+                        <button className="rdh-modal-close" onClick={() => setModalElementoVisible(false)}>
+                            <X size={24} strokeWidth={3} />
+                        </button>
+                        
+                        <h2 className="rdh-modal-title">{elementoActual.id ? 'EDITAR PRODUCTO' : 'NUEVO PRODUCTO'}</h2>
+                        
+                        <div className="rdh-modal-form" style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: '10px' }}>
+                            
+                            {/* FOTOS */}
+                            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '20px' }}>
+                                <div>
+                                    <div 
+                                        className="rdh-foto-box"
+                                        onClick={() => document.getElementById('fotoProductoNuevo').click()}
+                                    >
+                                        {previewImg ? (
+                                            <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <>
+                                                <ImageIcon size={40} color="#ccc" />
+                                                <span style={{ fontSize: '10px', color: '#ccc', marginTop: '5px', fontWeight: 'bold', textAlign: 'center' }}>
+                                                    {elementoActual.id ? 'CAMBIAR FOTO' : 'FOTO PRINCIPAL'}
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                    <input type="file" id="fotoProductoNuevo" hidden accept="image/*" onChange={handleFileSelect} />
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Modelo</label>
-                                    <input type="text" value={elementoActual.modelo} onChange={e => setElementoActual({...elementoActual, modelo: e.target.value.toUpperCase()})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none' }} placeholder="Opcional" />
+
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <div 
+                                        className="rdh-gallery-box"
+                                        title="Agregar fotos extra"
+                                        onClick={() => document.getElementById('fotoGaleriaNueva').click()}
+                                        style={{ position: 'relative', overflow: 'hidden', padding: (galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? '5px' : '0' }}
+                                    >
+                                        {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? (
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', width: '100%', height: '100%', justifyContent: 'center', alignContent: 'center' }}>
+                                                {galeriaExistente.map((foto, i) => (
+                                                    <img key={`ex-${i}`} src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
+                                                ))}
+                                                {galeriaArchivos.slice(0, 4 - galeriaExistente.length).map((file, i) => (
+                                                    <img key={`new-${i}`} src={URL.createObjectURL(file)} alt={`galeria-new-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <Plus size={40} color="#ccc" className="gallery-icon" />
+                                                <span className="gallery-text" style={{ fontSize: '10px', color: '#ccc', marginTop: '5px', fontWeight: 'bold', textAlign: 'center' }}>AGREGAR MÁS</span>
+                                            </>
+                                        )}
+                                    </div>
+                                    <input type="file" id="fotoGaleriaNueva" hidden accept="image/*" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
+                                    
+                                    {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) && (
+                                        <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center' }}>
+                                            <span style={{ fontSize: '11px', color: '#f26624', fontWeight: 'bold' }}>
+                                                {(galeriaArchivos.length + galeriaExistente.length)} fotos extra
+                                            </span>
+                                            {galeriaArchivos.length > 0 && (
+                                                <button onClick={() => setGaleriaArchivos([])} style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', padding: 0 }}>
+                                                    Limpiar nuevas
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            <div>
-                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Cantidad *</label>
-                                <input type="number" value={elementoActual.cantidad} onChange={e => setElementoActual({...elementoActual, cantidad: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none' }} min="1" step="0.1" />
+
+                            <div className="rdh-modal-field">
+                                <label>TIPO *</label>
+                                <input type="text" className="rdh-modal-input" placeholder="Ej. ENCHUFE, FOCO" value={elementoActual.sub_category} onChange={(e) => setElementoActual({...elementoActual, sub_category: e.target.value.toUpperCase()})}/>
                             </div>
-                            <button onClick={guardarElemento} style={{ padding: '12px', background: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px', fontSize: '1.1rem' }}>
-                                {elementoActual.id ? 'GUARDAR CAMBIOS' : 'AGREGAR ELEMENTO'}
-                            </button>
+                            <div className="rdh-modal-field">
+                                <label>MARCA</label>
+                                <input type="text" className="rdh-modal-input" value={elementoActual.brand} onChange={(e) => setElementoActual({...elementoActual, brand: e.target.value.toUpperCase()})}/>
+                            </div>
+                            <div className="rdh-modal-field">
+                                <label>MODELO</label>
+                                <input type="text" className="rdh-modal-input" value={elementoActual.model_or_color} onChange={(e) => setElementoActual({...elementoActual, model_or_color: e.target.value.toUpperCase()})}/>
+                            </div>
+                            
+                            <div className="rdh-modal-field">
+                                <label>NO. SERIE</label>
+                                <input type="text" className="rdh-modal-input" placeholder="S/N" value={elementoActual.serial_number} onChange={(e) => setElementoActual({...elementoActual, serial_number: e.target.value.toUpperCase()})}/>
+                            </div>
+
+                            <div className="rdh-modal-field">
+                                <label>CANTIDAD *</label>
+                                <input type="number" min="0.1" step="0.1" className="rdh-modal-input" value={elementoActual.quantity} onChange={(e) => setElementoActual({...elementoActual, quantity: e.target.value})}/>
+                            </div>
+
+                            <div className="rdh-modal-field" style={{ alignItems: 'flex-start' }}>
+                                <label style={{ marginTop: '15px' }}>COMENTARIOS</label>
+                                <textarea 
+                                    className="rdh-modal-input" 
+                                    style={{ height: 'auto', paddingTop: '10px', resize: 'vertical', minHeight: '60px' }}
+                                    rows="3" 
+                                    placeholder="Detalla daños o notas especiales..."
+                                    value={elementoActual.observations} 
+                                    onChange={(e) => setElementoActual({...elementoActual, observations: e.target.value})}
+                                />
+                            </div>
+
+                            <div className="rdh-modal-btn-container" style={{ marginTop: '20px' }}>
+                                <button className="rdh-btn-save-3d modal-btn" onClick={guardarElemento}>
+                                    {elementoActual.id ? 'ACTUALIZAR' : 'GUARDAR'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>,
