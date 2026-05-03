@@ -191,7 +191,18 @@ const DetalleReporte = () => {
                         // Agrupar los cuartos por Zona
                         const zonasAgrupadas = {};
                         datosBD.secciones.forEach(sec => {
-                            const nombreZona = sec.zona_nombre || sec.parent_name || sec.zona || sec.parent_area || sec.parent_area_name || 'ZONAS DE LA PROPIEDAD';
+                            // Intentar encontrar el nombre de la zona padre en varias posibles propiedades
+                            const nombreZona = 
+                                (sec.parent && sec.parent.name) || 
+                                (sec.parent && sec.parent.titulo) || 
+                                (sec.zona && sec.zona.name) || 
+                                sec.zona_nombre || 
+                                sec.parent_name || 
+                                sec.zona || 
+                                sec.parent_area || 
+                                sec.parent_area_name || 
+                                'ZONAS DE LA PROPIEDAD';
+
                             if (!zonasAgrupadas[nombreZona]) {
                                 zonasAgrupadas[nombreZona] = {
                                     titulo: nombreZona,
@@ -252,7 +263,14 @@ const DetalleReporte = () => {
                         </div>
                     )}
                 </section>
-
+                
+                {/* DEBUGER OCULTO SOLO PARA DESARROLLO - BORRAR DESPUÉS */}
+                {Array.isArray(datosBD.secciones) && datosBD.secciones.length > 0 && (
+                    <div style={{ fontSize: '10px', color: '#ccc', textAlign: 'center', marginTop: '20px' }}>
+                        DEBUG KEYS: {Object.keys(datosBD.secciones[0]).join(', ')}
+                        {datosBD.secciones[0].parent ? ` | PARENT: ${Object.keys(datosBD.secciones[0].parent).join(', ')}` : ''}
+                    </div>
+                )}
 
             </main>
 
