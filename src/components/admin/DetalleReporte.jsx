@@ -15,6 +15,8 @@ const DetalleReporte = () => {
     const [cargando, setCargando] = useState(true);
     const [editandoZonaId, setEditandoZonaId] = useState(null);
     const [nuevoNombreZona, setNuevoNombreZona] = useState('');
+    const [modalElementoVisible, setModalElementoVisible] = useState(false);
+    const [elementoActual, setElementoActual] = useState({ id: null, nombre: '', marca: '', modelo: '', cantidad: 1, categoria: '' });
     const [seccionesAbiertas, setSeccionesAbiertas] = useState({}); // Estado para el acordeón de zonas (DEPRECATED)
     const [selectedImage, setSelectedImage] = useState(null); // Estado para ver la imagen en grande
     const [selectedSubseccion, setSelectedSubseccion] = useState(null); // Estado para el modal de la cuadrícula
@@ -133,6 +135,77 @@ const DetalleReporte = () => {
         } catch (error) {
             console.error("Error al editar zona:", error);
             alert("Error al editar el nombre de la zona.");
+        }
+    };
+
+    // --- FUNCIONES PARA ELEMENTOS (INVENTARIO) ---
+    const handleEliminarElemento = async (idElemento) => {
+        if (!idElemento) return alert("Error: ID del elemento no encontrado. No se puede eliminar.");
+        if (window.confirm("¿Seguro que deseas eliminar este elemento? Esta acción no se puede deshacer.")) {
+            try {
+                const token = localStorage.getItem('agente_token');
+                await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-components/${idElemento}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                alert("Elemento eliminado.");
+                window.location.reload();
+            } catch (error) {
+                console.error(error);
+                alert("Hubo un error al eliminar el elemento.");
+            }
+        }
+    };
+
+    const abrirModalAgregarElemento = (categoriaNombre) => {
+        setElementoActual({ id: null, nombre: '', marca: '', modelo: '', cantidad: 1, categoria: categoriaNombre });
+        setModalElementoVisible(true);
+    };
+
+    const abrirModalEditarElemento = (inv, categoriaNombre) => {
+        setElementoActual({ 
+            id: inv.id || inv.component_id, 
+            nombre: inv.nombre || inv.categoria || '', 
+            marca: inv.marca || '', 
+            modelo: inv.modelo || '', 
+            cantidad: inv.cantidad || 1, 
+            categoria: categoriaNombre 
+        });
+        setModalElementoVisible(true);
+    };
+
+    const guardarElemento = async () => {
+        if (!elementoActual.nombre) return alert("El nombre del elemento es obligatorio.");
+        
+        const idArea = selectedSubseccion.id;
+        if (!idArea) return alert("Error: No se encontró el ID de la habitación. (Intenta recargar la página)");
+
+        try {
+            const token = localStorage.getItem('agente_token');
+            const formData = new FormData();
+            formData.append('property_area_id', idArea);
+            formData.append('category', elementoActual.categoria);
+            formData.append('sub_category', elementoActual.nombre);
+            formData.append('brand', elementoActual.marca);
+            formData.append('model_or_color', elementoActual.modelo);
+            formData.append('quantity', elementoActual.cantidad);
+            formData.append('status', 'Bueno');
+            formData.append('unit', 'PZA');
+
+            if (elementoActual.id) {
+                formData.append('_method', 'PUT');
+                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-components/${elementoActual.id}`, formData, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } else {
+                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-components`, formData, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            }
+            alert(elementoActual.id ? "Elemento actualizado." : "Elemento agregado.");
+            window.location.reload();
+        } catch (error) {
+            console.error("Error al guardar elemento:", error);
+            alert("Hubo un error al guardar el elemento.");
         }
     };
 
@@ -640,6 +713,7 @@ const DetalleReporte = () => {
                                                         <th>Estado</th>
                                                         <th className="txt-center">Cant.</th>
                                                         <th className="txt-center">Foto</th>
+                                                        <th className="txt-center">Acciones</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -669,11 +743,15 @@ const DetalleReporte = () => {
                                                                         <span style={{ color: '#ccc', fontSize: '0.8rem' }}>S/F</span>
                                                                     )}
                                                                 </td>
+                                                                <td className="txt-center">
+                                                                    <button onClick={() => abrirModalEditarElemento(inv, cat.nombre)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', padding: '0 5px' }} title="Editar">✏️</button>
+                                                                    <button onClick={() => handleEliminarElemento(inv.id || inv.component_id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#e63946', padding: '0 5px' }} title="Eliminar">🗑️</button>
+                                                                </td>
                                                             </tr>
                                                         ))
                                                     ) : (
                                                         <tr>
-                                                            <td colSpan="5" className="txt-center" style={{ padding: '15px', color: '#888', fontStyle: 'italic' }}>
+                                                            <td colSpan="6" className="txt-center" style={{ padding: '15px', color: '#888', fontStyle: 'italic' }}>
                                                                 Sin ítems en esta categoría
                                                             </td>
                                                         </tr>
@@ -681,6 +759,14 @@ const DetalleReporte = () => {
                                                 </tbody>
                                             </table>
                                         </div>
+                                        <button 
+                                            onClick={() => abrirModalAgregarElemento(cat.nombre)}
+                                            style={{ marginTop: '10px', padding: '10px 15px', background: '#fff5f0', border: '2px dashed #f26624', color: '#f26624', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', width: '100%', transition: 'all 0.2s ease' }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = '#f26624'; e.currentTarget.style.color = 'white'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = '#fff5f0'; e.currentTarget.style.color = '#f26624'; }}
+                                        >
+                                            + AGREGAR ELEMENTO A {cat.nombre}
+                                        </button>
                                     </div>
                                 ))
                             ) : (
@@ -737,6 +823,42 @@ const DetalleReporte = () => {
                         >
                             ×
                         </button>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* --- MODAL PARA AGREGAR/EDITAR ELEMENTO (INVENTARIO) --- */}
+            {modalElementoVisible && createPortal(
+                <div className="lev-modal-overlay" style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="cot-modal-card" style={{ width: '400px', maxWidth: '90vw', backgroundColor: '#fff', borderRadius: '12px', overflow: 'hidden' }}>
+                        <div className="cot-modal-header" style={{ padding: '15px 20px', background: '#333', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase' }}>{elementoActual.id ? 'EDITAR' : 'NUEVO'} - {elementoActual.categoria}</h3>
+                            <button className="cot-close-btn" onClick={() => setModalElementoVisible(false)} style={{ background: 'none', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
+                        </div>
+                        <div className="cot-modal-body dinamico" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Nombre / Tipo de Elemento *</label>
+                                <input type="text" value={elementoActual.nombre} onChange={e => setElementoActual({...elementoActual, nombre: e.target.value.toUpperCase()})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none' }} placeholder="Ej. FOCO, ENCHUFE, INODORO" />
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Marca</label>
+                                    <input type="text" value={elementoActual.marca} onChange={e => setElementoActual({...elementoActual, marca: e.target.value.toUpperCase()})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none' }} placeholder="Ej. TRUPER" />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Modelo</label>
+                                    <input type="text" value={elementoActual.modelo} onChange={e => setElementoActual({...elementoActual, modelo: e.target.value.toUpperCase()})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none' }} placeholder="Opcional" />
+                                </div>
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold', color: '#555' }}>Cantidad *</label>
+                                <input type="number" value={elementoActual.cantidad} onChange={e => setElementoActual({...elementoActual, cantidad: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', outline: 'none' }} min="1" step="0.1" />
+                            </div>
+                            <button onClick={guardarElemento} style={{ padding: '12px', background: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px', fontSize: '1.1rem' }}>
+                                {elementoActual.id ? 'GUARDAR CAMBIOS' : 'AGREGAR ELEMENTO'}
+                            </button>
+                        </div>
                     </div>
                 </div>,
                 document.body
