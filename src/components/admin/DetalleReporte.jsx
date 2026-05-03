@@ -73,8 +73,34 @@ const DetalleReporte = () => {
     }, [id]);
 
     // --- FUNCIONES PARA EDITAR/ELIMINAR ZONAS ---
-    const handleEliminarZona = async (idZona, nombreZona) => {
-        if (!idZona) return alert("Error: ID de zona no encontrado.");
+    const obtenerIdZona = async (nombreZona) => {
+        try {
+            const token = localStorage.getItem('agente_token');
+            // Primero obtener el property_id usando el curp
+            const propRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/by-curp/${datosBD.identificador_curp}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const propertyId = propRes.data.id;
+            
+            // Obtener las áreas de la propiedad
+            const areasRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${propertyId}/areas`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const areas = areasRes.data;
+            
+            // Buscar coincidencia por nombre
+            const area = areas.find(a => a.name.toUpperCase() === nombreZona.toUpperCase());
+            return area ? area.id : null;
+        } catch (error) {
+            console.error("Error obteniendo ID de la zona:", error);
+            return null;
+        }
+    };
+
+    const handleEliminarZona = async (idZonaFallback, nombreZona) => {
+        const idZona = idZonaFallback || await obtenerIdZona(nombreZona);
+        if (!idZona) return alert("Error: No se pudo localizar la zona en la base de datos.");
+        
         if (window.confirm(`¿Estás seguro de eliminar la zona "${nombreZona}" y todo su contenido? Esta acción no se puede deshacer.`)) {
             try {
                 const token = localStorage.getItem('agente_token');
@@ -90,8 +116,12 @@ const DetalleReporte = () => {
         }
     };
 
-    const handleGuardarEdicionZona = async (idZona) => {
+    const handleGuardarEdicionZona = async (idZonaFallback, nombreZonaActual) => {
         if (!nuevoNombreZona.trim()) return alert("El nombre no puede estar vacío");
+        
+        const idZona = idZonaFallback || await obtenerIdZona(nombreZonaActual);
+        if (!idZona) return alert("Error: No se pudo localizar la zona en la base de datos.");
+
         try {
             const token = localStorage.getItem('agente_token');
             await axios.put(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${idZona}`, 
@@ -263,7 +293,7 @@ const DetalleReporte = () => {
                         const renderZonas = zonas.map((zona, idx) => (
                             <div key={`zona-${idx}`} className="seccion-bloque" style={{ padding: '25px', backgroundColor: '#fff', borderLeft: '6px solid #ff7f00' }}>
                                 <h3 className="coti-section-title" style={{ fontSize: '1.4rem', borderBottom: 'none', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    {editandoZonaId === zona.id && zona.id ? (
+                                    {editandoZonaId === zona.titulo ? (
                                         <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
                                             <input 
                                                 type="text" 
@@ -272,30 +302,28 @@ const DetalleReporte = () => {
                                                 style={{ padding: '5px 10px', fontSize: '1.2rem', borderRadius: '6px', border: '1px solid #ccc', outline: 'none' }}
                                                 autoFocus
                                             />
-                                            <button onClick={() => handleGuardarEdicionZona(zona.id)} style={{ padding: '6px 12px', background: '#f26624', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
+                                            <button onClick={() => handleGuardarEdicionZona(zona.id, zona.titulo)} style={{ padding: '6px 12px', background: '#f26624', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
                                             <button onClick={() => setEditandoZonaId(null)} style={{ padding: '6px 12px', background: '#666', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
                                         </div>
                                     ) : (
                                         <>
                                             <span style={{ textTransform: 'uppercase' }}>{zona.titulo}</span>
-                                            {zona.id && (
-                                                <div style={{ display: 'flex', gap: '10px' }}>
-                                                    <button 
-                                                        onClick={() => { setEditandoZonaId(zona.id); setNuevoNombreZona(zona.titulo); }}
-                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#666', padding: '0 5px' }}
-                                                        title="Editar nombre de zona"
-                                                    >
-                                                        ✏️
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleEliminarZona(zona.id, zona.titulo)}
-                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#e63946', padding: '0 5px' }}
-                                                        title="Eliminar zona completa"
-                                                    >
-                                                        🗑️
-                                                    </button>
-                                                </div>
-                                            )}
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button 
+                                                    onClick={() => { setEditandoZonaId(zona.titulo); setNuevoNombreZona(zona.titulo); }}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#666', padding: '0 5px' }}
+                                                    title="Editar nombre de zona"
+                                                >
+                                                    ✏️
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleEliminarZona(zona.id, zona.titulo)}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#e63946', padding: '0 5px' }}
+                                                    title="Eliminar zona completa"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            </div>
                                         </>
                                     )}
                                 </h3>
