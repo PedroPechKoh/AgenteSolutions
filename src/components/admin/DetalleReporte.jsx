@@ -13,6 +13,8 @@ const DetalleReporte = () => {
     // --- ESTADOS DE LA VISTA PRINCIPAL (LEVANTAMIENTO) ---
     const [datosBD, setDatosBD] = useState(null);
     const [cargando, setCargando] = useState(true);
+    const [editandoZonaId, setEditandoZonaId] = useState(null);
+    const [nuevoNombreZona, setNuevoNombreZona] = useState('');
     const [seccionesAbiertas, setSeccionesAbiertas] = useState({}); // Estado para el acordeón de zonas (DEPRECATED)
     const [selectedImage, setSelectedImage] = useState(null); // Estado para ver la imagen en grande
     const [selectedSubseccion, setSelectedSubseccion] = useState(null); // Estado para el modal de la cuadrícula
@@ -69,6 +71,40 @@ const DetalleReporte = () => {
         };
         cargarReporte();
     }, [id]);
+
+    // --- FUNCIONES PARA EDITAR/ELIMINAR ZONAS ---
+    const handleEliminarZona = async (idZona, nombreZona) => {
+        if (!idZona) return alert("Error: ID de zona no encontrado.");
+        if (window.confirm(`¿Estás seguro de eliminar la zona "${nombreZona}" y todo su contenido? Esta acción no se puede deshacer.`)) {
+            try {
+                const token = localStorage.getItem('agente_token');
+                await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${idZona}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                alert("Zona eliminada con éxito.");
+                window.location.reload(); 
+            } catch (error) {
+                console.error("Error al eliminar zona:", error);
+                alert("Hubo un error al eliminar la zona.");
+            }
+        }
+    };
+
+    const handleGuardarEdicionZona = async (idZona) => {
+        if (!nuevoNombreZona.trim()) return alert("El nombre no puede estar vacío");
+        try {
+            const token = localStorage.getItem('agente_token');
+            await axios.put(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${idZona}`, 
+                { name: nuevoNombreZona.toUpperCase() },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            setEditandoZonaId(null);
+            window.location.reload();
+        } catch (error) {
+            console.error("Error al editar zona:", error);
+            alert("Error al editar el nombre de la zona.");
+        }
+    };
 
     // --- FUNCIONES AUXILIARES DEL COTIZADOR ---
     const agregarFila = (tipo) => {
@@ -203,9 +239,16 @@ const DetalleReporte = () => {
                                 sec.parent_area_name || 
                                 'ZONAS DE LA PROPIEDAD';
 
+                            const idZona = 
+                                (sec.parent && sec.parent.id) || 
+                                (sec.zona && sec.zona.id) || 
+                                sec.parent_area_id || 
+                                sec.zona_id || null;
+
                             if (!zonasAgrupadas[nombreZona]) {
                                 zonasAgrupadas[nombreZona] = {
                                     titulo: nombreZona,
+                                    id: idZona,
                                     cuartos: []
                                 };
                             }
@@ -217,9 +260,45 @@ const DetalleReporte = () => {
                         });
                         const zonas = Object.values(zonasAgrupadas);
 
-                        return zonas.map((zona, idx) => (
+                        const renderZonas = zonas.map((zona, idx) => (
                             <div key={`zona-${idx}`} className="seccion-bloque" style={{ padding: '25px', backgroundColor: '#fff', borderLeft: '6px solid #ff7f00' }}>
-                                <h3 className="coti-section-title" style={{ fontSize: '1.4rem', borderBottom: 'none', marginBottom: '5px' }}>{zona.titulo}</h3>
+                                <h3 className="coti-section-title" style={{ fontSize: '1.4rem', borderBottom: 'none', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    {editandoZonaId === zona.id && zona.id ? (
+                                        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                                            <input 
+                                                type="text" 
+                                                value={nuevoNombreZona} 
+                                                onChange={(e) => setNuevoNombreZona(e.target.value.toUpperCase())}
+                                                style={{ padding: '5px 10px', fontSize: '1.2rem', borderRadius: '6px', border: '1px solid #ccc', outline: 'none' }}
+                                                autoFocus
+                                            />
+                                            <button onClick={() => handleGuardarEdicionZona(zona.id)} style={{ padding: '6px 12px', background: '#f26624', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
+                                            <button onClick={() => setEditandoZonaId(null)} style={{ padding: '6px 12px', background: '#666', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <span style={{ textTransform: 'uppercase' }}>{zona.titulo}</span>
+                                            {zona.id && (
+                                                <div style={{ display: 'flex', gap: '10px' }}>
+                                                    <button 
+                                                        onClick={() => { setEditandoZonaId(zona.id); setNuevoNombreZona(zona.titulo); }}
+                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#666', padding: '0 5px' }}
+                                                        title="Editar nombre de zona"
+                                                    >
+                                                        ✏️
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleEliminarZona(zona.id, zona.titulo)}
+                                                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#e63946', padding: '0 5px' }}
+                                                        title="Eliminar zona completa"
+                                                    >
+                                                        🗑️
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </h3>
                                 
                                 <div className="properties-grid" style={{ justifyContent: 'flex-start' }}>
                                     {zona.cuartos && zona.cuartos.length > 0 ? (
@@ -255,11 +334,43 @@ const DetalleReporte = () => {
                                 </div>
                             </div>
                         ));
+
+                        return (
+                            <>
+                                {renderZonas}
+                                <div 
+                                    className="seccion-bloque add-zone-block" 
+                                    onClick={() => navigate(`/RegistroZonas/${datosBD.identificador_curp}`)}
+                                    style={{ 
+                                        padding: '30px', 
+                                        backgroundColor: '#f9f9f9', 
+                                        border: '2px dashed #ccc', 
+                                        borderRadius: '12px',
+                                        textAlign: 'center',
+                                        cursor: 'pointer',
+                                        marginTop: '20px',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#f26624'; e.currentTarget.style.backgroundColor = '#fff5f0'; e.currentTarget.style.color = '#f26624'; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ccc'; e.currentTarget.style.backgroundColor = '#f9f9f9'; e.currentTarget.style.color = 'inherit'; }}
+                                >
+                                    <div style={{ fontSize: '2rem', marginBottom: '10px', color: 'inherit' }}>+</div>
+                                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'inherit' }}>AGREGAR NUEVA ZONA</h3>
+                                    <p style={{ margin: '5px 0 0 0', color: '#888', fontSize: '0.9rem' }}>Añadir áreas, cuartos o espacios por remodelación</p>
+                                </div>
+                            </>
+                        );
                     })() : (
                         <div className="empty-state" style={{ textAlign: 'center', padding: '50px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
                             <div style={{ fontSize: '3rem', marginBottom: '15px' }}>🏢</div>
                             <h3 style={{ color: '#444' }}>No hay áreas registradas</h3>
-                            <p style={{ color: '#888' }}>Esta propiedad no tiene zonas ni inventario registrado aún.</p>
+                            <p style={{ color: '#888', marginBottom: '25px' }}>Esta propiedad no tiene zonas ni inventario registrado aún.</p>
+                            <button 
+                                onClick={() => navigate(`/RegistroZonas/${datosBD.identificador_curp}`)}
+                                style={{ padding: '12px 25px', backgroundColor: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
+                            >
+                                + AGREGAR NUEVA ZONA
+                            </button>
                         </div>
                     )}
                 </section>
