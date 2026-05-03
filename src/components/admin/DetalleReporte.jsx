@@ -187,43 +187,64 @@ const DetalleReporte = () => {
 
                 <section className="reporte-flujo" style={isClient ? { maxWidth: '1000px', margin: '0 auto', width: '100%' } : {}}>
                     {/* VALIDACIÓN DE SEGURIDAD PARA EVITAR EL ERROR .MAP */}
-                    {Array.isArray(datosBD.secciones) && datosBD.secciones.length > 0 ? (
-                        datosBD.secciones.map((sec, idx) => {
-                            // La foto de la zona principal (ej. BAÑO, COCINA)
-                            const zonaFoto = sec.foto || sec.image_path || sec.image;
-                            const isAbierta = seccionesAbiertas[idx];
-                            return (
-                                <div key={`sec-${idx}`} className="seccion-bloque" style={{ padding: '25px', backgroundColor: '#fff', borderLeft: '6px solid #ff7f00' }}>
-                                    <h3 className="coti-section-title" style={{ fontSize: '1.4rem', borderBottom: 'none', marginBottom: '5px' }}>{sec.titulo}</h3>
-                                    {sec.descripcion && <p className="sec-desc">{sec.descripcion}</p>}
-                                    
-                                    <div className="properties-grid" style={{ justifyContent: 'flex-start' }}>
-                                        {Array.isArray(sec.subSecciones) && sec.subSecciones.length > 0 ? (
-                                            sec.subSecciones.map((sub, sIdx) => {
-                                                const areaFoto = sub.foto || sub.image_path || sub.image || sub.foto_url || casaImg;
-                                                return (
-                                                    <div key={`sub-${idx}-${sIdx}`} className="property-card" onClick={() => setSelectedSubseccion(sub)}>
-                                                        <img src={areaFoto} alt={sub.nombre} className="property-image" />
-                                                        <div className="property-overlay">
-                                                            <h3 className="property-title-overlay">{sub.nombre}</h3>
-                                                            <button className="btn-overlay">
-                                                                VER INVENTARIO ({sub.inventario?.length || 0})
-                                                            </button>
-                                                        </div>
+                    {Array.isArray(datosBD.secciones) && datosBD.secciones.length > 0 ? (() => {
+                        // Agrupar los cuartos por Zona
+                        const zonasAgrupadas = {};
+                        datosBD.secciones.forEach(sec => {
+                            const nombreZona = sec.zona_nombre || sec.parent_name || sec.zona || sec.parent_area || sec.parent_area_name || 'ZONAS DE LA PROPIEDAD';
+                            if (!zonasAgrupadas[nombreZona]) {
+                                zonasAgrupadas[nombreZona] = {
+                                    titulo: nombreZona,
+                                    cuartos: []
+                                };
+                            }
+                            zonasAgrupadas[nombreZona].cuartos.push({
+                                ...sec,
+                                nombre: sec.titulo,
+                                categorias: sec.subSecciones
+                            });
+                        });
+                        const zonas = Object.values(zonasAgrupadas);
+
+                        return zonas.map((zona, idx) => (
+                            <div key={`zona-${idx}`} className="seccion-bloque" style={{ padding: '25px', backgroundColor: '#fff', borderLeft: '6px solid #ff7f00' }}>
+                                <h3 className="coti-section-title" style={{ fontSize: '1.4rem', borderBottom: 'none', marginBottom: '5px' }}>{zona.titulo}</h3>
+                                
+                                <div className="properties-grid" style={{ justifyContent: 'flex-start' }}>
+                                    {zona.cuartos && zona.cuartos.length > 0 ? (
+                                        zona.cuartos.map((cuarto, cIdx) => {
+                                            const areaFoto = cuarto.foto || cuarto.image_path || cuarto.image || cuarto.foto_url || casaImg;
+                                            
+                                            // Calcular cantidad total de items en el cuarto
+                                            let totalItems = 0;
+                                            if (Array.isArray(cuarto.categorias)) {
+                                                cuarto.categorias.forEach(cat => {
+                                                    totalItems += cat.inventario?.length || 0;
+                                                });
+                                            }
+
+                                            return (
+                                                <div key={`cuarto-${idx}-${cIdx}`} className="property-card" onClick={() => setSelectedSubseccion(cuarto)}>
+                                                    <img src={areaFoto} alt={cuarto.nombre} className="property-image" />
+                                                    <div className="property-overlay">
+                                                        <h3 className="property-title-overlay">{cuarto.nombre}</h3>
+                                                        <button className="btn-overlay">
+                                                            VER INVENTARIO ({totalItems})
+                                                        </button>
                                                     </div>
-                                                );
-                                            })
-                                        ) : (
-                                            <div className="empty-zone-message" style={{ width: '100%', textAlign: 'center', padding: '30px', color: '#666', fontStyle: 'italic', border: '1px dashed #ccc', borderRadius: '8px' }}>
-                                                <div style={{ fontSize: '2rem', marginBottom: '10px', color: '#ccc' }}>📦</div>
-                                                <p style={{ margin: 0 }}>No hay cuartos ni inventario registrados en esta zona ({sec.titulo}).</p>
-                                            </div>
-                                        )}
-                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="empty-zone-message" style={{ width: '100%', textAlign: 'center', padding: '30px', color: '#666', fontStyle: 'italic', border: '1px dashed #ccc', borderRadius: '8px' }}>
+                                            <div style={{ fontSize: '2rem', marginBottom: '10px', color: '#ccc' }}>📦</div>
+                                            <p style={{ margin: 0 }}>No hay cuartos registrados en esta zona.</p>
+                                        </div>
+                                    )}
                                 </div>
-                            );
-                        })
-                    ) : (
+                            </div>
+                        ));
+                    })() : (
                         <div className="empty-state" style={{ textAlign: 'center', padding: '50px', backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
                             <div style={{ fontSize: '3rem', marginBottom: '15px' }}>🏢</div>
                             <h3 style={{ color: '#444' }}>No hay áreas registradas</h3>
@@ -447,57 +468,69 @@ const DetalleReporte = () => {
                                 </div>
                             )}
 
-                            <h4 className="coti-section-title" style={{ width: '100%', borderBottom: '2px solid #ddd', paddingBottom: '10px' }}>INVENTARIO DEL ÁREA</h4>
-                            <div className="table-responsive">
-                                <table className="tabla-inventario">
-                                    <thead>
-                                        <tr>
-                                            <th>Elemento</th>
-                                            <th>Marca / Modelo</th>
-                                            <th>Estado</th>
-                                            <th className="txt-center">Cant.</th>
-                                            <th className="txt-center">Foto</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {Array.isArray(selectedSubseccion.inventario) && selectedSubseccion.inventario.length > 0 ? (
-                                            selectedSubseccion.inventario.map((inv, iIdx) => (
-                                                <tr key={`mod-inv-${iIdx}`}>
-                                                    <td className="bold">{inv.nombre || inv.categoria}</td>
-                                                    <td>
-                                                        {inv.marca || '-'} {inv.modelo && inv.modelo !== 'N/A' ? `/ ${inv.modelo}` : ''}
-                                                        {inv.observaciones && <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>Nota: {inv.observaciones}</div>}
-                                                    </td>
-                                                    <td>
-                                                        {inv.estado ? (
-                                                            <span style={{ padding: '3px 8px', borderRadius: '12px', fontSize: '0.8rem', background: '#e9ecef', color: '#495057' }}>{inv.estado}</span>
-                                                        ) : '-'}
-                                                    </td>
-                                                    <td className="col-cant">{inv.cantidad}</td>
-                                                    <td className="txt-center">
-                                                        {inv.foto ? (
-                                                            <img 
-                                                                src={inv.foto} 
-                                                                alt={inv.nombre} 
-                                                                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'zoom-in', border: '1px solid #ddd' }} 
-                                                                onClick={() => setSelectedImage(inv.foto)}
-                                                            />
-                                                        ) : (
-                                                            <span style={{ color: '#ccc', fontSize: '0.8rem' }}>S/F</span>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="5" className="txt-center" style={{ padding: '15px', color: '#888', fontStyle: 'italic' }}>
-                                                    Sin ítems en esta categoría
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
+                            {Array.isArray(selectedSubseccion.categorias) && selectedSubseccion.categorias.length > 0 ? (
+                                selectedSubseccion.categorias.map((cat, catIdx) => (
+                                    <div key={`cat-${catIdx}`} style={{ marginBottom: '30px' }}>
+                                        <h4 className="coti-section-title" style={{ width: '100%', borderBottom: '2px solid #ddd', paddingBottom: '10px', color: '#f26624', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ background: '#f26624', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.9rem' }}>{cat.nombre}</span>
+                                        </h4>
+                                        <div className="table-responsive">
+                                            <table className="tabla-inventario">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Elemento</th>
+                                                        <th>Marca / Modelo</th>
+                                                        <th>Estado</th>
+                                                        <th className="txt-center">Cant.</th>
+                                                        <th className="txt-center">Foto</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {Array.isArray(cat.inventario) && cat.inventario.length > 0 ? (
+                                                        cat.inventario.map((inv, iIdx) => (
+                                                            <tr key={`mod-inv-${catIdx}-${iIdx}`}>
+                                                                <td className="bold">{inv.nombre || inv.categoria}</td>
+                                                                <td>
+                                                                    {inv.marca || '-'} {inv.modelo && inv.modelo !== 'N/A' ? `/ ${inv.modelo}` : ''}
+                                                                    {inv.observaciones && <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '4px' }}>Nota: {inv.observaciones}</div>}
+                                                                </td>
+                                                                <td>
+                                                                    {inv.estado ? (
+                                                                        <span style={{ padding: '3px 8px', borderRadius: '12px', fontSize: '0.8rem', background: '#e9ecef', color: '#495057' }}>{inv.estado}</span>
+                                                                    ) : '-'}
+                                                                </td>
+                                                                <td className="col-cant">{inv.cantidad}</td>
+                                                                <td className="txt-center">
+                                                                    {inv.foto ? (
+                                                                        <img 
+                                                                            src={inv.foto} 
+                                                                            alt={inv.nombre} 
+                                                                            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'zoom-in', border: '1px solid #ddd' }} 
+                                                                            onClick={() => setSelectedImage(inv.foto)}
+                                                                        />
+                                                                    ) : (
+                                                                        <span style={{ color: '#ccc', fontSize: '0.8rem' }}>S/F</span>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan="5" className="txt-center" style={{ padding: '15px', color: '#888', fontStyle: 'italic' }}>
+                                                                Sin ítems en esta categoría
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '30px', color: '#666', fontStyle: 'italic', border: '1px dashed #ccc', borderRadius: '8px' }}>
+                                    No hay categorías ni inventario registrado en este cuarto.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>,
