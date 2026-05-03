@@ -145,6 +145,7 @@
   border: 1px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
   margin-bottom: 25px;
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -158,9 +159,10 @@
   background: white; 
   border-radius: 15px; 
   width: 100%; 
+  max-width: 100%;
   -webkit-overflow-scrolling: touch; 
 }
-.modern-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+.modern-table { width: 100%; border-collapse: collapse; min-width: 600px; }
 .modern-table th { padding: 12px; color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; text-align: left; }
 .modern-table td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
 
@@ -180,7 +182,9 @@
 /* KANBAN */
 .kanban-section-full {
   width: 100%;
+  max-width: 100%;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .kanban-container-ui {
@@ -552,11 +556,21 @@
     margin: 0 auto;
 }
 /* Layout Principal */
+.detalle-cliente-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  display: block;
+  box-sizing: border-box;
+}
+
 .management-grid {
   display: grid;
-  grid-template-columns: 1fr 400px; /* Historial a la izquierda, Formulario a la derecha */
+  grid-template-columns: minmax(0, 1fr) 400px; /* Previene el blowout de la grid */
   gap: 25px;
   margin-bottom: 30px;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Tablero Kanban Inferior */

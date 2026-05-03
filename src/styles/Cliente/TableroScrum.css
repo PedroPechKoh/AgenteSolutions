@@ -5,6 +5,10 @@
   min-height: 100vh; 
   font-family: 'Inter', sans-serif; 
   color: #1e293b; 
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* --- HEADER DEL TABLERO --- */
