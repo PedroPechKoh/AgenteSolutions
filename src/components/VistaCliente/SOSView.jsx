@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { AlertTriangle, Home, MapPin, Wrench, MessageSquare, ArrowLeft, Send, Phone } from 'lucide-react';
 import '../../styles/Cliente/SOSView.css';
 
@@ -13,10 +14,31 @@ const SOSView = () => {
     descripcion: ''
   });
 
-  const misPropiedades = [
-    { id: '101', nombre: 'Casa Mérida Centro' },
-    { id: '102', nombre: 'Departamento Altabrisa' }
-  ];
+  const [misPropiedades, setMisPropiedades] = useState([]);
+  const [loadingProps, setLoadingProps] = useState(true);
+
+  useEffect(() => {
+    const fetchPropiedades = async () => {
+      try {
+        const token = localStorage.getItem('agente_token'); 
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/propiedades`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}` 
+            }
+          }
+        );
+        // data will return the properties assigned to the user
+        setMisPropiedades(data);
+      } catch (error) {
+        console.error("Error al cargar propiedades:", error);
+      } finally {
+        setLoadingProps(false);
+      }
+    };
+    fetchPropiedades();
+  }, []);
 
 
   // Configuración de WhatsApp con tu número (incluye código de país México: +52)
@@ -67,7 +89,17 @@ const SOSView = () => {
                 onChange={(e) => setFormData({...formData, propiedadId: e.target.value})}
               >
                 <option value="">-- Selecciona una propiedad --</option>
-                {misPropiedades.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+                {loadingProps ? (
+                  <option value="" disabled>Cargando propiedades...</option>
+                ) : misPropiedades.length > 0 ? (
+                  misPropiedades.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre_propiedad || p.direccion || `Propiedad #${p.id}`}
+                    </option>
+                  ))
+                ) : (
+                  <option value="" disabled>No tienes propiedades asignadas</option>
+                )}
               </select>
             </div>
 
