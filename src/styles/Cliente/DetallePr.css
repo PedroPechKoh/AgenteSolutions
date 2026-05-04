@@ -461,13 +461,16 @@
   
   .kanban-container-ui {
     display: flex;
-    overflow-x: auto !important;
-    gap: 10px;
+    flex-direction: column;
+    gap: 15px;
     padding-bottom: 20px;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: visible !important;
   }
   .k-column {
-    flex: 0 0 250px !important; /* Fixed width on mobile for scrolling */
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: auto !important;
   }
 }
 
