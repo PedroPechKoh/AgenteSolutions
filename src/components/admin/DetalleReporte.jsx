@@ -75,11 +75,28 @@ const DetalleReporte = () => {
     const galleryRef = React.useRef(null);
     const fileRef = React.useRef(null);
     const [isFileMenuOpen, setIsFileMenuOpen] = useState(false);
+    const [targetPhoto, setTargetPhoto] = useState(null); // 'principal', 'secondary', 'gallery', 'cotizador'
+
+    const handlePhotoBoxClick = (target) => {
+        setTargetPhoto(target);
+        setIsFileMenuOpen(true);
+    };
 
     const selectFileSource = (source) => {
-        if (source === 'camera') cameraRef.current.click();
-        else if (source === 'gallery') galleryRef.current.click();
-        else fileRef.current.click();
+        if (source === 'camera') {
+            if (targetPhoto === 'principal') document.getElementById('cameraPrincipal').click();
+            else if (targetPhoto === 'secondary') document.getElementById('cameraSecondary').click();
+            else if (targetPhoto === 'gallery') document.getElementById('cameraGallery').click();
+            else cameraRef.current.click();
+        } else if (source === 'gallery') {
+            if (targetPhoto === 'principal') document.getElementById('fotoProductoNuevo').click();
+            else if (targetPhoto === 'secondary') document.getElementById('fotoProductoSecundario').click();
+            else if (targetPhoto === 'gallery') document.getElementById('fotoGaleriaNueva').click();
+            else galleryRef.current.click();
+        } else {
+            // Caso para 'file' (documentos del cotizador)
+            fileRef.current.click();
+        }
         setIsFileMenuOpen(false);
     };
     
@@ -710,7 +727,7 @@ const DetalleReporte = () => {
                             ) : (
                                 <div className="cot-upload-container">
                                     <div 
-                                        onClick={() => setIsFileMenuOpen(true)}
+                                        onClick={() => handlePhotoBoxClick('cotizador')}
                                         style={{ 
                                             display: 'flex', 
                                             flexDirection: 'column', 
@@ -774,35 +791,37 @@ const DetalleReporte = () => {
                 document.body
             )}
 
-            {/* --- MODAL SELECCIONAR ARCHIVO --- */}
+            {/* --- MODAL SELECCIONAR ORIGEN DE IMAGEN --- */}
             {isFileMenuOpen && createPortal(
-                <div className="lev-modal-overlay" onClick={() => setIsFileMenuOpen(false)} style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh' }}>
-                    <div className="cot-modal-card" style={{ maxWidth: '400px', padding: '0', backgroundColor: '#1a1a1a', border: '1px solid #333' }} onClick={e => e.stopPropagation()}>
-                        <h3 style={{ color: '#F26522', borderBottom: '1px solid #333', margin: 0, padding: '20px', textAlign: 'center', fontSize: '1.2rem' }}>Seleccionar Archivo</h3>
+                <div className="lev-modal-overlay" onClick={() => setIsFileMenuOpen(false)} style={{ zIndex: 9999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.8)' }}>
+                    <div className="cot-modal-card" style={{ maxWidth: '400px', width: '90%', padding: '0', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '20px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+                        <h3 style={{ color: '#F26522', borderBottom: '1px solid #333', margin: 0, padding: '20px', textAlign: 'center', fontSize: '1.2rem', fontWeight: '900' }}>SELECCIONAR ORIGEN</h3>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                             <button 
                                 onClick={() => selectFileSource('camera')}
-                                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer' }}
+                                style={{ background: 'transparent', border: 'none', padding: '20px', color: 'white', borderBottom: '1px solid #333', fontSize: '1.1rem', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
                             >
-                                📷 Tomar Foto
+                                📷 TOMAR FOTO (CÁMARA)
                             </button>
                             <button 
                                 onClick={() => selectFileSource('gallery')}
-                                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer' }}
+                                style={{ background: 'transparent', border: 'none', padding: '20px', color: 'white', borderBottom: '1px solid #333', fontSize: '1.1rem', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
                             >
-                                🖼️ Elegir Imagen
+                                🖼️ ELEGIR DE GALERÍA
                             </button>
-                            <button 
-                                onClick={() => selectFileSource('file')}
-                                style={{ background: 'transparent', border: 'none', padding: '15px', color: 'white', borderBottom: '1px solid #333', fontSize: '1rem', cursor: 'pointer' }}
-                            >
-                                📄 Subir Documento (PDF, DOC)
-                            </button>
+                            {targetPhoto === 'cotizador' && (
+                                <button 
+                                    onClick={() => selectFileSource('file')}
+                                    style={{ background: 'transparent', border: 'none', padding: '20px', color: 'white', borderBottom: '1px solid #333', fontSize: '1.1rem', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+                                >
+                                    📄 SUBIR DOCUMENTO (PDF)
+                                </button>
+                            )}
                             <button 
                                 onClick={() => setIsFileMenuOpen(false)}
-                                style={{ background: 'transparent', border: 'none', padding: '15px', color: '#a0a0a0', fontSize: '1rem', cursor: 'pointer' }}
+                                style={{ background: '#333', border: 'none', padding: '15px', color: '#ff4d4d', fontSize: '1rem', cursor: 'pointer', fontWeight: 'bold' }}
                             >
-                                Cancelar
+                                CANCELAR
                             </button>
                         </div>
                     </div>
@@ -1096,7 +1115,7 @@ const DetalleReporte = () => {
                                 <div style={{ textAlign: 'center' }}>
                                     <div 
                                         className="rdh-foto-box"
-                                        onClick={() => document.getElementById('fotoProductoNuevo').click()}
+                                        onClick={() => handlePhotoBoxClick('principal')}
                                         style={{ width: '100px', height: '100px' }}
                                     >
                                         {previewImg ? (
@@ -1109,13 +1128,14 @@ const DetalleReporte = () => {
                                         )}
                                     </div>
                                     <input type="file" id="fotoProductoNuevo" hidden accept="image/*" onChange={handleFileSelect} />
+                                    <input type="file" id="cameraPrincipal" hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
                                 </div>
 
                                 {/* FOTO SECUNDARIA */}
                                 <div style={{ textAlign: 'center' }}>
                                     <div 
                                         className="rdh-foto-box"
-                                        onClick={() => document.getElementById('fotoProductoSecundario').click()}
+                                        onClick={() => handlePhotoBoxClick('secondary')}
                                         style={{ width: '100px', height: '100px', borderStyle: 'dashed', borderColor: '#f26624' }}
                                     >
                                         {previewImgSecondary ? (
@@ -1128,6 +1148,7 @@ const DetalleReporte = () => {
                                         )}
                                     </div>
                                     <input type="file" id="fotoProductoSecundario" hidden accept="image/*" onChange={handleFileSelectSecondary} />
+                                    <input type="file" id="cameraSecondary" hidden accept="image/*" capture="environment" onChange={handleFileSelectSecondary} />
                                 </div>
 
                                 {/* GALERÍA / MÁS FOTOS */}
@@ -1135,13 +1156,13 @@ const DetalleReporte = () => {
                                     <div 
                                         className="rdh-gallery-box"
                                         title="Agregar fotos extra"
-                                        onClick={() => document.getElementById('fotoGaleriaNueva').click()}
+                                        onClick={() => handlePhotoBoxClick('gallery')}
                                         style={{ position: 'relative', overflow: 'hidden', width: '100px', height: '100px', padding: (galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? '5px' : '0' }}
                                     >
                                         {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? (
                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', width: '100%', height: '100%', justifyContent: 'center', alignContent: 'center' }}>
                                                 {galeriaExistente.map((foto, i) => (
-                                                    <img key={`ex-${i}`} src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
+                                                    <img key={`ex-${i}`} src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '50px' }} />
                                                 ))}
                                                 {galeriaArchivos.slice(0, 4 - galeriaExistente.length).map((file, i) => (
                                                     <img key={`new-${i}`} src={URL.createObjectURL(file)} alt={`galeria-new-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
@@ -1155,6 +1176,7 @@ const DetalleReporte = () => {
                                         )}
                                     </div>
                                     <input type="file" id="fotoGaleriaNueva" hidden accept="image/*" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
+                                    <input type="file" id="cameraGallery" hidden accept="image/*" capture="environment" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
                                 </div>
                             </div>
 
