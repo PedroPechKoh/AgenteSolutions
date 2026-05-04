@@ -573,11 +573,32 @@
   max-width: 100%;
 }
 
-/* Tablero Kanban Inferior */
 .kanban-section-full {
   margin-top: 40px;
   padding-top: 20px;
   border-top: 2px solid #e2e8f0;
+  width: 100%; /* Asegurar ancho */
+  overflow: hidden; /* Evitar que rompa el layout general */
+}
+
+/* Ajuste específico para la caja del kanban */
+.kanban-container-ui {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto; /* SCROLL HORIZONTAL CLAVE */
+  padding-bottom: 20px;
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+  scroll-snap-type: x mandatory;
+}
+
+.k-column {
+  flex: 0 0 280px; /* EVITAR QUE SE ENCOJA EN MÓVIL */
+  scroll-snap-align: center;
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 20px;
+  min-height: 400px;
+  border-top: 6px solid #cbd5e1;
 }
 
 .section-title {
@@ -1091,14 +1112,25 @@
   padding-left: 21px; /* Ajuste de padding por el borde */
 }
 
-/* Ajuste del contenido principal para que no se superponga al sidebar fijo */
 .main-content {
-  margin-left: 260px; /* Mismo ancho que el sidebar */
+  margin-left: 260px;
   padding: 30px;
-  background-color: #edf2f7; /* Color de fondo de la app */
+  background-color: #edf2f7;
   min-height: 100vh;
+  /* Permitir que el contenido se ajuste */
+  box-sizing: border-box;
+  width: calc(100% - 260px); 
 }
-/* ESTRUCTURA DASHBOARD Y SIDEBAR */
+
+/* IMPORTANTE: Ajuste para móviles */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0; /* Quitamos el margen del sidebar en celular */
+    width: 100%;
+    padding: 15px; /* Menos padding en móvil */
+  }
+}
+
 .app-container { display: flex; min-height: 100vh; background-color: #f4f7fa; }
 
 .sidebar-container {
@@ -1155,3 +1187,11 @@
 
 .animate-slide-up { animation: slideUp 0.3s ease-out; }
 @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+@media (max-width: 992px) {
+  .management-grid {
+    display: flex;
+    flex-direction: column-reverse; /* Pone el SOS arriba de la tabla en móvil */
+    gap: 20px;
+  }
+}
