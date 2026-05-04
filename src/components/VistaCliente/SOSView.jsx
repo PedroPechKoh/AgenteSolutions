@@ -40,9 +40,7 @@ const SOSView = () => {
     fetchPropiedades();
   }, []);
 
-
-  // Configuración de WhatsApp con tu número (incluye código de país México: +52)
-  const telefonoEmpresa = "529992426030"; 
+  const telefonoEmpresa = "529994562327"; 
   const mensajeWA = encodeURIComponent("¡Hola Agente Solutions! Tengo una emergencia SOS y necesito asistencia inmediata.");
   const urlWhatsApp = `https://wa.me/${telefonoEmpresa}?text=${mensajeWA}`;
 
