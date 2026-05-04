@@ -133,12 +133,15 @@ const AppRoutes = () => {
 
       {/* ------RUTAS DE LA VISTA DEL ADMIN (PROTEGIDAS POR ROL) ------*/}
       {/* RUTAS ACCESIBLES POR ADMIN Y CLIENTE */}
-      <Route element={<ProtectedRoute allowedRoles={[0, 1, 3]} />}>
+      <Route element={<ProtectedRoute allowedRoles={[0, 1, 2, 3]} />}>
         <Route path="/vista-cotizaciones" element={
           user?.role_id === 3 ? <MainLayoutCliente><VistaCotizaciones /></MainLayoutCliente> : <VistaCotizaciones />
         } />
         <Route path="/levantamientos" element={
           user?.role_id === 3 ? <MainLayoutCliente><VistaLevantamientos /></MainLayoutCliente> : <VistaLevantamientos />
+        } />
+        <Route path="/mi-perfil" element={
+          user?.role_id === 3 ? <MainLayoutCliente><Profile /></MainLayoutCliente> : <Profile />
         } />
       </Route>
 
@@ -151,7 +154,6 @@ const AppRoutes = () => {
         <Route path="/usuarios" element={<VistaUsuarios />} />
 
 
-        <Route path="/mi-perfil" element={<Profile />} />
         <Route path="/map" element={<Map />} />
         <Route path="/registro-cliente" element={<RegistroCliente />} />
         <Route path="/customize-login" element={<CustomizeLogin />} />
