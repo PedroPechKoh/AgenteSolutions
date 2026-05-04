@@ -34,8 +34,28 @@ const DetalleReporte = () => {
     const [creandoNuevaCategoria, setCreandoNuevaCategoria] = useState(false);
 
     const [seccionesAbiertas, setSeccionesAbiertas] = useState({}); // Estado para el acordeón de zonas (DEPRECATED)
-    const [selectedImage, setSelectedImage] = useState(null); // Estado para ver la imagen en grande
+    const [selectedImage, setSelectedImage] = useState(null); // Estado para la imagen actual en el visor
+    const [viewerImages, setViewerImages] = useState([]); // Lista de imágenes para el carrusel
+    const [viewerIndex, setViewerIndex] = useState(0); // Índice actual
     const [selectedSubseccion, setSelectedSubseccion] = useState(null); // Estado para el modal de la cuadrícula
+
+    const abrirVisor = (imgs, index = 0) => {
+        const filtradas = imgs.filter(img => img); // Eliminar nulos o vacíos
+        if (filtradas.length > 0) {
+            setViewerImages(filtradas);
+            setViewerIndex(index);
+            setSelectedImage(filtradas[index]);
+        }
+    };
+
+    const navegarVisor = (direccion) => {
+        let nuevoIndex = viewerIndex + direccion;
+        if (nuevoIndex < 0) nuevoIndex = viewerImages.length - 1;
+        if (nuevoIndex >= viewerImages.length) nuevoIndex = 0;
+        
+        setViewerIndex(nuevoIndex);
+        setSelectedImage(viewerImages[nuevoIndex]);
+    };
 
     const toggleSeccion = (idx) => {
         setSeccionesAbiertas(prev => ({
@@ -851,17 +871,28 @@ const DetalleReporte = () => {
                                                                     ) : '-'}
                                                                 </td>
                                                                 <td className="col-cant">{inv.cantidad}</td>
-                                                                <td className="txt-center">
-                                                                    {inv.foto ? (
-                                                                        <img 
-                                                                            src={inv.foto} 
-                                                                            alt={inv.nombre} 
-                                                                            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'zoom-in', border: '1px solid #ddd' }} 
-                                                                            onClick={() => setSelectedImage(inv.foto)}
-                                                                        />
-                                                                    ) : (
-                                                                        <span style={{ color: '#ccc', fontSize: '0.8rem' }}>S/F</span>
-                                                                    )}
+                                                                 <td className="txt-center">
+                                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                                        {inv.foto && (
+                                                                            <img 
+                                                                                src={inv.foto} 
+                                                                                alt={inv.nombre} 
+                                                                                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'zoom-in', border: '1px solid #ddd' }} 
+                                                                                onClick={() => abrirVisor([inv.foto, inv.foto_secundaria, ...(inv.galleries?.map(g => g.image_path) || [])], 0)}
+                                                                            />
+                                                                        )}
+                                                                        {inv.foto_secundaria && (
+                                                                            <img 
+                                                                                src={inv.foto_secundaria} 
+                                                                                alt="Secundaria" 
+                                                                                style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', cursor: 'zoom-in', border: '1px solid #ddd', borderStyle: 'dashed', borderColor: '#f26624' }} 
+                                                                                onClick={() => abrirVisor([inv.foto, inv.foto_secundaria, ...(inv.galleries?.map(g => g.image_path) || [])], 1)}
+                                                                            />
+                                                                        )}
+                                                                        {!inv.foto && !inv.foto_secundaria && (
+                                                                            <span style={{ color: '#ccc', fontSize: '0.8rem' }}>S/F</span>
+                                                                        )}
+                                                                    </div>
                                                                 </td>
                                                                 <td className="txt-center">
                                                                     <button onClick={() => abrirModalEditarElemento(inv, cat.nombre)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', padding: '0 5px' }} title="Editar">✏️</button>
@@ -900,14 +931,26 @@ const DetalleReporte = () => {
                 document.body
             )}
 
-            {/* --- MODAL VISOR DE IMAGEN (LIGHTBOX) --- */}
             {selectedImage && createPortal(
                 <div 
                     className="lev-modal-overlay" 
                     onClick={() => setSelectedImage(null)} 
-                    style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', cursor: 'zoom-out', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                    style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', cursor: 'zoom-out', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.9)' }}
                 >
-                    <div style={{ position: 'relative', maxWidth: '90vw', maxHeight: '90vh' }}>
+                    <div style={{ position: 'relative', maxWidth: '95vw', maxHeight: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={(e) => e.stopPropagation()}>
+                        
+                        {/* Botón Anterior */}
+                        {viewerImages.length > 1 && (
+                            <button 
+                                onClick={() => navegarVisor(-1)}
+                                style={{ position: 'absolute', left: '-60px', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '50px', height: '50px', fontSize: '2rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                            >
+                                ‹
+                            </button>
+                        )}
+
                         <img 
                             src={selectedImage} 
                             alt="Vista ampliada" 
@@ -918,14 +961,33 @@ const DetalleReporte = () => {
                                 borderRadius: '8px', 
                                 boxShadow: '0 5px 25px rgba(0,0,0,0.5)' 
                             }} 
-                            onClick={(e) => e.stopPropagation()} /* Para que no se cierre si hace click en la imagen misma */
                         />
+
+                        {/* Botón Siguiente */}
+                        {viewerImages.length > 1 && (
+                            <button 
+                                onClick={() => navegarVisor(1)}
+                                style={{ position: 'absolute', right: '-60px', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '50px', height: '50px', fontSize: '2rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                            >
+                                ›
+                            </button>
+                        )}
+
+                        {/* Contador */}
+                        {viewerImages.length > 1 && (
+                            <div style={{ position: 'absolute', bottom: '-40px', color: 'white', fontWeight: 'bold', fontSize: '1.1rem', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                                {viewerIndex + 1} / {viewerImages.length}
+                            </div>
+                        )}
+
                         <button 
-                            onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+                            onClick={() => setSelectedImage(null)}
                             style={{ 
                                 position: 'absolute', 
-                                top: '-15px', 
-                                right: '-15px', 
+                                top: '-20px', 
+                                right: '-20px', 
                                 background: '#f26624', 
                                 color: 'white', 
                                 border: '2px solid white', 
