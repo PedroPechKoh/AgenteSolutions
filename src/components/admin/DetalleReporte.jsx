@@ -20,9 +20,11 @@ const DetalleReporte = () => {
     
     // --- ESTADOS PARA ELEMENTOS ---
     const [modalElementoVisible, setModalElementoVisible] = useState(false);
-    const [elementoActual, setElementoActual] = useState({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: '', serial_number: '', observations: '' });
+    const [elementoActual, setElementoActual] = useState({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: '', serial_number: '', observations: '', status: 'Bueno' });
     const [previewImg, setPreviewImg] = useState(null);
+    const [previewImgSecondary, setPreviewImgSecondary] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFileSecondary, setSelectedFileSecondary] = useState(null);
     const [galeriaArchivos, setGaleriaArchivos] = useState([]);
     const [galeriaExistente, setGaleriaExistente] = useState([]);
 
@@ -191,6 +193,14 @@ const DetalleReporte = () => {
         }
     };
 
+    const handleFileSelectSecondary = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFileSecondary(file);
+            setPreviewImgSecondary(URL.createObjectURL(file));
+        }
+    };
+
     const handleGallerySelect = (e) => {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
@@ -199,9 +209,11 @@ const DetalleReporte = () => {
     };
 
     const abrirModalAgregarElemento = (categoriaNombre) => {
-        setElementoActual({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: categoriaNombre, serial_number: '', observations: '' });
+        setElementoActual({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: categoriaNombre, serial_number: '', observations: '', status: 'Bueno' });
         setPreviewImg(null);
+        setPreviewImgSecondary(null);
         setSelectedFile(null);
+        setSelectedFileSecondary(null);
         setGaleriaArchivos([]);
         setGaleriaExistente([]);
         setModalElementoVisible(true);
@@ -216,15 +228,14 @@ const DetalleReporte = () => {
             quantity: inv.cantidad || 1, 
             category: categoriaNombre,
             serial_number: inv.serial_number || '',
-            observations: inv.observations || ''
+            observations: inv.observations || '',
+            status: inv.estado || 'Bueno'
         });
 
-        if (inv.foto || inv.image_path) {
-            setPreviewImg(inv.foto || inv.image_path);
-        } else {
-            setPreviewImg(null);
-        }
-
+        setPreviewImg(inv.foto || inv.image_path || null);
+        setPreviewImgSecondary(inv.foto_secundaria || inv.image_path_secondary || null);
+        setSelectedFile(null);
+        setSelectedFileSecondary(null);
         setGaleriaArchivos([]);
         setGaleriaExistente(inv.galleries || []);
         setModalElementoVisible(true);
@@ -277,10 +288,11 @@ const DetalleReporte = () => {
             formData.append('quantity', elementoActual.quantity);
             formData.append('serial_number', elementoActual.serial_number);
             formData.append('observations', elementoActual.observations);
-            formData.append('status', 'Bueno');
+            formData.append('status', elementoActual.status || 'Bueno');
             formData.append('unit', 'PZA');
 
             if (selectedFile) formData.append('image', selectedFile);
+            if (selectedFileSecondary) formData.append('image_secondary', selectedFileSecondary);
             galeriaArchivos.forEach((file) => formData.append('gallery[]', file));
 
             if (elementoActual.id) {
@@ -296,9 +308,11 @@ const DetalleReporte = () => {
 
             alert(elementoActual.id ? "Elemento actualizado." : "Elemento agregado.");
             setModalElementoVisible(false);
-            setElementoActual({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: '', serial_number: '', observations: '' });
+            setElementoActual({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: '', serial_number: '', observations: '', status: 'Bueno' });
             setPreviewImg(null);
+            setPreviewImgSecondary(null);
             setSelectedFile(null);
+            setSelectedFileSecondary(null);
             setGaleriaArchivos([]);
             setGaleriaExistente([]);
             await cargarReporte();
@@ -1015,32 +1029,52 @@ const DetalleReporte = () => {
                         <div className="rdh-modal-form" style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: '10px' }}>
                             
                             {/* FOTOS */}
-                            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '20px' }}>
-                                <div>
+                            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
+                                {/* FOTO PRINCIPAL */}
+                                <div style={{ textAlign: 'center' }}>
                                     <div 
                                         className="rdh-foto-box"
                                         onClick={() => document.getElementById('fotoProductoNuevo').click()}
+                                        style={{ width: '100px', height: '100px' }}
                                     >
                                         {previewImg ? (
                                             <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                         ) : (
                                             <>
-                                                <ImageIcon size={40} color="#ccc" />
-                                                <span style={{ fontSize: '10px', color: '#ccc', marginTop: '5px', fontWeight: 'bold', textAlign: 'center' }}>
-                                                    {elementoActual.id ? 'CAMBIAR FOTO' : 'FOTO PRINCIPAL'}
-                                                </span>
+                                                <ImageIcon size={30} color="#ccc" />
+                                                <span style={{ fontSize: '9px', color: '#ccc', marginTop: '5px', fontWeight: 'bold' }}>PRINCIPAL</span>
                                             </>
                                         )}
                                     </div>
                                     <input type="file" id="fotoProductoNuevo" hidden accept="image/*" onChange={handleFileSelect} />
                                 </div>
 
+                                {/* FOTO SECUNDARIA */}
+                                <div style={{ textAlign: 'center' }}>
+                                    <div 
+                                        className="rdh-foto-box"
+                                        onClick={() => document.getElementById('fotoProductoSecundario').click()}
+                                        style={{ width: '100px', height: '100px', borderStyle: 'dashed', borderColor: '#f26624' }}
+                                    >
+                                        {previewImgSecondary ? (
+                                            <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        ) : (
+                                            <>
+                                                <Plus size={30} color="#f26624" />
+                                                <span style={{ fontSize: '9px', color: '#f26624', marginTop: '5px', fontWeight: 'bold' }}>SECUNDARIA</span>
+                                            </>
+                                        )}
+                                    </div>
+                                    <input type="file" id="fotoProductoSecundario" hidden accept="image/*" onChange={handleFileSelectSecondary} />
+                                </div>
+
+                                {/* GALERÍA / MÁS FOTOS */}
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                     <div 
                                         className="rdh-gallery-box"
                                         title="Agregar fotos extra"
                                         onClick={() => document.getElementById('fotoGaleriaNueva').click()}
-                                        style={{ position: 'relative', overflow: 'hidden', padding: (galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? '5px' : '0' }}
+                                        style={{ position: 'relative', overflow: 'hidden', width: '100px', height: '100px', padding: (galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? '5px' : '0' }}
                                     >
                                         {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? (
                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', width: '100%', height: '100%', justifyContent: 'center', alignContent: 'center' }}>
@@ -1053,25 +1087,12 @@ const DetalleReporte = () => {
                                             </div>
                                         ) : (
                                             <>
-                                                <Plus size={40} color="#ccc" className="gallery-icon" />
-                                                <span className="gallery-text" style={{ fontSize: '10px', color: '#ccc', marginTop: '5px', fontWeight: 'bold', textAlign: 'center' }}>AGREGAR MÁS</span>
+                                                <ImageIcon size={30} color="#ccc" className="gallery-icon" />
+                                                <span className="gallery-text" style={{ fontSize: '9px', color: '#ccc', marginTop: '5px', fontWeight: 'bold' }}>EXTRAS</span>
                                             </>
                                         )}
                                     </div>
                                     <input type="file" id="fotoGaleriaNueva" hidden accept="image/*" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
-                                    
-                                    {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) && (
-                                        <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center' }}>
-                                            <span style={{ fontSize: '11px', color: '#f26624', fontWeight: 'bold' }}>
-                                                {(galeriaArchivos.length + galeriaExistente.length)} fotos extra
-                                            </span>
-                                            {galeriaArchivos.length > 0 && (
-                                                <button onClick={() => setGaleriaArchivos([])} style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', padding: 0 }}>
-                                                    Limpiar nuevas
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 
@@ -1096,6 +1117,20 @@ const DetalleReporte = () => {
                             <div className="rdh-modal-field">
                                 <label>CANTIDAD *</label>
                                 <input type="number" min="0.1" step="0.1" className="rdh-modal-input" value={elementoActual.quantity} onChange={(e) => setElementoActual({...elementoActual, quantity: e.target.value})}/>
+                            </div>
+
+                            <div className="rdh-modal-field">
+                                <label>ESTADO *</label>
+                                <select 
+                                    className="rdh-modal-input" 
+                                    value={elementoActual.status} 
+                                    onChange={(e) => setElementoActual({...elementoActual, status: e.target.value})}
+                                >
+                                    <option value="Bueno">Bueno</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Malo">Malo</option>
+                                    <option value="Requiere Cambio">Requiere Cambio</option>
+                                </select>
                             </div>
 
                             <div className="rdh-modal-field" style={{ alignItems: 'flex-start' }}>
