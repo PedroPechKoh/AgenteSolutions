@@ -68,23 +68,36 @@ const DetalleReporte = () => {
     const [herramientasEspeciales, setHerramientasEspeciales] = useState([{ nombre: '', cantidad: 1 }]);
     const [observaciones, setObservaciones] = useState('');
 
+    const cargarReporte = async () => {
+        try {
+            const token = localStorage.getItem('agente_token');
+            const respuesta = await axios.get(
+                `${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`,
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            setDatosBD(respuesta.data);
+
+            // Actualizar la subsección seleccionada si el modal está abierto
+            if (selectedSubseccion) {
+                const nuevaSeccion = respuesta.data.secciones.find(s => s.id === selectedSubseccion.id);
+                if (nuevaSeccion) {
+                    setSelectedSubseccion({
+                        ...nuevaSeccion,
+                        nombre: nuevaSeccion.titulo,
+                        categorias: nuevaSeccion.subSecciones
+                    });
+                }
+            }
+
+        } catch (error) {
+            console.error("Error al cargar el reporte:", error);
+        } finally {
+            setCargando(false);
+        }
+    };
+
     // --- CARGA DE DATOS DESDE API ---
     useEffect(() => {
-        const cargarReporte = async () => {
-            try {
-                const token = localStorage.getItem('agente_token');
-                const respuesta = await axios.get(
-                    `${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`,
-                    { headers: { 'Authorization': `Bearer ${token}` } }
-                );
-                setDatosBD(respuesta.data);
-
-            } catch (error) {
-                console.error("Error al cargar el reporte:", error);
-            } finally {
-                setCargando(false);
-            }
-        };
         cargarReporte();
     }, [id]);
 
@@ -124,7 +137,7 @@ const DetalleReporte = () => {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 alert("Zona eliminada con éxito.");
-                window.location.reload(); 
+                await cargarReporte(); 
             } catch (error) {
                 console.error("Error al eliminar zona:", error);
                 alert("Hubo un error al eliminar la zona.");
@@ -145,7 +158,7 @@ const DetalleReporte = () => {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             setEditandoZonaId(null);
-            window.location.reload();
+            await cargarReporte();
         } catch (error) {
             console.error("Error al editar zona:", error);
             alert("Error al editar el nombre de la zona.");
@@ -162,7 +175,7 @@ const DetalleReporte = () => {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 alert("Elemento eliminado.");
-                window.location.reload();
+                await cargarReporte();
             } catch (error) {
                 console.error(error);
                 alert("Hubo un error al eliminar el elemento.");
@@ -237,7 +250,7 @@ const DetalleReporte = () => {
             setModalCategoriaVisible(false);
             setNuevaCategoria('');
             setCreandoNuevaCategoria(false);
-            window.location.reload(); 
+            await cargarReporte(); 
         } catch (error) {
             console.error(error);
             alert("Hubo un error al registrar la categoría.");
@@ -280,8 +293,16 @@ const DetalleReporte = () => {
                     headers: { 'Content-Type': 'multipart/form-data', 'Authorization': `Bearer ${token}` }
                 });
             }
+
             alert(elementoActual.id ? "Elemento actualizado." : "Elemento agregado.");
-            window.location.reload();
+            setModalElementoVisible(false);
+            setElementoActual({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: '', serial_number: '', observations: '' });
+            setPreviewImg(null);
+            setSelectedFile(null);
+            setGaleriaArchivos([]);
+            setGaleriaExistente([]);
+            await cargarReporte();
+
         } catch (error) {
             console.error("Error al guardar elemento:", error);
             alert("Hubo un error al guardar el elemento.");
