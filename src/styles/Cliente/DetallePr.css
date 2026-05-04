@@ -153,18 +153,19 @@
 .card-header-ui { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
 .card-header-ui h2 { font-size: 1.1rem; font-weight: 700; }
 
-/* TABLA */
 .table-wrapper { 
   overflow-x: auto; 
   background: white; 
   border-radius: 15px; 
   width: 100%; 
-  max-width: 100%;
   -webkit-overflow-scrolling: touch; 
 }
-.modern-table { width: 100%; border-collapse: collapse; min-width: 600px; }
-.modern-table th { padding: 12px; color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; text-align: left; }
-.modern-table td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+
+.modern-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  min-width: 600px; /* Fija un ancho mínimo para forzar el scroll interno */
+}
 
 /* STATUS & BUTTONS */
 .status-pill { padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; }
