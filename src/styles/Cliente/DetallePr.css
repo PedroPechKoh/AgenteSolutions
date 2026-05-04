@@ -195,17 +195,18 @@
 
 .kanban-container-ui {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   overflow-x: auto;
-  padding-bottom: 10px;
-  scroll-snap-type: x mandatory;
+  padding-bottom: 15px;
   -webkit-overflow-scrolling: touch;
   width: 100%;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 .kanban-container-ui::-webkit-scrollbar {
-  display: none;
+  height: 4px;
+}
+.kanban-container-ui::-webkit-scrollbar-thumb {
+  background: #f26624;
+  border-radius: 10px;
 }
 .k-column {
   flex: 1 0 auto;
@@ -458,8 +459,15 @@
     font-size: 1.1rem;
   }
   
-  .btn-delete-row {
-    margin-left: auto;
+  .kanban-container-ui {
+    display: flex;
+    overflow-x: auto !important;
+    gap: 10px;
+    padding-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .k-column {
+    flex: 0 0 250px !important; /* Fixed width on mobile for scrolling */
   }
 }
 
@@ -589,7 +597,6 @@
   padding-top: 15px;
   border-top: 2px solid #e2e8f0;
   width: 100%;
-  overflow: hidden;
 }
 
 /* Ajuste específico para la caja del kanban */
@@ -603,12 +610,13 @@
 }
 
 .k-column {
-  flex: 0 0 220px;
-  scroll-snap-align: center;
+  flex: 1;
+  min-width: 150px;
+  max-width: 100%;
   background: #f8fafc;
-  border-radius: 16px;
-  padding: 15px;
-  min-height: 250px;
+  border-radius: 12px;
+  padding: 10px;
+  min-height: 180px;
   border-top: 6px solid #cbd5e1;
 }
 
@@ -629,14 +637,13 @@
 
 
 .k-column {
-  flex: 1 0 auto;
-  width: 220px;
-  max-width: 260px;
-  scroll-snap-align: center;
+  flex: 1;
+  min-width: 150px;
+  max-width: 100%;
   background: #f8fafc;
-  border-radius: 16px;
-  padding: 15px;
-  min-height: 250px;
+  border-radius: 12px;
+  padding: 10px;
+  min-height: 180px;
   border-top: 6px solid #cbd5e1;
 }
 

@@ -107,12 +107,13 @@
   background-color: #fcfcfc;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  /* Hide scrollbar */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
 }
 .tt-body::-webkit-scrollbar {
-  display: none;
+  width: 6px;
+}
+.tt-body::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 10px;
 }
 
 
