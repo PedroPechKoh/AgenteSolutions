@@ -141,17 +141,17 @@
 .dashboard-grid { display: grid; grid-template-columns: 380px 1fr; gap: 25px; }
 
 .glass-card {
-  background: var(--glass); border-radius: 20px; padding: 25px;
+  background: var(--glass); border-radius: 20px; padding: 15px 20px;
   border: 1px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-  margin-bottom: 25px;
+  margin-bottom: 15px;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-.card-header-ui { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-.card-header-ui h2 { font-size: 1.1rem; font-weight: 700; }
+.card-header-ui { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.card-header-ui h2 { font-size: 1rem; font-weight: 700; }
 
 .table-wrapper { 
   overflow-x: auto; 
@@ -173,8 +173,8 @@
 .status-pill.rechazada { background: #fee2e2; color: #ef4444; }
 
 .btn-planificar {
-  background: #1e293b; color: white; border: none; padding: 8px 15px;
-  border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.75rem;
+  background: #1e293b; color: white; border: none; padding: 6px 12px;
+  border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.7rem;
   display: flex; align-items: center; gap: 5px;
 }
 
@@ -190,25 +190,25 @@
 
 .kanban-container-ui {
   display: flex;
-  gap: 15px;
-  overflow-x: auto; /* Permite scroll horizontal si la pantalla es chica */
+  gap: 12px;
+  overflow-x: auto;
   padding-bottom: 10px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   width: 100%;
 }
 .k-column {
-  flex: 1 0 auto; /* Asegura que no se encoja menos del min-width */
-  width: 280px; /* Tamaño fijo en móvil para hacer scroll horizontal */
-  max-width: 320px;
+  flex: 1 0 auto;
+  width: 260px;
+  max-width: 300px;
   scroll-snap-align: center;
   background: #f1f5f9;
   border-radius: 12px;
-  padding: 15px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  border-top: 5px solid #cbd5e1; /* Color por defecto */
+  border-top: 5px solid #cbd5e1;
 }
 .k-header {
   font-weight: 800;
@@ -567,19 +567,19 @@
 
 .management-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 400px; /* Previene el blowout de la grid */
-  gap: 25px;
-  margin-bottom: 30px;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 15px;
+  margin-bottom: 20px;
   width: 100%;
   max-width: 100%;
 }
 
 .kanban-section-full {
-  margin-top: 40px;
-  padding-top: 20px;
+  margin-top: 20px;
+  padding-top: 15px;
   border-top: 2px solid #e2e8f0;
-  width: 100%; /* Asegurar ancho */
-  overflow: hidden; /* Evitar que rompa el layout general */
+  width: 100%;
+  overflow: hidden;
 }
 
 /* Ajuste específico para la caja del kanban */
@@ -593,12 +593,12 @@
 }
 
 .k-column {
-  flex: 0 0 280px; /* EVITAR QUE SE ENCOJA EN MÓVIL */
+  flex: 0 0 260px;
   scroll-snap-align: center;
   background: #f8fafc;
   border-radius: 16px;
-  padding: 20px;
-  min-height: 400px;
+  padding: 15px;
+  min-height: 300px;
   border-top: 6px solid #cbd5e1;
 }
 
@@ -620,13 +620,13 @@
 
 .k-column {
   flex: 1 0 auto;
-  width: 280px;
-  max-width: 320px;
+  width: 260px;
+  max-width: 300px;
   scroll-snap-align: center;
   background: #f8fafc;
   border-radius: 16px;
-  padding: 20px;
-  min-height: 400px;
+  padding: 15px;
+  min-height: 300px;
   border-top: 6px solid #cbd5e1;
 }
 
@@ -940,8 +940,8 @@
 }
 /* --- ESTILOS PARA EL APARTADO DE HISTORIAL --- */
 .history-section-container {
-    margin-top: 2rem;
-    padding: 1.5rem;
+    margin-top: 1rem;
+    padding: 1rem;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.3);

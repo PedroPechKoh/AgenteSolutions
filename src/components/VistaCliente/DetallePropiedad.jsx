@@ -173,10 +173,10 @@ const DetallePropiedad = () => {
 
         {/* SOS ALERT */}
         <div className="stats-mini-grid" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-           <div className="glass-card" style={{ textAlign: 'center' }}>
-              <h3 style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '10px' }}>ESTADO DE OBRA</h3>
-              <div style={{ fontSize: '2rem', fontWeight: '800', color: '#ff6b00' }}>{stats.proceso || 0}</div>
-              <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Servicios en proceso</p>
+           <div className="glass-card" style={{ textAlign: 'center', padding: '15px' }}>
+              <h3 style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '5px' }}>ESTADO DE OBRA</h3>
+              <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#ff6b00' }}>{stats.proceso || 0}</div>
+              <p style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Servicios en proceso</p>
            </div>
            
            {sosPendientes.length > 0 && (
