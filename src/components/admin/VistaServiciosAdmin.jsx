@@ -537,6 +537,21 @@ const VistaServiciosAdmin = () => {
           color: #F26522;
         }
 
+        .modal-survey-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          background: rgba(0,0,0,0.85);
+          backdrop-filter: blur(8px);
+          z-index: 10000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        }
+
         .modal-survey-card {
           width: 100%;
           max-width: 1100px;
