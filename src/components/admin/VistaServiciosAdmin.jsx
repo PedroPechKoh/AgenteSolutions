@@ -19,6 +19,8 @@ const VistaServiciosAdmin = () => {
   const [verBitacora, setVerBitacora] = useState(false);
   const [imagenExpandida, setImagenExpandida] = useState(null);
   const [procesandoAccion, setProcesandoAccion] = useState(false);
+  const [tecnicos, setTecnicos] = useState([]);
+  const [mostrandoSelectorTecnico, setMostrandoSelectorTecnico] = useState(false);
 
   // --- MAPEO DE DATOS ---
   const transformarTareas = useCallback((data) => {
@@ -34,7 +36,8 @@ const VistaServiciosAdmin = () => {
         propiedad: item.property ? (item.property.nombre_propiedad || item.property.address) : 'Sin Propiedad',
         prioridad: item.priority === 'Urgente' ? 'SOS' : 'Normal',
         fechaFin: new Date(item.updated_at).toLocaleDateString(),
-        tecnico: item.tecnico_nombre || 'Pendiente de asignar',
+        tecnico: item.tecnico ? `${item.tecnico.first_name} ${item.tecnico.last_name}` : 'Pendiente de asignar',
+        tecnicoId: item.tecnico_id,
         fechaInicio: new Date(item.created_at).toLocaleDateString(),
         estado: estado,
         descripcion: item.description,
@@ -54,14 +57,25 @@ const VistaServiciosAdmin = () => {
     }
   }, [transformarTareas]);
 
+  const fetchTecnicos = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/usuarios/tecnicos`);
+      setTecnicos(response.data);
+    } catch (error) {
+      console.error("Error cargando técnicos:", error);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
+    fetchTecnicos();
   }, [fetchOrders]);
 
   // --- ACCIONES ---
   const abrirModal = (tarea) => {
     setTareaSeleccionada(tarea);
     setVerBitacora(false);
+    setMostrandoSelectorTecnico(false);
     setModalVisible(true);
   };
 
@@ -80,6 +94,25 @@ const VistaServiciosAdmin = () => {
       cerrarModal();
     } catch (error) {
       alert("No se pudo actualizar el estado del servicio.");
+    } finally {
+      setProcesandoAccion(false);
+    }
+  };
+
+  const handleAssignTecnico = async (tecnicoId) => {
+    setProcesandoAccion(true);
+    try {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/assign`, {
+        tecnico_id: tecnicoId
+      });
+      await fetchOrders();
+      setMostrandoSelectorTecnico(false);
+      // Actualizamos la tarea seleccionada localmente para no cerrar el modal si no es necesario
+      const updatedTask = tareasData.find(t => t.dbId === tareaSeleccionada.dbId);
+      if (updatedTask) setTareaSeleccionada(updatedTask);
+      alert("Técnico asignado con éxito");
+    } catch (error) {
+      alert("Error al asignar técnico.");
     } finally {
       setProcesandoAccion(false);
     }
@@ -167,10 +200,34 @@ const VistaServiciosAdmin = () => {
                     <p className="task-long-desc">{tareaSeleccionada.descripcion}</p>
                     
                     <div className="info-box-grid">
-                      <div className="info-item">
+                      <div className="info-item clickable-info" onClick={() => setMostrandoSelectorTecnico(!mostrandoSelectorTecnico)}>
                         <UserCircle size={20} />
-                        <div><label>Técnico Asignado</label><strong>{tareaSeleccionada.tecnico}</strong></div>
+                        <div>
+                          <label>Técnico Asignado</label>
+                          <strong className={tareaSeleccionada.tecnico === 'Pendiente de asignar' ? 'pending-text' : ''}>
+                            {tareaSeleccionada.tecnico}
+                          </strong>
+                          {tareaSeleccionada.tecnico === 'Pendiente de asignar' && <span className="assign-hint">(Click para asignar)</span>}
+                        </div>
                       </div>
+
+                      {mostrandoSelectorTecnico && (
+                        <div className="tecnico-selector-dropdown">
+                          <h6>Seleccionar Técnico:</h6>
+                          <div className="tecnicos-list-mini">
+                            {tecnicos.map(tec => (
+                              <button 
+                                key={tec.id} 
+                                className={`tec-option-btn ${tareaSeleccionada.tecnicoId === tec.id ? 'selected' : ''}`}
+                                onClick={() => handleAssignTecnico(tec.id)}
+                                disabled={procesandoAccion}
+                              >
+                                {tec.first_name} {tec.last_name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <div className="info-item">
                         <Calendar size={20} />
                         <div><label>Fecha Reporte</label><strong>{tareaSeleccionada.fechaInicio}</strong></div>
@@ -247,6 +304,66 @@ const VistaServiciosAdmin = () => {
         .admin-theme {
           background-color: #f4f4f4;
           min-height: 100vh;
+        }
+        .clickable-info {
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .clickable-info:hover {
+          background: #f0f0f0;
+          border-radius: 8px;
+        }
+        .pending-text {
+          color: #e63946;
+        }
+        .assign-hint {
+          font-size: 0.7rem;
+          color: #666;
+          display: block;
+          margin-top: 2px;
+          font-style: italic;
+        }
+        .tecnico-selector-dropdown {
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 12px;
+          padding: 12px;
+          margin-top: -10px;
+          margin-bottom: 15px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          animation: slideDown 0.2s ease-out;
+        }
+        .tecnicos-list-mini {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          max-height: 150px;
+          overflow-y: auto;
+          margin-top: 8px;
+        }
+        .tec-option-btn {
+          padding: 8px 12px;
+          border: 1px solid #eee;
+          background: #fdfdfd;
+          border-radius: 8px;
+          text-align: left;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .tec-option-btn:hover {
+          background: #f26522;
+          color: white;
+          border-color: #f26522;
+        }
+        .tec-option-btn.selected {
+          background: #eee;
+          border-color: #ccc;
+          font-weight: bold;
+        }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
