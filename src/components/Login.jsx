@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Logo4 from "../assets/Logo4.png";
-
+import OneSignal from 'react-onesignal';
 
 const LoginAgente = () => {
   const [email, setEmail] = useState("");
@@ -165,6 +165,12 @@ const handleLogin = async (e) => {
         transition: 'background-image 0.5s ease-in-out'
       }} 
     >
+      <button 
+  onClick={() => OneSignal.Slidedown.promptPush()} 
+  style={{ padding: '20px', background: 'red', color: 'white', fontWeight: 'bold', margin: '20px' }}
+>
+   FORZAR PERMISO DE NOTIFICACIÓN
+</button>
       
       <img src={Logo4} alt="Agente Solutions" className="logo-top-left" />
       <div className="decoration-layer">
