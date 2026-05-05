@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import Logo4 from "../assets/Logo4.png";
-import OneSignal from 'react-onesignal';
 
 const LoginAgente = () => {
   const [email, setEmail] = useState("");
