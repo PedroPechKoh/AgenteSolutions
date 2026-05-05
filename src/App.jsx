@@ -178,9 +178,8 @@ const AppRoutes = () => {
         <Route path="/Pago" element={<Pago />} />
         <Route path="/SOSView" element={<SOSView />} />
         <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />
-        <Route path="/DetallePropiedad/:id" element={<DetallePropiedad />} />
+        <Route path="/DetallePropiedad/:id" element={<VistaDetallePropiedad />} />
         <Route path="/ReporteTrabajo" element={<ReporteTrabajo />} />
-        <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
         <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
       </Route>
 
