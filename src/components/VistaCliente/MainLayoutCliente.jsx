@@ -35,7 +35,8 @@ const MainLayoutCliente = ({ children }) => {
   ];
 
   const propertyNavButtons = [
-    { label: 'PROPIEDADES', path: '/propiedades', icon: <Home size={18} /> },
+    { label: 'DETALLES PROPIEDAD', path: detailPath, icon: <Home size={18} /> },
+    { label: 'VER TABLERO', path: tableroPath, icon: <LayoutDashboard size={18} /> },
     { label: 'SOS', path: '/SOSView', icon: <Bell size={18} /> },
     { label: 'COTIZACIONES', path: '/vista-cotizaciones', icon: <FileText size={18} /> },
   ];
@@ -83,7 +84,7 @@ const MainLayoutCliente = ({ children }) => {
       <main className="tt-main">
         <header className="tt-header">
           <div className="header-left-group" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <button className="btn-menu-mobile" onClick={() => setIsMobileMenuOpen(true)}>
+            <button className="btn-menu-mobile" onClick={() => setIsMobileMenuOpen(true)} style={{ display: 'none' }}>
               <Menu size={28} />
             </button>
             <div onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
