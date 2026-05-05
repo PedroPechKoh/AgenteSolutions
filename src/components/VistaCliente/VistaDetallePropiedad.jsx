@@ -325,10 +325,14 @@ const VistaDetallePropiedad = () => {
                   <option value="">
                     {!nuevoServicio.area_id ? "Primero selecciona una zona" : (loadingEquipos ? "Cargando equipos..." : "Seleccionar equipo...")}
                   </option>
-                  {equiposDisponibles.map((item) => (
-                    <option key={item.id} value={item.name}>
-                      {item.name} {item.brand ? `(${item.brand})` : ''}
-                    </option>
+                  {Object.entries(equiposDisponibles).map(([seccion, items]) => (
+                    <optgroup key={seccion} label={seccion.toUpperCase()}>
+                      {items.map((item) => (
+                        <option key={item.id} value={`${item.sub_category} ${item.brand ? `(${item.brand})` : ''}`}>
+                          {item.sub_category} {item.brand ? `(${item.brand})` : ''} {item.model_or_color ? `- ${item.model_or_color}` : ''}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                   <option value="otro">Otro (No está en la lista)</option>
                 </select>
