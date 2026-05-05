@@ -262,25 +262,25 @@ const VistaServiciosAdmin = () => {
                       </div>
                     </div>
 
-                    <div className="modal-action-buttons">
+                    <button className="modal-action-btn variant-orange" onClick={() => setVerBitacora(true)}>
+                      <Camera size={18} /> Ver Evidencias y Proceso
+                    </button>
+
+                    <button className="modal-action-btn variant-dark" onClick={abrirSurvey}>
+                      <Layout size={18} /> CONSULTAR LEVANTAMIENTO DE LA PROPIEDAD
+                    </button>
+
+                    <div className="modal-main-action-wrapper">
                       {tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'sos' ? (
-                        <button className="btn-start-task" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('En Proceso')}>
+                        <button className="modal-action-btn variant-black" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('En Proceso')}>
                           <Timer size={18} /> {procesandoAccion ? 'Actualizando...' : 'INICIAR TRABAJO'}
                         </button>
                       ) : tareaSeleccionada.estado === 'progress' ? (
-                        <button className="btn-complete-task" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('Listo')}>
+                        <button className="modal-action-btn variant-green" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('Listo')}>
                           <CheckCircle2 size={18} /> {procesandoAccion ? 'Finalizando...' : 'MARCAR COMO LISTO'}
                         </button>
                       ) : null}
                     </div>
-
-                    <button className="view-bitacora-btn" onClick={() => setVerBitacora(true)}>
-                      Ver Evidencias y Proceso
-                    </button>
-
-                    <button className="consult-survey-btn" onClick={abrirSurvey}>
-                      <Layout size={18} /> CONSULTAR INVENTARIO TÉCNICO
-                    </button>
                   </div>
                 ) : (
                   <div className="bitacora-view">
@@ -456,6 +456,39 @@ const VistaServiciosAdmin = () => {
           margin-top: 2px;
           font-style: italic;
         }
+
+        /* --- STYLES FOR CONSISTENT BUTTONS --- */
+        .modal-action-btn {
+          width: 100%;
+          margin-top: 12px;
+          padding: 15px;
+          border-radius: 14px;
+          font-weight: 800;
+          font-size: 0.95rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          border: none;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .modal-action-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .variant-orange { background: #F26522; color: white; }
+        .variant-dark { background: #333; color: white; }
+        .variant-black { background: #000; color: white; }
+        .variant-green { background: #1b8a5a; color: white; }
+
+        .modal-main-action-wrapper {
+          margin-top: 8px;
+          padding-top: 8px;
+          border-top: 1px dashed #eee;
+        }
         .tecnico-selector-dropdown {
           background: #fff;
           border: 1px solid #ddd;
@@ -474,6 +507,11 @@ const VistaServiciosAdmin = () => {
           overflow-y: auto;
           margin-top: 8px;
         }
+        .tecnico-selector-dropdown h6 {
+          color: #333;
+          font-weight: 800;
+          margin-bottom: 10px;
+        }
         .tec-option-btn {
           padding: 8px 12px;
           border: 1px solid #eee;
@@ -483,70 +521,33 @@ const VistaServiciosAdmin = () => {
           font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.2s;
+          color: #444;
+          font-weight: 600;
         }
         .tec-option-btn:hover {
           background: #f26522;
           color: white;
-          border-color: #f26522;
+          background: #F26522;
+          color: white;
+          border-color: #F26522;
         }
         .tec-option-btn.selected {
-          background: #eee;
-          border-color: #ccc;
-          font-weight: bold;
-        }
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
+          background: #f0f0f0;
+          border-color: #F26522;
+          color: #F26522;
         }
 
-        /* --- STYLES FOR SURVEY MODAL --- */
-        .consult-survey-btn {
-          width: 100%;
-          margin-top: 15px;
-          padding: 14px;
-          background-color: #1a1a1a;
-          color: #fff;
-          border: 1px solid #333;
-          border-radius: 12px;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          cursor: pointer;
-          transition: all 0.3s;
-          letter-spacing: 0.5px;
-        }
-        .consult-survey-btn:hover {
-          background-color: #F26522;
-          border-color: #F26522;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 15px rgba(242, 101, 34, 0.3);
-        }
-        .modal-survey-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          background: rgba(0,0,0,0.85);
-          backdrop-filter: blur(8px);
-          z-index: 10000;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-        }
         .modal-survey-card {
           width: 100%;
           max-width: 1100px;
           height: 90vh;
-          background: #f8f9fa;
+          background: #fff; /* Aseguramos fondo blanco */
           border-radius: 24px;
           display: flex;
           flex-direction: column;
           overflow: hidden;
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+          color: #333; /* Texto oscuro por defecto */
         }
         .survey-header {
           padding: 20px 30px;
@@ -608,6 +609,7 @@ const VistaServiciosAdmin = () => {
           transition: all 0.2s;
           text-align: left;
         }
+        .area-nav-item span { color: #555; font-weight: 600; }
         .area-nav-item:hover { background: #fdf2f0; color: #F26522; }
         .area-nav-item.active {
           background: #fff5f0;
@@ -615,6 +617,7 @@ const VistaServiciosAdmin = () => {
           color: #F26522;
           font-weight: bold;
         }
+        .area-nav-item.active span { color: #F26522; }
         .area-nav-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; transition: all 0.2s; }
         .area-nav-item.active .area-nav-dot { background: #F26522; box-shadow: 0 0 8px rgba(242, 101, 34, 0.5); }
         .area-nav-count { margin-left: auto; font-size: 0.75rem; background: #eee; padding: 2px 8px; border-radius: 10px; color: #666; }
@@ -705,11 +708,11 @@ const VistaServiciosAdmin = () => {
           border-radius: 8px;
         }
         .spec { font-size: 0.75rem; display: flex; gap: 5px; }
-        .spec label { font-weight: 700; color: #999; }
-        .spec span { color: #333; font-weight: 500; }
+        .spec label { font-weight: 800; color: #777; }
+        .spec span { color: #1a1a1a; font-weight: 600; }
         .serial-num { font-family: monospace; color: #F26522 !important; }
         
-        .item-obs { font-size: 0.8rem; color: #666; font-style: italic; margin: 4px 0; line-height: 1.4; }
+        .item-obs { font-size: 0.8rem; color: #555; font-style: italic; margin: 4px 0; line-height: 1.4; }
         
         .mini-gallery { display: flex; gap: 5px; margin-top: 5px; }
         .mini-gallery img {
@@ -730,6 +733,10 @@ const VistaServiciosAdmin = () => {
           width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #F26522; border-radius: 50%; animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
     </div>
   );
