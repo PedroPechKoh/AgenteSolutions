@@ -6,7 +6,7 @@ import {
   ArrowLeft, Camera, Layout, FileText, Maximize2, AlertTriangle, ChevronLeft, Timer 
 } from 'lucide-react';
 import Header from '../Shared/Header';
-import '../styles/Cliente/TableroScrum.css'; // Reutilizamos estilos
+import '../../styles/Cliente/TableroScrum.css'; // Reutilizamos estilos
 
 const VistaServiciosAdmin = () => {
   const navigate = useNavigate();
