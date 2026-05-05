@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
-import { Settings, User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X } from 'lucide-react';
+import { User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../Shared/NotificationBell';
 import logo from "../../assets/Logo4.png";
@@ -107,7 +107,6 @@ const MainLayoutCliente = ({ children }) => {
           
           <div className="header-right-group">
             <div className="header-actions-wrapper">
-               <Settings size={22} className="icon-gray action-icon" onClick={() => navigate('/ajustes')} />
                <NotificationBell />
             </div>
             
