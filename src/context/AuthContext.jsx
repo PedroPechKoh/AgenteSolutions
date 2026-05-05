@@ -2,13 +2,8 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from "axios";
 // 👇 1. IMPORTAMOS ONESIGNAL AQUÍ
 import OneSignal from 'react-onesignal'; 
-/* eslint-disable react/prop-types */
-/* eslint-disable react-refresh/only-export-components */
-import OneSignal from 'react-onesignal'; 
-// ... el resto de tu código
 
 const AuthContext = createContext();
-/* eslint-disable react/prop-types */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedSession = localStorage.getItem('agente_session');
