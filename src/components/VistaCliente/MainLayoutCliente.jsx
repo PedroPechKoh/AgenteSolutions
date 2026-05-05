@@ -33,10 +33,9 @@ const MainLayoutCliente = ({ children }) => {
   ];
 
   const propertyNavButtons = [
-    { label: 'DETALLES PROPIEDAD', path: detailPath, icon: <Home size={18} /> },
-    { label: 'VER TABLERO', path: tableroPath, icon: <LayoutDashboard size={18} /> },
+    { label: 'PROPIEDADES', path: '/propiedades', icon: <Home size={18} /> },
     { label: 'SOS', path: '/SOSView', icon: <Bell size={18} /> },
-    { label: 'COTIZACIONES', path: '/Cotizaciones', icon: <FileText size={18} /> },
+    { label: 'COTIZACIONES', path: '/vista-cotizaciones', icon: <FileText size={18} /> },
   ];
 
   const currentNavButtons = isGlobalRoute ? globalNavButtons : propertyNavButtons;
@@ -82,26 +81,34 @@ const MainLayoutCliente = ({ children }) => {
       <main className="tt-main">
         <header className="tt-header">
           <div className="header-left-group" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <button className="btn-menu-mobile" onClick={() => setIsMobileMenuOpen(true)} style={{ display: 'none' }}>
-              <Menu size={30} />
-            </button>
-            <div onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <ArrowLeft size={35} strokeWidth={3} className="header-arrow" />
+            <div onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <ArrowLeft size={28} strokeWidth={3} className="header-arrow" />
+              {!isGlobalRoute && (
+                <span style={{ fontSize: '1.4rem', fontWeight: '900', color: '#000', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  {userName}
+                </span>
+              )}
             </div>
           </div>
 
-          <div className="center-title-section" style={{ flexGrow: 1, textAlign: 'center' }}>
-             <h2 className="header-title" style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', color: '#000' }}>
-               Hola {userName.toUpperCase()}. Gracias por trabajar con nosotros.
-             </h2>
-          </div>
+          {isGlobalRoute && (
+            <div className="center-title-section" style={{ flexGrow: 1, textAlign: 'center' }}>
+               <h2 className="header-title" style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold', color: '#000' }}>
+                 Hola {userName.toUpperCase()}. Gracias por trabajar con nosotros.
+               </h2>
+            </div>
+          )}
           
-          <div className="header-right-group" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <NotificationBell />
+          <div className="header-right-group" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+               <Settings size={22} className="icon-gray" style={{ cursor: 'pointer' }} onClick={() => navigate('/ajustes')} />
+               <NotificationBell />
+            </div>
+            
             <div style={{ position: "relative" }}>
               <button
                 className="icon-btn"
-                style={{ padding: 0, overflow: "hidden", display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%' }}
+                style={{ padding: 0, overflow: "hidden", display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #eee' }}
                 onClick={() => setMenuAbierto(!menuAbierto)}
               >
                 {user?.profile_picture ? (
@@ -111,26 +118,26 @@ const MainLayoutCliente = ({ children }) => {
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 ) : (
-                  <span style={{ fontSize: '1.5rem' }}>👤</span>
+                  <User size={22} color="#666" />
                 )}
               </button>
 
               {menuAbierto && (
-                <div className="profile-dropdown-menu" style={{ position: 'absolute', right: 0, top: '50px', background: 'white', border: '1px solid #ccc', borderRadius: '8px', zIndex: 1000, minWidth: '150px' }}>
+                <div className="profile-dropdown-menu" style={{ position: 'absolute', right: 0, top: '50px', background: 'white', border: '1px solid #ccc', borderRadius: '8px', zIndex: 1000, minWidth: '150px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
                   <button
                     className="dropdown-item"
-                    onClick={() => navigate("/mi-perfil")}
-                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', fontSize: '1rem' }}
+                    onClick={() => { setMenuAbierto(false); navigate("/mi-perfil"); }}
+                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
-                    👤 Mi Perfil
+                    <User size={16} /> Mi Perfil
                   </button>
                   <div className="dropdown-divider" style={{ borderBottom: '1px solid #eee', margin: '5px 0' }}></div>
                   <button
                     className="dropdown-item logout"
                     onClick={() => { logoutGlobal(); navigate("/"); }}
-                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', color: 'red', fontSize: '1rem' }}
+                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', color: 'red', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
-                    🚪 Cerrar Sesión
+                    <ArrowLeft size={16} style={{ transform: 'rotate(180deg)' }} /> Cerrar Sesión
                   </button>
                 </div>
               )}
