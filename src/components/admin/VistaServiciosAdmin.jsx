@@ -424,6 +424,47 @@ const VistaServiciosAdmin = () => {
       )}
       
       <style>{`
+        .zoom-overlay {
+          position: fixed;
+          top: 0; left: 0;
+          width: 100vw; height: 100vh;
+          background: rgba(0,0,0,0.92);
+          backdrop-filter: blur(5px);
+          z-index: 99999; /* Super superior */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: zoom-out;
+        }
+        .zoom-content {
+          max-width: 90%;
+          max-height: 90%;
+          position: relative;
+        }
+        .image-zoomed {
+          max-width: 100%;
+          max-height: 90vh;
+          border-radius: 12px;
+          box-shadow: 0 0 50px rgba(0,0,0,0.5);
+          border: 3px solid white;
+        }
+        .zoom-close-fixed {
+          position: absolute;
+          top: 30px; right: 30px;
+          background: #F26522;
+          color: white;
+          border: none;
+          width: 50px; height: 50px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 100000;
+          transition: all 0.2s;
+        }
+        .zoom-close-fixed:hover { transform: scale(1.1); }
+
         .prop-badge-card {
           font-size: 0.65rem;
           color: #F26522;
