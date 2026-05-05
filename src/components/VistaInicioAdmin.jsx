@@ -15,6 +15,7 @@ const VistaInicioAdmin = () => {
     { id: 6, title: 'PRODUCTOS', icon: '📦', path: '/vista-producto' },
     { id: 7, title: 'BODEGA', icon: '🏭', path: '/bodeguero' },
     { id: 8, title: 'PERSONALIZAR', icon: '🎨', path: '/customize-login' },
+    { id: 9, title: 'SERVICIOS', icon: '🔧', path: '/tablero-servicios' },
     
    
   ];

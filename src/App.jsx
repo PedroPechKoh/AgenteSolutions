@@ -30,6 +30,7 @@ import VistaLevantamientos from "./components/admin/VistaLevantamientos";
 import VistaPropiedades from "./components/admin/VistaPropiedades";
 import VistaUsuarios from "./components/admin/VistaUsuarios";
 import VistaBodeguero from "./components/admin/VistaBodeguero";
+import VistaServiciosAdmin from "./components/admin/VistaServiciosAdmin";
 
 
 /* ------RUTAS DE LA VISTA DEL TECNICO ------*/
@@ -181,6 +182,7 @@ useEffect(() => {
         <Route path="/assign-service" element={<AssignServiceForm />} />
         <Route path="/bodeguero" element={<VistaBodeguero/>} />
         <Route path="/detalle-propiedad/:id" element={<DetallePropiedadadmin/>} />
+        <Route path="/tablero-servicios" element={<VistaServiciosAdmin />} />
       </Route>
 
       <Route path="/notificaciones" element={<VistaNotificaciones />} />
