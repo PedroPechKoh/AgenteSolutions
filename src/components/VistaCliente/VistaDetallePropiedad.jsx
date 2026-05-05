@@ -24,15 +24,13 @@ const VistaDetallePropiedad = () => {
   const [mostrarModalServicio, setMostrarModalServicio] = useState(false);
   
   // --- ESTADOS FORMULARIO NUEVO SERVICIO ---
-  const equiposPorZona = {
-    sala: ['Aire Acondicionado', 'Smart TV', 'Lámpara de pie'],
-    cocina: ['Refrigerador', 'Estufa', 'Microondas', 'Lavavajillas'],
-    recamara: ['Aire Acondicionado', 'Ventilador de techo'],
-    jardin: ['Bomba de piscina', 'Sistema de riego', 'Iluminación exterior']
-  };
+  const [zonasDisponibles, setZonasDisponibles] = useState([]);
   const [equiposDisponibles, setEquiposDisponibles] = useState([]);
+  const [loadingZonas, setLoadingZonas] = useState(false);
+  const [loadingEquipos, setLoadingEquipos] = useState(false);
+  
   const [nuevoServicio, setNuevoServicio] = useState({
-    zona: '', equipo: '', descripcion: '', foto: null
+    zona: '', area_id: '', equipo: '', descripcion: '', foto: null
   });
 
   // --- EFECTO DE CARGA INICIAL ---
@@ -41,10 +39,16 @@ const VistaDetallePropiedad = () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`);
         setData(response.data);
+        
+        // Fetch real zones for this property
+        setLoadingZonas(true);
+        const areasRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${id}/areas`);
+        setZonasDisponibles(areasRes.data || []);
       } catch (error) {
-        console.error("Error cargando el dashboard:", error);
+        console.error("Error cargando el dashboard o zonas:", error);
       } finally {
         setLoading(false);
+        setLoadingZonas(false);
       }
     };
 
@@ -52,9 +56,29 @@ const VistaDetallePropiedad = () => {
   }, [id]);
 
   // Manejador del select de zonas en el modal
-  const handleZonaChange = (zona) => {
-    setNuevoServicio({ ...nuevoServicio, zona, equipo: '' }); 
-    setEquiposDisponibles(equiposPorZona[zona] || []);
+  const handleZonaChange = async (areaId) => {
+    const selectedArea = zonasDisponibles.find(z => z.id === parseInt(areaId));
+    setNuevoServicio({ 
+      ...nuevoServicio, 
+      area_id: areaId, 
+      zona: selectedArea ? selectedArea.name : '', 
+      equipo: '' 
+    }); 
+    
+    if (areaId) {
+      setLoadingEquipos(true);
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${areaId}/components`);
+        setEquiposDisponibles(res.data || []);
+      } catch (error) {
+        console.error("Error cargando equipos:", error);
+        setEquiposDisponibles([]);
+      } finally {
+        setLoadingEquipos(false);
+      }
+    } else {
+      setEquiposDisponibles([]);
+    }
   };
 
   // --- RENDERIZADO CONDICIONAL MIENTRAS CARGA ---
@@ -238,27 +262,29 @@ const VistaDetallePropiedad = () => {
                 <label><Home size={16}/> Zona de la propiedad *</label>
                 <select 
                   required 
-                  value={nuevoServicio.zona}
+                  value={nuevoServicio.area_id}
                   onChange={(e) => handleZonaChange(e.target.value)}
+                  disabled={loadingZonas}
                 >
-                  <option value="">Seleccionar zona...</option>
-                  <option value="sala">Sala</option>
-                  <option value="cocina">Cocina</option>
-                  <option value="recamara">Recámara</option>
-                  <option value="jardin">Jardín</option>
+                  <option value="">{loadingZonas ? "Cargando zonas..." : "Seleccionar zona..."}</option>
+                  {zonasDisponibles.map(zona => (
+                    <option key={zona.id} value={zona.id}>{zona.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="form-group">
                 <label><Wrench size={16}/> Equipo afectado (Opcional)</label>
                 <select 
                   value={nuevoServicio.equipo}
-                  disabled={!nuevoServicio.zona}
+                  disabled={!nuevoServicio.area_id || loadingEquipos}
                   onChange={(e) => setNuevoServicio({...nuevoServicio, equipo: e.target.value})}
                 >
-                  <option value="">{nuevoServicio.zona ? "Seleccionar equipo..." : "Primero selecciona una zona"}</option>
-                  {equiposDisponibles.map((item, index) => (
-                    <option key={index} value={item.toLowerCase().replace(/\s+/g, '-')}>
-                      {item}
+                  <option value="">
+                    {!nuevoServicio.area_id ? "Primero selecciona una zona" : (loadingEquipos ? "Cargando equipos..." : "Seleccionar equipo...")}
+                  </option>
+                  {equiposDisponibles.map((item) => (
+                    <option key={item.id} value={item.name}>
+                      {item.name} {item.brand ? `(${item.brand})` : ''}
                     </option>
                   ))}
                   <option value="otro">Otro (No está en la lista)</option>
