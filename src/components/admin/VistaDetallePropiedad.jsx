@@ -24,57 +24,121 @@ const VistaDetallePropiedad = () => {
   const [mostrarModalServicio, setMostrarModalServicio] = useState(false);
   
   // --- ESTADOS FORMULARIO NUEVO SERVICIO ---
-  const equiposPorZona = {
-    sala: ['Aire Acondicionado', 'Smart TV', 'Lámpara de pie'],
-    cocina: ['Refrigerador', 'Estufa', 'Microondas', 'Lavavajillas'],
-    recamara: ['Aire Acondicionado', 'Ventilador de techo'],
-    jardin: ['Bomba de piscina', 'Sistema de riego', 'Iluminación exterior']
-  };
+  const [zonasDisponibles, setZonasDisponibles] = useState([]);
   const [equiposDisponibles, setEquiposDisponibles] = useState([]);
+  const [loadingZonas, setLoadingZonas] = useState(false);
+  const [loadingEquipos, setLoadingEquipos] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  
   const [nuevoServicio, setNuevoServicio] = useState({
-    zona: '', equipo: '', descripcion: '', foto: null
+    zona: '', area_id: '', equipo: '', descripcion: '', foto: null
   });
 
-  // --- EFECTO DE CARGA INICIAL ---
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('agente_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+      
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`,
+        { headers }
+      );
+      setData(response.data);
+
+      // Fetch real zones for this property
+      setLoadingZonas(true);
+      const areasRes = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/properties/${id}/areas`,
+        { headers }
+      );
+      setZonasDisponibles(areasRes.data || []);
+
+    } catch (error) {
+      console.error("Error cargando la información:", error);
+    } finally {
+      setLoading(false);
+      setLoadingZonas(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const token = localStorage.getItem('agente_token');
-        const headers = { 'Authorization': `Bearer ${token}` };
-        
-        // Intentar primero el dashboard
-        let response;
-        try {
-          response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`,
-            { headers }
-          );
-        } catch (dashError) {
-          console.warn("Dashboard no encontrado, intentando detalle base...");
-          // Fallback al detalle base de la propiedad
-          response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`,
-            { headers }
-          );
-        }
-        
-        setData(response.data);
-
-      } catch (error) {
-        console.error("Error cargando la información:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (id) fetchDashboardData();
   }, [id]);
 
+  const handleSubmitServicio = async (e) => {
+    e.preventDefault();
+    if (!nuevoServicio.area_id || !nuevoServicio.descripcion) {
+      alert("Por favor completa los campos obligatorios (Zona y Descripción).");
+      return;
+    }
+
+    setLoadingSubmit(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      const formData = new FormData();
+      formData.append('property_id', id);
+      formData.append('property_area_id', nuevoServicio.area_id);
+      
+      const descFinal = nuevoServicio.equipo 
+        ? `${nuevoServicio.descripcion}\n\n[EQUIPO AFECTADO]: ${nuevoServicio.equipo}`
+        : nuevoServicio.descripcion;
+      
+      formData.append('description', descFinal);
+
+      if (nuevoServicio.foto) {
+        formData.append('foto', nuevoServicio.foto);
+      }
+
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/services`, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.data.success) {
+        alert("✅ Reporte levantado con éxito.");
+        setMostrarModalServicio(false);
+        setNuevoServicio({ zona: '', area_id: '', equipo: '', descripcion: '', foto: null });
+        fetchDashboardData();
+      }
+    } catch (error) {
+      console.error("Error enviando servicio:", error);
+      alert("❌ Error al enviar el reporte.");
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
+
 
   // Manejador del select de zonas en el modal
-  const handleZonaChange = (zona) => {
-    setNuevoServicio({ ...nuevoServicio, zona, equipo: '' }); 
-    setEquiposDisponibles(equiposPorZona[zona] || []);
+  const handleZonaChange = async (areaId) => {
+    const selectedArea = zonasDisponibles.find(z => z.id === parseInt(areaId));
+    setNuevoServicio({ 
+      ...nuevoServicio, 
+      area_id: areaId, 
+      zona: selectedArea ? selectedArea.name : '', 
+      equipo: '' 
+    }); 
+    
+    if (areaId) {
+      setLoadingEquipos(true);
+      try {
+        const token = localStorage.getItem('agente_token');
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${areaId}/components`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setEquiposDisponibles(res.data || []);
+      } catch (error) {
+        console.error("Error cargando equipos:", error);
+        setEquiposDisponibles([]);
+      } finally {
+        setLoadingEquipos(false);
+      }
+    } else {
+      setEquiposDisponibles([]);
+    }
   };
 
   // --- RENDERIZADO CONDICIONAL MIENTRAS CARGA ---
@@ -253,19 +317,19 @@ const VistaDetallePropiedad = () => {
               <div className="modal-tag">NUEVA SOLICITUD</div>
               <h2>Reportar Problema</h2>
             </div>
-            <form className="modal-body service-form" onSubmit={(e) => { e.preventDefault(); setMostrarModalServicio(false); }}>
+            <form className="modal-body service-form" onSubmit={handleSubmitServicio}>
               <div className="form-group">
                 <label><Home size={16}/> Zona de la propiedad *</label>
                 <select 
                   required 
-                  value={nuevoServicio.zona}
+                  value={nuevoServicio.area_id}
                   onChange={(e) => handleZonaChange(e.target.value)}
+                  disabled={loadingZonas}
                 >
-                  <option value="">Seleccionar zona...</option>
-                  <option value="sala">Sala</option>
-                  <option value="cocina">Cocina</option>
-                  <option value="recamara">Recámara</option>
-                  <option value="jardin">Jardín</option>
+                  <option value="">{loadingZonas ? "Cargando zonas..." : "Seleccionar zona..."}</option>
+                  {zonasDisponibles.map(zona => (
+                    <option key={zona.id} value={zona.id}>{zona.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="form-group">
@@ -275,10 +339,12 @@ const VistaDetallePropiedad = () => {
                   disabled={!nuevoServicio.zona}
                   onChange={(e) => setNuevoServicio({...nuevoServicio, equipo: e.target.value})}
                 >
-                  <option value="">{nuevoServicio.zona ? "Seleccionar equipo..." : "Primero selecciona una zona"}</option>
-                  {equiposDisponibles.map((item, index) => (
-                    <option key={index} value={item.toLowerCase().replace(/\s+/g, '-')}>
-                      {item}
+                  <option value="">
+                    {!nuevoServicio.area_id ? "Primero selecciona una zona" : (loadingEquipos ? "Cargando equipos..." : "Seleccionar equipo...")}
+                  </option>
+                  {equiposDisponibles.map((item) => (
+                    <option key={item.id} value={item.name}>
+                      {item.name} {item.brand ? `(${item.brand})` : ''}
                     </option>
                   ))}
                   <option value="otro">Otro (No está en la lista)</option>
@@ -305,7 +371,9 @@ const VistaDetallePropiedad = () => {
               </div>
 
               <div className="modal-footer">
-                <button type="submit" className="btn-modal-close">Levantar Reporte</button>
+                <button type="submit" className="btn-modal-close" disabled={loadingSubmit}>
+                  {loadingSubmit ? "Enviando..." : "Levantar Reporte"}
+                </button>
               </div>
             </form>
           </div>
