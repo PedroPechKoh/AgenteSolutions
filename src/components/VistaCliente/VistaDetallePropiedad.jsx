@@ -32,28 +32,71 @@ const VistaDetallePropiedad = () => {
   const [nuevoServicio, setNuevoServicio] = useState({
     zona: '', area_id: '', equipo: '', descripcion: '', foto: null
   });
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
 
-  // --- EFECTO DE CARGA INICIAL ---
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`);
+      setData(response.data);
+      
+      // Fetch real zones for this property
+      setLoadingZonas(true);
+      const areasRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${id}/areas`);
+      setZonasDisponibles(areasRes.data || []);
+    } catch (error) {
+      console.error("Error cargando el dashboard o zonas:", error);
+    } finally {
+      setLoading(false);
+      setLoadingZonas(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`);
-        setData(response.data);
-        
-        // Fetch real zones for this property
-        setLoadingZonas(true);
-        const areasRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${id}/areas`);
-        setZonasDisponibles(areasRes.data || []);
-      } catch (error) {
-        console.error("Error cargando el dashboard o zonas:", error);
-      } finally {
-        setLoading(false);
-        setLoadingZonas(false);
-      }
-    };
-
     if (id) fetchDashboardData();
   }, [id]);
+
+  const handleSubmitServicio = async (e) => {
+    e.preventDefault();
+    if (!nuevoServicio.area_id || !nuevoServicio.descripcion) {
+      alert("Por favor completa los campos obligatorios (Zona y Descripción).");
+      return;
+    }
+
+    setLoadingSubmit(true);
+    try {
+      const formData = new FormData();
+      formData.append('property_id', id);
+      formData.append('property_area_id', nuevoServicio.area_id);
+      
+      // Combinar descripción con equipo si existe
+      const descFinal = nuevoServicio.equipo 
+        ? `${nuevoServicio.descripcion}\n\n[EQUIPO AFECTADO]: ${nuevoServicio.equipo}`
+        : nuevoServicio.descripcion;
+      
+      formData.append('description', descFinal);
+
+      if (nuevoServicio.foto) {
+        formData.append('foto', nuevoServicio.foto);
+      }
+
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/services`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (res.data.success) {
+        alert("✅ Reporte levantado con éxito. Un técnico revisará tu solicitud pronto.");
+        setMostrarModalServicio(false);
+        setNuevoServicio({ zona: '', area_id: '', equipo: '', descripcion: '', foto: null });
+        fetchDashboardData(); // Recargar datos para ver el nuevo servicio en stats
+      }
+    } catch (error) {
+      console.error("Error enviando servicio:", error);
+      alert("❌ Error al enviar el reporte. Por favor, intenta de nuevo.");
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
 
   // Manejador del select de zonas en el modal
   const handleZonaChange = async (areaId) => {
@@ -257,7 +300,7 @@ const VistaDetallePropiedad = () => {
               <div className="modal-tag">NUEVA SOLICITUD</div>
               <h2>Reportar Problema</h2>
             </div>
-            <form className="modal-body service-form" onSubmit={(e) => { e.preventDefault(); setMostrarModalServicio(false); }}>
+            <form className="modal-body service-form" onSubmit={handleSubmitServicio}>
               <div className="form-group">
                 <label><Home size={16}/> Zona de la propiedad *</label>
                 <select 
@@ -311,7 +354,9 @@ const VistaDetallePropiedad = () => {
               </div>
 
               <div className="modal-footer">
-                <button type="submit" className="btn-modal-close">Levantar Reporte</button>
+                <button type="submit" className="btn-modal-close" disabled={loadingSubmit}>
+                  {loadingSubmit ? "Enviando..." : "Levantar Reporte"}
+                </button>
               </div>
             </form>
           </div>
