@@ -2,11 +2,12 @@
    CONTENEDOR BASE Y LAYOUT
    ============================================= */
 .view-container {
-  padding: 40px;
+  padding: 30px 20px;
   background-color: #fcfcfc;
-  min-height: 100vh;
+  width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .main-layout-detail {
