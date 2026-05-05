@@ -1,8 +1,14 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from "axios";
+// 👇 1. IMPORTAMOS ONESIGNAL AQUÍ
+import OneSignal from 'react-onesignal'; 
+/* eslint-disable react/prop-types */
+/* eslint-disable react-refresh/only-export-components */
+import OneSignal from 'react-onesignal'; 
+// ... el resto de tu código
 
 const AuthContext = createContext();
-
+/* eslint-disable react/prop-types */
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedSession = localStorage.getItem('agente_session');
@@ -41,12 +47,20 @@ export const AuthProvider = ({ children }) => {
 
     setUser(userData);
     localStorage.setItem('agente_session', JSON.stringify(sessionData));
-  };
 
+    // 👇 2. VINCULAMOS ONESIGNAL AL INICIAR SESIÓN
+    // Verificamos que userData tenga el id antes de mandarlo
+    if (userData && userData.id) {
+      OneSignal.login(String(userData.id)); 
+    }
+  };
 
   const logoutGlobal = () => {
     setUser(null);
     localStorage.removeItem('agente_session');
+    
+    // 👇 3. DESVINCULAMOS ONESIGNAL AL CERRAR SESIÓN
+    OneSignal.logout();
   };
 
   useEffect(() => {

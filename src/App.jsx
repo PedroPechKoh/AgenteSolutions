@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import OneSignal from 'react-onesignal';
+import React, { useEffect } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./context/ProtectedRoute";
 import LoginAgente from "./components/Login";
@@ -65,7 +67,26 @@ import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
 axios.defaults.headers.common["Accept"] = "application/json";
 
 const AppRoutes = () => {
-
+useEffect(() => {
+    OneSignal.init({
+      appId: "632781ba-8ada-42ea-a894-b53f1618b204", // ⚠️ NO OLVIDES PEGAR TU ID REAL AQUÍ
+      promptOptions: {
+        slidedown: {
+          prompts: [
+            {
+              type: "push",
+              autoPrompt: true,
+              text: {
+                actionMessage: "Nos gustaría enviarte notificaciones para mantenerte al día con tus servicios y cotizaciones.",
+                acceptButton: "Permitir",
+                cancelButton: "Más tarde"
+              }
+            }
+          ]
+        }
+      }
+    });
+  }, []);
   const { user } = useAuth();
 
   return (
