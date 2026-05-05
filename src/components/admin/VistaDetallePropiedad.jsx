@@ -5,7 +5,7 @@ import {
   Layout, CheckCircle2, ListTodo, Timer, AlertCircle, 
   FileText, History, ChevronDown, ChevronUp, X, 
   User, Eye, MapPin, Tag, PlusCircle, 
-  Home, Wrench, MessageSquare, Camera 
+  Home, Wrench, MessageSquare, Camera, ImageIcon 
 } from 'lucide-react';
 import '../../styles/Cliente/DetallePropiedad.css';
 
@@ -24,57 +24,146 @@ const VistaDetallePropiedad = () => {
   const [mostrarModalServicio, setMostrarModalServicio] = useState(false);
   
   // --- ESTADOS FORMULARIO NUEVO SERVICIO ---
-  const equiposPorZona = {
-    sala: ['Aire Acondicionado', 'Smart TV', 'Lámpara de pie'],
-    cocina: ['Refrigerador', 'Estufa', 'Microondas', 'Lavavajillas'],
-    recamara: ['Aire Acondicionado', 'Ventilador de techo'],
-    jardin: ['Bomba de piscina', 'Sistema de riego', 'Iluminación exterior']
-  };
+  const [zonasDisponibles, setZonasDisponibles] = useState([]);
   const [equiposDisponibles, setEquiposDisponibles] = useState([]);
+  const [loadingZonas, setLoadingZonas] = useState(false);
+  const [loadingEquipos, setLoadingEquipos] = useState(false);
   const [nuevoServicio, setNuevoServicio] = useState({
-    zona: '', equipo: '', descripcion: '', foto: null
+    zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] 
   });
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
+  const cameraRef = React.useRef(null);
+  const galleryRef = React.useRef(null);
 
-  // --- EFECTO DE CARGA INICIAL ---
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('agente_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+      
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`,
+        { headers }
+      );
+      setData(response.data);
+
+      // Fetch real zones for this property
+      setLoadingZonas(true);
+      const areasRes = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/properties/${id}/areas`,
+        { headers }
+      );
+      setZonasDisponibles(areasRes.data || []);
+
+    } catch (error) {
+      console.error("Error cargando la información:", error);
+    } finally {
+      setLoading(false);
+      setLoadingZonas(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const token = localStorage.getItem('agente_token');
-        const headers = { 'Authorization': `Bearer ${token}` };
-        
-        // Intentar primero el dashboard
-        let response;
-        try {
-          response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`,
-            { headers }
-          );
-        } catch (dashError) {
-          console.warn("Dashboard no encontrado, intentando detalle base...");
-          // Fallback al detalle base de la propiedad
-          response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`,
-            { headers }
-          );
-        }
-        
-        setData(response.data);
-
-      } catch (error) {
-        console.error("Error cargando la información:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (id) fetchDashboardData();
   }, [id]);
 
+  const handleSubmitServicio = async (e) => {
+    e.preventDefault();
+    if (!nuevoServicio.area_id || !nuevoServicio.descripcion) {
+      alert("Por favor completa los campos obligatorios (Zona y Descripción).");
+      return;
+    }
+
+    setLoadingSubmit(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      const formData = new FormData();
+      formData.append('property_id', id);
+      formData.append('property_area_id', nuevoServicio.area_id);
+      
+      const descFinal = nuevoServicio.equipo 
+        ? `${nuevoServicio.descripcion}\n\n[EQUIPO AFECTADO]: ${nuevoServicio.equipo}`
+        : nuevoServicio.descripcion;
+      
+      formData.append('description', descFinal);
+
+      // Agregamos las fotos (hasta 2)
+      nuevoServicio.fotos.forEach((foto, index) => {
+        formData.append(`evidencia_${index + 1}`, foto);
+      });
+
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/services`, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.data.success) {
+        alert("✅ Reporte levantado con éxito.");
+        setMostrarModalServicio(false);
+        setNuevoServicio({ zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] });
+        fetchDashboardData();
+      }
+    } catch (error) {
+      console.error("Error enviando servicio:", error);
+      alert("❌ Error al enviar el reporte.");
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
+
 
   // Manejador del select de zonas en el modal
-  const handleZonaChange = (zona) => {
-    setNuevoServicio({ ...nuevoServicio, zona, equipo: '' }); 
-    setEquiposDisponibles(equiposPorZona[zona] || []);
+  const handleZonaChange = async (areaId) => {
+    const selectedArea = zonasDisponibles.find(z => z.id === parseInt(areaId));
+    setNuevoServicio({ 
+      ...nuevoServicio, 
+      area_id: areaId, 
+      zona: selectedArea ? selectedArea.name : '', 
+      equipo: '' 
+    }); 
+    
+    if (areaId) {
+      setLoadingEquipos(true);
+      try {
+        const token = localStorage.getItem('agente_token');
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${areaId}/components`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setEquiposDisponibles(res.data || []);
+      } catch (error) {
+        console.error("Error cargando equipos:", error);
+        setEquiposDisponibles([]);
+      } finally {
+        setLoadingEquipos(false);
+      }
+    } else {
+      setEquiposDisponibles([]);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    const nuevasFotos = [...nuevoServicio.fotos, ...files].slice(0, 2);
+    setNuevoServicio({ ...nuevoServicio, fotos: nuevasFotos });
+  };
+
+  const removeFoto = (index) => {
+    const nuevasFotos = nuevoServicio.fotos.filter((_, i) => i !== index);
+    setNuevoServicio({ ...nuevoServicio, fotos: nuevasFotos });
+  };
+
+  const selectPhotoSource = (source) => {
+    if (source === 'camera') {
+      cameraRef.current.click();
+    } else {
+      galleryRef.current.click();
+    }
+    setIsPhotoMenuOpen(false);
   };
 
   // --- RENDERIZADO CONDICIONAL MIENTRAS CARGA ---
@@ -253,19 +342,19 @@ const VistaDetallePropiedad = () => {
               <div className="modal-tag">NUEVA SOLICITUD</div>
               <h2>Reportar Problema</h2>
             </div>
-            <form className="modal-body service-form" onSubmit={(e) => { e.preventDefault(); setMostrarModalServicio(false); }}>
+            <form className="modal-body service-form" onSubmit={handleSubmitServicio}>
               <div className="form-group">
                 <label><Home size={16}/> Zona de la propiedad *</label>
                 <select 
                   required 
-                  value={nuevoServicio.zona}
+                  value={nuevoServicio.area_id}
                   onChange={(e) => handleZonaChange(e.target.value)}
+                  disabled={loadingZonas}
                 >
-                  <option value="">Seleccionar zona...</option>
-                  <option value="sala">Sala</option>
-                  <option value="cocina">Cocina</option>
-                  <option value="recamara">Recámara</option>
-                  <option value="jardin">Jardín</option>
+                  <option value="">{loadingZonas ? "Cargando zonas..." : "Seleccionar zona..."}</option>
+                  {zonasDisponibles.map(zona => (
+                    <option key={zona.id} value={zona.id}>{zona.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="form-group">
@@ -275,11 +364,17 @@ const VistaDetallePropiedad = () => {
                   disabled={!nuevoServicio.zona}
                   onChange={(e) => setNuevoServicio({...nuevoServicio, equipo: e.target.value})}
                 >
-                  <option value="">{nuevoServicio.zona ? "Seleccionar equipo..." : "Primero selecciona una zona"}</option>
-                  {equiposDisponibles.map((item, index) => (
-                    <option key={index} value={item.toLowerCase().replace(/\s+/g, '-')}>
-                      {item}
-                    </option>
+                  <option value="">
+                    {!nuevoServicio.area_id ? "Primero selecciona una zona" : (loadingEquipos ? "Cargando equipos..." : "Seleccionar equipo...")}
+                  </option>
+                  {Object.entries(equiposDisponibles).map(([seccion, items]) => (
+                    <optgroup key={seccion} label={seccion.toUpperCase()}>
+                      {items.map((item) => (
+                        <option key={item.id} value={`${item.sub_category} ${item.brand ? `(${item.brand})` : ''}`}>
+                          {item.sub_category} {item.brand ? `(${item.brand})` : ''} {item.model_or_color ? `- ${item.model_or_color}` : ''}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
                   <option value="otro">Otro (No está en la lista)</option>
                 </select>
@@ -290,22 +385,51 @@ const VistaDetallePropiedad = () => {
               </div>
 
               <div className="form-group">
-                <label><Camera size={16}/> Evidencia Visual (Cámara o Galería)</label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  capture="environment" 
-                  className="file-input-custom"
-                  onChange={(e) => setNuevoServicio({...nuevoServicio, foto: e.target.files[0]})}
-                  style={{ marginTop: '5px', width: '100%' }}
-                />
-                <small style={{ color: '#666', fontSize: '11px', marginTop: '4px', display: 'block' }}>
-                  * En móvil, puedes tomar una foto o elegir una de tu álbum.
+                <label><Camera size={16}/> Evidencia Visual (Máx 2 fotos)</label>
+                
+                <input type="file" ref={cameraRef} hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
+                <input type="file" ref={galleryRef} hidden accept="image/*" multiple onChange={handleFileSelect} />
+
+                <div className="fotos-preview-container" style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+                  {nuevoServicio.fotos.map((foto, idx) => (
+                    <div key={idx} className="foto-preview-wrapper" style={{ position: 'relative', width: '80px', height: '80px' }}>
+                      <img 
+                        src={URL.createObjectURL(foto)} 
+                        alt="preview" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px', border: '2px solid #f26624' }} 
+                      />
+                      <button 
+                        type="button"
+                        onClick={() => removeFoto(idx)}
+                        style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#e63946', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {nuevoServicio.fotos.length < 2 && (
+                    <button 
+                      type="button" 
+                      className="btn-add-foto-placeholder"
+                      onClick={() => setIsPhotoMenuOpen(true)}
+                      style={{ width: '80px', height: '80px', border: '2px dashed #ccc', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#f9f9f9', color: '#666' }}
+                    >
+                      <PlusCircle size={24} />
+                      <span style={{ fontSize: '10px', fontWeight: 'bold', marginTop: '4px' }}>AÑADIR</span>
+                    </button>
+                  )}
+                </div>
+                
+                <small style={{ color: '#666', fontSize: '11px', marginTop: '8px', display: 'block' }}>
+                  * Puedes subir hasta 2 imágenes como evidencia del problema.
                 </small>
               </div>
 
               <div className="modal-footer">
-                <button type="submit" className="btn-modal-close">Levantar Reporte</button>
+                <button type="submit" className="btn-modal-close" disabled={loadingSubmit}>
+                  {loadingSubmit ? "Enviando..." : "Levantar Reporte"}
+                </button>
               </div>
             </form>
           </div>
@@ -368,6 +492,39 @@ const VistaDetallePropiedad = () => {
                <button className="btn-orange-full" onClick={() => setMostrarPerfilPropiedad(false)}>
                  Cerrar Detalles
                </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* MODAL DE SELECCIÓN DE FOTO */}
+      {isPhotoMenuOpen && (
+        <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)} style={{ zIndex: 2000 }}>
+          <div className="modal-content" style={{ maxWidth: '350px', padding: '0', backgroundColor: '#fff' }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: '20px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+              <h3 style={{ margin: 0, color: '#f26624' }}>Seleccionar Origen</h3>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <button 
+                type="button"
+                onClick={() => selectPhotoSource('camera')}
+                style={{ background: 'transparent', border: 'none', padding: '15px', color: '#333', borderBottom: '1px solid #eee', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+              >
+                <Camera size={20} /> Tomar Foto
+              </button>
+              <button 
+                type="button"
+                onClick={() => selectPhotoSource('gallery')}
+                style={{ background: 'transparent', border: 'none', padding: '15px', color: '#333', borderBottom: '1px solid #eee', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+              >
+                <ImageIcon size={20} /> Elegir de la Galería
+              </button>
+              <button 
+                type="button"
+                onClick={() => setIsPhotoMenuOpen(false)}
+                style={{ background: 'transparent', border: 'none', padding: '15px', color: '#666', fontSize: '1rem', cursor: 'pointer' }}
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         </div>
