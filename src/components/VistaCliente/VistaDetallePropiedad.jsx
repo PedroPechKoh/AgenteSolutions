@@ -29,8 +29,9 @@ const VistaDetallePropiedad = () => {
   const [loadingZonas, setLoadingZonas] = useState(false);
   const [loadingEquipos, setLoadingEquipos] = useState(false);
   
+  // Añadimos 'tipo' al estado inicial
   const [nuevoServicio, setNuevoServicio] = useState({
-    zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] 
+    tipo: '', zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] 
   });
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
@@ -40,12 +41,15 @@ const VistaDetallePropiedad = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`);
+      const token = localStorage.getItem('agente_token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`, { headers });
       setData(response.data);
       
       // Fetch real zones for this property
       setLoadingZonas(true);
-      const areasRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${id}/areas`);
+      const areasRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${id}/areas`, { headers });
       setZonasDisponibles(areasRes.data || []);
     } catch (error) {
       console.error("Error cargando el dashboard o zonas:", error);
@@ -61,16 +65,21 @@ const VistaDetallePropiedad = () => {
 
   const handleSubmitServicio = async (e) => {
     e.preventDefault();
-    if (!nuevoServicio.area_id || !nuevoServicio.descripcion) {
-      alert("Por favor completa los campos obligatorios (Zona y Descripción).");
+    // Validamos que el tipo, la zona y la descripción no estén vacíos
+    if (!nuevoServicio.tipo || !nuevoServicio.area_id || !nuevoServicio.descripcion) {
+      alert("Por favor completa los campos obligatorios (Tipo, Zona y Descripción).");
       return;
     }
 
     setLoadingSubmit(true);
     try {
+      const token = localStorage.getItem('agente_token');
       const formData = new FormData();
+      
       formData.append('property_id', id);
-      formData.append('property_area_id', nuevoServicio.area_id);
+      formData.append('type', nuevoServicio.tipo); // Nuevo campo
+      formData.append('zone', nuevoServicio.zona);
+      formData.append('equipment', nuevoServicio.equipo || '');
       
       // Combinar descripción con equipo si existe
       const descFinal = nuevoServicio.equipo 
@@ -79,21 +88,23 @@ const VistaDetallePropiedad = () => {
       
       formData.append('description', descFinal);
       
-      // Agregamos las fotos (hasta 2)
+      // Agregamos las fotos dinámicamente (evidence_1 y evidence_2)
       nuevoServicio.fotos.forEach((foto, index) => {
-        formData.append(`evidencia_${index + 1}`, foto);
+        formData.append(`evidence_${index + 1}`, foto);
       });
 
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/services`, formData, {
+      // Petición POST a la nueva ruta de work-orders
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/work-orders/cliente`, formData, {
         headers: { 
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         }
       });
 
       if (res.data.success) {
         alert("✅ Reporte levantado con éxito. Un técnico revisará tu solicitud pronto.");
         setMostrarModalServicio(false);
-        setNuevoServicio({ zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] });
+        setNuevoServicio({ tipo: '', zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] });
         fetchDashboardData(); // Recargar datos para ver el nuevo servicio en stats
       }
     } catch (error) {
@@ -130,7 +141,9 @@ const VistaDetallePropiedad = () => {
     if (areaId) {
       setLoadingEquipos(true);
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${areaId}/components`);
+        const token = localStorage.getItem('agente_token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${areaId}/components`, { headers });
         setEquiposDisponibles(res.data || []);
       } catch (error) {
         console.error("Error cargando equipos:", error);
@@ -174,7 +187,6 @@ const VistaDetallePropiedad = () => {
           </div>
 
           <div className="hero-section-compact">
-            {/* ✅ CORRECCIÓN CLAVE: Usamos la URL de Cloudinary directamente, sin 'http://127.0.0.1...' */}
             <img 
               src={propiedad.facade_photo_path ? propiedad.facade_photo_path : 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
               alt="Propiedad" 
@@ -329,6 +341,22 @@ const VistaDetallePropiedad = () => {
               <h2>Reportar Problema</h2>
             </div>
             <form className="modal-body service-form" onSubmit={handleSubmitServicio}>
+              
+              {/* NUEVO CAMPO: TIPO DE SERVICIO */}
+              <div className="form-group">
+                <label><FileText size={16}/> Tipo de Servicio *</label>
+                <select 
+                  required 
+                  value={nuevoServicio.tipo}
+                  onChange={(e) => setNuevoServicio({...nuevoServicio, tipo: e.target.value})}
+                >
+                  <option value="">Selecciona el tipo...</option>
+                  <option value="Consulta">Consulta / Duda</option>
+                  <option value="Mantenimiento">Mantenimiento Preventivo</option>
+                  <option value="Problema">Problema / Reparación</option>
+                </select>
+              </div>
+
               <div className="form-group">
                 <label><Home size={16}/> Zona de la propiedad *</label>
                 <select 
@@ -367,7 +395,7 @@ const VistaDetallePropiedad = () => {
               </div>
               <div className="form-group">
                 <label><MessageSquare size={16}/> Descripción *</label>
-                <textarea required rows="4" placeholder="Describe el problema..." onChange={(e) => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})}></textarea>
+                <textarea required rows="4" placeholder="Describe el problema..." value={nuevoServicio.descripcion} onChange={(e) => setNuevoServicio({...nuevoServicio, descripcion: e.target.value})}></textarea>
               </div>
 
               <div className="form-group">
@@ -482,6 +510,7 @@ const VistaDetallePropiedad = () => {
           </div>
         </div>
       )}
+      
       {/* MODAL DE SELECCIÓN DE FOTO */}
       {isPhotoMenuOpen && (
         <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)} style={{ zIndex: 2000 }}>
