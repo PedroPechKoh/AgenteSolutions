@@ -165,18 +165,19 @@ const handleLogin = async (e) => {
         transition: 'background-image 0.5s ease-in-out'
       }} 
     >
-      <button 
-  onClick={() => OneSignal.Slidedown.promptPush()} 
-  style={{ padding: '20px', background: 'red', color: 'white', fontWeight: 'bold', margin: '20px' }}
->
-   FORZAR PERMISO DE NOTIFICACIÓN
-</button>
+      
       
       <img src={Logo4} alt="Agente Solutions" className="logo-top-left" />
       <div className="decoration-layer">
         <div className="stripe-top"></div>
         <div className="stripe-bottom"></div>
         <div className="shape-right"></div>
+        <button 
+  onClick={() => OneSignal.Slidedown.promptPush()} 
+  style={{ padding: '20px', background: 'red', color: 'white', fontWeight: 'bold', margin: '20px' }}
+>
+   FORZAR PERMISO DE NOTIFICACIÓN
+</button>
       </div>
       
       <form className="form-section" onSubmit={handleLogin}>
