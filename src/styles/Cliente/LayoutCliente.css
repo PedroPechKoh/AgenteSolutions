@@ -153,11 +153,63 @@
     display: none !important;
   }
   .tt-header {
-    padding: 15px;
+    padding: 10px 15px;
+    height: auto;
+    flex-wrap: wrap;
+    gap: 10px;
   }
-  .header-title {
-    font-size: 16px !important;
+  .header-welcome-message {
+    font-size: 14px !important;
+    text-align: center;
+    width: 100%;
   }
+  .header-username-text {
+    font-size: 1rem !important;
+  }
+  .center-title-section {
+    order: 3;
+    width: 100%;
+    margin-top: 5px;
+  }
+  .header-right-group {
+    order: 2;
+  }
+}
+
+.header-welcome-message {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #000;
+  line-height: 1.2;
+}
+
+.header-username-text {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.header-actions-wrapper {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.action-icon {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.action-icon:hover {
+  color: #f26624;
+}
+
+.center-title-section {
+  flex-grow: 1;
+  text-align: center;
 }
 
 

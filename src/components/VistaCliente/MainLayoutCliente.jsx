@@ -12,7 +12,9 @@ const MainLayoutCliente = ({ children }) => {
   const { user, logoutGlobal } = useAuth();
   const [menuAbierto, setMenuAbierto] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const userName = user?.first_name || user?.name || "CLIENTE";
+  
+  // Safe user name retrieval
+  const userName = user?.first_name || user?.name || "Cliente";
 
   // Recuperamos los IDs guardados para mantener el contexto de la propiedad
   const savedPropertyId = localStorage.getItem('current_property_id');
@@ -81,10 +83,13 @@ const MainLayoutCliente = ({ children }) => {
       <main className="tt-main">
         <header className="tt-header">
           <div className="header-left-group" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <div onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button className="btn-menu-mobile" onClick={() => setIsMobileMenuOpen(true)}>
+              <Menu size={28} />
+            </button>
+            <div onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <ArrowLeft size={28} strokeWidth={3} className="header-arrow" />
               {!isGlobalRoute && (
-                <span style={{ fontSize: '1.4rem', fontWeight: '900', color: '#000', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <span className="header-username-text">
                   {userName}
                 </span>
               )}
@@ -92,16 +97,16 @@ const MainLayoutCliente = ({ children }) => {
           </div>
 
           {isGlobalRoute && (
-            <div className="center-title-section" style={{ flexGrow: 1, textAlign: 'center' }}>
-               <h2 className="header-title" style={{ margin: 0, fontSize: '1.4rem', fontWeight: 'bold', color: '#000' }}>
-                 Hola {userName.toUpperCase()}. Gracias por trabajar con nosotros.
+            <div className="center-title-section">
+               <h2 className="header-welcome-message">
+                 Hola {(userName || "Cliente").toUpperCase()}. Gracias por trabajar con nosotros.
                </h2>
             </div>
           )}
           
-          <div className="header-right-group" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-               <Settings size={22} className="icon-gray" style={{ cursor: 'pointer' }} onClick={() => navigate('/ajustes')} />
+          <div className="header-right-group">
+            <div className="header-actions-wrapper">
+               <Settings size={22} className="icon-gray action-icon" onClick={() => navigate('/ajustes')} />
                <NotificationBell />
             </div>
             
