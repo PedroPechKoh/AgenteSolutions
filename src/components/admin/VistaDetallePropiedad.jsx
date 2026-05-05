@@ -29,7 +29,7 @@ const VistaDetallePropiedad = () => {
   const [loadingZonas, setLoadingZonas] = useState(false);
   const [loadingEquipos, setLoadingEquipos] = useState(false);
   const [nuevoServicio, setNuevoServicio] = useState({
-    zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] 
+    tipo: '', zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] 
   });
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
@@ -70,8 +70,8 @@ const VistaDetallePropiedad = () => {
 
   const handleSubmitServicio = async (e) => {
     e.preventDefault();
-    if (!nuevoServicio.area_id || !nuevoServicio.descripcion) {
-      alert("Por favor completa los campos obligatorios (Zona y Descripción).");
+    if (!nuevoServicio.tipo || !nuevoServicio.area_id || !nuevoServicio.descripcion) {
+      alert("Por favor completa los campos obligatorios (Tipo, Zona y Descripción).");
       return;
     }
 
@@ -80,7 +80,9 @@ const VistaDetallePropiedad = () => {
       const token = localStorage.getItem('agente_token');
       const formData = new FormData();
       formData.append('property_id', id);
-      formData.append('property_area_id', nuevoServicio.area_id);
+      formData.append('type', nuevoServicio.tipo);
+      formData.append('zone', nuevoServicio.zona);
+      formData.append('equipment', nuevoServicio.equipo || '');
       
       const descFinal = nuevoServicio.equipo 
         ? `${nuevoServicio.descripcion}\n\n[EQUIPO AFECTADO]: ${nuevoServicio.equipo}`
@@ -90,10 +92,10 @@ const VistaDetallePropiedad = () => {
 
       // Agregamos las fotos (hasta 2)
       nuevoServicio.fotos.forEach((foto, index) => {
-        formData.append(`evidencia_${index + 1}`, foto);
+        formData.append(`evidence_${index + 1}`, foto);
       });
 
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/services`, formData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/work-orders/cliente`, formData, {
         headers: { 
           'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`
@@ -103,7 +105,7 @@ const VistaDetallePropiedad = () => {
       if (res.data.success) {
         alert("✅ Reporte levantado con éxito.");
         setMostrarModalServicio(false);
-        setNuevoServicio({ zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] });
+        setNuevoServicio({ tipo: '', zona: '', area_id: '', equipo: '', descripcion: '', fotos: [] });
         fetchDashboardData();
       }
     } catch (error) {
@@ -343,6 +345,20 @@ const VistaDetallePropiedad = () => {
               <h2>Reportar Problema</h2>
             </div>
             <form className="modal-body service-form" onSubmit={handleSubmitServicio}>
+              {/* NUEVO CAMPO: TIPO DE SERVICIO */}
+              <div className="form-group">
+                <label><FileText size={16}/> Tipo de Servicio *</label>
+                <select 
+                  required 
+                  value={nuevoServicio.tipo}
+                  onChange={(e) => setNuevoServicio({...nuevoServicio, tipo: e.target.value})}
+                >
+                  <option value="">Selecciona el tipo...</option>
+                  <option value="Consulta">Consulta / Duda</option>
+                  <option value="Mantenimiento">Mantenimiento Preventivo</option>
+                  <option value="Problema">Problema / Reparación</option>
+                </select>
+              </div>
               <div className="form-group">
                 <label><Home size={16}/> Zona de la propiedad *</label>
                 <select 
