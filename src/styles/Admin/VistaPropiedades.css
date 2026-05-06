@@ -352,33 +352,38 @@
     font-size: 0.9rem;
 }
 
-.pc-stat-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+.pc-stat-box {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
 }
 
-.pc-stat-item strong {
+.pc-stat-box strong {
     font-size: 1.2rem;
     font-weight: 900;
 }
 
 .pc-stat-item span {
-    font-weight: 700;
-    color: #666;
+    font-weight: 800;
+    color: #444;
     font-size: 0.75rem;
+    white-space: nowrap;
 }
 
-/* Colores de los puntos */
-.pc-stat-item.sos .pc-stat-dot { background-color: #f44336; }
-.pc-stat-item.todo .pc-stat-dot { background-color: #ffb300; }
-.pc-stat-item.progress .pc-stat-dot { background-color: #2196f3; }
-.pc-stat-item.done .pc-stat-dot { background-color: #4caf50; }
+/* Colores de los cuadros */
+.pc-stat-item.sos .pc-stat-box { background-color: #f44336; }
+.pc-stat-item.todo .pc-stat-box { background-color: #ffb300; }
+.pc-stat-item.progress .pc-stat-box { background-color: #2196f3; }
+.pc-stat-item.done .pc-stat-box { background-color: #4caf50; }
 
-.pc-stat-item.sos strong { color: #f44336; }
-.pc-stat-item.todo strong { color: #b8860b; }
-.pc-stat-item.progress strong { color: #1565c0; }
-.pc-stat-item.done strong { color: #2e7d32; }
+.pc-stat-item.sos strong { color: white; }
+.pc-stat-item.todo strong { color: white; }
+.pc-stat-item.progress strong { color: white; }
+.pc-stat-item.done strong { color: white; }
 
 /* Botón Agregar Propiedad Compacto */
 .pc-add-btn {
@@ -392,6 +397,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     transition: 0.3s;
     box-shadow: 0 4px 10px rgba(242, 102, 36, 0.2);
@@ -410,11 +416,46 @@
 @media (max-width: 1024px) {
     .pc-dashboard-header {
         flex-direction: column;
-        gap: 20px;
-        align-items: flex-start;
+        gap: 15px;
+        align-items: center;
+        padding: 20px;
+        margin-top: 20px;
     }
-    .pc-add-btn {
+    
+    .pc-dashboard-info {
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        align-items: center;
+    }
+
+    .pc-stats-row {
         width: 100%;
         justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .pc-actions-group {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .pc-add-btn {
+        width: 100%;
+        padding: 15px;
+        font-size: 1rem;
+        border-radius: 12px;
+    }
+
+    .pc-stat-item {
+        flex-direction: column;
+        gap: 4px;
+        min-width: 70px;
+    }
+
+    .pc-stat-item span {
+        font-size: 0.65rem;
+        text-align: center;
     }
 }

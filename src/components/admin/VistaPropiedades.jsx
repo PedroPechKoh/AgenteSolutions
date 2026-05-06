@@ -234,27 +234,29 @@ const VistaPropiedades = () => {
               </div>
               <div className="pc-stats-row">
                 <div className="pc-stat-item sos">
-                  <div className="pc-stat-dot"></div>
-                  <strong>{globalStats.sos}</strong> <span>SOS</span>
+                  <div className="pc-stat-box"><strong>{globalStats.sos}</strong></div>
+                  <span>SOS</span>
                 </div>
                 <div className="pc-stat-item todo">
-                  <div className="pc-stat-dot"></div>
-                  <strong>{globalStats.todo}</strong> <span>POR HACER</span>
+                  <div className="pc-stat-box"><strong>{globalStats.todo}</strong></div>
+                  <span>POR HACER</span>
                 </div>
                 <div className="pc-stat-item progress">
-                  <div className="pc-stat-dot"></div>
-                  <strong>{globalStats.progress}</strong> <span>PROCESO</span>
+                  <div className="pc-stat-box"><strong>{globalStats.progress}</strong></div>
+                  <span>PROCESO</span>
                 </div>
                 <div className="pc-stat-item done">
-                  <div className="pc-stat-dot"></div>
-                  <strong>{globalStats.done}</strong> <span>LISTOS</span>
+                  <div className="pc-stat-box"><strong>{globalStats.done}</strong></div>
+                  <span>LISTOS</span>
                 </div>
               </div>
             </div>
             
-            <button className="pc-add-btn" onClick={() => navigate("/registro-propiedades")}>
-               <span>+</span> AGREGAR PROPIEDAD
-            </button>
+            <div className="pc-actions-group">
+              <button className="pc-add-btn" onClick={() => navigate("/registro-propiedades")}>
+                 <span>+</span> AGREGAR PROPIEDAD
+              </button>
+            </div>
           </div>
         )}
 
