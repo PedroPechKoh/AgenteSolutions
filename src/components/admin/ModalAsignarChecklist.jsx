@@ -106,13 +106,15 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
     setLoading(true);
     try {
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${workOrder.dbId}/assign`, {
+        tecnico_id: tecnicoId,
         custom_checklist: checklist
       });
       alert("Checklist asignado correctamente");
       onAssign();
     } catch (e) {
       console.error(e);
-      alert("Error al asignar el checklist");
+      const msg = e.response?.data?.error || e.response?.data?.message || "Error al asignar el checklist";
+      alert(msg);
     }
     setLoading(false);
   };
@@ -132,10 +134,19 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         </div>
 
         <div className="checklist-modal-body">
-          {/* Selección de Plantilla */}
+          {/* Selección de Técnico y Plantilla */}
           <div className="assignment-section-mini">
-            <div className="form-group-cl full-width">
-              <label><Package size={14}/> CARGAR PLANTILLA DE CHECKLIST</label>
+            <div className="form-group-cl">
+              <label><Settings size={14}/> TÉCNICO RESPONSABLE</label>
+              <select value={tecnicoId} onChange={e => setTecnicoId(e.target.value)}>
+                <option value="">-- Seleccionar Técnico --</option>
+                {tecnicos.map(t => (
+                  <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group-cl">
+              <label><Package size={14}/> CARGAR PLANTILLA</label>
               <select value={selectedTemplateId} onChange={handleTemplateChange}>
                 <option value="">-- Nueva Plantilla en Blanco --</option>
                 {templates.map(t => (
@@ -253,7 +264,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
 
         .checklist-modal-body { padding: 30px; flex: 1; overflow-y: auto; background: white; }
         
-        .assignment-section-mini { margin-bottom: 25px; }
+        .assignment-section-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
         .full-width { width: 100%; }
         .form-group-cl { display: flex; flex-direction: column; gap: 8px; }
         .form-group-cl label { font-size: 0.75rem; font-weight: 900; color: #444; display: flex; align-items: center; gap: 6px; }
