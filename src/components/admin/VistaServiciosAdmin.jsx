@@ -55,7 +55,8 @@ const VistaServiciosAdmin = () => {
         estado: estado,
         descripcion: item.description,
         evidencias: [item.evidence_path, item.evidence_path_2].filter(p => p),
-        custom_checklist: item.custom_checklist
+        custom_checklist: item.custom_checklist,
+        scheduledAt: item.scheduled_at
       };
     });
   }, []);
@@ -127,6 +128,24 @@ const VistaServiciosAdmin = () => {
       alert("Técnico asignado con éxito");
     } catch (error) {
       alert("Error al asignar técnico.");
+    } finally {
+      setProcesandoAccion(false);
+    }
+  };
+
+  const handleSaveSchedule = async (newDate) => {
+    if (!newDate) return alert("Por favor selecciona una fecha y hora de visita.");
+    setProcesandoAccion(true);
+    try {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/assign`, {
+        scheduled_at: newDate
+      });
+      alert("Cita programada y cliente notificado correctamente.");
+      fetchOrders();
+      setTareaSeleccionada(prev => ({ ...prev, scheduledAt: newDate }));
+    } catch (error) {
+      console.error(error);
+      alert("Error al programar la cita.");
     } finally {
       setProcesandoAccion(false);
     }
@@ -266,6 +285,64 @@ const VistaServiciosAdmin = () => {
                       <div className="info-item">
                         <Calendar size={20} />
                         <div><label>Fecha Reporte</label><strong>{tareaSeleccionada.fechaInicio}</strong></div>
+                      </div>
+
+                      <div className="info-item" style={{ 
+                        gridColumn: 'span 2', 
+                        background: '#fff9f0', 
+                        padding: '15px', 
+                        borderRadius: '12px', 
+                        border: '1px dashed #F26522',
+                        marginTop: '10px'
+                      }}>
+                        <Calendar size={20} color="#F26522" />
+                        <div style={{ flex: 1 }}>
+                          <label style={{ color: '#F26522', fontWeight: '900', fontSize: '0.75rem' }}>
+                            PROGRAMAR VISITA (NOTIFICA AL CLIENTE)
+                          </label>
+                          <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                            <input 
+                              type="datetime-local" 
+                              defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toISOString().slice(0, 16) : ''}
+                              id="input-schedule-visit-main"
+                              style={{ 
+                                flex: 1, 
+                                padding: '10px', 
+                                border: '1px solid #ddd', 
+                                borderRadius: '10px', 
+                                outline: 'none', 
+                                background: 'white',
+                                fontSize: '0.85rem',
+                                color: '#333'
+                              }}
+                            />
+                            <button 
+                              onClick={() => {
+                                const val = document.getElementById('input-schedule-visit-main').value;
+                                handleSaveSchedule(val);
+                              }}
+                              disabled={procesandoAccion}
+                              style={{ 
+                                background: '#F26522', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '10px', 
+                                padding: '0 20px', 
+                                fontWeight: '900', 
+                                cursor: 'pointer',
+                                fontSize: '0.75rem',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {procesandoAccion ? '...' : 'PROGRAMAR'}
+                            </button>
+                          </div>
+                          {tareaSeleccionada.scheduledAt && (
+                            <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#666', fontWeight: 'bold' }}>
+                              Cita actual: {new Date(tareaSeleccionada.scheduledAt).toLocaleString()}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
