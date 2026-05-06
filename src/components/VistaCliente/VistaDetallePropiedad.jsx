@@ -250,7 +250,7 @@ const VistaDetallePropiedad = () => {
             </div>
             
             <div className="jira-stats-grid quad">
-              <div className="stat-box sos-urgent-stat" onClick={() => navigate('/sos')}>
+              <div className="stat-box sos-urgent-stat" onClick={() => navigate('/SOSView')}>
                 <AlertCircle size={24} />
                 <span className="stat-number">{stats.sos || 0}</span>
                 <span className="stat-label">SOS</span>

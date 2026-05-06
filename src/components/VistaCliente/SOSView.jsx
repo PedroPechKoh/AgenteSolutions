@@ -40,16 +40,41 @@ const SOSView = () => {
     fetchPropiedades();
   }, []);
 
+  const [submitting, setSubmitting] = useState(false);
   const telefonoEmpresa = "529994562327"; 
   const mensajeWA = encodeURIComponent("¡Hola Agente Solutions! Tengo una emergencia SOS y necesito asistencia inmediata.");
   const urlWhatsApp = `https://wa.me/${telefonoEmpresa}?text=${mensajeWA}`;
 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Datos del reporte SOS:", formData);
-    alert("Reporte de emergencia enviado con éxito. Un técnico se pondrá en contacto.");
-    navigate(-1);
+    if (!formData.propiedadId) return alert("Por favor selecciona una propiedad.");
+    
+    setSubmitting(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      const formDataToSend = new FormData();
+      formDataToSend.append('property_id', formData.propiedadId);
+      formDataToSend.append('type', 'SOS');
+      formDataToSend.append('priority', 'Urgente');
+      formDataToSend.append('zone', 'URGENCIA');
+      formDataToSend.append('description', formData.descripcion);
+      
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/work-orders/cliente`, formDataToSend, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      alert("¡SOS Enviado! Un técnico ha sido notificado de tu emergencia.");
+      navigate(-1);
+    } catch (error) {
+      console.error("Error enviando SOS:", error);
+      alert("Hubo un error al enviar el SOS. Por favor intenta de nuevo.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -114,8 +139,8 @@ const SOSView = () => {
               ></textarea>
             </div>
 
-            <button type="submit" className="btn-submit-sos-urgent-premium">
-              <Send size={20} /> ENVIAR REPORTE AHORA
+            <button type="submit" className="btn-submit-sos-urgent-premium" disabled={submitting}>
+              <Send size={20} /> {submitting ? 'ENVIANDO...' : 'ENVIAR REPORTE AHORA'}
             </button>
           </form>
         </div>
