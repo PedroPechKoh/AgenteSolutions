@@ -311,11 +311,12 @@ const VistaServiciosAdmin = () => {
                                 type="date" 
                                 defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toISOString().split('T')[0] : ''}
                                 id="input-date-visit"
+                                onClick={(e) => e.target.showPicker()}
                                 style={{ 
                                   width: '100%', padding: '12px 10px 12px 35px', 
                                   border: '1px solid #ccc', borderRadius: '10px', 
                                   outline: 'none', background: 'white', fontSize: '0.9rem',
-                                  color: '#333', fontWeight: '600', display: 'block'
+                                  color: '#333', fontWeight: '600', display: 'block', cursor: 'pointer'
                                 }}
                               />
                             </div>
@@ -325,11 +326,12 @@ const VistaServiciosAdmin = () => {
                                 type="time" 
                                 defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toTimeString().slice(0, 5) : ''}
                                 id="input-time-visit"
+                                onClick={(e) => e.target.showPicker()}
                                 style={{ 
                                   width: '100%', padding: '12px 10px 12px 35px', 
                                   border: '1px solid #ccc', borderRadius: '10px', 
                                   outline: 'none', background: 'white', fontSize: '0.9rem',
-                                  color: '#333', fontWeight: '600', display: 'block'
+                                  color: '#333', fontWeight: '600', display: 'block', cursor: 'pointer'
                                 }}
                               />
                             </div>
