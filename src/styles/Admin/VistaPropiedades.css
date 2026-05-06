@@ -305,108 +305,116 @@
     transform: scale(1.2);
 }
 
-/* --- ESTILOS DEL TABLERO DE CONTROL --- */
-.global-stats-dashboard {
+/* --- NUEVO TABLERO COMPACTO PARA PC --- */
+.pc-dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     background-color: #fff;
-    border-radius: 25px;
-    padding: 20px 30px;
-    margin: 20px auto;
-    width: 90%;
-    max-width: 1000px; /* Centrado y balanceado */
-    box-shadow: 0 5px 25px rgba(0,0,0,0.06);
-    border: 1px solid #f0f0f0;
+    padding: 15px 30px;
+    border-radius: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+    width: 100%;
     box-sizing: border-box;
 }
 
-.dashboard-header-row {
+.pc-dashboard-info {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #f0f0f0;
+    gap: 40px;
 }
 
-.dashboard-main-title {
-    font-size: 2rem;
+.pc-title-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pc-dashboard-title {
+    font-size: 1.3rem;
     font-weight: 900;
     color: #333;
     margin: 0;
-    letter-spacing: -0.5px;
+    white-space: nowrap;
 }
 
-.stats-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-}
-
-.stat-card-item {
+.pc-stats-row {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 25px 15px; /* Más balanceado */
-    border-radius: 20px;
-    text-align: center;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-    cursor: default;
+    gap: 25px;
 }
 
-.stat-card-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-}
-
-.stat-card-icon {
-    margin-bottom: 10px;
+.pc-stat-item {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
+    font-size: 0.9rem;
 }
 
-.stat-card-value {
-    font-size: 3rem; /* Grande pero contenido */
+.pc-stat-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.pc-stat-item strong {
+    font-size: 1.2rem;
     font-weight: 900;
-    line-height: 1;
-    margin-bottom: 5px;
 }
 
-.stat-card-label {
-    font-size: 0.8rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+.pc-stat-item span {
+    font-weight: 700;
+    color: #666;
+    font-size: 0.75rem;
 }
 
-/* Colores específicos de las tarjetas */
-.stat-card-item.sos {
-    background-color: #fff1f1;
-    border-color: #ffcccc;
-    color: #d32f2f;
-}
-.stat-card-item.todo {
-    background-color: #fff8e1;
-    border-color: #ffecb3;
-    color: #b8860b;
-}
-.stat-card-item.progress {
-    background-color: #e3f2fd;
-    border-color: #bbdefb;
-    color: #1565c0;
-}
-.stat-card-item.done {
-    background-color: #e8f5e9;
-    border-color: #c8e6c9;
-    color: #2e7d32;
+/* Colores de los puntos */
+.pc-stat-item.sos .pc-stat-dot { background-color: #f44336; }
+.pc-stat-item.todo .pc-stat-dot { background-color: #ffb300; }
+.pc-stat-item.progress .pc-stat-dot { background-color: #2196f3; }
+.pc-stat-item.done .pc-stat-dot { background-color: #4caf50; }
+
+.pc-stat-item.sos strong { color: #f44336; }
+.pc-stat-item.todo strong { color: #b8860b; }
+.pc-stat-item.progress strong { color: #1565c0; }
+.pc-stat-item.done strong { color: #2e7d32; }
+
+/* Botón Agregar Propiedad Compacto */
+.pc-add-btn {
+    background-color: #f26624;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 15px;
+    font-weight: 900;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+    box-shadow: 0 4px 10px rgba(242, 102, 36, 0.2);
 }
 
-@media (max-width: 768px) {
-    .stats-cards-grid {
-        grid-template-columns: repeat(2, 1fr);
+.pc-add-btn:hover {
+    background-color: #d1561d;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(242, 102, 36, 0.3);
+}
+
+.pc-add-btn span {
+    font-size: 1.4rem;
+}
+
+@media (max-width: 1024px) {
+    .pc-dashboard-header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: flex-start;
     }
-    .dashboard-main-title {
-        font-size: 1.4rem;
+    .pc-add-btn {
+        width: 100%;
+        justify-content: center;
     }
 }

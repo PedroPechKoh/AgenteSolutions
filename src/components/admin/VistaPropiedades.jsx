@@ -224,67 +224,61 @@ const VistaPropiedades = () => {
 
       <section className="content-area">
         
-        <div className="search-header-flex" style={isClient ? { flexDirection: 'column', gap: '15px', width: '100%', maxWidth: '800px', margin: '0 auto', paddingBottom: '20px' } : {}}>
-          {!isClient && (
-            <div className="search-container-center">
-              <UniversalSearch
-                type="PROPIEDADES"
-                data={listaPropiedades}
-                setFilteredData={setPropiedadesFiltradas}
-                filtroActual={categoria}
-                placeholder="PROPIEDADES"
-              />
+        {/* --- NUEVO TABLERO COMPACTO PARA PC (Solo Clientes) --- */}
+        {isClient && (
+          <div className="pc-dashboard-header">
+            <div className="pc-dashboard-info">
+              <div className="pc-title-group">
+                <LayoutDashboard size={22} color="#F26522" />
+                <h2 className="pc-dashboard-title">Tablero de Control</h2>
+              </div>
+              <div className="pc-stats-row">
+                <div className="pc-stat-item sos">
+                  <div className="pc-stat-dot"></div>
+                  <strong>{globalStats.sos}</strong> <span>SOS</span>
+                </div>
+                <div className="pc-stat-item todo">
+                  <div className="pc-stat-dot"></div>
+                  <strong>{globalStats.todo}</strong> <span>POR HACER</span>
+                </div>
+                <div className="pc-stat-item progress">
+                  <div className="pc-stat-dot"></div>
+                  <strong>{globalStats.progress}</strong> <span>PROCESO</span>
+                </div>
+                <div className="pc-stat-item done">
+                  <div className="pc-stat-dot"></div>
+                  <strong>{globalStats.done}</strong> <span>LISTOS</span>
+                </div>
+              </div>
             </div>
-          )}
-
-          {isClient ? (
-            <button
-              className="btn-add-wide"
-              style={{ width: '100%', padding: '15px', backgroundColor: '#e0e0e0', color: '#333', border: 'none', borderRadius: '15px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
-              onClick={() => navigate("/registro-propiedades")}
-            >
-              <span style={{ fontSize: '1.8rem', fontWeight: '900' }}>+</span> AGREGAR PROPIEDAD
+            
+            <button className="pc-add-btn" onClick={() => navigate("/registro-propiedades")}>
+               <span>+</span> AGREGAR PROPIEDAD
             </button>
-          ) : (
-            <button
-              className="btn-add-circle"
-              onClick={() => navigate("/registro-propiedades")}
-              title="NUEVA PROPIEDAD"
-            >
-              +
-            </button>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* --- TABLERO DE CONTROL GLOBAL --- */}
-        <div className="global-stats-dashboard">
-          <div className="dashboard-header-row">
-            <LayoutDashboard size={24} color="#F26522" />
-            <h2 className="dashboard-main-title">Tablero de Control</h2>
-          </div>
-          <div className="stats-cards-grid">
-            <div className="stat-card-item sos">
-              <div className="stat-card-icon"><AlertTriangle size={24} /></div>
-              <div className="stat-card-value">{globalStats.sos}</div>
-              <div className="stat-card-label">SOS</div>
-            </div>
-            <div className="stat-card-item todo">
-              <div className="stat-card-icon"><ListChecks size={24} /></div>
-              <div className="stat-card-value">{globalStats.todo}</div>
-              <div className="stat-card-label">POR HACER</div>
-            </div>
-            <div className="stat-card-item progress">
-              <div className="stat-card-icon"><Clock size={24} /></div>
-              <div className="stat-card-value">{globalStats.progress}</div>
-              <div className="stat-card-label">PROCESO</div>
-            </div>
-            <div className="stat-card-item done">
-              <div className="stat-card-icon"><CheckCircle2 size={24} /></div>
-              <div className="stat-card-value">{globalStats.done}</div>
-              <div className="stat-card-label">LISTOS</div>
-            </div>
-          </div>
-        </div>
+        {/* Solo para Admin: Buscador y Botón Circular */}
+        {!isClient && (
+           <div className="search-header-flex">
+              <div className="search-container-center">
+                <UniversalSearch
+                  type="PROPIEDADES"
+                  data={listaPropiedades}
+                  setFilteredData={setPropiedadesFiltradas}
+                  filtroActual={categoria}
+                  placeholder="PROPIEDADES"
+                />
+              </div>
+              <button
+                className="btn-add-circle"
+                onClick={() => navigate("/registro-propiedades")}
+                title="NUEVA PROPIEDAD"
+              >
+                +
+              </button>
+           </div>
+        )}
 
         {!isClient && (
           <div className="categories-row-container">
