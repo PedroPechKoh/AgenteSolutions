@@ -227,7 +227,7 @@ const VistaPropiedades = () => {
         {/* --- NUEVO TABLERO COMPACTO PARA PC (Solo Clientes) --- */}
         {isClient && (
           <div className="pc-dashboard-header">
-            <div className="pc-dashboard-info">
+            <div className="pc-dashboard-top-section">
               <div className="pc-title-group">
                 <LayoutDashboard size={22} color="#F26522" />
                 <h2 className="pc-dashboard-title">Tablero de Control</h2>
@@ -252,7 +252,7 @@ const VistaPropiedades = () => {
               </div>
             </div>
             
-            <div className="pc-actions-group">
+            <div className="pc-dashboard-actions">
               <button className="pc-add-btn" onClick={() => navigate("/registro-propiedades")}>
                  <span>+</span> AGREGAR PROPIEDAD
               </button>
