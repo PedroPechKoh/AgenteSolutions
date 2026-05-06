@@ -6,6 +6,7 @@ import {
   ArrowLeft, Camera, Layout, FileText, Maximize2, AlertTriangle, ChevronLeft, Timer 
 } from 'lucide-react';
 import Header from '../Shared/Header';
+import ModalAsignarChecklist from './ModalAsignarChecklist';
 import '../../styles/Cliente/TableroScrum.css'; // Reutilizamos estilos
 
 const VistaServiciosAdmin = () => {
@@ -21,6 +22,7 @@ const VistaServiciosAdmin = () => {
   const [procesandoAccion, setProcesandoAccion] = useState(false);
   const [tecnicos, setTecnicos] = useState([]);
   const [mostrandoSelectorTecnico, setMostrandoSelectorTecnico] = useState(false);
+  const [modalChecklistVisible, setModalChecklistVisible] = useState(false);
   
   // --- ESTADOS PARA INVENTARIO ---
   const [modalSurveyVisible, setModalSurveyVisible] = useState(false);
@@ -52,7 +54,8 @@ const VistaServiciosAdmin = () => {
         fechaInicio: new Date(item.created_at).toLocaleDateString(),
         estado: estado,
         descripcion: item.description,
-        evidencias: [item.evidence_path, item.evidence_path_2].filter(p => p)
+        evidencias: [item.evidence_path, item.evidence_path_2].filter(p => p),
+        custom_checklist: item.custom_checklist
       };
     });
   }, []);
@@ -274,6 +277,10 @@ const VistaServiciosAdmin = () => {
                       <Layout size={18} /> CONSULTAR LEVANTAMIENTO DE LA PROPIEDAD
                     </button>
 
+                    <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333' }}>
+                      <CheckCircle2 size={18} /> ASIGNAR CHECKLIST / TÉCNICO
+                    </button>
+
                     <div className="modal-main-action-wrapper">
                       {tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'sos' ? (
                         <button className="modal-action-btn variant-black" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('En Proceso')}>
@@ -425,6 +432,22 @@ const VistaServiciosAdmin = () => {
             <img src={imagenExpandida} className="image-zoomed" alt="Zoom" />
           </div>
         </div>
+      )}
+
+      {modalChecklistVisible && tareaSeleccionada && (
+        <ModalAsignarChecklist 
+          workOrder={tareaSeleccionada}
+          onClose={() => setModalChecklistVisible(false)}
+          onAssign={() => {
+            setModalChecklistVisible(false);
+            fetchOrders();
+            // Actualizar la tarea seleccionada para reflejar el nuevo técnico
+            setTimeout(() => {
+               const updated = tareasData.find(t => t.dbId === tareaSeleccionada.dbId);
+               if (updated) setTareaSeleccionada(updated);
+            }, 500);
+          }}
+        />
       )}
       
       <style>{`
