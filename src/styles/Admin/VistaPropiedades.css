@@ -304,3 +304,104 @@
 .btn-icon-action:hover {
     transform: scale(1.2);
 }
+
+/* --- ESTILOS DEL TABLERO DE CONTROL --- */
+.global-stats-dashboard {
+    background-color: #fff;
+    border-radius: 25px;
+    padding: 25px;
+    margin: 20px auto;
+    width: 95%;
+    max-width: 1000px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.dashboard-header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.dashboard-main-title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #333;
+    margin: 0;
+}
+
+.stats-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.stat-card-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    transition: transform 0.2s;
+    border: 1px solid transparent;
+}
+
+.stat-card-item:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card-icon {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card-value {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.stat-card-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Colores específicos de las tarjetas */
+.stat-card-item.sos {
+    background-color: #fff1f1;
+    border-color: #ffcccc;
+    color: #d32f2f;
+}
+.stat-card-item.todo {
+    background-color: #fff8e1;
+    border-color: #ffecb3;
+    color: #b8860b;
+}
+.stat-card-item.progress {
+    background-color: #e3f2fd;
+    border-color: #bbdefb;
+    color: #1565c0;
+}
+.stat-card-item.done {
+    background-color: #e8f5e9;
+    border-color: #c8e6c9;
+    color: #2e7d32;
+}
+
+@media (max-width: 768px) {
+    .stats-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .dashboard-main-title {
+        font-size: 1.4rem;
+    }
+}

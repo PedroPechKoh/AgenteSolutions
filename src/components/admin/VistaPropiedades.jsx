@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import UniversalSearch from "../Shared/UniversalSearch"; 
 import Header from "../Shared/Header"; 
 import "../../styles/Admin/VistaPropiedades.css";
-import { X, CheckCircle, User } from "lucide-react";
+import { X, CheckCircle, User, AlertTriangle, ListChecks, Clock, CheckCircle2, LayoutDashboard } from "lucide-react";
 
 const TIPOS_PROPIEDAD = [
   { label: "TODAS", icon: "🌐", title: "TODAS" },
@@ -23,6 +23,7 @@ const VistaPropiedades = () => {
 
   const [mostrarModalServicio, setMostrarModalServicio] = useState(false);
   const [propiedadSeleccionada, setPropiedadSeleccionada] = useState(null);
+  const [globalStats, setGlobalStats] = useState({ sos: 0, todo: 0, progress: 0, done: 0 });
   const [pasoModal, setPasoModal] = useState(1); 
   const [nombreResponsable, setNombreResponsable] = useState("");
 
@@ -46,17 +47,19 @@ const VistaPropiedades = () => {
       try {
         const token = localStorage.getItem('agente_token'); 
 
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/propiedades`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}` 
-            }
-          }
-        );
-        setListaPropiedades(data);
+        const [propsRes, statsRes] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }),
+          axios.get(`${import.meta.env.VITE_API_BASE_URL}/work-orders/global-stats`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
+        ]);
+
+        setListaPropiedades(propsRes.data);
+        setGlobalStats(statsRes.data);
       } catch (error) {
-        console.error("Error al cargar las propiedades:", error);
+        console.error("Error al cargar datos:", error);
       } finally {
         setCargando(false);
       }
@@ -251,6 +254,36 @@ const VistaPropiedades = () => {
               +
             </button>
           )}
+        </div>
+
+        {/* --- TABLERO DE CONTROL GLOBAL --- */}
+        <div className="global-stats-dashboard">
+          <div className="dashboard-header-row">
+            <LayoutDashboard size={24} color="#F26522" />
+            <h2 className="dashboard-main-title">Tablero de Control</h2>
+          </div>
+          <div className="stats-cards-grid">
+            <div className="stat-card-item sos">
+              <div className="stat-card-icon"><AlertTriangle size={24} /></div>
+              <div className="stat-card-value">{globalStats.sos}</div>
+              <div className="stat-card-label">SOS</div>
+            </div>
+            <div className="stat-card-item todo">
+              <div className="stat-card-icon"><ListChecks size={24} /></div>
+              <div className="stat-card-value">{globalStats.todo}</div>
+              <div className="stat-card-label">POR HACER</div>
+            </div>
+            <div className="stat-card-item progress">
+              <div className="stat-card-icon"><Clock size={24} /></div>
+              <div className="stat-card-value">{globalStats.progress}</div>
+              <div className="stat-card-label">PROCESO</div>
+            </div>
+            <div className="stat-card-item done">
+              <div className="stat-card-icon"><CheckCircle2 size={24} /></div>
+              <div className="stat-card-value">{globalStats.done}</div>
+              <div className="stat-card-label">LISTOS</div>
+            </div>
+          </div>
         </div>
 
         {!isClient && (
