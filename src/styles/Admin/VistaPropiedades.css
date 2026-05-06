@@ -308,23 +308,23 @@
 /* --- ESTILOS DEL TABLERO DE CONTROL --- */
 .global-stats-dashboard {
     background-color: #fff;
-    border-radius: 30px;
-    padding: 35px;
+    border-radius: 25px;
+    padding: 20px 30px;
     margin: 20px auto;
-    width: 98%;
-    max-width: 1600px; /* Mucho más amplio para PC */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-    border: 1px solid #ececec;
+    width: 90%;
+    max-width: 1000px; /* Centrado y balanceado */
+    box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+    border: 1px solid #f0f0f0;
     box-sizing: border-box;
 }
 
 .dashboard-header-row {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 35px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #f8f8f8;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .dashboard-main-title {
@@ -338,7 +338,7 @@
 .stats-cards-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 30px; /* Más espacio entre tarjetas */
+    gap: 20px;
 }
 
 .stat-card-item {
@@ -346,39 +346,38 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 45px 25px; /* Más grandes */
-    border-radius: 30px;
+    padding: 25px 15px; /* Más balanceado */
+    border-radius: 20px;
     text-align: center;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
     cursor: default;
 }
 
 .stat-card-item:hover {
-    transform: translateY(-12px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
 }
 
 .stat-card-icon {
-    margin-bottom: 18px;
+    margin-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transform: scale(1.3); /* Iconos más grandes */
 }
 
 .stat-card-value {
-    font-size: 4rem; /* Gigantes para PC */
+    font-size: 3rem; /* Grande pero contenido */
     font-weight: 900;
     line-height: 1;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .stat-card-label {
-    font-size: 1rem;
-    font-weight: 900;
+    font-size: 0.8rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
 }
 
 /* Colores específicos de las tarjetas */
