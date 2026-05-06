@@ -306,28 +306,30 @@ const VistaServiciosAdmin = () => {
                           </label>
                           <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center' }}>
                             <div className="input-with-icon" style={{ flex: 1.2, position: 'relative' }}>
-                              <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
+                              <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
                               <input 
                                 type="date" 
                                 defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toISOString().split('T')[0] : ''}
                                 id="input-date-visit"
                                 style={{ 
-                                  width: '100%', padding: '10px 10px 10px 35px', 
-                                  border: '1px solid #ddd', borderRadius: '10px', 
-                                  outline: 'none', background: 'white', fontSize: '0.85rem' 
+                                  width: '100%', padding: '12px 10px 12px 35px', 
+                                  border: '1px solid #ccc', borderRadius: '10px', 
+                                  outline: 'none', background: 'white', fontSize: '0.9rem',
+                                  color: '#333', fontWeight: '600', display: 'block'
                                 }}
                               />
                             </div>
                             <div className="input-with-icon" style={{ flex: 0.8, position: 'relative' }}>
-                              <Timer size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
+                              <Timer size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
                               <input 
                                 type="time" 
                                 defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toTimeString().slice(0, 5) : ''}
                                 id="input-time-visit"
                                 style={{ 
-                                  width: '100%', padding: '10px 10px 10px 35px', 
-                                  border: '1px solid #ddd', borderRadius: '10px', 
-                                  outline: 'none', background: 'white', fontSize: '0.85rem' 
+                                  width: '100%', padding: '12px 10px 12px 35px', 
+                                  border: '1px solid #ccc', borderRadius: '10px', 
+                                  outline: 'none', background: 'white', fontSize: '0.9rem',
+                                  color: '#333', fontWeight: '600', display: 'block'
                                 }}
                               />
                             </div>
