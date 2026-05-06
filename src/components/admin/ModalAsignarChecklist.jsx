@@ -17,6 +17,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
     equipo: [],
     material: []
   });
+  const [scheduledAt, setScheduledAt] = useState(workOrder.scheduled_at ? new Date(workOrder.scheduled_at).toISOString().slice(0, 16) : '');
   const [newItem, setNewItem] = useState('');
   const [newTemplateName, setNewTemplateName] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
@@ -55,8 +56,6 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
     const tId = e.target.value;
     setSelectedTemplateId(tId);
     if (tId === '') {
-      // No resetear si ya tiene algo? O sí?
-      // Por ahora dejamos que cargue blanco
       setChecklist({ herramientas: [], equipo: [], material: [] });
     } else {
       const t = templates.find(temp => temp.id == tId);
@@ -107,9 +106,10 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
     try {
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${workOrder.dbId}/assign`, {
         tecnico_id: tecnicoId,
-        custom_checklist: checklist
+        custom_checklist: checklist,
+        scheduled_at: scheduledAt
       });
-      alert("Checklist asignado correctamente");
+      alert("Checklist y programación asignados correctamente");
       onAssign();
     } catch (e) {
       console.error(e);
@@ -153,6 +153,18 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>
+            </div>
+          </div>
+
+          <div className="assignment-section-mini" style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
+            <div className="form-group-cl full-width">
+              <label><Calendar size={14}/> FECHA Y HORA DE VISITA (NOTIFICA AL CLIENTE)</label>
+              <input 
+                type="datetime-local" 
+                value={scheduledAt} 
+                onChange={e => setScheduledAt(e.target.value)} 
+                className="datetime-input"
+              />
             </div>
           </div>
 
@@ -268,11 +280,11 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         .full-width { width: 100%; }
         .form-group-cl { display: flex; flex-direction: column; gap: 8px; }
         .form-group-cl label { font-size: 0.75rem; font-weight: 900; color: #444; display: flex; align-items: center; gap: 6px; }
-        .form-group-cl select { 
+        .form-group-cl select, .datetime-input { 
           padding: 12px; border: 2px solid #ddd; border-radius: 12px; 
           outline: none; font-weight: 600; color: #333; background: white;
         }
-        .form-group-cl select:focus { border-color: #F26522; }
+        .form-group-cl select:focus, .datetime-input:focus { border-color: #F26522; }
 
         .cl-tabs-header { display: flex; gap: 10px; margin-bottom: 0; border-bottom: 2px solid #eee; }
         .cl-tab-btn {
