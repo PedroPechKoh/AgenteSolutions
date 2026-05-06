@@ -28,6 +28,46 @@
   height: auto;
 }
 
+.sidebar-search-wrapper {
+  margin-bottom: 30px;
+  padding: 0 5px;
+}
+
+.sidebar-search-input-container {
+  position: relative;
+  width: 100%;
+}
+
+.sidebar-search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #555;
+}
+
+.sidebar-search-input {
+  width: 100%;
+  background-color: #bcbcbc;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 15px 12px 40px;
+  color: #333;
+  font-weight: 800;
+  font-size: 11px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.sidebar-search-input:focus {
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(242, 102, 36, 0.3);
+}
+
+.sidebar-search-input::placeholder {
+  color: #555;
+}
+
 
 .tt-nav {
   display: flex;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
-import { User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X } from 'lucide-react';
+import { User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../Shared/NotificationBell';
 import logo from "../../assets/Logo4.png";
@@ -12,6 +12,7 @@ const MainLayoutCliente = ({ children }) => {
   const { user, logoutGlobal } = useAuth();
   const [menuAbierto, setMenuAbierto] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState("");
   
   // Safe user name retrieval
   const userName = user?.first_name || user?.name || "Cliente";
@@ -57,6 +58,19 @@ const MainLayoutCliente = ({ children }) => {
   
           <div className="logo-section">
              <img src={logo} alt="Agente Logo" className="main-logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/propiedades')} />
+          </div>
+
+          <div className="sidebar-search-wrapper">
+            <div className="sidebar-search-input-container">
+              <Search size={16} className="sidebar-search-icon" />
+              <input 
+                type="text" 
+                placeholder="BUSCAR..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="sidebar-search-input"
+              />
+            </div>
           </div>
   
           {/* Botón Volver - Solo visible en detalles de propiedad */}
@@ -153,7 +167,7 @@ const MainLayoutCliente = ({ children }) => {
         <div className="tt-orange-bar"></div>
 
         <div className="tt-body">
-          {children || <Outlet />}
+          {children || <Outlet context={{ searchTerm, setSearchTerm }} />}
         </div>
       </main>
     </div>

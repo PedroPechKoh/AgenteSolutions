@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import UniversalSearch from "../Shared/UniversalSearch"; 
@@ -33,6 +33,10 @@ const VistaPropiedades = () => {
   const [editFoto, setEditFoto] = useState(null);
   const [editando, setEditando] = useState(false);
   
+  // CONTEXTO DE BÚSQUEDA (desde MainLayoutCliente)
+  const outletContext = useOutletContext();
+  const searchTerm = outletContext?.searchTerm || "";
+  
   // ROLE CHECK
   const user = JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData;
   const isClient = user?.role_id === 3;
@@ -59,6 +63,26 @@ const VistaPropiedades = () => {
     };
     obtenerPropiedades();
   }, []);
+
+  // Lógica de filtrado manual combinando categoría y búsqueda del sidebar
+  useEffect(() => {
+    const termino = searchTerm.toLowerCase();
+    
+    const filtrados = listaPropiedades.filter((item) => {
+      // 1. Filtro por categoría (CASA, MANSION, etc.)
+      const coincideCategoria = categoria === "TODAS" || (item.tipo && item.tipo.toUpperCase() === categoria);
+      
+      // 2. Filtro por búsqueda de texto
+      const coincideBusqueda = 
+        (item.nombre_propiedad || '').toLowerCase().includes(termino) ||
+        (item.address || '').toLowerCase().includes(termino) ||
+        (item.curp || '').toLowerCase().includes(termino); // Usamos CURP como folio si aplica
+
+      return coincideCategoria && coincideBusqueda;
+    });
+
+    setPropiedadesFiltradas(filtrados);
+  }, [searchTerm, listaPropiedades, categoria]);
 
   const eliminarPropiedad = async (propiedad) => {
     const { id, nombre_propiedad } = propiedad;
@@ -198,15 +222,17 @@ const VistaPropiedades = () => {
       <section className="content-area">
         
         <div className="search-header-flex" style={isClient ? { flexDirection: 'column', gap: '15px', width: '100%', maxWidth: '800px', margin: '0 auto', paddingBottom: '20px' } : {}}>
-          <div className="search-container-center" style={isClient ? { width: '100%' } : {}}>
-            <UniversalSearch
-              type="PROPIEDADES"
-              data={listaPropiedades}
-              setFilteredData={setPropiedadesFiltradas}
-              filtroActual={categoria}
-              placeholder={isClient ? "BUSCAR POR NOMBRE, DIRECCIÓN O FOLIO..." : "PROPIEDADES"}
-            />
-          </div>
+          {!isClient && (
+            <div className="search-container-center">
+              <UniversalSearch
+                type="PROPIEDADES"
+                data={listaPropiedades}
+                setFilteredData={setPropiedadesFiltradas}
+                filtroActual={categoria}
+                placeholder="PROPIEDADES"
+              />
+            </div>
+          )}
 
           {isClient ? (
             <button
