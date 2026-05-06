@@ -308,7 +308,7 @@ const VistaServiciosAdmin = () => {
                             PROGRAMAR VISITA (NOTIFICA AL CLIENTE)
                           </label>
                           <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center' }}>
-                            <div className="input-with-icon" style={{ flex: 1.2, position: 'relative' }}>
+                            <div className="input-with-icon" style={{ flex: 1.1, position: 'relative' }}>
                               <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
                               <input 
                                 type="date" 
@@ -317,14 +317,14 @@ const VistaServiciosAdmin = () => {
                                 onClick={(e) => !e.target.disabled && e.target.showPicker()}
                                 disabled={tareaSeleccionada.scheduledAt && !editandoCita}
                                 style={{ 
-                                  width: '100%', padding: '12px 10px 12px 35px', 
+                                  width: '100%', padding: '12px 10px 12px 30px', 
                                   border: '1px solid #ccc', borderRadius: '10px', 
-                                  outline: 'none', background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.9rem',
+                                  outline: 'none', background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
                                   color: '#333', fontWeight: '600', display: 'block', cursor: (tareaSeleccionada.scheduledAt && !editandoCita) ? 'default' : 'pointer'
                                 }}
                               />
                             </div>
-                            <div className="input-with-icon" style={{ flex: 0.8, position: 'relative' }}>
+                            <div className="input-with-icon" style={{ flex: 0.7, position: 'relative' }}>
                               <Timer size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
                               <input 
                                 type="time" 
@@ -333,9 +333,9 @@ const VistaServiciosAdmin = () => {
                                 onClick={(e) => !e.target.disabled && e.target.showPicker()}
                                 disabled={tareaSeleccionada.scheduledAt && !editandoCita}
                                 style={{ 
-                                  width: '100%', padding: '12px 10px 12px 35px', 
+                                  width: '100%', padding: '12px 10px 12px 30px', 
                                   border: '1px solid #ccc', borderRadius: '10px', 
-                                  outline: 'none', background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.9rem',
+                                  outline: 'none', background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
                                   color: '#333', fontWeight: '600', display: 'block', cursor: (tareaSeleccionada.scheduledAt && !editandoCita) ? 'default' : 'pointer'
                                 }}
                               />
@@ -354,9 +354,10 @@ const VistaServiciosAdmin = () => {
                               style={{ 
                                 background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#333' : '#F26522', 
                                 color: 'white', border: 'none', 
-                                borderRadius: '10px', padding: '10px 15px', fontWeight: '900', 
-                                cursor: 'pointer', fontSize: '0.7rem',
-                                minWidth: '100px'
+                                borderRadius: '10px', padding: '10px 8px', fontWeight: '900', 
+                                cursor: 'pointer', fontSize: '0.65rem',
+                                flex: '0 0 auto',
+                                width: '90px'
                               }}
                             >
                               {procesandoAccion ? '...' : (
