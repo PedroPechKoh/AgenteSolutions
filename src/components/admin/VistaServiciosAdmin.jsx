@@ -23,6 +23,7 @@ const VistaServiciosAdmin = () => {
   const [tecnicos, setTecnicos] = useState([]);
   const [mostrandoSelectorTecnico, setMostrandoSelectorTecnico] = useState(false);
   const [modalChecklistVisible, setModalChecklistVisible] = useState(false);
+  const [editandoCita, setEditandoCita] = useState(false);
   
   // --- ESTADOS PARA INVENTARIO ---
   const [modalSurveyVisible, setModalSurveyVisible] = useState(false);
@@ -91,6 +92,7 @@ const VistaServiciosAdmin = () => {
     setTareaSeleccionada(tarea);
     setVerBitacora(false);
     setMostrandoSelectorTecnico(false);
+    setEditandoCita(false);
     setModalVisible(true);
   };
 
@@ -147,6 +149,7 @@ const VistaServiciosAdmin = () => {
       alert("Cita programada y cliente notificado correctamente.");
       fetchOrders();
       setTareaSeleccionada(prev => ({ ...prev, scheduledAt: scheduledAt }));
+      setEditandoCita(false);
     } catch (error) {
       console.error(error);
       alert("Error al programar la cita.");
@@ -311,12 +314,13 @@ const VistaServiciosAdmin = () => {
                                 type="date" 
                                 defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toISOString().split('T')[0] : ''}
                                 id="input-date-visit"
-                                onClick={(e) => e.target.showPicker()}
+                                onClick={(e) => !e.target.disabled && e.target.showPicker()}
+                                disabled={tareaSeleccionada.scheduledAt && !editandoCita}
                                 style={{ 
                                   width: '100%', padding: '12px 10px 12px 35px', 
                                   border: '1px solid #ccc', borderRadius: '10px', 
-                                  outline: 'none', background: 'white', fontSize: '0.9rem',
-                                  color: '#333', fontWeight: '600', display: 'block', cursor: 'pointer'
+                                  outline: 'none', background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.9rem',
+                                  color: '#333', fontWeight: '600', display: 'block', cursor: (tareaSeleccionada.scheduledAt && !editandoCita) ? 'default' : 'pointer'
                                 }}
                               />
                             </div>
@@ -326,29 +330,40 @@ const VistaServiciosAdmin = () => {
                                 type="time" 
                                 defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toTimeString().slice(0, 5) : ''}
                                 id="input-time-visit"
-                                onClick={(e) => e.target.showPicker()}
+                                onClick={(e) => !e.target.disabled && e.target.showPicker()}
+                                disabled={tareaSeleccionada.scheduledAt && !editandoCita}
                                 style={{ 
                                   width: '100%', padding: '12px 10px 12px 35px', 
                                   border: '1px solid #ccc', borderRadius: '10px', 
-                                  outline: 'none', background: 'white', fontSize: '0.9rem',
-                                  color: '#333', fontWeight: '600', display: 'block', cursor: 'pointer'
+                                  outline: 'none', background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.9rem',
+                                  color: '#333', fontWeight: '600', display: 'block', cursor: (tareaSeleccionada.scheduledAt && !editandoCita) ? 'default' : 'pointer'
                                 }}
                               />
                             </div>
                             <button 
                               onClick={() => {
-                                const d = document.getElementById('input-date-visit').value;
-                                const t = document.getElementById('input-time-visit').value;
-                                handleSaveSchedule(d, t);
+                                if (tareaSeleccionada.scheduledAt && !editandoCita) {
+                                  setEditandoCita(true);
+                                } else {
+                                  const d = document.getElementById('input-date-visit').value;
+                                  const t = document.getElementById('input-time-visit').value;
+                                  handleSaveSchedule(d, t);
+                                }
                               }}
                               disabled={procesandoAccion}
                               style={{ 
-                                background: '#F26522', color: 'white', border: 'none', 
+                                background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#333' : '#F26522', 
+                                color: 'white', border: 'none', 
                                 borderRadius: '10px', padding: '10px 15px', fontWeight: '900', 
-                                cursor: 'pointer', fontSize: '0.7rem'
+                                cursor: 'pointer', fontSize: '0.7rem',
+                                minWidth: '100px'
                               }}
                             >
-                              {procesandoAccion ? '...' : 'PROGRAMAR'}
+                              {procesandoAccion ? '...' : (
+                                !tareaSeleccionada.scheduledAt ? 'PROGRAMAR' : (
+                                  editandoCita ? 'CONFIRMAR' : 'REPROGRAMAR'
+                                )
+                              )}
                             </button>
                           </div>
                           {tareaSeleccionada.scheduledAt && (
