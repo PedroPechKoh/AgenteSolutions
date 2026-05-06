@@ -32,9 +32,13 @@ const VistaServiciosAdmin = () => {
   const transformarTareas = useCallback((data) => {
     return data.map(item => {
       let estado = 'todo';
-      if (item.status === 'Listo' || item.status === 'Finalizado') estado = 'done';
-      else if (item.priority === 'Urgente' && item.status !== 'Listo') estado = 'sos';
-      else if (item.status === 'En Proceso') estado = 'progress';
+      if (item.status === 'Listo' || item.status === 'Finalizado') {
+        estado = 'done';
+      } else if (item.status === 'En Proceso') {
+        estado = 'progress';
+      } else if (item.priority === 'Urgente') {
+        estado = 'sos';
+      }
       
       return {
         dbId: item.id,
@@ -160,14 +164,14 @@ const VistaServiciosAdmin = () => {
             <button 
               className={`task-card-premium ${
                 tarea.estado === 'sos' ? 'is-sos' : 
-                tarea.estado === 'progress' ? 'is-active' : 
+                tarea.estado === 'progress' ? (tarea.prioridad === 'SOS' ? 'is-sos is-active' : 'is-active') : 
                 tarea.estado === 'done' ? 'is-done' : ''
               }`}
               onClick={() => abrirModal(tarea)}
             >
               <div className="prop-badge-card">{tarea.propiedad}</div>
               <h5 className="task-title-card">
-                {tarea.estado === 'sos' && <AlertTriangle size={14} className="sos-icon-inline" />}
+                {(tarea.estado === 'sos' || (tarea.estado === 'progress' && tarea.prioridad === 'SOS')) && <AlertTriangle size={14} className="sos-icon-inline" />}
                 {tarea.titulo}
               </h5>
               <div className="card-status-row">
