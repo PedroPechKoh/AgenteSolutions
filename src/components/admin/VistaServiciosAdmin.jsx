@@ -278,7 +278,7 @@ const VistaServiciosAdmin = () => {
                     </button>
 
                     <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333' }}>
-                      <CheckCircle2 size={18} /> ASIGNAR CHECKLIST
+                      <CheckCircle2 size={18} /> {tareaSeleccionada.custom_checklist ? 'EDITAR CHECKLIST' : 'ASIGNAR CHECKLIST'}
                     </button>
 
                     <div className="modal-main-action-wrapper">
