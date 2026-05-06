@@ -213,7 +213,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         <div className="checklist-modal-footer">
           <button className="btn-secondary" onClick={onClose}>CANCELAR</button>
           <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'GUARDANDO...' : '✓ ASIGNAR TRABAJO'}
+            {loading ? 'GUARDANDO...' : '✓ ASIGNAR CHECKLIST'}
           </button>
         </div>
       </div>
