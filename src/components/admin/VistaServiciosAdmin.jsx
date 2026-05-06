@@ -133,16 +133,20 @@ const VistaServiciosAdmin = () => {
     }
   };
 
-  const handleSaveSchedule = async (newDate) => {
-    if (!newDate) return alert("Por favor selecciona una fecha y hora de visita.");
+  const handleSaveSchedule = async (newDate, newTime) => {
+    if (!newDate || !newTime) return alert("Por favor selecciona tanto la fecha como la hora de visita.");
+    
+    // Combinar fecha y hora para el backend
+    const scheduledAt = `${newDate} ${newTime}`;
+    
     setProcesandoAccion(true);
     try {
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/assign`, {
-        scheduled_at: newDate
+        scheduled_at: scheduledAt
       });
       alert("Cita programada y cliente notificado correctamente.");
       fetchOrders();
-      setTareaSeleccionada(prev => ({ ...prev, scheduledAt: newDate }));
+      setTareaSeleccionada(prev => ({ ...prev, scheduledAt: scheduledAt }));
     } catch (error) {
       console.error(error);
       alert("Error al programar la cita.");
@@ -300,46 +304,52 @@ const VistaServiciosAdmin = () => {
                           <label style={{ color: '#F26522', fontWeight: '900', fontSize: '0.75rem' }}>
                             PROGRAMAR VISITA (NOTIFICA AL CLIENTE)
                           </label>
-                          <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-                            <input 
-                              type="datetime-local" 
-                              defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toISOString().slice(0, 16) : ''}
-                              id="input-schedule-visit-main"
-                              style={{ 
-                                flex: 1, 
-                                padding: '10px', 
-                                border: '1px solid #ddd', 
-                                borderRadius: '10px', 
-                                outline: 'none', 
-                                background: 'white',
-                                fontSize: '0.85rem',
-                                color: '#333'
-                              }}
-                            />
+                          <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center' }}>
+                            <div className="input-with-icon" style={{ flex: 1.2, position: 'relative' }}>
+                              <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
+                              <input 
+                                type="date" 
+                                defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toISOString().split('T')[0] : ''}
+                                id="input-date-visit"
+                                style={{ 
+                                  width: '100%', padding: '10px 10px 10px 35px', 
+                                  border: '1px solid #ddd', borderRadius: '10px', 
+                                  outline: 'none', background: 'white', fontSize: '0.85rem' 
+                                }}
+                              />
+                            </div>
+                            <div className="input-with-icon" style={{ flex: 0.8, position: 'relative' }}>
+                              <Timer size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
+                              <input 
+                                type="time" 
+                                defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toTimeString().slice(0, 5) : ''}
+                                id="input-time-visit"
+                                style={{ 
+                                  width: '100%', padding: '10px 10px 10px 35px', 
+                                  border: '1px solid #ddd', borderRadius: '10px', 
+                                  outline: 'none', background: 'white', fontSize: '0.85rem' 
+                                }}
+                              />
+                            </div>
                             <button 
                               onClick={() => {
-                                const val = document.getElementById('input-schedule-visit-main').value;
-                                handleSaveSchedule(val);
+                                const d = document.getElementById('input-date-visit').value;
+                                const t = document.getElementById('input-time-visit').value;
+                                handleSaveSchedule(d, t);
                               }}
                               disabled={procesandoAccion}
                               style={{ 
-                                background: '#F26522', 
-                                color: 'white', 
-                                border: 'none', 
-                                borderRadius: '10px', 
-                                padding: '0 20px', 
-                                fontWeight: '900', 
-                                cursor: 'pointer',
-                                fontSize: '0.75rem',
-                                transition: 'all 0.2s'
+                                background: '#F26522', color: 'white', border: 'none', 
+                                borderRadius: '10px', padding: '10px 15px', fontWeight: '900', 
+                                cursor: 'pointer', fontSize: '0.7rem'
                               }}
                             >
                               {procesandoAccion ? '...' : 'PROGRAMAR'}
                             </button>
                           </div>
                           {tareaSeleccionada.scheduledAt && (
-                            <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#666', fontWeight: 'bold' }}>
-                              Cita actual: {new Date(tareaSeleccionada.scheduledAt).toLocaleString()}
+                            <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#666', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                              <CheckCircle2 size={12} color="#2e7d32" /> Cita actual: {new Date(tareaSeleccionada.scheduledAt).toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' })}
                             </div>
                           )}
                         </div>
