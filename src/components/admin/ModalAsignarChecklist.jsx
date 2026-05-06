@@ -103,20 +103,16 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
   };
 
   const handleSubmit = async () => {
-    if (!tecnicoId) {
-      return alert("Por favor selecciona un técnico.");
-    }
     setLoading(true);
     try {
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${workOrder.dbId}/assign`, {
-        tecnico_id: tecnicoId,
         custom_checklist: checklist
       });
-      alert("Trabajo y Checklist asignados correctamente");
+      alert("Checklist asignado correctamente");
       onAssign();
     } catch (e) {
       console.error(e);
-      alert("Error al asignar el trabajo");
+      alert("Error al asignar el checklist");
     }
     setLoading(false);
   };
@@ -136,19 +132,10 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         </div>
 
         <div className="checklist-modal-body">
-          {/* Selección de Técnico */}
+          {/* Selección de Plantilla */}
           <div className="assignment-section-mini">
-            <div className="form-group-cl">
-              <label><Settings size={14}/> TÉCNICO RESPONSABLE</label>
-              <select value={tecnicoId} onChange={e => setTecnicoId(e.target.value)}>
-                <option value="">-- Seleccionar Técnico --</option>
-                {tecnicos.map(t => (
-                  <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group-cl">
-              <label><Package size={14}/> CARGAR PLANTILLA</label>
+            <div className="form-group-cl full-width">
+              <label><Package size={14}/> CARGAR PLANTILLA DE CHECKLIST</label>
               <select value={selectedTemplateId} onChange={handleTemplateChange}>
                 <option value="">-- Nueva Plantilla en Blanco --</option>
                 {templates.map(t => (
@@ -226,7 +213,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         <div className="checklist-modal-footer">
           <button className="btn-secondary" onClick={onClose}>CANCELAR</button>
           <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'ASIGNANDO...' : '✓ ASIGNAR TRABAJO'}
+            {loading ? 'GUARDANDO...' : '✓ ASIGNAR TRABAJO'}
           </button>
         </div>
       </div>
@@ -255,6 +242,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         .checklist-modal-header {
           padding: 20px 30px; border-bottom: 1px solid #eee;
           display: flex; justify-content: space-between; align-items: center;
+          background: white;
         }
         .header-title-main { display: flex; align-items: center; gap: 15px; }
         .header-title-main h3 { margin: 0; font-weight: 900; color: #333; text-transform: uppercase; }
@@ -263,12 +251,16 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         .close-btn { background: #f5f5f5; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .close-btn:hover { background: #eee; transform: rotate(90deg); }
 
-        .checklist-modal-body { padding: 30px; flex: 1; overflow-y: auto; }
+        .checklist-modal-body { padding: 30px; flex: 1; overflow-y: auto; background: white; }
         
-        .assignment-section-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .assignment-section-mini { margin-bottom: 25px; }
+        .full-width { width: 100%; }
         .form-group-cl { display: flex; flex-direction: column; gap: 8px; }
-        .form-group-cl label { font-size: 0.75rem; font-weight: 900; color: #666; display: flex; align-items: center; gap: 6px; }
-        .form-group-cl select { padding: 12px; border: 2px solid #eee; border-radius: 12px; outline: none; font-weight: 600; color: #444; }
+        .form-group-cl label { font-size: 0.75rem; font-weight: 900; color: #444; display: flex; align-items: center; gap: 6px; }
+        .form-group-cl select { 
+          padding: 12px; border: 2px solid #ddd; border-radius: 12px; 
+          outline: none; font-weight: 600; color: #333; background: white;
+        }
         .form-group-cl select:focus { border-color: #F26522; }
 
         .cl-tabs-header { display: flex; gap: 10px; margin-bottom: 0; border-bottom: 2px solid #eee; }
@@ -283,9 +275,12 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           content: ""; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: #F26522;
         }
 
-        .cl-tab-content { background: #f9f9f9; padding: 25px; border-radius: 0 0 16px 16px; margin-bottom: 20px; }
+        .cl-tab-content { background: #f9f9f9; padding: 25px; border-radius: 0 0 16px 16px; margin-bottom: 20px; border: 1px solid #eee; }
         .add-item-row { display: flex; gap: 10px; margin-bottom: 20px; }
-        .add-item-row input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 10px; outline: none; }
+        .add-item-row input { 
+          flex: 1; padding: 12px; border: 2px solid #ccc; border-radius: 10px; 
+          outline: none; background: white; color: #333;
+        }
         .add-item-row input:focus { border-color: #F26522; }
         .btn-add-item { background: #333; color: white; border: none; padding: 0 20px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 
@@ -293,10 +288,10 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         .cl-item-editable {
           background: white; padding: 10px 15px; border-radius: 8px;
           display: flex; justify-content: space-between; align-items: center;
-          border: 1px solid #eee; transition: all 0.2s;
+          border: 1px solid #ddd; transition: all 0.2s;
         }
         .cl-item-editable:hover { border-color: #F26522; }
-        .cl-item-editable span { font-weight: 600; color: #444; }
+        .cl-item-editable span { font-weight: 600; color: #333; }
         .btn-remove-item { background: #fff1f1; color: #e53e3e; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-remove-item:hover { background: #e53e3e; color: white; }
         
@@ -306,7 +301,10 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           display: flex; gap: 15px; align-items: center;
           padding: 15px; background: #fff5f0; border-radius: 12px; border: 1px dashed #F26522;
         }
-        .save-template-footer input { flex: 1; padding: 10px; border: 1px solid #ffccbc; border-radius: 8px; outline: none; }
+        .save-template-footer input { 
+          flex: 1; padding: 10px; border: 1px solid #ffccbc; border-radius: 8px; 
+          outline: none; background: white; color: #333;
+        }
         .btn-save-template { background: #F26522; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
         .btn-save-template:disabled { opacity: 0.5; cursor: not-allowed; }
 
