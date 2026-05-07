@@ -15,6 +15,7 @@ const VistaCotizaciones = () => {
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
 
   const [esCliente, setEsCliente] = useState(false);
+  const [usuarioId, setUsuarioId] = useState(null);
   const [rechazando, setRechazando] = useState(false);
   const [motivoRechazo, setMotivoRechazo] = useState('');
   const [procesando, setProcesando] = useState(false);
@@ -22,8 +23,11 @@ const VistaCotizaciones = () => {
   useEffect(() => {
     try {
       const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
-      if (session?.userData?.role_id === 3) {
-        setEsCliente(true);
+      if (session?.userData) {
+        setUsuarioId(session.userData.id || null);
+        if (session.userData.role_id === 3) {
+          setEsCliente(true);
+        }
       }
     } catch(e) {}
     cargarCotizaciones();
@@ -50,7 +54,10 @@ const VistaCotizaciones = () => {
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
                              (c.folio?.toString() || "").includes(busqueda || "");
-    return coincideFiltro && coincideBusqueda;
+
+    const correspondeAlCliente = !esCliente || c.cliente_user_id === usuarioId;
+
+    return coincideFiltro && coincideBusqueda && correspondeAlCliente;
   });
 
 
