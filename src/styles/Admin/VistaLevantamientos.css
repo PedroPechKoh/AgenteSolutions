@@ -557,162 +557,181 @@
    RESPONSIVE: SMALL PHONE (max-width: 480px)
    ========================================= */
 @media (max-width: 480px) {
+    .lev-main-page {
+        padding: 0 !important;
+    }
+    
     .lev-container { 
-        padding: 0 10px;
+        padding: 0 8px !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
     
     .lev-header { 
-        padding: 6px 10px;
-        flex-direction: column;
-        gap: 6px;
+        padding: 4px 8px !important;
+        flex-direction: column !important;
+        gap: 4px !important;
     }
     
     .lev-logo {
-        height: 35px;
+        height: 30px !important;
+        max-width: 100% !important;
     }
     
     .lev-btn-add {
-        width: 100%;
-        padding: 10px 12px;
-        font-size: 0.8rem;
-        min-height: 40px;
+        width: 100% !important;
+        padding: 8px 10px !important;
+        font-size: 0.75rem !important;
+        min-height: 36px !important;
+        border-radius: 6px !important;
     }
     
     .lev-search-box { 
-        width: 100%;
-        margin: 10px 0;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 8px 0 !important;
+        padding: 0 !important;
     }
     
     .lev-input-search {
-        padding: 9px 12px;
-        font-size: 0.8rem;
-        border-radius: 25px;
+        padding: 8px 10px !important;
+        font-size: 0.75rem !important;
+        border-radius: 20px !important;
     }
     
     .lev-search-icon {
-        right: 12px;
-        font-size: 0.9rem;
+        right: 10px !important;
+        font-size: 0.8rem !important;
     }
     
     .lev-tabs { 
-        gap: 4px;
-        margin-bottom: 12px;
-        width: 100%;
+        gap: 3px !important;
+        margin-bottom: 10px !important;
+        width: 100% !important;
+        justify-content: center !important;
     }
     
     .lev-tab {
-        padding: 6px 8px;
-        font-size: 0.65rem;
-        flex: 1 1 auto;
-        min-width: 0;
-        border-radius: 10px;
+        padding: 5px 6px !important;
+        font-size: 0.6rem !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        border-radius: 8px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
     
     .lev-table-wrapper { 
-        max-height: 350px;
-        width: 100%;
-        border-radius: 6px;
+        max-height: 320px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 4px !important;
+        overflow-x: auto !important;
+        overflow-y: auto !important;
     }
     
     .lev-table {
-        min-width: 520px;
-        font-size: 0.7rem;
+        min-width: 500px !important;
+        font-size: 0.65rem !important;
+        width: 100% !important;
     }
     
     .lev-table th { 
-        padding: 6px 2px;
-        font-size: 0.65rem;
-        word-break: break-word;
-        font-weight: 600;
+        padding: 5px 3px !important;
+        font-size: 0.6rem !important;
+        word-break: break-word !important;
+        font-weight: 700 !important;
     }
     
     .lev-table td { 
-        padding: 6px 2px;
-        font-size: 0.7rem;
+        padding: 5px 3px !important;
+        font-size: 0.65rem !important;
     }
     
     .lev-bold { 
-        font-size: 0.7rem;
-        font-weight: 800;
+        font-size: 0.65rem !important;
+        font-weight: 800 !important;
     }
     
     .lev-btn-action {
-        padding: 4px 6px;
-        font-size: 0.65rem;
-        white-space: nowrap;
-        border-radius: 4px;
+        padding: 3px 5px !important;
+        font-size: 0.6rem !important;
+        white-space: nowrap !important;
+        border-radius: 3px !important;
+        min-width: 50px !important;
     }
     
     .status-pending,
     .status-assigned {
-        font-size: 0.65rem;
-        padding: 2px 6px;
-        border-radius: 4px;
+        font-size: 0.6rem !important;
+        padding: 1px 4px !important;
+        border-radius: 3px !important;
     }
     
     .lev-modal-form { 
-        width: 95%;
-        max-width: 100%;
-        max-height: 95vh;
-        border-radius: 10px;
+        width: 95% !important;
+        max-width: 95% !important;
+        max-height: 95vh !important;
+        border-radius: 8px !important;
     }
     
     .lev-modal-header { 
-        padding: 12px 10px;
-        font-size: 0.85rem;
+        padding: 10px 8px !important;
+        font-size: 0.8rem !important;
     }
     
     .lev-modal-header button { 
-        font-size: 1rem;
+        font-size: 0.9rem !important;
     }
     
     .lev-modal-body {
-        padding: 10px;
+        padding: 8px !important;
     }
     
     .lev-form-grid { 
-        gap: 8px;
+        gap: 6px !important;
     }
     
     .lev-field label {
-        font-size: 0.8rem;
+        font-size: 0.75rem !important;
     }
     
     .lev-input-style {
-        padding: 8px;
-        padding-right: 35px;
-        font-size: 0.85rem;
+        padding: 7px !important;
+        padding-right: 32px !important;
+        font-size: 0.8rem !important;
     }
     
     .lev-input-icon {
-        width: 16px;
-        height: 16px;
-        right: 10px;
+        width: 14px !important;
+        height: 14px !important;
+        right: 8px !important;
     }
     
     .lev-footer-form {
-        flex-direction: column;
-        gap: 6px;
-        margin-top: 10px;
+        flex-direction: column !important;
+        gap: 5px !important;
+        margin-top: 8px !important;
     }
     
     .lev-btn-cancel,
     .orange-btn,
     .lev-btn-save {
-        width: 100%;
-        padding: 9px 10px;
-        font-size: 0.8rem;
+        width: 100% !important;
+        padding: 8px 8px !important;
+        font-size: 0.75rem !important;
     }
     
     .asignar-subtitle {
-        margin-bottom: 12px;
-        padding: 8px;
-        font-size: 0.8rem;
+        margin-bottom: 10px !important;
+        padding: 6px !important;
+        font-size: 0.75rem !important;
     }
     
     .lev-back-arrow { 
-        bottom: 14px;
-        left: 12px;
-        font-size: 2rem;
+        bottom: 12px !important;
+        left: 10px !important;
+        font-size: 1.8rem !important;
     }
 }
