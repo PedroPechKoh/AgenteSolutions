@@ -422,10 +422,6 @@
     cursor: pointer; 
     font-weight: bold; 
 }
-
-/* =========================================
-   RESPONSIVE: TABLET (max-width: 1024px)
-   ========================================= */
 /* =========================================
    RESPONSIVE: TABLET (max-width: 1024px)
    ========================================= */
@@ -433,29 +429,23 @@
     .lev-container { 
         padding: 0 24px;
     }
-    
     .lev-header { 
         padding: 10px 24px;
     }
-    
     .lev-search-box { 
         width: 90%;
     }
-    
     .lev-tabs { 
         gap: 12px;
     }
-    
     .lev-tab {
         padding: 10px 18px;
         font-size: 0.9rem;
     }
-    
     .lev-table th, .lev-table td { 
         padding: 12px;
         font-size: 0.9rem;
     }
-    
     .lev-btn-action {
         padding: 7px 12px;
         font-size: 0.85rem;
@@ -466,20 +456,29 @@
    RESPONSIVE: MOBILE (max-width: 768px)
    ========================================= */
 @media (max-width: 768px) {
+    /* Quitamos el padding del main para controlarlo desde el container */
+    .lev-main-page {
+        padding: 0;
+    }
+    
+    /* 1. SEPARACIÓN DE LAS ORILLAS (PADDING LATERAL DE 20PX) */
     .lev-container { 
-        padding: 0 16px;
+        padding: 0 20px; 
+        max-width: 100vw;
+        box-sizing: border-box;
     }
     
     .lev-header { 
-        padding: 15px 16px;
+        padding: 15px 0; 
         flex-direction: column;
         gap: 15px;
     }
     
     .lev-btn-add {
         width: 100%;
-        padding: 12px;
+        padding: 14px;
         font-size: 1rem;
+        border-radius: 12px; /* Botón un poco más curvo */
     }
     
     .lev-search-box { 
@@ -487,37 +486,50 @@
         margin: 10px 0 20px 0;
     }
     
-    /* REGLA CRÍTICA: 16px para evitar zoom en iOS */
     .lev-input-search, .lev-input-style {
-        font-size: 16px; 
+        font-size: 16px; /* Evita zoom en iOS */
     }
     
     .lev-tabs { 
-        gap: 8px;
+        gap: 10px;
         margin-bottom: 20px;
+        width: 100%;
+        justify-content: center;
     }
     
     .lev-tab {
-        padding: 10px 14px;
+        padding: 12px 14px;
         font-size: 0.85rem;
         flex: 1 1 45%;
         text-align: center;
     }
     
-    /* Mejoras para el scroll de la tabla en móvil */
+    /* 2. CENTRADO Y AJUSTE DE LA TABLA */
     .lev-table-wrapper { 
-        max-height: 450px;
         width: 100%;
-        -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
+        max-height: 450px;
+        margin: 0 auto; /* Centra el contenedor */
+        border-radius: 12px;
+        border: 1px solid #e0e0e0; /* Un borde sutil para enmarcarla */
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Sombra para que destaque del fondo */
+        -webkit-overflow-scrolling: touch; 
+        overflow-x: auto;
     }
     
+    /* La tabla hace scroll INTERNAMENTE sin romper el margen exterior */
     .lev-table {
-        min-width: 600px; /* Permite scroll horizontal sin aplastar columnas */
+        min-width: 600px; 
         font-size: 0.85rem;
     }
     
+    .lev-table th, .lev-table td {
+        padding: 12px 10px;
+        white-space: normal;
+    }
+    
+    /* MODALES */
     .lev-modal-form { 
-        width: 95%;
+        width: 90%; /* Que el modal tampoco tope en las orillas */
         max-height: 90vh;
         overflow-y: auto;
     }
@@ -540,9 +552,6 @@
         bottom: 20px;
         left: 20px;
         font-size: 2.5rem;
-        background: white; /* Añade fondo circular por si hay texto debajo */
-        border-radius: 50%;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 }
 
@@ -550,17 +559,16 @@
    RESPONSIVE: SMALL PHONE (max-width: 480px)
    ========================================= */
 @media (max-width: 480px) {
-    .lev-header { 
-        padding: 10px;
-        gap: 10px;
+    .lev-container {
+        padding: 0 15px; /* Margen ligeramente menor en teléfonos muy chicos */
     }
-    
+
     .lev-logo {
         height: 40px;
     }
 
     .lev-tabs { 
-        flex-direction: column;
+        flex-direction: column; /* Pestañas una sobre otra si no caben */
     }
 
     .lev-tab {
@@ -568,139 +576,17 @@
     }
     
     .lev-table th, .lev-table td { 
-        padding: 8px 5px;
+        padding: 10px 8px;
         font-size: 0.8rem;
     }
 
     .status-pending, .status-assigned {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         padding: 4px 8px;
     }
     
     .lev-btn-action {
-        padding: 6px 8px;
-        font-size: 0.75rem;
-    }
-    
-    .lev-modal-header { 
-        padding: 15px;
-    }
-    
-    .lev-modal-header h3 {
-        font-size: 1.1rem;
-    }
-
-    /* Ajuste de formulario para no comerse la pantalla */
-    .lev-form-grid { 
-        gap: 10px;
-    }
-    
-    .lev-field label {
-        font-size: 0.85rem;
-    }
-}
-
-/* =========================================
-   OVERRIDE FOR MOBILE SCROLL FIX
-   ========================================= */
-@media (max-width: 768px) {
-    .lev-container {
-        padding: 0 8px !important;
-        max-width: 100% !important;
-    }
-    .lev-header {
-        padding: 10px 8px !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 8px !important;
-    }
-    .lev-btn-add {
-        width: 100% !important;
-        padding: 10px 12px !important;
-        font-size: 0.85rem !important;
-    }
-    .lev-search-box {
-        width: 100% !important;
-        margin: 10px 0 !important;
-    }
-    .lev-input-search {
-        padding: 10px 12px !important;
-        font-size: 0.85rem !important;
-    }
-    .lev-tabs {
-        gap: 6px !important;
-        margin-bottom: 10px !important;
-    }
-    .lev-tab {
-        padding: 7px 10px !important;
-        font-size: 0.75rem !important;
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-    }
-    .lev-table-wrapper {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: auto !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        box-shadow: none !important;
-    }
-    .lev-table {
-        min-width: 720px !important;
-        width: auto !important;
-        table-layout: auto !important;
-        white-space: normal !important;
-    }
-    .lev-table th,
-    .lev-table td {
-        padding: 8px 6px !important;
-        font-size: 0.75rem !important;
-        white-space: normal !important;
-        word-break: break-word !important;
-    }
-    .lev-table th {
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 2 !important;
-    }
-    .lev-table td {
-        text-align: left !important;
-    }
-    .lev-table td:first-child,
-    .lev-table th:first-child {
-        width: 15% !important;
-    }
-    .lev-table td:nth-child(2),
-    .lev-table th:nth-child(2) {
-        width: 35% !important;
-    }
-    .lev-table td:nth-child(3),
-    .lev-table th:nth-child(3),
-    .lev-table td:nth-child(4),
-    .lev-table th:nth-child(4),
-    .lev-table td:nth-child(5),
-    .lev-table th:nth-child(5) {
-        width: auto !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .lev-table {
-        min-width: 640px !important;
-    }
-    .lev-table th,
-    .lev-table td {
-        padding: 6px 4px !important;
-        font-size: 0.7rem !important;
-    }
-    .lev-table-wrapper {
-        max-height: 320px !important;
-    }
-    .lev-btn-add {
-        font-size: 0.8rem !important;
-        padding: 9px 10px !important;
-    }
-    .lev-tab {
-        font-size: 0.7rem !important;
+        padding: 8px 10px;
+        font-size: 0.8rem;
     }
 }
