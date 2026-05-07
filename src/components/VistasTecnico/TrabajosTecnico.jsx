@@ -33,14 +33,99 @@ const TrabajosTecnico = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Cargar estado de material desde localStorage (específico por usuario)
+    // Cargar estado de material desde localStorage (específico por usuario y FECHA)
     if (user?.id) {
-      const status = localStorage.getItem(`materialRecibido_${user.id}`);
-      if (status === 'true') setMaterialRecibido(true);
+      const hoyStr = getDayStr(new Date());
+      const statusKey = `materialRecibido_${user.id}_${hoyStr}`;
+      const status = localStorage.getItem(statusKey);
+      
+      if (status === 'true') {
+        setMaterialRecibido(true);
+      } else {
+        setMaterialRecibido(false);
+      }
+      
       fetchServicios();
       fetchChecklistTemplate();
     }
   }, [user]);
+
+  // Nuevo useEffect para agregar los checklists de los trabajos de hoy
+  const [checklistAgregado, setChecklistAgregado] = useState(null);
+
+  useEffect(() => {
+    if (servicios.length > 0) {
+      const hoyStr = getDayStr(new Date());
+      
+      // Filtrar trabajos de HOY y SOS
+      const trabajosHoy = servicios.filter(s => {
+        const fStr = getDayStr(s.scheduled_start || s.created_at);
+        return fStr === hoyStr || s.priority === 'Urgente';
+      });
+
+      const aggregated = {
+        materiales: [],
+        equipo: [],
+        herramientas: []
+      };
+
+      trabajosHoy.forEach(job => {
+        if (job.custom_checklist) {
+          const cl = typeof job.custom_checklist === 'string' 
+            ? JSON.parse(job.custom_checklist) 
+            : job.custom_checklist;
+          
+          const materialList = cl.materiales || cl.material || [];
+          const equipoList = cl.equipo || [];
+          const herramientasList = cl.herramientas || [];
+
+          materialList.forEach(item => {
+            const itemName = typeof item === 'string' ? item : item.task || item.nombre || item.concepto;
+            if (itemName && !aggregated.materiales.includes(itemName)) {
+              aggregated.materiales.push(itemName);
+            }
+          });
+
+          equipoList.forEach(item => {
+            const itemName = typeof item === 'string' ? item : item.task || item.nombre || item.concepto;
+            if (itemName && !aggregated.equipo.includes(itemName)) {
+              aggregated.equipo.push(itemName);
+            }
+          });
+
+          herramientasList.forEach(item => {
+            const itemName = typeof item === 'string' ? item : item.task || item.nombre || item.concepto;
+            if (itemName && !aggregated.herramientas.includes(itemName)) {
+              aggregated.herramientas.push(itemName);
+            }
+          });
+        }
+      });
+
+      const hasItems = aggregated.materiales.length > 0 || 
+                       aggregated.equipo.length > 0 || 
+                       aggregated.herramientas.length > 0;
+
+      if (hasItems) {
+        setChecklistAgregado(aggregated);
+        // Solo inicializar si no se ha recibido material hoy
+        const hoyStrCheck = getDayStr(new Date());
+        if (localStorage.getItem(`materialRecibido_${user?.id}_${hoyStrCheck}`) !== 'true') {
+          setItemsCheck({
+            materiales: new Array(aggregated.materiales.length).fill(false),
+            equipo: new Array(aggregated.equipo.length).fill(false),
+            herramientas: new Array(aggregated.herramientas.length).fill(false)
+          });
+        }
+      } else {
+        setChecklistAgregado(null);
+        // Si no hay trabajos para hoy, desbloqueamos automáticamente
+        if (trabajosHoy.length === 0) {
+          setMaterialRecibido(true);
+        }
+      }
+    }
+  }, [servicios, user]);
 
   const fetchServicios = async () => {
     try {
@@ -84,8 +169,8 @@ const TrabajosTecnico = () => {
     herramientas: []
   };
 
-  // Usar el dinámico si existe, si no el hardcoded
-  const checklistARenderizar = checklistDinamico || checklistGeneral;
+  // Usar el agregado si existe, si no el dinámico del template, si no el hardcoded
+  const checklistARenderizar = checklistAgregado || checklistDinamico || checklistGeneral;
 
   const getDayStr = (d) => {
     if (!d) return '';
@@ -255,7 +340,8 @@ const TrabajosTecnico = () => {
   const confirmarRecepcion = () => {
     setMaterialRecibido(true);
     if (user?.id) {
-      localStorage.setItem(`materialRecibido_${user.id}`, 'true');
+      const hoyStr = getDayStr(new Date());
+      localStorage.setItem(`materialRecibido_${user.id}_${hoyStr}`, 'true');
     }
     setMostrarModalChecklist(false);
   };
