@@ -173,6 +173,26 @@
   font-weight: 600; 
 }
 
+/* --- ALERTA DE ATRASO (ADMIN) --- */
+.date-tag.is-overdue {
+  color: #e63946 !important;
+  background: #fee2e2;
+  padding: 2px 6px;
+  border-radius: 6px;
+  animation: pulse-red-admin 2s infinite;
+}
+
+.task-card-premium.is-overdue {
+  border-left-color: #e63946 !important;
+  box-shadow: 0 0 15px rgba(230, 57, 70, 0.15);
+}
+
+@keyframes pulse-red-admin {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
 .status-pill-done { 
   background: #dcfce7; 
   color: #16a34a; 

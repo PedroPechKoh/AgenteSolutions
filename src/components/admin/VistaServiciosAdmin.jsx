@@ -57,7 +57,10 @@ const VistaServiciosAdmin = () => {
         descripcion: item.description,
         evidencias: [item.evidence_path, item.evidence_path_2].filter(p => p),
         custom_checklist: item.custom_checklist,
-        scheduledAt: item.scheduled_at
+        scheduledAt: item.scheduled_at,
+        isOverdue: (item.scheduled_at && !['Listo', 'Finalizado'].includes(item.status)) 
+                   ? new Date(item.scheduled_at) < new Date() 
+                   : false
       };
     });
   }, []);
@@ -192,6 +195,8 @@ const VistaServiciosAdmin = () => {
           <div key={tarea.dbId} className="card-wrapper">
             <button 
               className={`task-card-premium ${
+                tarea.isOverdue ? 'is-overdue' : ''
+              } ${
                 tarea.estado === 'sos' ? 'is-sos' : 
                 tarea.estado === 'progress' ? (tarea.prioridad === 'SOS' ? 'is-sos is-active' : 'is-active') : 
                 tarea.estado === 'done' ? 'is-done' : ''
@@ -213,7 +218,10 @@ const VistaServiciosAdmin = () => {
                     {tarea.prioridad.toUpperCase()}
                   </span>
                 )}
-                <span className="date-tag"><Clock size={12}/> {tarea.fechaFin}</span>
+                <span className={`date-tag ${tarea.isOverdue ? 'is-overdue' : ''}`}>
+                  {tarea.isOverdue ? <AlertTriangle size={12} /> : <Clock size={12} />}
+                  {tarea.isOverdue ? 'ATRASADO - ' : ''} {tarea.fechaFin}
+                </span>
               </div>
             </button>
           </div>
