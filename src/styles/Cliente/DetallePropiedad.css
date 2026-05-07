@@ -739,92 +739,197 @@
   color: #718096;
 }
 /* =============================================
-   REGLAS PARA TELÉFONOS (Hasta 600px)
-   Reemplaza tu @media (max-width: 600px) actual con este:
+   RESPONSIVIDAD PARA TELÉFONOS CELULARES (Hasta 480px)
    ============================================= */
-@media (max-width: 600px) {
-  /* Contenedor y márgenes generales */
+@media (max-width: 480px) {
+  /* Contenedor principal */
   .view-container {
-    padding: 10px;
-  }
-  
-  .main-layout-detail { 
-    gap: 15px; 
+    padding: 10px 8px;
   }
 
+  .main-layout-detail {
+    gap: 12px;
+  }
+
+  /* Sección hero */
   .hero-section-compact {
-    height: 200px; /* Imagen de portada más compacta */
-    border-radius: 15px;
-    margin-bottom: 15px;
-  }
-  
-  /* Tarjetas principales */
-  .info-card-premium {
-    padding: 15px;
-    border-radius: 15px;
-    margin-bottom: 15px;
+    height: 180px;
+    border-radius: 12px;
+    margin-bottom: 12px;
   }
 
-  /* Grid del tablero (Jira Stats) 2x2 */
-  .jira-stats-grid.quad {
-    grid-template-columns: repeat(2, 1fr);
+  /* Tarjeta de información */
+  .info-card-premium {
+    padding: 12px;
+    border-radius: 15px;
+    margin-bottom: 12px;
+  }
+
+  .card-header-clean {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+  }
+
+  .card-header-clean h3 {
+    font-size: 1rem;
+  }
+
+  .data-group-horizontal {
+    gap: 15px;
+  }
+
+  .data-label {
+    font-size: 0.6rem;
+  }
+
+  .data-value {
+    font-size: 0.9rem;
+  }
+
+  /* Historial */
+  .historial-card-item {
+    padding: 10px;
+    border-radius: 15px;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 10px;
   }
-  
-  .stat-box {
-    min-height: 80px;
-    padding: 10px 5px;
-  }
-  
-  .stat-number { font-size: 1.3rem; }
-  .stat-label { font-size: 0.5rem; }
 
-  /* Historial de trabajos */
-  .historial-card-item {
-    padding: 12px;
-    flex-direction: column; /* Apila la info y las fotos hacia abajo */
-    align-items: flex-start;
-    gap: 12px;
+  .h-card-date {
+    font-size: 0.7rem;
+  }
+
+  .h-card-title {
+    font-size: 0.9rem;
+  }
+
+  .h-card-tech {
+    font-size: 0.75rem;
   }
 
   .h-card-right {
     width: 100%;
-    justify-content: space-between; /* Evita que las fotos se aplasten */
+    justify-content: space-between;
   }
 
-  /* =============================================
-     AJUSTES DE MODALES PARA MÓVIL
-     ============================================= */
-  .modal-overlay {
+  .h-card-photos-stack {
+    width: 60px;
+    height: 40px;
+  }
+
+  .stack-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .img-0 {
+    left: 0;
+  }
+
+  .img-1 {
+    left: 15px;
+  }
+
+  /* Dashboard */
+  .jira-stats-grid.quad {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    min-height: 70px;
+    padding: 8px 4px;
+  }
+
+  .stat-number {
+    font-size: 1.1rem;
+  }
+
+  .stat-label {
+    font-size: 0.45rem;
+  }
+
+  .sprint-footer {
     padding: 15px;
-    align-items: flex-end; /* Da un efecto de "Bottom Sheet" (Aparece por abajo) */
-  }
-  
-  .modal-content {
-    margin-top: 0;
-    margin-bottom: 0;
-    width: 100%;
-    max-height: 85vh; /* Deja espacio para ver el fondo */
-    border-radius: 20px;
+    margin-bottom: 20px;
   }
 
-  /* Reducir paddings internos del modal para no desperdiciar pantalla */
-  .modal-header { padding: 20px 20px 10px; }
-  .modal-body { padding: 0 20px 20px; }
-  
-  .modal-header h2, .modal-header-profile h2 {
-    font-size: 1.4rem;
+  .quote-section-link {
+    padding: 12px 15px;
+    margin-bottom: 20px;
   }
 
-  /* =============================================
-     FORMULARIOS Y BOTONES EN MÓVIL
-     ============================================= */
-  /* El font-size: 16px es OBLIGATORIO en inputs para que iOS (iPhone) no haga auto-zoom */
-  .form-group select, 
-  .form-group input, 
-  .form-group textarea {
+  .btn-back-modern-orange {
+    padding: 15px;
+    font-size: 0.9rem;
+  }
+
+  /* Modal */
+  .modal-overlay {
     padding: 10px;
-    font-size: 16px; 
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    width: 100%;
+    max-width: none;
+    max-height: 90vh;
+    border-radius: 20px 20px 0 0; /* Bottom sheet style */
+    margin: 0;
+  }
+
+  .close-modal {
+    top: 15px;
+    right: 15px;
+    padding: 6px;
+  }
+
+  .modal-header {
+    padding: 20px 20px 10px;
+  }
+
+  .modal-tag {
+    font-size: 0.65rem;
+    padding: 3px 10px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .modal-body {
+    padding: 0 20px 20px;
+  }
+
+  .modal-meta-grid {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-description p {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+  }
+
+  .gallery-img {
+    height: 100px;
+  }
+
+  .btn-modal-close {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+  }
+
+  /* Botones y acciones */
+  .btn-id-profile {
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
   .btn-add-service-full {
@@ -832,9 +937,44 @@
     font-size: 13px;
   }
 
-  /* Centrar previsualización de fotos en móvil */
+  .btn-orange-small {
+    padding: 6px 15px;
+    font-size: 12px;
+  }
+
+  /* Formulario */
+  .service-form {
+    gap: 15px;
+  }
+
+  .form-group label {
+    font-size: 11px;
+  }
+
+  .form-group select,
+  .form-group input,
+  .form-group textarea {
+    padding: 10px 12px;
+    font-size: 16px; /* Evita zoom en iOS */
+  }
+
+  /* Fotos preview */
   .fotos-preview-container {
-    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .foto-preview-wrapper,
+  .btn-add-foto-placeholder {
+    width: 80px;
+    height: 80px;
+  }
+
+  .foto-preview-wrapper img {
+    border-radius: 12px;
+  }
+
+  .btn-add-foto-placeholder {
+    border-radius: 12px;
   }
 }
 
@@ -845,4 +985,237 @@
   .hero-section-compact { height: 160px; }
   .modal-header h2 { font-size: 1.2rem; }
   .property-id-header .btn-id-profile { font-size: 12px; padding: 8px 12px; }
+}
+
+/* =============================================
+   REGLA EXTRA PARA PANTALLAS MUY PEQUEÑAS (iPhone SE, etc.)
+   ============================================= */
+@media (max-width: 375px) {
+  .hero-section-compact { height: 160px; }
+  .modal-header h2 { font-size: 1.2rem; }
+  .property-id-header .btn-id-profile { font-size: 12px; padding: 8px 12px; }
+}
+
+/* =============================================
+   RESPONSIVIDAD PARA TABLETS (768px - 950px)
+   ============================================= */
+@media (max-width: 950px) and (min-width: 769px) {
+  .main-layout-detail {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .sticky-card {
+    position: static !important;
+  }
+
+  .hero-section-compact {
+    height: 300px;
+    margin-bottom: 20px;
+  }
+
+  .info-card-premium {
+    padding: 25px;
+    margin-bottom: 20px;
+  }
+
+  .jira-stats-grid.quad {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .stat-box {
+    min-height: 100px;
+    padding: 12px;
+  }
+
+  .historial-card-item {
+    padding: 15px;
+  }
+
+  .modal-content {
+    max-width: 500px;
+  }
+}
+
+/* =============================================
+   RESPONSIVIDAD PARA TABLETS PEQUEÑAS (481px - 768px)
+   ============================================= */
+@media (max-width: 768px) and (min-width: 481px) {
+  .view-container {
+    padding: 20px 15px;
+  }
+
+  .main-layout-detail {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .sticky-card {
+    position: static !important;
+  }
+
+  .hero-section-compact {
+    height: 250px;
+    margin-bottom: 20px;
+  }
+
+  .info-card-premium {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .jira-stats-grid.quad {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .stat-box {
+    min-height: 90px;
+    padding: 10px;
+  }
+
+  .historial-card-item {
+    padding: 14px;
+  }
+
+  .modal-content {
+    max-width: 450px;
+    max-height: 80vh;
+  }
+
+  .modal-header {
+    padding: 25px 25px 10px;
+  }
+
+  .modal-body {
+    padding: 0 25px 25px;
+  }
+}
+
+/* =============================================
+   RESPONSIVIDAD PARA PANTALLAS GRANDES (1200px+)
+   ============================================= */
+@media (min-width: 1200px) {
+  .main-layout-detail {
+    max-width: 1400px;
+    gap: 40px;
+  }
+
+  .hero-section-compact {
+    height: 400px;
+  }
+
+  .info-card-premium {
+    padding: 35px;
+  }
+
+  .jira-stats-grid.quad {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+  }
+
+  .stat-box {
+    min-height: 130px;
+    padding: 20px 10px;
+  }
+
+  .stat-number {
+    font-size: 1.8rem;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+  }
+
+  .modal-content {
+    max-width: 700px;
+  }
+
+  .modal-header h2 {
+    font-size: 2rem;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+  }
+
+  .gallery-img {
+    height: 140px;
+  }
+}
+
+/* =============================================
+   RESPONSIVIDAD PARA PANTALLAS ULTRA GRANDES (1600px+)
+   ============================================= */
+@media (min-width: 1600px) {
+  .main-layout-detail {
+    max-width: 1600px;
+    gap: 50px;
+  }
+
+  .hero-section-compact {
+    height: 450px;
+  }
+
+  .info-card-premium {
+    padding: 40px;
+  }
+
+  .jira-stats-grid.quad {
+    gap: 20px;
+  }
+
+  .stat-box {
+    min-height: 140px;
+    padding: 25px 15px;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+  }
+
+  .modal-content {
+    max-width: 800px;
+  }
+
+  .modal-header h2 {
+    font-size: 2.2rem;
+  }
+
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 25px;
+  }
+
+  .gallery-img {
+    height: 160px;
+  }
+}
+
+/* =============================================
+   RESPONSIVIDAD PARA PANTALLAS MUY ALTAS (Orientación vertical en tablets grandes)
+   ============================================= */
+@media (max-height: 600px) and (orientation: landscape) {
+  .hero-section-compact {
+    height: 200px;
+  }
+
+  .modal-content {
+    max-height: 70vh;
+  }
+
+  .jira-stats-grid.quad {
+    margin-bottom: 20px;
+  }
+
+  .sprint-footer {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
 }
