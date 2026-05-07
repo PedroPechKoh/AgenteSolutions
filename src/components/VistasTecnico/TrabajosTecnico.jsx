@@ -254,11 +254,10 @@ const TrabajosTecnico = () => {
             </div>
           )}
         </div>
- </div>
+      </div>
         {!materialRecibido && (
           <div className="lock-overlay-msg">Debe confirmar recepción de material para desbloquear</div>
         )}
-      </div>
 
       <AnimatePresence>
         {mostrarModalChecklist && (
