@@ -49,88 +49,143 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   border-bottom-right-radius: 0; }
 .tt-tab.inactive { background-color: transparent; color: black; }
 
-/* ÁREA DE BOARD / TABLERO */
-.tt-board-container {
-  background-color: #636363;
-  border-radius: 0 35px 35px 35px;
-  padding: 25px 30px;
-  width: 85%;
-  max-width: 1100px;
+/* KANBAN BOARD LAYOUT */
+.tt-board-container-kanban {
+  display: flex;
+  gap: 20px;
+  padding: 10px 0 20px 0;
+  width: 95%;
+  max-width: 1400px;
   margin: 0 auto;
   flex: 1;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tt-kanban-col {
+  min-width: 320px;
+  flex: 1;
+  background: #636363;
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  max-height: 100%;
+  scroll-snap-align: start;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* ÁREA DE SCROLL */
-.tt-scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  padding-right: 10px;
-  margin-top: 5px;
-}
-
-.tt-scroll-area::-webkit-scrollbar {
-  width: 6px;
-}
-
-.tt-scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-}
-
-/* GRUPOS POR FECHA */
-.tt-date-group {
-  margin-bottom: 25px;
-}
-
-.tt-group-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.tt-col-header {
+  padding: 15px 20px;
   background: #444;
   color: white;
-  padding: 8px 20px;
-  border-radius: 50px;
-  margin-bottom: 15px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 11px;
   font-weight: 900;
-  text-transform: uppercase;
   letter-spacing: 1px;
-  position: sticky;
-  top: 0;
-  z-index: 5;
 }
 
-.tt-group-count {
+.count-pill {
   background: #f26624;
   padding: 2px 8px;
   border-radius: 10px;
   font-size: 10px;
 }
 
-/* ATRASADOS / OVERDUE STYLE */
-.tt-date-group.is-overdue .tt-group-header {
-  background: #e63946;
-  animation: pulse-red 2s infinite;
-}
-
-.tt-date-group.is-overdue .tt-task-card {
-  border-left: 6px solid #e63946;
-}
-
-@keyframes pulse-red {
-  0% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(230, 57, 70, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0); }
-}
-
-/* CUADRÍCULA DE CARDS */
-.tt-cards-grid {
+.tt-col-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.tt-col-content::-webkit-scrollbar { width: 4px; }
+.tt-col-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+/* COLUMNA SOS ESPECÍFICA */
+.col-sos .tt-col-header { background: #e63946; }
+.col-sos { border: 2px solid #e63946; }
+
+/* SUBGRUPOS POR FECHA */
+.tt-date-subgroup {
+  margin-bottom: 10px;
+}
+
+.tt-subgroup-label {
+  color: #bbb;
+  font-size: 10px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  padding-left: 5px;
+}
+
+/* HEADER DEL BOARD Y FILTRO */
+.tt-board-header-row {
+  width: 95%;
+  max-width: 1400px;
+  margin: 0 auto 15px auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tt-filter-date-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f1f5f9;
+  padding: 5px 15px;
+  border-radius: 15px;
+  border: 1px solid #ddd;
+}
+
+.tt-filter-date-wrapper label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tt-date-picker-inline {
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  outline: none;
+  cursor: pointer;
+}
+
+.btn-clear-filter {
+  background: #e2e8f0;
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+}
+
+.empty-mini {
+  text-align: center;
+  color: #999;
+  font-size: 11px;
+  font-style: italic;
+  padding: 20px;
 }
 
 /* PREMIUM TASK CARD */

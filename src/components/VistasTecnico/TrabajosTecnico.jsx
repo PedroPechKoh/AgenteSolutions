@@ -6,13 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import "../../styles/TecnicoStyles/TrabajosTecnico.css";
 import { 
   Search, Package, Wrench, CheckCircle2, Lock, Settings, 
-  Calendar, Clock, MapPin, AlertTriangle, ChevronRight 
+  Calendar, Clock, MapPin, AlertTriangle, ChevronRight, X
 } from 'lucide-react';
 import Header from "../Shared/Header";
 
 const TrabajosTecnico = () => {
-  const [tabActual, setTabActual] = useState('ASIGNADOS');
   const [mostrarModalChecklist, setMostrarModalChecklist] = useState(false);
+  const [filtroFechaAtrasados, setFiltroFechaAtrasados] = useState(null); // Para el historial
+  const [busqueda, setBusqueda] = useState("");
   
   // Estado para controlar si el material fue recibido
   const [materialRecibido, setMaterialRecibido] = useState(false);
@@ -84,50 +85,140 @@ const TrabajosTecnico = () => {
   // Usar el dinámico si existe, si no el hardcoded
   const checklistARenderizar = checklistDinamico || checklistGeneral;
 
-  // Filtrar servicios por tab
-  const serviciosFiltrados = servicios.filter(s => {
-    const status = s.status?.toLowerCase();
-    if (tabActual === 'ASIGNADOS') return status !== 'completed' && status !== 'finalizado' && status !== 'in_progress';
-    if (tabActual === 'EN PROCESO') return status === 'in_progress';
-    if (tabActual === 'FINALIZADOS') return status === 'completed' || status === 'finalizado';
-    return true;
-  });
+  // Lógica de clasificación para el tablero
+  const clasificarPorTablero = () => {
+    const gruposTablero = {
+      sos: [],
+      todo: [],
+      progress: [],
+      done: []
+    };
 
-  const agruparServicios = (items) => {
+    servicios.forEach(s => {
+      const status = s.status?.toLowerCase();
+      const priority = s.priority?.toLowerCase();
+
+      // SOS: Prioridad urgente y no finalizado
+      if (priority === 'urgente' && !['completed', 'finalizado'].includes(status)) {
+        gruposTablero.sos.push(s);
+      } 
+      // EN PROCESO
+      else if (status === 'in_progress') {
+        gruposTablero.progress.push(s);
+      } 
+      // FINALIZADOS
+      else if (['completed', 'finalizado'].includes(status)) {
+        gruposTablero.done.push(s);
+      } 
+      // POR HACER (Asignados normales)
+      else {
+        gruposTablero.todo.push(s);
+      }
+    });
+
+    return gruposTablero;
+  };
+
+  const agruparTodoPorFecha = (items) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
+    const ayer = new Date(hoy);
+    ayer.setDate(ayer.getDate() - 1);
     const manana = new Date(hoy);
     manana.setDate(manana.getDate() + 1);
 
     const grupos = {
-      'ATRASADOS': [],
+      'ATRASADOS / AYER': [],
       'HOY': [],
       'MAÑANA': [],
-      'ESTA SEMANA': [],
       'PRÓXIMOS': []
     };
 
     items.forEach(s => {
       const fechaServicio = new Date(s.scheduled_start || s.created_at);
-      fechaServicio.setHours(0, 0, 0, 0);
+      const fCmp = new Date(fechaServicio);
+      fCmp.setHours(0, 0, 0, 0);
 
-      if (fechaServicio.getTime() < hoy.getTime()) {
-        grupos['ATRASADOS'].push(s);
-      } else if (fechaServicio.getTime() === hoy.getTime()) {
+      // Aplicar filtro de fecha si existe (para historial de atrasados)
+      if (filtroFechaAtrasados && fCmp.getTime() < hoy.getTime()) {
+        const fFiltro = new Date(filtroFechaAtrasados);
+        fFiltro.setHours(0, 0, 0, 0);
+        if (fCmp.getTime() !== fFiltro.getTime()) return;
+      }
+
+      if (fCmp.getTime() < hoy.getTime()) {
+        grupos['ATRASADOS / AYER'].push(s);
+      } else if (fCmp.getTime() === hoy.getTime()) {
         grupos['HOY'].push(s);
-      } else if (fechaServicio.getTime() === manana.getTime()) {
+      } else if (fCmp.getTime() === manana.getTime()) {
         grupos['MAÑANA'].push(s);
       } else {
-        const diff = (fechaServicio.getTime() - hoy.getTime()) / (1000 * 3600 * 24);
-        if (diff <= 7) grupos['ESTA SEMANA'].push(s);
-        else grupos['PRÓXIMOS'].push(s);
+        grupos['PRÓXIMOS'].push(s);
       }
     });
 
     return Object.entries(grupos).filter(([_, val]) => val.length > 0);
   };
 
-  const serviciosAgrupados = agruparServicios(serviciosFiltrados);
+  const tableroData = clasificarPorTablero();
+  const todoAgrupado = agruparTodoPorFecha(tableroData.todo.filter(s => 
+    s.property_name?.toLowerCase().includes(busqueda.toLowerCase()) ||
+    s.id?.toString().includes(busqueda)
+  ));
+
+  const renderCard = (item, index) => (
+    <motion.div
+      key={item.id || index}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+      className="tt-card-wrapper"
+    >
+      <button 
+        type="button"
+        className={`tt-task-card ${item.priority === 'Urgente' ? 'is-sos' : ''}`}
+        onClick={() => {
+          if (materialRecibido) {
+            if (item.custom_checklist) navigate(`/Checklist/${item.id}`);
+            else navigate(`/trabajo-propiedad/${item.id}`);
+          }
+        }}
+        disabled={!materialRecibido}
+      >
+        <div className="tt-col tt-col-folio">
+          <span className="tt-folio-badge">#{item.id}</span>
+          {item.priority === 'Urgente' && (
+            <span className="tt-sos-tag"><AlertTriangle size={12}/> SOS</span>
+          )}
+        </div>
+        
+        <div className="tt-col tt-col-main">
+          <h4 className="tt-property-title">{item.property_name || "Sin Nombre"}</h4>
+        </div>
+
+        <div className="tt-col tt-col-info">
+          <div className="tt-info-row">
+            <MapPin size={12} />
+            <span>{item.zone || 'General'}</span>
+          </div>
+          <div className="tt-info-row">
+            <Clock size={12} />
+            <span>{new Date(item.scheduled_start || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+        </div>
+
+        <div className="tt-col tt-col-date">
+           <span className="tt-date-text">
+             {new Date(item.scheduled_start || item.created_at).toLocaleDateString()}
+           </span>
+        </div>
+
+        <div className="tt-col tt-col-arrow">
+           <ChevronRight size={18} className="tt-arrow-icon" />
+        </div>
+      </button>
+    </motion.div>
+  );
 
   const toggleItem = (tipo, index) => {
     const nuevosItems = { ...itemsCheck };
@@ -155,7 +246,13 @@ const TrabajosTecnico = () => {
     <div className="tt-body">
       <div className="tt-search-row">
         <div className="tt-search-wrapper">
-          <input type="text" className="tt-search-input" placeholder="Buscar..." />
+          <input 
+            type="text" 
+            className="tt-search-input" 
+            placeholder="Buscar por folio o propiedad..." 
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
           <Search className="search-icon-inside" size={22} />
         </div>
         
@@ -168,103 +265,79 @@ const TrabajosTecnico = () => {
         </button>
       </div>
 
-      <div className="tt-tabs-header-container" style={{ width: '85%', maxWidth: '1100px', margin: '0 auto' }}>
+      <div className="tt-board-header-row">
         <h3 className="section-title-visitas">
-          TRABAJOS {!materialRecibido && <span className="lock-text"><Lock size={14}/> Bloqueado</span>}
+          TABLERO DE OPERACIONES {!materialRecibido && <span className="lock-text"><Lock size={14}/> Bloqueado</span>}
         </h3>
-        <div className="tt-tabs-outer">
-          {['ASIGNADOS', 'EN PROCESO', 'FINALIZADOS'].map((tab) => (
-            <button 
-              key={tab}
-              className={`tt-tab ${tabActual === tab ? 'active' : 'inactive'}`}
-              onClick={() => setTabActual(tab)}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="tt-filter-date-wrapper">
+          <label><Calendar size={14}/> Ver histórico:</label>
+          <input 
+            type="date" 
+            className="tt-date-picker-inline" 
+            onChange={(e) => setFiltroFechaAtrasados(e.target.value)} 
+          />
+          {filtroFechaAtrasados && <button className="btn-clear-filter" onClick={() => setFiltroFechaAtrasados(null)}><X size={14}/></button>}
         </div>
       </div>
 
-      <div className={`tt-board-container ${!materialRecibido ? 'table-locked' : ''}`}>
-        <div className="tt-scroll-area">
-          {serviciosAgrupados.length > 0 ? (
-            serviciosAgrupados.map(([nombreGrupo, items], gIndex) => (
-              <div key={nombreGrupo} className={`tt-date-group ${nombreGrupo === 'ATRASADOS' ? 'is-overdue' : ''}`}>
-                <div className="tt-group-header">
-                  {nombreGrupo === 'ATRASADOS' ? <AlertTriangle size={16} /> : <Calendar size={16} />}
-                  <span>{nombreGrupo}</span>
-                  <span className="tt-group-count">{items.length}</span>
-                </div>
-                
-                <div className="tt-cards-grid">
-                  {items.map((item, index) => (
-                    <motion.div
-                      key={item.id || index}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="tt-card-wrapper"
-                    >
-                      <button 
-                        type="button"
-                        className={`tt-task-card ${item.priority === 'Urgente' ? 'is-sos' : ''}`}
-                        onClick={() => {
-                          if (materialRecibido) {
-                            if (item.custom_checklist) navigate(`/Checklist/${item.id}`);
-                            else navigate(`/trabajo-propiedad/${item.id}`);
-                          }
-                        }}
-                        disabled={!materialRecibido}
-                      >
-                        {/* Columna 1: Folio y SOS */}
-                        <div className="tt-col tt-col-folio">
-                          <span className="tt-folio-badge">#{item.id}</span>
-                          {item.priority === 'Urgente' && (
-                            <span className="tt-sos-tag"><AlertTriangle size={12}/> SOS</span>
-                          )}
-                        </div>
-                        
-                        {/* Columna 2: Propiedad */}
-                        <div className="tt-col tt-col-main">
-                          <h4 className="tt-property-title">{item.property_name || "Sin Nombre"}</h4>
-                        </div>
-
-                        {/* Columna 3: Zona y Hora */}
-                        <div className="tt-col tt-col-info">
-                          <div className="tt-info-row">
-                            <MapPin size={12} />
-                            <span>{item.zone || 'General'}</span>
-                          </div>
-                          <div className="tt-info-row">
-                            <Clock size={12} />
-                            <span>{new Date(item.scheduled_start || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                          </div>
-                        </div>
-
-                        {/* Columna 4: Fecha */}
-                        <div className="tt-col tt-col-date">
-                           <span className="tt-date-text">
-                             {new Date(item.scheduled_start || item.created_at).toLocaleDateString()}
-                           </span>
-                        </div>
-
-                        {/* Columna 5: Flecha */}
-                        <div className="tt-col tt-col-arrow">
-                           <ChevronRight size={18} className="tt-arrow-icon" />
-                        </div>
-                      </button>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="empty-state-msg">
-              <CheckCircle2 size={40} style={{ opacity: 0.3, marginBottom: '15px' }} />
-              <p>No hay trabajos pendientes en esta sección.</p>
-            </div>
-          )}
+      <div className={`tt-board-container-kanban ${!materialRecibido ? 'table-locked' : ''}`}>
+        
+        {/* COLUMNA 1: SOS */}
+        <div className="tt-kanban-col col-sos">
+          <div className="tt-col-header">
+            <span>SOS / PRIORITARIOS</span>
+            <span className="count-pill">{tableroData.sos.length}</span>
+          </div>
+          <div className="tt-col-content">
+            {tableroData.sos.map((item, idx) => renderCard(item, idx))}
+            {tableroData.sos.length === 0 && <div className="empty-mini">Sin urgencias</div>}
+          </div>
         </div>
+
+        {/* COLUMNA 2: POR HACER (ASIGNADOS) */}
+        <div className="tt-kanban-col col-todo">
+          <div className="tt-col-header">
+            <span>POR HACER / ASIGNADOS</span>
+            <span className="count-pill">{tableroData.todo.length}</span>
+          </div>
+          <div className="tt-col-content">
+            {todoAgrupado.map(([nombreGrupo, items]) => (
+              <div key={nombreGrupo} className="tt-date-subgroup">
+                <div className="tt-subgroup-label">
+                  {nombreGrupo === 'ATRASADOS / AYER' ? <AlertTriangle size={12} /> : <Clock size={12} />}
+                  {nombreGrupo}
+                </div>
+                {items.map((item, idx) => renderCard(item, idx))}
+              </div>
+            ))}
+            {tableroData.todo.length === 0 && <div className="empty-mini">Todo al día</div>}
+          </div>
+        </div>
+
+        {/* COLUMNA 3: EN PROCESO */}
+        <div className="tt-kanban-col col-progress">
+          <div className="tt-col-header">
+            <span>EN PROCESO</span>
+            <span className="count-pill">{tableroData.progress.length}</span>
+          </div>
+          <div className="tt-col-content">
+            {tableroData.progress.map((item, idx) => renderCard(item, idx))}
+            {tableroData.progress.length === 0 && <div className="empty-mini">Ninguno activo</div>}
+          </div>
+        </div>
+
+        {/* COLUMNA 4: FINALIZADOS */}
+        <div className="tt-kanban-col col-done">
+          <div className="tt-col-header">
+            <span>FINALIZADOS</span>
+            <span className="count-pill">{tableroData.done.length}</span>
+          </div>
+          <div className="tt-col-content">
+            {tableroData.done.map((item, idx) => renderCard(item, idx))}
+            {tableroData.done.length === 0 && <div className="empty-mini">Sin registros</div>}
+          </div>
+        </div>
+
       </div>
         {!materialRecibido && (
           <div className="lock-overlay-msg">Debe confirmar recepción de material para desbloquear</div>
