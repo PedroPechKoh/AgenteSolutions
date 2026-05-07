@@ -216,29 +216,40 @@ const TrabajosTecnico = () => {
                         }}
                         disabled={!materialRecibido}
                       >
-                        <div className="tt-card-top">
+                        {/* Columna 1: Folio y SOS */}
+                        <div className="tt-col tt-col-folio">
                           <span className="tt-folio-badge">#{item.id}</span>
                           {item.priority === 'Urgente' && (
                             <span className="tt-sos-tag"><AlertTriangle size={12}/> SOS</span>
                           )}
                         </div>
                         
-                        <div className="tt-card-main">
+                        {/* Columna 2: Propiedad */}
+                        <div className="tt-col tt-col-main">
                           <h4 className="tt-property-title">{item.property_name || "Sin Nombre"}</h4>
+                        </div>
+
+                        {/* Columna 3: Zona y Hora */}
+                        <div className="tt-col tt-col-info">
                           <div className="tt-info-row">
-                            <MapPin size={14} />
+                            <MapPin size={12} />
                             <span>{item.zone || 'General'}</span>
                           </div>
                           <div className="tt-info-row">
-                            <Clock size={14} />
+                            <Clock size={12} />
                             <span>{new Date(item.scheduled_start || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                         </div>
 
-                        <div className="tt-card-footer">
+                        {/* Columna 4: Fecha */}
+                        <div className="tt-col tt-col-date">
                            <span className="tt-date-text">
                              {new Date(item.scheduled_start || item.created_at).toLocaleDateString()}
                            </span>
+                        </div>
+
+                        {/* Columna 5: Flecha */}
+                        <div className="tt-col tt-col-arrow">
                            <ChevronRight size={18} className="tt-arrow-icon" />
                         </div>
                       </button>

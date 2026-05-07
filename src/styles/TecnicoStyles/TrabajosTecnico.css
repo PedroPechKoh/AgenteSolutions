@@ -134,88 +134,108 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 }
 
 /* PREMIUM TASK CARD */
+/* PREMIUM TASK CARD (HORIZONTAL) */
 .tt-task-card {
   width: 100%;
   background: white;
-  border-radius: 15px;
-  padding: 15px 20px;
+  border-radius: 12px;
+  padding: 10px 20px;
   border: none;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   text-align: left;
   position: relative;
   overflow: hidden;
+  min-height: 60px;
 }
 
 .tt-task-card:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-}
-
-.tt-task-card:active:not(:disabled) {
-  transform: translateY(0);
+  transform: scale(1.01);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .tt-task-card.is-sos {
   border-left: 6px solid #e63946;
 }
 
-.tt-card-top {
+/* COLUMNAS DEL CARD */
+.tt-col {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.tt-col-folio {
+  width: 70px;
+  gap: 4px;
+}
+
+.tt-col-main {
+  flex: 2;
+}
+
+.tt-col-info {
+  flex: 1.5;
+  gap: 4px;
+}
+
+.tt-col-date {
+  width: 100px;
+  text-align: right;
+}
+
+.tt-col-arrow {
+  width: 30px;
+  align-items: flex-end;
 }
 
 .tt-folio-badge {
   background: #f1f5f9;
   color: #64748b;
-  padding: 2px 8px;
-  border-radius: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
   font-size: 10px;
   font-weight: 900;
+  width: fit-content;
 }
 
 .tt-sos-tag {
   background: #fee2e2;
   color: #e63946;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
   font-weight: 900;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
+  width: fit-content;
 }
 
 .tt-property-title {
-  margin: 5px 0;
-  font-size: 16px;
+  margin: 0;
+  font-size: 14px;
   font-weight: 900;
   color: #1e293b;
-  font-style: italic;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tt-info-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   color: #64748b;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-}
-
-.tt-card-footer {
-  margin-top: 5px;
-  padding-top: 10px;
-  border-top: 1px solid #f1f5f9;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .tt-date-text {
