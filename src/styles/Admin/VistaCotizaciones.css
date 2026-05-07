@@ -216,11 +216,7 @@
     cursor: pointer; 
     color: #222;
 }
-.no-data {
-        padding: 100px 20px; /* Para que el mensaje de "No hay resultados" se vea centrado */
-        text-align: center;
-        width: 100%;
-    }
+.no-data { padding: 50px; color: #999; font-style: italic; }
 
 /* Scrollbar personalizada */
 .cotiz-table-container::-webkit-scrollbar { width: 8px; }
@@ -503,7 +499,7 @@
 
 @media (max-width: 768px) {
     .cotiz-main-content {
-        padding: 10px 15px;
+        padding: 16px 16px;
     }
     .cotiz-search-wrapper {
        padding: 0 15px; 
@@ -591,8 +587,7 @@
 
 @media (max-width: 480px) {
     .cotiz-main-content {
-       padding: 10px 6px; 
-        box-sizing: border-box;
+        padding: 12px 8px;
     }
     .cotiz-header {
         padding: 8px 12px;
@@ -626,8 +621,6 @@
     .cotiz-data-table {
         font-size: 0.8rem;
         min-width: 500px;
-        padding: 10px 4px;
-        
     }
     .cotiz-data-table th {
         padding: 8px 4px;
