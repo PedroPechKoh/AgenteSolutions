@@ -89,8 +89,21 @@ const TrabajosTecnico = () => {
 
   const getDayStr = (d) => {
     if (!d) return '';
-    const date = new Date(d);
-    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+    // Si ya es YYYY-MM-DD
+    if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) {
+      return d.substring(0, 10);
+    }
+    // Fallback robusto
+    try {
+      const date = new Date(d);
+      if (isNaN(date.getTime())) return '';
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (e) {
+      return '';
+    }
   };
 
   // Lógica de clasificación para el tablero (Simplificado a 3 columnas principales)
@@ -115,7 +128,14 @@ const TrabajosTecnico = () => {
       if (isDone) {
         gruposTablero.done.push(s);
       } else if (fStr >= mananaStr) {
-        gruposTablero.futuros.push(s);
+        // El filtro de fecha aplica específicamente a la columna de Futuros/Mañana
+        if (filtroFechaAtrasados) {
+          if (fStr === filtroFechaAtrasados) {
+            gruposTablero.futuros.push(s);
+          }
+        } else {
+          gruposTablero.futuros.push(s);
+        }
       } else {
         gruposTablero.asignados.push(s);
       }
@@ -153,10 +173,7 @@ const TrabajosTecnico = () => {
 
     items.forEach(s => {
       const fStr = getDayStr(s.scheduled_start || s.created_at);
-      if (filtroFechaAtrasados) {
-        if (fStr !== filtroFechaAtrasados) return;
-      }
-
+      // Aquí ya no filtramos de nuevo, porque clasificarPorTablero ya lo hizo
       if (fStr === mananaStr) grupos['MAÑANA'].push(s);
       else grupos['PRÓXIMOS'].push(s);
     });
