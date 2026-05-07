@@ -625,6 +625,7 @@
     .cotiz-data-table {
         font-size: 0.8rem;
         min-width: 500px;
+        padding: 12px 8px;
     }
     .cotiz-data-table th {
         padding: 8px 4px;
