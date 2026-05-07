@@ -4,7 +4,10 @@ import { useAuth } from "../../context/AuthContext";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import "../../styles/TecnicoStyles/TrabajosTecnico.css";
-import { Search, Package, Wrench, CheckCircle2, Lock, Settings } from 'lucide-react';
+import { 
+  Search, Package, Wrench, CheckCircle2, Lock, Settings, 
+  Calendar, Clock, MapPin, AlertTriangle, ChevronRight 
+} from 'lucide-react';
 import Header from "../Shared/Header";
 
 const TrabajosTecnico = () => {
@@ -90,6 +93,42 @@ const TrabajosTecnico = () => {
     return true;
   });
 
+  const agruparServicios = (items) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const manana = new Date(hoy);
+    manana.setDate(manana.getDate() + 1);
+
+    const grupos = {
+      'ATRASADOS': [],
+      'HOY': [],
+      'MAÑANA': [],
+      'ESTA SEMANA': [],
+      'PRÓXIMOS': []
+    };
+
+    items.forEach(s => {
+      const fechaServicio = new Date(s.scheduled_start || s.created_at);
+      fechaServicio.setHours(0, 0, 0, 0);
+
+      if (fechaServicio.getTime() < hoy.getTime()) {
+        grupos['ATRASADOS'].push(s);
+      } else if (fechaServicio.getTime() === hoy.getTime()) {
+        grupos['HOY'].push(s);
+      } else if (fechaServicio.getTime() === manana.getTime()) {
+        grupos['MAÑANA'].push(s);
+      } else {
+        const diff = (fechaServicio.getTime() - hoy.getTime()) / (1000 * 3600 * 24);
+        if (diff <= 7) grupos['ESTA SEMANA'].push(s);
+        else grupos['PRÓXIMOS'].push(s);
+      }
+    });
+
+    return Object.entries(grupos).filter(([_, val]) => val.length > 0);
+  };
+
+  const serviciosAgrupados = agruparServicios(serviciosFiltrados);
+
   const toggleItem = (tipo, index) => {
     const nuevosItems = { ...itemsCheck };
     nuevosItems[tipo][index] = !nuevosItems[tipo][index];
@@ -146,49 +185,76 @@ const TrabajosTecnico = () => {
         </div>
       </div>
 
-      <div className={`tt-table-box ${!materialRecibido ? 'table-locked' : ''}`}>
-        <div className="tt-grid-system header-grid">
-          <div className="tt-col-header">FOLIO</div>
-          <div className="tt-col-header">ID PROPIEDAD</div>
-          <div className="tt-col-header">FECHA</div>
-        </div>
-
+      <div className={`tt-board-container ${!materialRecibido ? 'table-locked' : ''}`}>
         <div className="tt-scroll-area">
-          {serviciosFiltrados.length > 0 ? (
-            serviciosFiltrados.map((item, index) => (
-              <motion.div
-                key={item.id || index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.08 }}
-              >
-                <button 
-                  type="button"
-                  className="tt-row-button" 
-                  onClick={() => {
-                    if (materialRecibido) {
-                      // Si el servicio tiene un checklist personalizado, vamos allá
-                      if (item.custom_checklist) {
-                        navigate(`/Checklist/${item.id}`);
-                      } else {
-                        navigate(`/trabajo-propiedad/${item.id}`);
-                      }
-                    }
-                  }}
-                  disabled={!materialRecibido}
-                >
-                  <div className="tt-grid-system">
-                    <span className="col-text">{item.id}</span>
-                    <span className="col-text">{item.property_name || "Sin Nombre"}</span>
-                    <span className="col-text">{new Date(item.scheduled_start || item.created_at).toLocaleDateString()}</span>
-                  </div>
-                </button>
-              </motion.div>
+          {serviciosAgrupados.length > 0 ? (
+            serviciosAgrupados.map(([nombreGrupo, items], gIndex) => (
+              <div key={nombreGrupo} className={`tt-date-group ${nombreGrupo === 'ATRASADOS' ? 'is-overdue' : ''}`}>
+                <div className="tt-group-header">
+                  {nombreGrupo === 'ATRASADOS' ? <AlertTriangle size={16} /> : <Calendar size={16} />}
+                  <span>{nombreGrupo}</span>
+                  <span className="tt-group-count">{items.length}</span>
+                </div>
+                
+                <div className="tt-cards-grid">
+                  {items.map((item, index) => (
+                    <motion.div
+                      key={item.id || index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="tt-card-wrapper"
+                    >
+                      <button 
+                        type="button"
+                        className={`tt-task-card ${item.priority === 'Urgente' ? 'is-sos' : ''}`}
+                        onClick={() => {
+                          if (materialRecibido) {
+                            if (item.custom_checklist) navigate(`/Checklist/${item.id}`);
+                            else navigate(`/trabajo-propiedad/${item.id}`);
+                          }
+                        }}
+                        disabled={!materialRecibido}
+                      >
+                        <div className="tt-card-top">
+                          <span className="tt-folio-badge">#{item.id}</span>
+                          {item.priority === 'Urgente' && (
+                            <span className="tt-sos-tag"><AlertTriangle size={12}/> SOS</span>
+                          )}
+                        </div>
+                        
+                        <div className="tt-card-main">
+                          <h4 className="tt-property-title">{item.property_name || "Sin Nombre"}</h4>
+                          <div className="tt-info-row">
+                            <MapPin size={14} />
+                            <span>{item.zone || 'General'}</span>
+                          </div>
+                          <div className="tt-info-row">
+                            <Clock size={14} />
+                            <span>{new Date(item.scheduled_start || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                        </div>
+
+                        <div className="tt-card-footer">
+                           <span className="tt-date-text">
+                             {new Date(item.scheduled_start || item.created_at).toLocaleDateString()}
+                           </span>
+                           <ChevronRight size={18} className="tt-arrow-icon" />
+                        </div>
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
             ))
           ) : (
-            <div className="empty-state-msg">No hay trabajos en esta sección.</div>
+            <div className="empty-state-msg">
+              <CheckCircle2 size={40} style={{ opacity: 0.3, marginBottom: '15px' }} />
+              <p>No hay trabajos pendientes en esta sección.</p>
+            </div>
           )}
         </div>
+ </div>
         {!materialRecibido && (
           <div className="lock-overlay-msg">Debe confirmar recepción de material para desbloquear</div>
         )}

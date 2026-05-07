@@ -49,29 +49,184 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   border-bottom-right-radius: 0; }
 .tt-tab.inactive { background-color: transparent; color: black; }
 
-/* TABLA GRIS COMPACTA */
-.tt-table-box { background-color: #636363;
+/* ÁREA DE BOARD / TABLERO */
+.tt-board-container {
+  background-color: #636363;
   border-radius: 0 35px 35px 35px;
   padding: 25px 30px;
-  width: 85%;              /* 👈 ancho reducido */
-  max-width: 1100px;       /* 👈 límite en pantallas grandes */
-  margin: 0 auto;          /* 👈 centrado */
+  width: 85%;
+  max-width: 1100px;
+  margin: 0 auto;
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
-.tt-grid-system { display: grid; grid-template-columns: 100px 1fr 150px; gap: 15px; align-items: center; padding: 0 20px; }
-.tt-col-header { background-color: #d1d1d1; border-radius: 15px; padding: 6px; text-align: center; font-size: 9px; font-weight: 900; }
-
-/* FILAS REDUCIDAS */
-.tt-row-button { width: 100%; background-color: #d1d1d1; border-radius: 35px; padding: 12px 0; margin-top: 12px; cursor: pointer; border: none; box-shadow: 0 4px 0px #f26624; }
-.col-text { font-weight: 900; font-style: italic; font-size: 13px; text-align: center; }
 
 /* ÁREA DE SCROLL */
-.tt-scroll-area { flex: 1; overflow-y: auto; padding-right: 5px; margin-top: 5px; }
-.tt-scroll-area::-webkit-scrollbar { width: 6px; }
-.tt-scroll-area::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+.tt-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+  margin-top: 5px;
+}
+
+.tt-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tt-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+/* GRUPOS POR FECHA */
+.tt-date-group {
+  margin-bottom: 25px;
+}
+
+.tt-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #444;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 50px;
+  margin-bottom: 15px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.tt-group-count {
+  background: #f26624;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+
+/* ATRASADOS / OVERDUE STYLE */
+.tt-date-group.is-overdue .tt-group-header {
+  background: #e63946;
+  animation: pulse-red 2s infinite;
+}
+
+.tt-date-group.is-overdue .tt-task-card {
+  border-left: 6px solid #e63946;
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(230, 57, 70, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(230, 57, 70, 0); }
+}
+
+/* CUADRÍCULA DE CARDS */
+.tt-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* PREMIUM TASK CARD */
+.tt-task-card {
+  width: 100%;
+  background: white;
+  border-radius: 15px;
+  padding: 15px 20px;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.tt-task-card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.tt-task-card:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.tt-task-card.is-sos {
+  border-left: 6px solid #e63946;
+}
+
+.tt-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tt-folio-badge {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.tt-sos-tag {
+  background: #fee2e2;
+  color: #e63946;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tt-property-title {
+  margin: 5px 0;
+  font-size: 16px;
+  font-weight: 900;
+  color: #1e293b;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.tt-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tt-card-footer {
+  margin-top: 5px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tt-date-text {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 800;
+}
+
+.tt-arrow-icon {
+  color: #f26624;
+}
 
 /* --- AGREGADO: BOTÓN DE CHECKLIST Y MODAL --- */
 
@@ -219,12 +374,12 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 .btn-open-checklist.pendiente { background-color: #f26624; }
 .btn-open-checklist.recibido { background-color: #28a745; box-shadow: 0 4px 0px #1e7e34; }
 
-/* BLOQUEO DE TABLA */
-.tt-table-box.table-locked {
+/* BLOQUEO DE TABLA / BOARD */
+.tt-board-container.table-locked {
   opacity: 0.5;
   filter: grayscale(0.8);
   position: relative;
-  pointer-events: none; /* Evita cualquier click */
+  pointer-events: none;
 }
 
 .lock-text { color: #f26624; font-size: 12px; margin-left: 10px; text-transform: uppercase; }
