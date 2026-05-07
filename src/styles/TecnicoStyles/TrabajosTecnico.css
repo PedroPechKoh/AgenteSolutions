@@ -188,7 +188,6 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   padding: 20px;
 }
 
-/* PREMIUM TASK CARD */
 /* PREMIUM TASK CARD (HORIZONTAL) */
 .tt-task-card {
   width: 100%;
@@ -208,6 +207,7 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   position: relative;
   overflow: hidden;
   min-height: 60px;
+  border-left: 4px solid transparent;
 }
 
 .tt-task-card:hover:not(:disabled) {
@@ -215,8 +215,25 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* RESALTADO SOS CARACTERÍSTICO */
 .tt-task-card.is-sos {
+  background: #fff5f5;
   border-left: 6px solid #e63946;
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.1);
+}
+
+.tt-task-card.is-sos .tt-property-title {
+  color: #c53030;
+}
+
+.tt-task-card.is-sos .tt-sos-tag {
+  animation: pulse-sos 2s infinite;
+}
+
+@keyframes pulse-sos {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 /* COLUMNAS DEL CARD */

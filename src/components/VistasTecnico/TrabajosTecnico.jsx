@@ -85,51 +85,66 @@ const TrabajosTecnico = () => {
   // Usar el dinámico si existe, si no el hardcoded
   const checklistARenderizar = checklistDinamico || checklistGeneral;
 
-  // Lógica de clasificación para el tablero
+  // Lógica de clasificación para el tablero (Simplificado a 3 columnas principales)
   const clasificarPorTablero = () => {
     const gruposTablero = {
-      sos: [],
-      todo: [],
-      progress: [],
-      done: []
+      asignados: [], // SOS + Atrasados + Hoy
+      futuros: [],   // Mañana + Futuros (con filtro)
+      done: []       // Finalizados
     };
+
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const manana = new Date(hoy);
+    manana.setDate(manana.getDate() + 1);
 
     servicios.forEach(s => {
       const status = s.status?.toLowerCase();
-      const priority = s.priority?.toLowerCase();
+      const isDone = ['completed', 'finalizado'].includes(status);
+      const fechaServicio = new Date(s.scheduled_start || s.created_at);
+      const fCmp = new Date(fechaServicio);
+      fCmp.setHours(0, 0, 0, 0);
 
-      // SOS: Prioridad urgente y no finalizado
-      if (priority === 'urgente' && !['completed', 'finalizado'].includes(status)) {
-        gruposTablero.sos.push(s);
-      } 
-      // EN PROCESO
-      else if (status === 'in_progress') {
-        gruposTablero.progress.push(s);
-      } 
-      // FINALIZADOS
-      else if (['completed', 'finalizado'].includes(status)) {
+      if (isDone) {
         gruposTablero.done.push(s);
-      } 
-      // POR HACER (Asignados normales)
-      else {
-        gruposTablero.todo.push(s);
+      } else if (fCmp.getTime() >= manana.getTime()) {
+        gruposTablero.futuros.push(s);
+      } else {
+        gruposTablero.asignados.push(s);
       }
     });
 
     return gruposTablero;
   };
 
-  const agruparTodoPorFecha = (items) => {
+  const agruparAsignados = (items) => {
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-    const ayer = new Date(hoy);
-    ayer.setDate(ayer.getDate() - 1);
+
+    const grupos = {
+      'ATRASADOS / AYER': [],
+      'HOY': []
+    };
+
+    items.forEach(s => {
+      const fechaServicio = new Date(s.scheduled_start || s.created_at);
+      const fCmp = new Date(fechaServicio);
+      fCmp.setHours(0, 0, 0, 0);
+
+      if (fCmp.getTime() < hoy.getTime()) grupos['ATRASADOS / AYER'].push(s);
+      else grupos['HOY'].push(s);
+    });
+
+    return Object.entries(grupos).filter(([_, val]) => val.length > 0);
+  };
+
+  const agruparFuturos = (items) => {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
     const manana = new Date(hoy);
     manana.setDate(manana.getDate() + 1);
 
     const grupos = {
-      'ATRASADOS / AYER': [],
-      'HOY': [],
       'MAÑANA': [],
       'PRÓXIMOS': []
     };
@@ -139,32 +154,29 @@ const TrabajosTecnico = () => {
       const fCmp = new Date(fechaServicio);
       fCmp.setHours(0, 0, 0, 0);
 
-      // Aplicar filtro de fecha si existe (para historial de atrasados)
-      if (filtroFechaAtrasados && fCmp.getTime() < hoy.getTime()) {
+      // Aplicar filtro de fecha para el histórico/futuro si existe
+      if (filtroFechaAtrasados) {
         const fFiltro = new Date(filtroFechaAtrasados);
         fFiltro.setHours(0, 0, 0, 0);
         if (fCmp.getTime() !== fFiltro.getTime()) return;
       }
 
-      if (fCmp.getTime() < hoy.getTime()) {
-        grupos['ATRASADOS / AYER'].push(s);
-      } else if (fCmp.getTime() === hoy.getTime()) {
-        grupos['HOY'].push(s);
-      } else if (fCmp.getTime() === manana.getTime()) {
-        grupos['MAÑANA'].push(s);
-      } else {
-        grupos['PRÓXIMOS'].push(s);
-      }
+      if (fCmp.getTime() === manana.getTime()) grupos['MAÑANA'].push(s);
+      else grupos['PRÓXIMOS'].push(s);
     });
 
     return Object.entries(grupos).filter(([_, val]) => val.length > 0);
   };
 
   const tableroData = clasificarPorTablero();
-  const todoAgrupado = agruparTodoPorFecha(tableroData.todo.filter(s => 
+  
+  const searchFilter = (s) => 
     s.property_name?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    s.id?.toString().includes(busqueda)
-  ));
+    s.id?.toString().includes(busqueda);
+
+  const asignadosAgrupados = agruparAsignados(tableroData.asignados.filter(searchFilter));
+  const futurosAgrupados = agruparFuturos(tableroData.futuros.filter(searchFilter));
+  const finalizadosFiltrados = tableroData.done.filter(searchFilter);
 
   const renderCard = (item, index) => (
     <motion.div
@@ -282,26 +294,14 @@ const TrabajosTecnico = () => {
 
       <div className={`tt-board-container-kanban ${!materialRecibido ? 'table-locked' : ''}`}>
         
-        {/* COLUMNA 1: SOS */}
-        <div className="tt-kanban-col col-sos">
-          <div className="tt-col-header">
-            <span>SOS / PRIORITARIOS</span>
-            <span className="count-pill">{tableroData.sos.length}</span>
-          </div>
-          <div className="tt-col-content">
-            {tableroData.sos.map((item, idx) => renderCard(item, idx))}
-            {tableroData.sos.length === 0 && <div className="empty-mini">Sin urgencias</div>}
-          </div>
-        </div>
-
-        {/* COLUMNA 2: POR HACER (ASIGNADOS) */}
+        {/* COLUMNA 1: ASIGNADOS (INCLUYE SOS, AYER Y HOY) */}
         <div className="tt-kanban-col col-todo">
           <div className="tt-col-header">
-            <span>POR HACER / ASIGNADOS</span>
-            <span className="count-pill">{tableroData.todo.length}</span>
+            <span>TRABAJOS ASIGNADOS</span>
+            <span className="count-pill">{tableroData.asignados.length}</span>
           </div>
           <div className="tt-col-content">
-            {todoAgrupado.map(([nombreGrupo, items]) => (
+            {asignadosAgrupados.map(([nombreGrupo, items]) => (
               <div key={nombreGrupo} className="tt-date-subgroup">
                 <div className="tt-subgroup-label">
                   {nombreGrupo === 'ATRASADOS / AYER' ? <AlertTriangle size={12} /> : <Clock size={12} />}
@@ -310,31 +310,39 @@ const TrabajosTecnico = () => {
                 {items.map((item, idx) => renderCard(item, idx))}
               </div>
             ))}
-            {tableroData.todo.length === 0 && <div className="empty-mini">Todo al día</div>}
+            {tableroData.asignados.length === 0 && <div className="empty-mini">Sin trabajos pendientes</div>}
           </div>
         </div>
 
-        {/* COLUMNA 3: EN PROCESO */}
-        <div className="tt-kanban-col col-progress">
+        {/* COLUMNA 2: MAÑANA / PRÓXIMOS (CON FILTRO) */}
+        <div className="tt-kanban-col col-futuros">
           <div className="tt-col-header">
-            <span>EN PROCESO</span>
-            <span className="count-pill">{tableroData.progress.length}</span>
+            <span>TRABAJOS DE MAÑANA / FILTRO</span>
+            <span className="count-pill">{tableroData.futuros.length}</span>
           </div>
           <div className="tt-col-content">
-            {tableroData.progress.map((item, idx) => renderCard(item, idx))}
-            {tableroData.progress.length === 0 && <div className="empty-mini">Ninguno activo</div>}
+            {futurosAgrupados.map(([nombreGrupo, items]) => (
+              <div key={nombreGrupo} className="tt-date-subgroup">
+                <div className="tt-subgroup-label">
+                  <Calendar size={12} />
+                  {nombreGrupo}
+                </div>
+                {items.map((item, idx) => renderCard(item, idx))}
+              </div>
+            ))}
+            {tableroData.futuros.length === 0 && <div className="empty-mini">Sin trabajos programados</div>}
           </div>
         </div>
 
-        {/* COLUMNA 4: FINALIZADOS */}
+        {/* COLUMNA 3: FINALIZADOS */}
         <div className="tt-kanban-col col-done">
           <div className="tt-col-header">
             <span>FINALIZADOS</span>
-            <span className="count-pill">{tableroData.done.length}</span>
+            <span className="count-pill">{finalizadosFiltrados.length}</span>
           </div>
           <div className="tt-col-content">
-            {tableroData.done.map((item, idx) => renderCard(item, idx))}
-            {tableroData.done.length === 0 && <div className="empty-mini">Sin registros</div>}
+            {finalizadosFiltrados.map((item, idx) => renderCard(item, idx))}
+            {finalizadosFiltrados.length === 0 && <div className="empty-mini">Sin registros</div>}
           </div>
         </div>
 
