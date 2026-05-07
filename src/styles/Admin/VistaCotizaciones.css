@@ -585,52 +585,111 @@
 
 @media (max-width: 480px) {
     .cotiz-main-content {
-        padding: 14px 12px;
+        padding: 12px 8px;
     }
     .cotiz-header {
-        padding: 10px 16px;
+        padding: 8px 12px;
     }
     .cotiz-search-wrapper {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
-    .cotiz-search-icon {
-        right: 18px;
-    }
-    .cotiz-tab-btn {
-        padding: 10px 12px;
-        font-size: 0.88rem;
-    }
-    .cotiz-data-table th,
-    .cotiz-data-table td {
-        padding: 10px 6px;
-        font-size: 0.85rem;
-    }
-    .cotiz-data-table th {
-        font-size: 0.82rem;
-    }
-    .modal-body-content {
-        padding: 16px;
-    }
-    .modal-header-dark {
-        padding: 14px 16px;
-    }
-    .btn-view-detail {
-        width: 100%;
+    .cotiz-input-field {
         padding: 12px 14px;
         font-size: 0.9rem;
     }
+    .cotiz-search-icon {
+        right: 14px;
+    }
+    .cotiz-tabs-row {
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .cotiz-tab-btn {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        flex: 0 1 auto;
+        min-width: 0;
+    }
+    .cotiz-table-container {
+        width: 100%;
+        max-height: 500px;
+        overflow-x: auto;
+    }
+    .cotiz-data-table {
+        font-size: 0.8rem;
+        min-width: 500px;
+    }
+    .cotiz-data-table th {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+        word-break: break-word;
+    }
+    .cotiz-data-table td {
+        padding: 10px 4px;
+        font-size: 0.8rem;
+    }
+    .bold-folio {
+        font-size: 0.8rem;
+    }
+    .cliente-name {
+        padding-left: 8px !important;
+        font-size: 0.8rem;
+    }
+    .monto-final {
+        font-size: 0.85rem;
+    }
+    .btn-view-detail {
+        padding: 8px 12px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+    .modal-body-content {
+        padding: 14px;
+    }
+    .modal-header-dark {
+        padding: 12px 14px;
+        font-size: 0.9rem;
+    }
+    .modal-info-summary {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 12px;
+    }
+    .modal-info-summary p {
+        font-size: 0.85rem;
+        margin: 4px 0;
+    }
+    .modal-items-table {
+        font-size: 0.8rem;
+    }
+    .modal-items-table th {
+        padding: 8px 4px;
+        font-size: 0.75rem;
+    }
+    .modal-items-table td {
+        padding: 8px 4px;
+        font-size: 0.8rem;
+    }
+    .modal-total-section {
+        margin-top: 15px;
+        font-size: 0.9rem;
+    }
+    .modal-total-section h3 {
+        font-size: 1rem;
+    }
     .quote-right h1 {
-        font-size: 28px;
+        font-size: 24px;
     }
     .quote-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 10px;
+        gap: 8px;
     }
     .back-arrow-fixed {
-        bottom: 16px;
-        left: 16px;
-        font-size: 2rem;
+        bottom: 14px;
+        left: 12px;
+        font-size: 1.8rem;
     }
 }
 

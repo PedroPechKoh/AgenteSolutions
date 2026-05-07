@@ -232,40 +232,38 @@ const VistaCotizaciones = () => {
           {c.tipo === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
         </td>
         <td>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
-            <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)}>
-              👁️ VER DETALLE
+          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)} style={{ fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}>
+              👁️ VER
             </button>
             {/* Solo mostrar acciones de asignación si es admin y está aprobada */}
             {!esCliente && filtro === 'Aprobado' && (
               c.tecnico ? (
                 // Mostrar cuando YA está asignado
                 <>
-                  <span style={{ fontWeight: 'bold', color: '#2e7d32', margin: '0 5px' }}>Asignado</span>
+                  <span style={{ fontWeight: 'bold', color: '#2e7d32', margin: '0 2px', fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)' }}>✓ Asignado</span>
                   <button
                     className="btn-view-detail"
-                    style={{ background: '#fb8c00' }}
+                    style={{ background: '#fb8c00', fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}
                     onClick={() => {
                       setCotizacionParaAsignar(c);
                       setShowAssignModal(true);
-                      // Podrías marcar una bandera extra para saber que es reasignación
-                      // setModoReasignar(true) o pasar una función específica
                     }}
                   >
-                    🔄 REASIGNAR
+                    🔄
                   </button>
                 </>
               ) : (
                 // Mostrar cuando NO está asignado
                 <button
                   className="btn-view-detail"
-                  style={{ background: '#2e7d32' }}
+                  style={{ background: '#2e7d32', fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}
                   onClick={() => {
                     setCotizacionParaAsignar(c);
                     setShowAssignModal(true);
                   }}
                 >
-                  🛠️ ASIGNAR TRABAJO
+                  🛠️
                 </button>
               )
             )}
