@@ -474,8 +474,7 @@
 /* --- RESPONSIVIDAD PARA MODAL DE COTIZACIONES --- */
 @media (max-width: 1024px) {
   .cotiz-main-content {
-       padding: 10px 15px; 
-        box-sizing: border-box; /* Quitamos el padding lateral para que la tabla toque los bordes */
+        padding: 10px 0; /* Quitamos el padding lateral para que la tabla toque los bordes */
     }
     .cotiz-search-wrapper {
         max-width: 100%;
@@ -504,7 +503,7 @@
 
 @media (max-width: 768px) {
     .cotiz-main-content {
-        padding: 16px 16px;
+        padding: 10px 15px;
     }
     .cotiz-search-wrapper {
        padding: 0 15px; 
@@ -592,7 +591,8 @@
 
 @media (max-width: 480px) {
     .cotiz-main-content {
-        padding: 12px 8px;
+       padding: 10px 15px; 
+        box-sizing: border-box;
     }
     .cotiz-header {
         padding: 8px 12px;
@@ -626,7 +626,7 @@
     .cotiz-data-table {
         font-size: 0.8rem;
         min-width: 500px;
-        padding: 12px 8px;
+        
     }
     .cotiz-data-table th {
         padding: 8px 4px;
