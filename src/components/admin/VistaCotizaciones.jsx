@@ -15,6 +15,7 @@ const VistaCotizaciones = () => {
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
 
   const [esCliente, setEsCliente] = useState(false);
+  const [usuarioId, setUsuarioId] = useState(null);
   const [rechazando, setRechazando] = useState(false);
   const [motivoRechazo, setMotivoRechazo] = useState('');
   const [procesando, setProcesando] = useState(false);
@@ -22,8 +23,11 @@ const VistaCotizaciones = () => {
   useEffect(() => {
     try {
       const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
-      if (session?.userData?.role_id === 3) {
-        setEsCliente(true);
+      if (session?.userData) {
+        setUsuarioId(session.userData.id || null);
+        if (session.userData.role_id === 3) {
+          setEsCliente(true);
+        }
       }
     } catch(e) {}
     cargarCotizaciones();
@@ -50,7 +54,10 @@ const VistaCotizaciones = () => {
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
                              (c.folio?.toString() || "").includes(busqueda || "");
-    return coincideFiltro && coincideBusqueda;
+
+    const correspondeAlCliente = !esCliente || c.cliente_user_id === usuarioId;
+
+    return coincideFiltro && coincideBusqueda && correspondeAlCliente;
   });
 
 
@@ -225,40 +232,38 @@ const VistaCotizaciones = () => {
           {c.tipo === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
         </td>
         <td>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
-            <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)}>
-              👁️ VER DETALLE
+          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)} style={{ fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}>
+              👁️ VER
             </button>
             {/* Solo mostrar acciones de asignación si es admin y está aprobada */}
             {!esCliente && filtro === 'Aprobado' && (
               c.tecnico ? (
                 // Mostrar cuando YA está asignado
                 <>
-                  <span style={{ fontWeight: 'bold', color: '#2e7d32', margin: '0 5px' }}>Asignado</span>
+                  <span style={{ fontWeight: 'bold', color: '#2e7d32', margin: '0 2px', fontSize: 'clamp(0.7rem, 1.5vw, 0.8rem)' }}>✓ Asignado</span>
                   <button
                     className="btn-view-detail"
-                    style={{ background: '#fb8c00' }}
+                    style={{ background: '#fb8c00', fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}
                     onClick={() => {
                       setCotizacionParaAsignar(c);
                       setShowAssignModal(true);
-                      // Podrías marcar una bandera extra para saber que es reasignación
-                      // setModoReasignar(true) o pasar una función específica
                     }}
                   >
-                    🔄 REASIGNAR
+                    🔄
                   </button>
                 </>
               ) : (
                 // Mostrar cuando NO está asignado
                 <button
                   className="btn-view-detail"
-                  style={{ background: '#2e7d32' }}
+                  style={{ background: '#2e7d32', fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}
                   onClick={() => {
                     setCotizacionParaAsignar(c);
                     setShowAssignModal(true);
                   }}
                 >
-                  🛠️ ASIGNAR TRABAJO
+                  🛠️
                 </button>
               )
             )}

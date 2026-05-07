@@ -181,22 +181,24 @@ const VistaLevantamientos = () => {
 
 
 
-      <main className="lev-container" style={isClient ? { padding: '20px 0', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
-        <div style={{ display: "flex", justifyContent: isClient ? "center" : "flex-end", marginBottom: "20px" }}>
+      <main className="lev-container" style={isClient ? { padding: '20px 16px', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
+        <div style={{ display: "flex", justifyContent: isClient ? "center" : "flex-end", marginBottom: "20px", width: "100%", paddingLeft: isClient ? "0" : "auto" }}>
           <button
             className="lev-btn-add"
             onClick={() => navigate("/assign-service")}
+            style={{ fontSize: 'clamp(0.75rem, 2vw, 0.95rem)', padding: 'clamp(10px 14px, 2vw, 12px 25px)' }}
           >
-            {isClient ? "+ PEDIR SERVICIO" : "+ NUEVO LEVANTAMIENTO"}
+            {isClient ? "+ PEDIR SERVICIO" : "+ NUEVO"}
           </button>
         </div>
         <div className="lev-search-box" style={isClient ? { width: '100%' } : {}}>
           <input
             type="text"
-            placeholder="BUSCAR POR TÍTULO O ID..."
+            placeholder="BUSCAR..."
             className="lev-input-search"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
+            style={{ fontSize: 'clamp(0.85rem, 2vw, 1rem)' }}
           />
           <span className="lev-search-icon">🔍</span>
         </div>
@@ -205,14 +207,16 @@ const VistaLevantamientos = () => {
           <button
             className={`lev-tab ${tabActual === "PENDIENTES" ? "active" : ""}`}
             onClick={() => setTabActual("PENDIENTES")}
+            style={{ fontSize: 'clamp(0.65rem, 2vw, 0.9rem)' }}
           >
-            📋 VISITAS PENDIENTES
+            📋 <span style={{ display: 'inline-block', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis' }}>VISITAS PENDIENTES</span>
           </button>
           <button
             className={`lev-tab ${tabActual === "REALIZADOS" ? "active" : ""}`}
             onClick={() => setTabActual("REALIZADOS")}
+            style={{ fontSize: 'clamp(0.65rem, 2vw, 0.9rem)' }}
           >
-            ✅ LEVANTAMIENTOS FINALIZADOS
+            ✅ <span style={{ display: 'inline-block', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis' }}>FINALIZADOS</span>
           </button>
         </div>
 
@@ -220,15 +224,15 @@ const VistaLevantamientos = () => {
           <table className="lev-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>TÍTULO / PROPIEDAD</th>
-                <th>PRIORIDAD</th>
+                <th style={{ fontSize: 'clamp(0.6rem, 1.5vw, 0.85rem)' }}>ID</th>
+                <th style={{ fontSize: 'clamp(0.6rem, 1.5vw, 0.85rem)' }}>PROPIEDAD</th>
+                <th style={{ fontSize: 'clamp(0.6rem, 1.5vw, 0.85rem)' }}>PRIORIDAD</th>
                 {tabActual === "PENDIENTES" ? (
-                  <th>ESTADO</th>
+                  <th style={{ fontSize: 'clamp(0.6rem, 1.5vw, 0.85rem)' }}>ESTADO</th>
                 ) : (
-                  <th>TÉCNICO</th>
+                  <th style={{ fontSize: 'clamp(0.6rem, 1.5vw, 0.85rem)' }}>TEC.</th>
                 )}
-                <th>ACCIONES</th>
+                <th style={{ fontSize: 'clamp(0.6rem, 1.5vw, 0.85rem)' }}>ACC.</th>
               </tr>
             </thead>
             <tbody>
