@@ -93,6 +93,7 @@ useEffect(() => {
   return (
     <Routes>
       <Route path="/" element={<LoginAgente />} />
+      <Route path="/registro-cliente" element={<RegistroCliente />} />
 
       {/* RUTA COMPARTIDA PROPIEDADES (Sin Sidebar para admin, con Sidebar para clientes) */}
       <Route path="/propiedades" element={
@@ -177,7 +178,6 @@ useEffect(() => {
 
 
         <Route path="/map" element={<Map />} />
-        <Route path="/registro-cliente" element={<RegistroCliente />} />
         <Route path="/customize-login" element={<CustomizeLogin />} />
         <Route path="/assign-service" element={<AssignServiceForm />} />
         <Route path="/bodeguero" element={<VistaBodeguero/>} />
