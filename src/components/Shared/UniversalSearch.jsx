@@ -28,6 +28,8 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
         } else if (filtroActual === 'Rechazado') {
           coincideFiltro = estadoActual === 'rechazado' || estadoActual === 'rechazada';
         }
+      } else if (type === 'TECNICO_TABLERO') {
+        coincideFiltro = true; // El tablero ya está filtrado por técnico, la búsqueda es global sobre eso
       }
 
       // Búsqueda por texto (Lupa)

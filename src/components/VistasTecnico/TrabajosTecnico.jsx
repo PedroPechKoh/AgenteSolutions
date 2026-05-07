@@ -9,11 +9,13 @@ import {
   Calendar, Clock, MapPin, AlertTriangle, ChevronRight, X
 } from 'lucide-react';
 import Header from "../Shared/Header";
+import UniversalSearch from '../Shared/UniversalSearch';
 
 const TrabajosTecnico = () => {
   const [mostrarModalChecklist, setMostrarModalChecklist] = useState(false);
-  const [filtroFechaAtrasados, setFiltroFechaAtrasados] = useState(null); // Para el historial
-  const [busqueda, setBusqueda] = useState("");
+  const [filtroFechaAtrasados, setFiltroFechaAtrasados] = useState(null); 
+  const [serviciosFiltrados, setServiciosFiltrados] = useState([]);
+  const dateInputRef = React.useRef(null);
   
   // Estado para controlar si el material fue recibido
   const [materialRecibido, setMaterialRecibido] = useState(false);
@@ -93,21 +95,34 @@ const TrabajosTecnico = () => {
       done: []       // Finalizados
     };
 
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const manana = new Date(hoy);
-    manana.setDate(manana.getDate() + 1);
+  const getDayStr = (d) => {
+    if (!d) return '';
+    const date = new Date(d);
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  };
 
-    servicios.forEach(s => {
+  // Lógica de clasificación para el tablero (Simplificado a 3 columnas principales)
+  const clasificarPorTablero = () => {
+    const gruposTablero = {
+      asignados: [], // SOS + Atrasados + Hoy
+      futuros: [],   // Mañana + Futuros (con filtro)
+      done: []       // Finalizados
+    };
+
+    const hoyStr = getDayStr(new Date());
+    const dManana = new Date();
+    dManana.setDate(dManana.getDate() + 1);
+    const mananaStr = getDayStr(dManana);
+
+    serviciosFiltrados.forEach(s => {
       const status = s.status?.toLowerCase();
       const isDone = ['completed', 'finalizado'].includes(status);
-      const fechaServicio = new Date(s.scheduled_start || s.created_at);
-      const fCmp = new Date(fechaServicio);
-      fCmp.setHours(0, 0, 0, 0);
+      const fechaServicio = s.scheduled_start || s.created_at;
+      const fStr = getDayStr(fechaServicio);
 
       if (isDone) {
         gruposTablero.done.push(s);
-      } else if (fCmp.getTime() >= manana.getTime()) {
+      } else if (fStr >= mananaStr) {
         gruposTablero.futuros.push(s);
       } else {
         gruposTablero.asignados.push(s);
@@ -118,20 +133,15 @@ const TrabajosTecnico = () => {
   };
 
   const agruparAsignados = (items) => {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
+    const hoyStr = getDayStr(new Date());
     const grupos = {
       'ATRASADOS / AYER': [],
       'HOY': []
     };
 
     items.forEach(s => {
-      const fechaServicio = new Date(s.scheduled_start || s.created_at);
-      const fCmp = new Date(fechaServicio);
-      fCmp.setHours(0, 0, 0, 0);
-
-      if (fCmp.getTime() < hoy.getTime()) grupos['ATRASADOS / AYER'].push(s);
+      const fStr = getDayStr(s.scheduled_start || s.created_at);
+      if (fStr < hoyStr) grupos['ATRASADOS / AYER'].push(s);
       else grupos['HOY'].push(s);
     });
 
@@ -139,10 +149,10 @@ const TrabajosTecnico = () => {
   };
 
   const agruparFuturos = (items) => {
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    const manana = new Date(hoy);
-    manana.setDate(manana.getDate() + 1);
+    const hoyStr = getDayStr(new Date());
+    const dManana = new Date();
+    dManana.setDate(dManana.getDate() + 1);
+    const mananaStr = getDayStr(dManana);
 
     const grupos = {
       'MAÑANA': [],
@@ -150,18 +160,12 @@ const TrabajosTecnico = () => {
     };
 
     items.forEach(s => {
-      const fechaServicio = new Date(s.scheduled_start || s.created_at);
-      const fCmp = new Date(fechaServicio);
-      fCmp.setHours(0, 0, 0, 0);
-
-      // Aplicar filtro de fecha para el histórico/futuro si existe
+      const fStr = getDayStr(s.scheduled_start || s.created_at);
       if (filtroFechaAtrasados) {
-        const fFiltro = new Date(filtroFechaAtrasados);
-        fFiltro.setHours(0, 0, 0, 0);
-        if (fCmp.getTime() !== fFiltro.getTime()) return;
+        if (fStr !== filtroFechaAtrasados) return;
       }
 
-      if (fCmp.getTime() === manana.getTime()) grupos['MAÑANA'].push(s);
+      if (fStr === mananaStr) grupos['MAÑANA'].push(s);
       else grupos['PRÓXIMOS'].push(s);
     });
 
@@ -169,14 +173,9 @@ const TrabajosTecnico = () => {
   };
 
   const tableroData = clasificarPorTablero();
-  
-  const searchFilter = (s) => 
-    s.property_name?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    s.id?.toString().includes(busqueda);
-
-  const asignadosAgrupados = agruparAsignados(tableroData.asignados.filter(searchFilter));
-  const futurosAgrupados = agruparFuturos(tableroData.futuros.filter(searchFilter));
-  const finalizadosFiltrados = tableroData.done.filter(searchFilter);
+  const asignadosAgrupados = agruparAsignados(tableroData.asignados);
+  const futurosAgrupados = agruparFuturos(tableroData.futuros);
+  const finalizadosFiltrados = tableroData.done;
 
   const renderCard = (item, index) => (
     <motion.div
@@ -257,15 +256,13 @@ const TrabajosTecnico = () => {
     <Header />
     <div className="tt-body">
       <div className="tt-search-row">
-        <div className="tt-search-wrapper">
-          <input 
-            type="text" 
-            className="tt-search-input" 
-            placeholder="Buscar por folio o propiedad..." 
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
+        <div className="tt-search-wrapper-super">
+          <UniversalSearch 
+            data={servicios}
+            setFilteredData={setServiciosFiltrados}
+            placeholder="BUSCAR POR FOLIO, PROPIEDAD O CLIENTE..."
+            type="TECNICO_TABLERO"
           />
-          <Search className="search-icon-inside" size={22} />
         </div>
         
         <button 
@@ -283,9 +280,16 @@ const TrabajosTecnico = () => {
         </h3>
         <div className="tt-filter-date-wrapper">
           <label><Calendar size={14}/> Ver histórico:</label>
+          <button 
+            className="tt-date-button-trigger"
+            onClick={() => dateInputRef.current && dateInputRef.current.showPicker()}
+          >
+            {filtroFechaAtrasados || 'Seleccionar fecha'}
+          </button>
           <input 
             type="date" 
-            className="tt-date-picker-inline" 
+            ref={dateInputRef}
+            className="tt-date-picker-hidden" 
             onChange={(e) => setFiltroFechaAtrasados(e.target.value)} 
           />
           {filtroFechaAtrasados && <button className="btn-clear-filter" onClick={() => setFiltroFechaAtrasados(null)}><X size={14}/></button>}
