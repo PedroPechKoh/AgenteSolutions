@@ -24,17 +24,16 @@
 }
 
 /* Buscador Estilo Usuarios */
-.cotiz-search-wrapper { width: 100%; max-width: 1000px; margin-bottom: 30px; }
+.cotiz-search-wrapper { width: 100%; max-width: 900px; margin-bottom: 30px; }
 .cotiz-search-bar { position: relative; width: 100%; }
 .cotiz-input-field {
     width: 100%; 
-    padding: 15px 20px; 
+    padding: 15px 25px; 
     border-radius: 30px;
     border: 1px solid #ccc; 
     background: #e5e5e5; 
     font-size: 1rem;
     outline: none;
-    box-sizing: border-box;
 }
 .cotiz-search-icon { 
     position: absolute; 
@@ -66,15 +65,12 @@
 
 /* --- TABLA --- */
 .cotiz-table-container {
-    width: 100%;
-    max-width: 100%;
-    margin: 0; /* Asegura que no haya márgenes externos */
-    border-radius: 0; /* En móvil se ve mejor sin esquinas redondeadas para ganar espacio */
-    box-shadow: none; /* Quitamos la sombra en móvil para que no se vea el borde gris */
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    width: 95%;
+    max-height: 450px;
+    overflow-y: auto;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
-.cotiz-data-table { min-width: 740px; }
 .cotiz-data-table { width: 100%; border-collapse: collapse; text-align: center; background: white; }
 .cotiz-data-table th { 
     background: #222; 
@@ -216,11 +212,7 @@
     cursor: pointer; 
     color: #222;
 }
-.no-data {
-        padding: 100px 20px; /* Para que el mensaje de "No hay resultados" se vea centrado */
-        text-align: center;
-        width: 100%;
-    }
+.no-data { padding: 50px; color: #999; font-style: italic; }
 
 /* Scrollbar personalizada */
 .cotiz-table-container::-webkit-scrollbar { width: 8px; }
@@ -472,92 +464,10 @@
 }
 
 /* --- RESPONSIVIDAD PARA MODAL DE COTIZACIONES --- */
-@media (max-width: 1024px) {
-  .cotiz-main-content {
-        padding: 10px 0; /* Quitamos el padding lateral para que la tabla toque los bordes */
-    }
-    .cotiz-search-wrapper {
-        max-width: 100%;
-    }
-    .cotiz-tabs-row {
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-    .cotiz-tab-btn {
-        padding: 11px 18px;
-        min-width: 130px;
-        flex: 1;
-    }
-   .cotiz-table-container {
-        border-radius: 0; /* Bordes rectos para ocupar todo el ancho */
-    }
-    .cotiz-data-table th,
-    .cotiz-data-table td {
-        padding: 14px 10px;
-    }
-    .cliente-name {
-        padding-left: 20px !important;
-    }
-}
-
 @media (max-width: 768px) {
-    .cotiz-main-content {
-        padding: 10px 15px;
-    }
-    .cotiz-search-wrapper {
-       padding: 0 15px; 
-        box-sizing: border-box;
-    }
-    .cotiz-input-field {
-        padding: 14px 18px;
-        font-size: 0.95rem;
-    }
-    .cotiz-tabs-row {
-     padding: 0 15px; 
-        box-sizing: border-box;
-    }
-    .cotiz-tab-btn {
-        padding: 10px 18px;
-        font-size: 0.95rem;
-        min-width: 0;
-        flex: 1 1 40%;
-    }
-    .cotiz-table-container {
-        width: 100%;
-        max-height: 520px;
-    }
-    .cotiz-data-table {
-       min-width: 100%; /* Permite que se ajuste si hay pocas columnas */
-        width: 100%;
-    }
-    .cotiz-data-table th,
-    .cotiz-data-table td {
-        padding: 12px 8px;
-        font-size: 0.92rem;
-    }
-    .cliente-name {
-        padding-left: 15px !important;
-    }
-    .btn-view-detail {
-        padding: 10px 16px;
-        font-size: 0.9rem;
-    }
     .modal-box-card {
-        width: 100%;
-        max-height: 100vh;
-        margin: 0 10px;
-    }
-    .modal-body-content {
-        padding: 20px;
-    }
-    .modal-header-dark {
-        padding: 18px 20px;
-        flex-direction: column;
-        text-align: center;
-    }
-    .modal-info-summary {
-        grid-template-columns: 1fr;
+        width: 95%;
+        max-height: 95vh;
     }
     .modal-footer-btns {
         flex-direction: column !important;
@@ -577,128 +487,19 @@
         padding: 12px 0;
         height: auto;
     }
+    .modal-info-summary {
+        grid-template-columns: 1fr;
+    }
+    .modal-header-dark {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
     .modal-close-icon {
         position: absolute;
         top: 10px;
         right: 15px;
-    }
-    .back-arrow-fixed {
-        bottom: 20px;
-        left: 20px;
-        font-size: 2.4rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .cotiz-main-content {
-       padding: 10px 6px; 
-        box-sizing: border-box;
-    }
-    .cotiz-header {
-        padding: 8px 12px;
-    }
-    .cotiz-search-wrapper {
-        margin-bottom: 16px;
-    }
-    .cotiz-input-field {
-        padding: 12px 14px;
-        font-size: 0.9rem;
-    }
-    .cotiz-search-icon {
-        right: 14px;
-    }
-    .cotiz-tabs-row {
-        gap: 6px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .cotiz-tab-btn {
-        padding: 8px 10px;
-        font-size: 0.8rem;
-        flex: 0 1 auto;
-        min-width: 0;
-    }
-    .cotiz-table-container {
-        width: 100%;
-        max-height: 500px;
-        overflow-x: auto;
-    }
-    .cotiz-data-table {
-        font-size: 0.8rem;
-        min-width: 500px;
-        padding: 10px 4px;
-        
-    }
-    .cotiz-data-table th {
-        padding: 8px 4px;
-        font-size: 0.75rem;
-        word-break: break-word;
-    }
-    .cotiz-data-table td {
-        padding: 10px 4px;
-        font-size: 0.8rem;
-    }
-    .bold-folio {
-        font-size: 0.8rem;
-    }
-    .cliente-name {
-        padding-left: 8px !important;
-        font-size: 0.8rem;
-    }
-    .monto-final {
-        font-size: 0.85rem;
-    }
-    .btn-view-detail {
-        padding: 8px 12px;
-        font-size: 0.75rem;
-        white-space: nowrap;
-    }
-    .modal-body-content {
-        padding: 14px;
-    }
-    .modal-header-dark {
-        padding: 12px 14px;
-        font-size: 0.9rem;
-    }
-    .modal-info-summary {
-        grid-template-columns: 1fr;
-        gap: 8px;
-        padding: 12px;
-    }
-    .modal-info-summary p {
-        font-size: 0.85rem;
-        margin: 4px 0;
-    }
-    .modal-items-table {
-        font-size: 0.8rem;
-    }
-    .modal-items-table th {
-        padding: 8px 4px;
-        font-size: 0.75rem;
-    }
-    .modal-items-table td {
-        padding: 8px 4px;
-        font-size: 0.8rem;
-    }
-    .modal-total-section {
-        margin-top: 15px;
-        font-size: 0.9rem;
-    }
-    .modal-total-section h3 {
-        font-size: 1rem;
-    }
-    .quote-right h1 {
-        font-size: 24px;
-    }
-    .quote-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    .back-arrow-fixed {
-        bottom: 14px;
-        left: 12px;
-        font-size: 1.8rem;
     }
 }
 
