@@ -6,6 +6,8 @@
     min-height: 100vh; 
     position: relative; 
     font-family: 'Segoe UI', sans-serif; 
+    padding: 0 10px; 
+    box-sizing: border-box;
 }
 
 .lev-top-bar-orange { 
@@ -595,5 +597,110 @@
     
     .lev-field label {
         font-size: 0.85rem;
+    }
+}
+
+/* =========================================
+   OVERRIDE FOR MOBILE SCROLL FIX
+   ========================================= */
+@media (max-width: 768px) {
+    .lev-container {
+        padding: 0 8px !important;
+        max-width: 100% !important;
+    }
+    .lev-header {
+        padding: 10px 8px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+    }
+    .lev-btn-add {
+        width: 100% !important;
+        padding: 10px 12px !important;
+        font-size: 0.85rem !important;
+    }
+    .lev-search-box {
+        width: 100% !important;
+        margin: 10px 0 !important;
+    }
+    .lev-input-search {
+        padding: 10px 12px !important;
+        font-size: 0.85rem !important;
+    }
+    .lev-tabs {
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+    }
+    .lev-tab {
+        padding: 7px 10px !important;
+        font-size: 0.75rem !important;
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+    .lev-table-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        box-shadow: none !important;
+    }
+    .lev-table {
+        min-width: 720px !important;
+        width: auto !important;
+        table-layout: auto !important;
+        white-space: normal !important;
+    }
+    .lev-table th,
+    .lev-table td {
+        padding: 8px 6px !important;
+        font-size: 0.75rem !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+    }
+    .lev-table th {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 2 !important;
+    }
+    .lev-table td {
+        text-align: left !important;
+    }
+    .lev-table td:first-child,
+    .lev-table th:first-child {
+        width: 15% !important;
+    }
+    .lev-table td:nth-child(2),
+    .lev-table th:nth-child(2) {
+        width: 35% !important;
+    }
+    .lev-table td:nth-child(3),
+    .lev-table th:nth-child(3),
+    .lev-table td:nth-child(4),
+    .lev-table th:nth-child(4),
+    .lev-table td:nth-child(5),
+    .lev-table th:nth-child(5) {
+        width: auto !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .lev-table {
+        min-width: 640px !important;
+    }
+    .lev-table th,
+    .lev-table td {
+        padding: 6px 4px !important;
+        font-size: 0.7rem !important;
+    }
+    .lev-table-wrapper {
+        max-height: 320px !important;
+    }
+    .lev-btn-add {
+        font-size: 0.8rem !important;
+        padding: 9px 10px !important;
+    }
+    .lev-tab {
+        font-size: 0.7rem !important;
     }
 }

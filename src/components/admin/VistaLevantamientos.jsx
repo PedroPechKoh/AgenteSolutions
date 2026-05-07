@@ -181,7 +181,7 @@ const VistaLevantamientos = () => {
 
 
 
-      <main className="lev-container" style={isClient ? { padding: '20px 0', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
+      <main className="lev-container" style={isClient ? { padding: '20px 16px', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
         <div style={{ display: "flex", justifyContent: isClient ? "center" : "flex-end", marginBottom: "20px", width: "100%", paddingLeft: isClient ? "0" : "auto" }}>
           <button
             className="lev-btn-add"
