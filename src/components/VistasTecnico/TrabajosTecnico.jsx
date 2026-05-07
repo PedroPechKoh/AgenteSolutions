@@ -87,14 +87,6 @@ const TrabajosTecnico = () => {
   // Usar el dinámico si existe, si no el hardcoded
   const checklistARenderizar = checklistDinamico || checklistGeneral;
 
-  // Lógica de clasificación para el tablero (Simplificado a 3 columnas principales)
-  const clasificarPorTablero = () => {
-    const gruposTablero = {
-      asignados: [], // SOS + Atrasados + Hoy
-      futuros: [],   // Mañana + Futuros (con filtro)
-      done: []       // Finalizados
-    };
-
   const getDayStr = (d) => {
     if (!d) return '';
     const date = new Date(d);
