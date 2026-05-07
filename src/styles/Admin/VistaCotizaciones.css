@@ -474,7 +474,8 @@
 /* --- RESPONSIVIDAD PARA MODAL DE COTIZACIONES --- */
 @media (max-width: 1024px) {
   .cotiz-main-content {
-        padding: 10px 0; /* Quitamos el padding lateral para que la tabla toque los bordes */
+       padding: 10px 15px; 
+        box-sizing: border-box; /* Quitamos el padding lateral para que la tabla toque los bordes */
     }
     .cotiz-search-wrapper {
         max-width: 100%;
