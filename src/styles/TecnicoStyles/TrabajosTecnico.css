@@ -386,8 +386,8 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   width: fit-content;
 }
 
-.tt-prop.section-title-visitas {
-  color: #242d3c;
+.section-title-visitas {
+  color: #1a1a1a !important;
   font-weight: 900;
   font-size: 24px;
   margin: 0;
