@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logoAgente from '../assets/Logo_simple.png';
 import Header from './Shared/Header';
@@ -16,6 +17,7 @@ const Map = () => {
   const [marcadorActivo, setMarcadorActivo] = useState(null);
   const [center, setCenter] = useState({ lat: 20.8822, lng: -89.7468 }); 
   const [miUbicacion, setMiUbicacion] = useState(null);
+  const navigate = useNavigate();
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -117,19 +119,49 @@ const Map = () => {
                     📍 {marcadorActivo.address}
                   </p>
                   
-                  <button style={{
-                      marginTop: '8px', 
-                      backgroundColor: '#333', 
-                      color: 'white', 
-                      border: 'none', 
-                      padding: '6px 12px', 
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontWeight: 'bold',
-                      alignSelf: 'flex-start'
-                    }}>
-                    Ver Detalles
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                    <button 
+                      onClick={() => {
+                        const clienteData = {
+                          id: marcadorActivo.client_id,
+                          nombre: marcadorActivo.owner_name,
+                          telefono: marcadorActivo.phone,
+                          profile_picture: marcadorActivo.picture,
+                          direccion: marcadorActivo.address
+                        };
+                        navigate('/detalle-cliente', { state: { cliente: clienteData } });
+                      }}
+                      style={{
+                        backgroundColor: '#333', 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '8px 12px', 
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: '800',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        flex: 1
+                      }}>
+                      Ver Detalles
+                    </button>
+                    <button 
+                      onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${marcadorActivo.lat},${marcadorActivo.lng}`)}
+                      style={{
+                        backgroundColor: '#F26522', 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '8px 12px', 
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: '800',
+                        fontSize: '0.75rem',
+                        textTransform: 'uppercase',
+                        flex: 1
+                      }}>
+                      Llegar
+                    </button>
+                  </div>
                 </div>
                 
               </div>
