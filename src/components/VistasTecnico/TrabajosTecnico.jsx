@@ -308,7 +308,7 @@ const TrabajosTecnico = () => {
         className={`tt-task-card ${item.priority === 'Urgente' ? 'is-sos' : ''}`}
         onClick={() => {
           if (materialRecibido) {
-            navigate(`/trabajo-propiedad/${item.id}`);
+            navigate(`/trabajo-propiedad/${item.composite_id || item.id}`);
           }
         }}
         disabled={!materialRecibido}

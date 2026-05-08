@@ -7,7 +7,8 @@ import "../../styles/TecnicoStyles/TrabajoPropiedad.css";
 import { 
   MapPin, Phone, User, Wrench, Clock, 
   ChevronLeft, Navigation, CheckCircle2, AlertCircle,
-  FileText, ArrowRight, Package, Lock
+  FileText, ArrowRight, Package, Lock, Camera, Layout,
+  X, Maximize2, ChevronRight
 } from 'lucide-react';
 
 const TrabajoPropiedad = () => {
@@ -20,6 +21,14 @@ const TrabajoPropiedad = () => {
   const [materialesConfirmados, setMaterialesConfirmados] = useState(false);
   const [itemsCheck, setItemsCheck] = useState({ materiales: [], equipo: [], herramientas: [] });
 
+  // --- ESTADOS PARA CONSULTA DE LEVANTAMIENTO ---
+  const [modalSurveyVisible, setModalSurveyVisible] = useState(false);
+  const [surveyData, setSurveyData] = useState([]);
+  const [cargandoSurvey, setCargandoSurvey] = useState(false);
+  const [areaActivaSurvey, setAreaActivaSurvey] = useState(null);
+  const [verEvidencias, setVerEvidencias] = useState(false);
+  const [imagenExpandida, setImagenExpandida] = useState(null);
+
   useEffect(() => {
     fetchJobDetails();
   }, [id]);
@@ -27,7 +36,8 @@ const TrabajoPropiedad = () => {
   useEffect(() => {
     if (data) {
       // Cargar estado de confirmación específico de este trabajo
-      const confirmado = localStorage.getItem(`materiales_confirmados_${id}`) === 'true';
+      const realId = id.includes('-') ? id.split('-')[1] : id;
+      const confirmado = localStorage.getItem(`materiales_confirmados_${realId}`) === 'true';
       setMaterialesConfirmados(confirmado);
 
       // Parsear el checklist dinámico
@@ -51,7 +61,7 @@ const TrabajoPropiedad = () => {
     try {
       setLoading(true);
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
-      setData(res.data);
+      setData(res.data.data || res.data); // Manejar ambos formatos si es necesario
     } catch (error) {
       console.error("Error fetching job details:", error);
     } finally {
@@ -61,12 +71,32 @@ const TrabajoPropiedad = () => {
 
   const handleFinalizar = async () => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${id}/status`, {
+      const realId = id.includes('-') ? id.split('-')[1] : id;
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${realId}/status`, {
         status: 'Listo'
       });
       setShowModalFinalizar(true);
     } catch (error) {
       console.error("Error finalizing job:", error);
+    }
+  };
+
+  const abrirSurvey = async () => {
+    if (!data?.property_id) return alert("Esta orden no tiene propiedad asociada.");
+    
+    setCargandoSurvey(true);
+    setModalSurveyVisible(true);
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${data.property_id}/survey`);
+      setSurveyData(response.data);
+      if (response.data.length > 0) {
+        setAreaActivaSurvey(response.data[0].id);
+      }
+    } catch (error) {
+      console.error("Error cargando inventario:", error);
+      alert("No se pudo cargar el inventario de la propiedad.");
+    } finally {
+      setCargandoSurvey(false);
     }
   };
 
@@ -81,7 +111,8 @@ const TrabajoPropiedad = () => {
   };
 
   const confirmarMateriales = () => {
-    localStorage.setItem(`materiales_confirmados_${id}`, 'true');
+    const realId = id.includes('-') ? id.split('-')[1] : id;
+    localStorage.setItem(`materiales_confirmados_${realId}`, 'true');
     setMaterialesConfirmados(true);
     setShowModalMateriales(false);
   };
@@ -138,7 +169,7 @@ const TrabajoPropiedad = () => {
           
           <div className="tp-hero-content">
             <div className="tp-hero-text">
-              <span className="tp-id-badge">ID: {data.identificador_curp}</span>
+              <span className="tp-id-badge">{data.identificador_curp}</span>
               <h1 className="tp-property-name">{data.propiedad_nombre}</h1>
               <div className="tp-property-address">
                 <MapPin size={16} />
@@ -177,7 +208,7 @@ const TrabajoPropiedad = () => {
               <div className="tp-work-meta">
                 <div className="tp-meta-item">
                   <Clock size={16} />
-                  <span>Programado: {data.fecha_programada}</span>
+                  <span>Programado: {data.fecha_programada || 'Pendiente'}</span>
                 </div>
                 <div className="tp-meta-item">
                   <Wrench size={16} />
@@ -233,6 +264,19 @@ const TrabajoPropiedad = () => {
               <p className="tp-flow-instruction">¿Listo para comenzar o terminar?</p>
               
               <div className="tp-flow-buttons">
+                {/* BOTONES DE CONSULTA (COPIADOS DE ADMIN) */}
+                <button className="tp-btn-consult variant-orange" onClick={() => setVerEvidencias(true)}>
+                  <Camera size={18} />
+                  <span>VER EVIDENCIAS Y PROCESO</span>
+                </button>
+
+                <button className="tp-btn-consult variant-dark" onClick={abrirSurvey}>
+                  <Layout size={18} />
+                  <span>CONSULTAR LEVANTAMIENTO</span>
+                </button>
+
+                <div className="tp-divider-mini"></div>
+
                 <button 
                   className={`tp-btn-checklist-trigger ${materialesConfirmados ? 'confirmed' : 'pending'}`}
                   onClick={() => setShowModalMateriales(true)}
@@ -261,13 +305,6 @@ const TrabajoPropiedad = () => {
                 >
                   <CheckCircle2 size={18} />
                   <span>MARCAR COMO LISTO</span>
-                </button>
-
-                <button 
-                  className="tp-btn-outline"
-                  onClick={() => navigate('/venta-cruzada')}
-                >
-                  <span>VENTA CRUZADA</span>
                 </button>
               </div>
               
@@ -356,6 +393,140 @@ const TrabajoPropiedad = () => {
                 </button>
               </div>
             </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL: LEVANTAMIENTO (SURVEY) */}
+      <AnimatePresence>
+        {modalSurveyVisible && (
+          <div className="tp-modal-overlay survey-theme">
+            <motion.div 
+              className="tp-modal-survey-card"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+            >
+              <div className="tp-survey-header">
+                <div className="tp-survey-header-info">
+                  <Layout size={24} color="#F26522" />
+                  <div>
+                    <h3>INVENTARIO TÉCNICO</h3>
+                    <p>{data.propiedad_nombre}</p>
+                  </div>
+                </div>
+                <button className="tp-close-survey-btn" onClick={() => setModalSurveyVisible(false)}><X size={24}/></button>
+              </div>
+
+              <div className="tp-survey-body">
+                {cargandoSurvey ? (
+                  <div className="tp-survey-loading">Cargando inventario...</div>
+                ) : (
+                  <div className="tp-survey-content-layout">
+                    <aside className="tp-survey-sidebar">
+                      {surveyData.map(area => (
+                        <button 
+                          key={area.id} 
+                          className={`tp-area-nav-item ${areaActivaSurvey === area.id ? 'active' : ''}`}
+                          onClick={() => setAreaActivaSurvey(area.id)}
+                        >
+                          {area.name}
+                        </button>
+                      ))}
+                    </aside>
+
+                    <main className="tp-survey-main">
+                      {surveyData.find(a => a.id === areaActivaSurvey) ? (
+                        (() => {
+                          const area = surveyData.find(a => a.id === areaActivaSurvey);
+                          return (
+                            <div className="tp-area-details">
+                              <div className="tp-area-banner">
+                                <img src={area.photo || '/placeholder-area.jpg'} alt={area.name} />
+                                <h2>{area.name}</h2>
+                              </div>
+                              <div className="tp-categories-stack">
+                                {Object.entries(area.categories).map(([catName, items]) => (
+                                  <div key={catName} className="tp-category-group">
+                                    <h4>{catName.toUpperCase()}</h4>
+                                    <div className="tp-items-grid">
+                                      {items.map(item => (
+                                        <div key={item.id} className="tp-tech-item">
+                                          <img src={item.image_path || '/placeholder-item.jpg'} onClick={() => setImagenExpandida(item.image_path)} alt={item.sub_category} />
+                                          <div className="tp-tech-item-info">
+                                            <strong>{item.sub_category}</strong>
+                                            <div className="tp-specs">
+                                              <span>M: {item.brand || '---'}</span>
+                                              <span>MOD: {item.model_or_color || '---'}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <div className="tp-select-area">Selecciona un área</div>
+                      )}
+                    </main>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL: EVIDENCIAS */}
+      <AnimatePresence>
+        {verEvidencias && (
+          <div className="tp-modal-overlay">
+            <motion.div 
+              className="tp-modal-content evidencias-theme"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+            >
+              <div className="tp-modal-header-check">
+                <Camera size={24} color="#f26624" />
+                <h2>Evidencias del Servicio</h2>
+                <button className="tp-close-modal-btn" onClick={() => setVerEvidencias(false)}>×</button>
+              </div>
+              <div className="tp-evidencias-scroll">
+                {data.evidencias && data.evidencias.length > 0 ? (
+                  <div className="tp-evidencias-grid">
+                    {data.evidencias.map((img, i) => (
+                      <div key={i} className="tp-evidencia-card" onClick={() => setImagenExpandida(img)}>
+                        <img src={img} alt={`Evidencia ${i}`} />
+                        <div className="tp-zoom-overlay-icon"><Maximize2 size={20} /></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="tp-empty-evidencias">No hay evidencias enviadas para este reporte.</p>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ZOOM IMAGE */}
+      <AnimatePresence>
+        {imagenExpandida && (
+          <div className="tp-zoom-full-overlay" onClick={() => setImagenExpandida(null)}>
+            <motion.img 
+              src={imagenExpandida} 
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              onClick={e => e.stopPropagation()}
+            />
+            <button className="tp-close-zoom" onClick={() => setImagenExpandida(null)}><X size={32}/></button>
           </div>
         )}
       </AnimatePresence>
