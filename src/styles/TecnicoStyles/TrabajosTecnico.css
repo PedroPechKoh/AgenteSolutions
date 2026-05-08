@@ -70,15 +70,17 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 }
 
 .tt-kanban-col {
-  min-width: 320px;
-  flex: 1;
-  background: #636363;
-  border-radius: 20px;
+  background: #f1f5f9; /* Gris muy claro/azulado premium */
+  border-radius: 24px;
+  padding: 15px;
+  min-height: 70vh;
   display: flex;
   flex-direction: column;
-  max-height: 100%;
-  scroll-snap-align: start;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  flex: 1 0 auto;
+  width: 320px;
+  max-width: 380px;
+  scroll-snap-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
 .tt-col-header {
@@ -197,6 +199,7 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   align-items: flex-start !important;
   gap: 8px !important;
   padding: 12px 15px !important;
+  background-color: #3b82f6 !important; /* Mismo azul que las otras */
 }
 
 .header-label-group {
@@ -381,6 +384,18 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   align-items: center;
   gap: 3px;
   width: fit-content;
+}
+
+.tt-prop.section-title-visitas {
+  color: #242d3c;
+  font-weight: 900;
+  font-size: 24px;
+  margin: 0;
+  text-transform: uppercase;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .tt-property-title {
@@ -576,12 +591,12 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 }
 
 .tt-board-container-kanban.table-locked .tt-col-content {
-  filter: blur(8px) grayscale(0.8);
-  opacity: 0.5;
+  filter: blur(10px);
+  opacity: 0.4;
   transition: all 0.5s ease;
 }
 
-.lock-text { color: #f26624; font-size: 12px; margin-left: 10px; text-transform: uppercase; }
+.lock-text { color: #f26624; font-size: 14px; margin-left: 10px; text-transform: uppercase; font-weight: 900; }
 
 .lock-overlay-msg {
   position: absolute;
