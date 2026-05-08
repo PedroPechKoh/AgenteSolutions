@@ -470,7 +470,7 @@ const TrabajoPropiedad = () => {
                 ) : (
                   <div className="tp-survey-content-layout">
                     <aside className="tp-survey-sidebar">
-                      {surveyData.map(area => (
+                      {(surveyData || []).map(area => (
                         <button 
                           key={area.id} 
                           className={`tp-area-nav-item ${areaActivaSurvey === area.id ? 'active' : ''}`}
@@ -482,17 +482,17 @@ const TrabajoPropiedad = () => {
                     </aside>
 
                     <main className="tp-survey-main">
-                      {surveyData.find(a => a.id === areaActivaSurvey) ? (
+                      {surveyData && surveyData.find(a => a.id === areaActivaSurvey) ? (
                         (() => {
                           const area = surveyData.find(a => a.id === areaActivaSurvey);
                           return (
                             <div className="tp-area-details">
                               <div className="tp-area-banner">
-                                <img src={area.photo || '/placeholder-area.jpg'} alt={area.name} />
-                                <h2>{area.name}</h2>
+                                <img src={area.photo || '/placeholder-area.jpg'} alt={area.name || 'Área'} />
+                                <h2>{area.name || 'Sin nombre'}</h2>
                               </div>
                               <div className="tp-categories-stack">
-                                {Object.entries(area.categories).map(([catName, items]) => (
+                                {Object.entries(area.categories || {}).map(([catName, items]) => (
                                   <div key={catName} className="tp-category-group">
                                     <h4>{catName.toUpperCase()}</h4>
                                     <div className="tp-items-grid">
