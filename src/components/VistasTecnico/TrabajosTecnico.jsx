@@ -234,13 +234,13 @@ const TrabajosTecnico = () => {
   const agruparAsignados = (items) => {
     const hoyStr = getDayStr(new Date());
     const grupos = {
-      'ATRASADOS / AYER': [],
-      'HOY': []
+      'HOY': [],
+      'ATRASADOS / NO REALIZADOS': []
     };
 
     items.forEach(s => {
       const fStr = getDayStr(s.scheduled_start || s.created_at);
-      if (fStr < hoyStr) grupos['ATRASADOS / AYER'].push(s);
+      if (fStr < hoyStr) grupos['ATRASADOS / NO REALIZADOS'].push(s);
       else grupos['HOY'].push(s);
     });
 
