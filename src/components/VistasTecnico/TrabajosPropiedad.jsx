@@ -5,7 +5,7 @@ import axios from 'axios';
 import Header from "../Shared/Header";
 import "../../styles/TecnicoStyles/TrabajoPropiedad.css";
 import { 
-  MapPin, Phone, User, Tool, Clock, 
+  MapPin, Phone, User, Wrench, Clock, 
   ChevronLeft, Navigation, CheckCircle2, AlertCircle,
   FileText, ArrowRight
 } from 'lucide-react';
@@ -139,7 +139,7 @@ const TrabajoPropiedad = () => {
                   <span>Programado: {data.fecha_programada}</span>
                 </div>
                 <div className="tp-meta-item">
-                  <Tool size={16} />
+                  <Wrench size={16} />
                   <span>Título: {data.titulo}</span>
                 </div>
               </div>
