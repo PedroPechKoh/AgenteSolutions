@@ -274,6 +274,27 @@ const TrabajosTecnico = () => {
   const futurosAgrupados = agruparFuturos(tableroData.futuros);
   const finalizadosFiltrados = tableroData.done;
 
+  const formatFriendlyDate = (dateInput) => {
+    if (!dateInput) return "Sin fecha";
+    const date = new Date(dateInput);
+    const hoy = new Date();
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+
+    const fStr = getDayStr(date);
+    const hStr = getDayStr(hoy);
+    const mStr = getDayStr(manana);
+
+    const options = { weekday: 'long', day: 'numeric' };
+    const datePart = date.toLocaleDateString('es-ES', options);
+
+    if (fStr === hStr) return `Hoy ${datePart}`;
+    if (fStr === mStr) return `Mañana ${datePart}`;
+    if (fStr < hStr) return `La fecha de visita fue: ${date.toLocaleDateString('es-ES')}`;
+    
+    return `Visita: ${date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' })}`;
+  };
+
   const renderCard = (item, index) => (
     <motion.div
       key={item.id || index}
@@ -307,17 +328,17 @@ const TrabajosTecnico = () => {
         <div className="tt-col tt-col-info">
           <div className="tt-info-row">
             <MapPin size={12} />
-            <span>{item.zone || 'General'}</span>
+            <span>Zona: {item.zone || 'General'}</span>
           </div>
           <div className="tt-info-row">
             <Clock size={12} />
-            <span>{new Date(item.scheduled_start || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Hora de visita: {new Date(item.scheduled_start || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           </div>
         </div>
 
         <div className="tt-col tt-col-date">
            <span className="tt-date-text">
-             {new Date(item.scheduled_start || item.created_at).toLocaleDateString()}
+             {formatFriendlyDate(item.scheduled_start || item.created_at)}
            </span>
         </div>
 
