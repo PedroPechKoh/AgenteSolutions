@@ -294,6 +294,7 @@ const TrabajoPropiedad = () => {
               </div>
               <div className="tp-client-info">
                 <p><strong>Nombre:</strong> {data.propietario}</p>
+                <p><strong>Teléfono:</strong> {data.telefono_cliente || 'No registrado'}</p>
                 <p><strong>Tipo:</strong> {data.tipoPropiedad}</p>
               </div>
             </motion.div>
