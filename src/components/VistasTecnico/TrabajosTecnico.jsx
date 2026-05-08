@@ -108,24 +108,24 @@ const TrabajosTecnico = () => {
 
       if (hasItems) {
         setChecklistAgregado(aggregated);
-        // Solo inicializar si no se ha recibido material hoy
         const hoyStrCheck = getDayStr(new Date());
-        if (localStorage.getItem(`materialRecibido_${user?.id}_${hoyStrCheck}`) !== 'true') {
-          setItemsCheck({
-            materiales: new Array(aggregated.materiales.length).fill(false),
-            equipo: new Array(aggregated.equipo.length).fill(false),
-            herramientas: new Array(aggregated.herramientas.length).fill(false)
-          });
-        }
+        const isConfirmed = localStorage.getItem(`materialRecibido_${user?.id}_${hoyStrCheck}`) === 'true';
+        setItemsCheck({
+          materiales: new Array(aggregated.materiales.length).fill(isConfirmed),
+          equipo: new Array(aggregated.equipo.length).fill(isConfirmed),
+          herramientas: new Array(aggregated.herramientas.length).fill(isConfirmed)
+        });
       } else {
         setChecklistAgregado(null);
         // Si no hay trabajos para hoy, desbloqueamos automáticamente
         if (trabajosHoy.length === 0) {
+          const hoyStr = getDayStr(new Date());
+          localStorage.setItem(`materialRecibido_${user.id}_${hoyStr}`, "true");
           setMaterialRecibido(true);
         }
       }
     }
-  }, [servicios, user]);
+  }, [servicios, user, materialRecibido]);
 
   const fetchServicios = async () => {
     try {
@@ -150,11 +150,13 @@ const TrabajosTecnico = () => {
           const content = typeof template.content === 'string' ? JSON.parse(template.content) : template.content;
           setChecklistDinamico(content);
           
-          // Inicializar itemsCheck según el contenido del template
+          const hoyStrCheck = getDayStr(new Date());
+          const isConfirmed = localStorage.getItem(`materialRecibido_${user?.id}_${hoyStrCheck}`) === 'true';
+
           setItemsCheck({
-            materiales: new Array(content.materiales?.length || content.material?.length || 0).fill(false),
-            equipo: new Array(content.equipo?.length || 0).fill(false),
-            herramientas: new Array(content.herramientas?.length || 0).fill(false)
+            materiales: new Array(content.materiales?.length || content.material?.length || 0).fill(isConfirmed),
+            equipo: new Array(content.equipo?.length || 0).fill(isConfirmed),
+            herramientas: new Array(content.herramientas?.length || 0).fill(isConfirmed)
           });
         }
       }
@@ -361,9 +363,20 @@ const TrabajosTecnico = () => {
         </div>
         
         <button 
-          className={`btn-open-checklist ${materialRecibido ? 'recibido' : 'pendiente'}`}
-          onClick={() => setMostrarModalChecklist(true)}
-        >
+            className={`btn-open-checklist ${materialRecibido ? 'recibido' : 'pendiente'}`}
+            onClick={() => {
+              if (materialRecibido) {
+                const updated = { ...itemsCheck };
+                Object.keys(updated).forEach(k => {
+                  if (Array.isArray(updated[k])) {
+                    updated[k] = updated[k].map(() => true);
+                  }
+                });
+                setItemsCheck(updated);
+              }
+              setMostrarModalChecklist(true);
+            }}
+          >
           {materialRecibido ? <CheckCircle2 size={20} /> : <Package size={20} />}
           <span>{materialRecibido ? "MATERIAL LISTO" : "LISTA DE RUTA"}</span>
         </button>
