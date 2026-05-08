@@ -406,7 +406,7 @@ const TrabajosTecnico = () => {
         >
           <div className="tab-icon-wrapper"><CheckCircle2 size={20} /></div>
           <span>LISTO</span>
-          {tableroData.finalizados.length > 0 && <span className="tab-badge">{tableroData.finalizados.length}</span>}
+          {tableroData.done.length > 0 && <span className="tab-badge">{tableroData.done.length}</span>}
         </button>
       </div>
 
