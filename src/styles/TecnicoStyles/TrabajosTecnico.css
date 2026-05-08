@@ -356,21 +356,19 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   width: 100%;
   background: white;
   border-radius: 12px;
-  padding: 10px 20px;
+  padding: 15px;
   border: none;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
+  flex-direction: column; /* Cambiamos a columna por defecto */
+  align-items: flex-start;
+  gap: 10px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   text-align: left;
   position: relative;
   overflow: hidden;
-  min-height: 60px;
-  border-left: 4px solid transparent;
+  min-height: 100px;
 }
 
 .tt-task-card:hover:not(:disabled) {
@@ -407,22 +405,28 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 }
 
 .tt-col-folio {
-  width: 70px;
-  gap: 4px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .tt-col-main {
-  flex: 2;
+  width: 100%;
 }
 
 .tt-col-info {
-  flex: 1.5;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
   gap: 4px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 8px;
 }
 
 .tt-col-date {
-  width: 100px;
-  text-align: right;
+  width: 100%;
+  margin-top: 5px;
 }
 
 .tt-col-arrow {
@@ -467,13 +471,11 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 
 .tt-property-title {
   margin: 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 900;
   color: #1e293b;
   text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .tt-info-row {
