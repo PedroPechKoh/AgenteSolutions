@@ -228,4 +228,3 @@ const TrabajoPropiedad = () => {
 };
 
 export default TrabajoPropiedad;
-joPropiedad;
