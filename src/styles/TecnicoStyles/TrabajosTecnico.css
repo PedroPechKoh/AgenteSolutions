@@ -55,6 +55,72 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   border-bottom-right-radius: 0; }
 .tt-tab.inactive { background-color: transparent; color: black; }
 
+/* TABS MÓVILES (OCULTOS EN DESKTOP) */
+.tt-mobile-tabs {
+  display: none;
+  background: white;
+  padding: 10px 15px;
+  gap: 10px;
+  justify-content: space-around;
+  border-bottom: 2px solid #f1f5f9;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.tt-m-tab-btn {
+  flex: 1;
+  background: #f8fafc;
+  border: 2px solid transparent;
+  padding: 10px 5px;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  color: #64748b;
+}
+
+.tt-m-tab-btn.active {
+  background: white;
+  border-color: #242d3c;
+  color: #242d3c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.tab-icon-wrapper {
+  color: inherit;
+  transition: transform 0.3s;
+}
+
+.tt-m-tab-btn.active .tab-icon-wrapper {
+  transform: scale(1.1);
+  color: #f26624;
+}
+
+.tt-m-tab-btn span {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.tab-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #e63946;
+  color: white;
+  font-size: 8px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 2px solid white;
+}
+
 /* KANBAN BOARD LAYOUT */
 .tt-board-container-kanban {
   display: flex;
@@ -81,6 +147,7 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   max-width: 380px;
   scroll-snap-align: center;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .tt-col-header {
@@ -695,3 +762,51 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   font-weight: 700;
   opacity: 0.7;
 }
+
+/* RESPONSIVO MÓVIL (TABS) */
+@media (max-width: 900px) {
+  .tt-body { padding: 0; }
+  
+  .tt-search-row { 
+    width: 90%; 
+    margin: 15px auto; 
+    flex-direction: column; 
+    gap: 10px;
+  }
+  
+  .btn-open-checklist { width: 100%; justify-content: center; height: 45px; }
+
+  .tt-mobile-tabs { display: flex; }
+
+  .tt-board-header-row { display: none; }
+
+  .tt-board-container-kanban {
+    flex-direction: column;
+    width: 100%;
+    padding: 15px;
+    gap: 0;
+  }
+
+  .tt-kanban-col {
+    width: 100%;
+    max-width: 100%;
+    min-height: auto;
+    margin-bottom: 20px;
+    box-shadow: none;
+  }
+
+  /* Lógica de ocultar/mostrar por tab */
+  .m-hidden {
+    display: none !important;
+  }
+
+  .m-active {
+    display: flex !important;
+    animation: slideInTab 0.3s ease-out;
+  }
+
+  @keyframes slideInTab {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+}

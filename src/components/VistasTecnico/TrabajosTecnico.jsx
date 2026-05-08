@@ -15,6 +15,7 @@ const TrabajosTecnico = () => {
   const [mostrarModalChecklist, setMostrarModalChecklist] = useState(false);
   const [filtroFechaAtrasados, setFiltroFechaAtrasados] = useState(null); 
   const [serviciosFiltrados, setServiciosFiltrados] = useState([]);
+  const [activeTab, setActiveTab] = useState('hoy'); // 'hoy', 'futuros', 'finalizados'
   const dateInputRef = React.useRef(null);
   
   // Estado para controlar si el material fue recibido
@@ -382,17 +383,37 @@ const TrabajosTecnico = () => {
         </button>
       </div>
 
-      <div className="tt-board-header-row">
-        <h3 className="section-title-visitas">
-          TABLERO DE OPERACIONES {!materialRecibido && <span className="lock-text"><Lock size={14}/> Bloqueado</span>}
-        </h3>
-        {/* El filtro de fecha se movió a la cabecera de la columna de mañana */}
+      <div className="tt-mobile-tabs">
+        <button 
+          className={`tt-m-tab-btn ${activeTab === 'hoy' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('hoy')}
+        >
+          <div className="tab-icon-wrapper"><Clock size={20} /></div>
+          <span>HOY</span>
+          {tableroData.asignados.length > 0 && <span className="tab-badge">{tableroData.asignados.length}</span>}
+        </button>
+        <button 
+          className={`tt-m-tab-btn ${activeTab === 'futuros' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('futuros')}
+        >
+          <div className="tab-icon-wrapper"><Calendar size={20} /></div>
+          <span>MAÑANA</span>
+          {tableroData.futuros.length > 0 && <span className="tab-badge">{tableroData.futuros.length}</span>}
+        </button>
+        <button 
+          className={`tt-m-tab-btn ${activeTab === 'finalizados' ? 'active' : ''}`} 
+          onClick={() => setActiveTab('finalizados')}
+        >
+          <div className="tab-icon-wrapper"><CheckCircle2 size={20} /></div>
+          <span>LISTO</span>
+          {tableroData.finalizados.length > 0 && <span className="tab-badge">{tableroData.finalizados.length}</span>}
+        </button>
       </div>
 
-      <div className={`tt-board-container-kanban ${!materialRecibido ? 'table-locked' : ''}`}>
+      <div className={`tt-board-container-kanban ${!materialRecibido ? 'table-locked' : ''} active-${activeTab}`}>
         
         {/* COLUMNA 1: ASIGNADOS (INCLUYE SOS, AYER Y HOY) */}
-        <div className="tt-kanban-col col-todo">
+        <div className={`tt-kanban-col col-todo ${activeTab === 'hoy' ? 'm-active' : 'm-hidden'}`}>
           <div className="tt-col-header">
             <span>TRABAJOS ASIGNADOS</span>
             <span className="count-pill">{tableroData.asignados.length}</span>
@@ -412,7 +433,7 @@ const TrabajosTecnico = () => {
         </div>
 
         {/* COLUMNA 2: MAÑANA / PRÓXIMOS (CON FILTRO) */}
-        <div className="tt-kanban-col col-futuros">
+        <div className={`tt-kanban-col col-futuros ${activeTab === 'futuros' ? 'm-active' : 'm-hidden'}`}>
           <div className="tt-col-header header-with-filter">
             <div className="header-label-group">
               <span>MAÑANA / HISTÓRICO</span>
@@ -455,7 +476,7 @@ const TrabajosTecnico = () => {
         </div>
 
         {/* COLUMNA 3: FINALIZADOS */}
-        <div className="tt-kanban-col col-done">
+        <div className={`tt-kanban-col col-done ${activeTab === 'finalizados' ? 'm-active' : 'm-hidden'}`}>
           <div className="tt-col-header">
             <span>FINALIZADOS</span>
             <span className="count-pill">{finalizadosFiltrados.length}</span>
