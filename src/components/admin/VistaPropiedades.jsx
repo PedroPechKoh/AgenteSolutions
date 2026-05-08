@@ -358,11 +358,15 @@ const VistaPropiedades = () => {
                       {/* BOTÓN 2: SOLICITAR LEVANTAMIENTO (Dinámico) */}
                       {p.levantamiento_realizado ? (
                         <button 
-                          className="btn-overlay outline" 
-                          disabled 
-                          style={{ backgroundColor: '#4CAF50', color: 'white', borderColor: '#4CAF50', opacity: 0.9 }}
+                          className="btn-overlay primary" 
+                          style={{ backgroundColor: '#4CAF50', color: 'white', border: 'none' }}
+                          onClick={() => {
+                            localStorage.setItem('current_property_id', p.id);
+                            localStorage.setItem('current_levantamiento_id', p.id_levantamiento);
+                            navigate(`/detalle-reporte/${p.id_levantamiento}`);
+                          }}
                         >
-                          ✓ LEVANTAMIENTO REALIZADO
+                          VER LEVANTAMIENTO
                         </button>
                       ) : p.has_pending_service ? (
                         <button className="btn-overlay outline" disabled>
