@@ -7,7 +7,7 @@ import "../../styles/TecnicoStyles/TrabajoPropiedad.css";
 import { 
   MapPin, Phone, User, Wrench, Clock, 
   ChevronLeft, Navigation, CheckCircle2, AlertCircle,
-  FileText, ArrowRight
+  FileText, ArrowRight, Package, Lock
 } from 'lucide-react';
 
 const TrabajoPropiedad = () => {
@@ -16,10 +16,36 @@ const TrabajoPropiedad = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModalFinalizar, setShowModalFinalizar] = useState(false);
+  const [showModalMateriales, setShowModalMateriales] = useState(false);
+  const [materialesConfirmados, setMaterialesConfirmados] = useState(false);
+  const [itemsCheck, setItemsCheck] = useState({ materiales: [], equipo: [], herramientas: [] });
 
   useEffect(() => {
     fetchJobDetails();
   }, [id]);
+
+  useEffect(() => {
+    if (data) {
+      // Cargar estado de confirmación específico de este trabajo
+      const confirmado = localStorage.getItem(`materiales_confirmados_${id}`) === 'true';
+      setMaterialesConfirmados(confirmado);
+
+      // Parsear el checklist dinámico
+      const cl = data.custom_checklist 
+        ? (typeof data.custom_checklist === 'string' ? JSON.parse(data.custom_checklist) : data.custom_checklist)
+        : { materiales: [], equipo: [], herramientas: [] };
+      
+      const mats = cl.materiales || cl.material || [];
+      const eqs = cl.equipo || [];
+      const hers = cl.herramientas || [];
+
+      setItemsCheck({
+        materiales: new Array(mats.length).fill(confirmado),
+        equipo: new Array(eqs.length).fill(confirmado),
+        herramientas: new Array(hers.length).fill(confirmado)
+      });
+    }
+  }, [data, id]);
 
   const fetchJobDetails = async () => {
     try {
@@ -44,11 +70,31 @@ const TrabajoPropiedad = () => {
     }
   };
 
+  const toggleItem = (tipo, index) => {
+    const nuevos = { ...itemsCheck };
+    nuevos[tipo][index] = !nuevos[tipo][index];
+    setItemsCheck(nuevos);
+  };
+
+  const todoMarcado = () => {
+    return [...itemsCheck.materiales, ...itemsCheck.equipo, ...itemsCheck.herramientas].every(v => v === true);
+  };
+
+  const confirmarMateriales = () => {
+    localStorage.setItem(`materiales_confirmados_${id}`, 'true');
+    setMaterialesConfirmados(true);
+    setShowModalMateriales(false);
+  };
+
   const openInGoogleMaps = () => {
     if (data?.coordenadas) {
       window.open(`https://www.google.com/maps/search/?api=1&query=${data.coordenadas}`, '_blank');
     }
   };
+
+  const checklistObj = data?.custom_checklist 
+    ? (typeof data.custom_checklist === 'string' ? JSON.parse(data.custom_checklist) : data.custom_checklist)
+    : null;
 
   if (loading) {
     return (
@@ -74,7 +120,6 @@ const TrabajoPropiedad = () => {
       <Header />
       
       <div className="tp-content-body">
-        {/* HEADER DE NAVEGACIÓN */}
         <div className="tp-navigation-bar">
           <button className="tp-back-btn" onClick={() => navigate('/trabajos-tecnico')}>
             <ChevronLeft size={20} />
@@ -85,7 +130,6 @@ const TrabajoPropiedad = () => {
           </div>
         </div>
 
-        {/* HERO SECTION: PROPIEDAD */}
         <section className="tp-property-hero">
           <div className="tp-hero-overlay"></div>
           {data.foto_fachada && (
@@ -115,10 +159,7 @@ const TrabajoPropiedad = () => {
           </div>
         </section>
 
-        {/* CONTENIDO PRINCIPAL: DETALLES DEL TRABAJO */}
         <div className="tp-main-grid">
-          
-          {/* COLUMNA IZQUIERDA: DESCRIPCIÓN Y DETALLES */}
           <div className="tp-details-column">
             <motion.div 
               className="tp-card tp-work-description-card"
@@ -145,12 +186,31 @@ const TrabajoPropiedad = () => {
               </div>
             </motion.div>
 
-            {/* INFORMACIÓN DEL CLIENTE / CONTACTO */}
+            {/* SECCIÓN DE MATERIALES REQUERIDOS (VISTA RÁPIDA) */}
+            {checklistObj && (
+              <motion.div 
+                className="tp-card tp-materials-preview-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <div className="tp-card-header">
+                  <Package size={20} />
+                  <h3>MATERIALES Y EQUIPO</h3>
+                </div>
+                <div className="tp-materials-summary">
+                  <div className="tp-mat-tag">{(checklistObj.materiales || checklistObj.material || []).length} Materiales</div>
+                  <div className="tp-mat-tag">{(checklistObj.equipo || []).length} Equipos</div>
+                  <div className="tp-mat-tag">{(checklistObj.herramientas || []).length} Herramientas</div>
+                </div>
+              </motion.div>
+            )}
+
             <motion.div 
               className="tp-card tp-client-card"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ delay: 0.2 }}
             >
               <div className="tp-card-header">
                 <User size={20} />
@@ -163,7 +223,6 @@ const TrabajoPropiedad = () => {
             </motion.div>
           </div>
 
-          {/* COLUMNA DERECHA: ACCIONES Y SIGUIENTES PASOS */}
           <div className="tp-actions-column">
             <motion.div 
               className="tp-card tp-flow-card"
@@ -175,9 +234,23 @@ const TrabajoPropiedad = () => {
               
               <div className="tp-flow-buttons">
                 <button 
-                  className="tp-btn-primary" 
-                  onClick={() => navigate(data.custom_checklist ? `/Checklist/${id}` : `/trabajo-inicio/${id}`)}
+                  className={`tp-btn-checklist-trigger ${materialesConfirmados ? 'confirmed' : 'pending'}`}
+                  onClick={() => setShowModalMateriales(true)}
                 >
+                  <Package size={20} />
+                  <span>{materialesConfirmados ? "MATERIALES LISTOS" : "CONFIRMAR MATERIALES"}</span>
+                </button>
+
+                <button 
+                  className={`tp-btn-primary ${!materialesConfirmados ? 'locked' : ''}`} 
+                  onClick={() => {
+                    if (materialesConfirmados) {
+                      navigate(data.custom_checklist ? `/Checklist/${id}` : `/trabajo-inicio/${id}`);
+                    }
+                  }}
+                  disabled={!materialesConfirmados}
+                >
+                  {!materialesConfirmados && <Lock size={18} />}
                   <span>INICIAR TRABAJO</span>
                   <ArrowRight size={18} />
                 </button>
@@ -197,11 +270,95 @@ const TrabajoPropiedad = () => {
                   <span>VENTA CRUZADA</span>
                 </button>
               </div>
+              
+              {!materialesConfirmados && (
+                <p className="tp-lock-msg">Debe confirmar materiales para iniciar</p>
+              )}
             </motion.div>
           </div>
-
         </div>
       </div>
+
+      {/* MODAL: CHECKLIST DE MATERIALES */}
+      <AnimatePresence>
+        {showModalMateriales && (
+          <div className="tp-modal-overlay">
+            <motion.div 
+              className="tp-modal-content-checklist"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+            >
+              <div className="tp-modal-header-check">
+                <Package size={24} color="#f26624" />
+                <h2>Lista de Ruta / Materiales</h2>
+                <button className="tp-close-modal-btn" onClick={() => setShowModalMateriales(false)}>×</button>
+              </div>
+
+              <div className="tp-modal-scroll-body">
+                {/* MATERIALES */}
+                {(checklistObj?.materiales || checklistObj?.material || []).length > 0 && (
+                  <div className="tp-check-section">
+                    <h4>Materiales</h4>
+                    <div className="tp-check-grid">
+                      {(checklistObj.materiales || checklistObj.material).map((m, i) => (
+                        <label key={i} className={`tp-check-label ${itemsCheck.materiales[i] ? 'checked' : ''}`}>
+                          <input type="checkbox" checked={itemsCheck.materiales[i]} onChange={() => toggleItem('materiales', i)} />
+                          <span>{typeof m === 'string' ? m : m.nombre || m.task || m.concepto}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* EQUIPO */}
+                {(checklistObj?.equipo || []).length > 0 && (
+                  <div className="tp-check-section">
+                    <h4>Equipo</h4>
+                    <div className="tp-check-grid">
+                      {checklistObj.equipo.map((e, i) => (
+                        <label key={i} className={`tp-check-label ${itemsCheck.equipo[i] ? 'checked' : ''}`}>
+                          <input type="checkbox" checked={itemsCheck.equipo[i]} onChange={() => toggleItem('equipo', i)} />
+                          <span>{typeof e === 'string' ? e : e.nombre || e.task || e.concepto}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* HERRAMIENTAS */}
+                {(checklistObj?.herramientas || []).length > 0 && (
+                  <div className="tp-check-section">
+                    <h4>Herramientas</h4>
+                    <div className="tp-check-grid">
+                      {checklistObj.herramientas.map((h, i) => (
+                        <label key={i} className={`tp-check-label ${itemsCheck.herramientas[i] ? 'checked' : ''}`}>
+                          <input type="checkbox" checked={itemsCheck.herramientas[i]} onChange={() => toggleItem('herramientas', i)} />
+                          <span>{typeof h === 'string' ? h : h.nombre || h.task || h.concepto}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(!checklistObj || (!checklistObj.materiales && !checklistObj.material && !checklistObj.equipo && !checklistObj.herramientas)) && (
+                   <p className="tp-empty-check">No hay materiales registrados para este trabajo.</p>
+                )}
+              </div>
+
+              <div className="tp-modal-footer-check">
+                <button 
+                  className={`tp-btn-confirm-check ${todoMarcado() ? 'ready' : 'disabled'}`}
+                  disabled={!todoMarcado() && (checklistObj?.materiales || checklistObj?.material || checklistObj?.equipo || checklistObj?.herramientas)}
+                  onClick={confirmarMateriales}
+                >
+                  {todoMarcado() ? "CONFIRMAR Y DESBLOQUEAR" : "FALTA MARCAR ITEMS"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* MODAL: FINALIZAR */}
       <AnimatePresence>
