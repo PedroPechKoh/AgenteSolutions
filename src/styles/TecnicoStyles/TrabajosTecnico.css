@@ -214,36 +214,40 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 }
 
 .tt-date-button-trigger-mini {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 8px;
+  background: white;
+  border: 1px solid #f26624;
+  color: #f26624;
+  padding: 6px 12px;
+  border-radius: 10px;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 900;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   transition: all 0.2s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .tt-date-button-trigger-mini:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: #f26624;
+  background: #f26624;
+  color: white;
+  border-color: white;
+  transform: translateY(-1px);
 }
 
 .btn-clear-filter-mini {
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
+  background: white;
+  border: 1px solid #ff4d4d;
   color: #ff4d4d;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .tt-date-picker-inline {
@@ -552,31 +556,59 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
 }
 
 /* ESTADOS DEL BOTÓN DE RUTA */
-.btn-open-checklist.pendiente { background-color: #f26624; }
+.btn-open-checklist.pendiente { 
+  background-color: #f26624; 
+  animation: pulse-orange 2s infinite;
+}
+
+@keyframes pulse-orange {
+  0% { box-shadow: 0 4px 0px #b94d1a, 0 0 0 0px rgba(242, 102, 36, 0.4); }
+  70% { box-shadow: 0 4px 0px #b94d1a, 0 0 0 10px rgba(242, 102, 36, 0); }
+  100% { box-shadow: 0 4px 0px #b94d1a, 0 0 0 0px rgba(242, 102, 36, 0); }
+}
+
 .btn-open-checklist.recibido { background-color: #28a745; box-shadow: 0 4px 0px #1e7e34; }
 
-/* BLOQUEO DE TABLA / BOARD */
-.tt-board-container.table-locked {
-  opacity: 0.5;
-  filter: grayscale(0.8);
+/* BLOQUEO DE TABLA / BOARD CON BLUR PREMIUM */
+.tt-board-container-kanban.table-locked {
   position: relative;
   pointer-events: none;
+}
+
+.tt-board-container-kanban.table-locked .tt-kanban-col {
+  filter: blur(6px) grayscale(0.5);
+  opacity: 0.6;
+  transition: all 0.5s ease;
 }
 
 .lock-text { color: #f26624; font-size: 12px; margin-left: 10px; text-transform: uppercase; }
 
 .lock-overlay-msg {
   position: absolute;
-  top: 50%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0,0,0,0.8);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-size: 11px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #242d3c;
+  padding: 25px 40px;
+  border-radius: 20px;
+  font-size: 14px;
   font-weight: 900;
-  z-index: 10;
+  z-index: 100;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+  border-top: 5px solid #f26624;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  text-align: center;
+}
+
+.lock-overlay-msg::before {
+  content: '🔒';
+  font-size: 30px;
 }
 
 /* DISEÑO DE CHECKBOX DENTRO DEL MODAL */
