@@ -611,4 +611,114 @@
   animation: spin 1s linear infinite;
 }
 
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+/* --- MEDIA QUERIES PARA RESPONSIVIDAD --- */
+@media (max-width: 768px) {
+  .tp-content-body {
+    padding: 0 15px;
+  }
+
+  .tp-main-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .tp-hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .tp-property-name {
+    font-size: 24px;
+  }
+
+  .tp-hero-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .tp-action-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* MODAL LEVANTAMIENTO RESPONSIVO */
+  .tp-modal-survey-card {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    max-height: none;
+  }
+
+  .tp-survey-header {
+    padding: 15px 20px;
+  }
+
+  .tp-survey-content-layout {
+    flex-direction: column;
+  }
+
+  .tp-survey-sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    padding: 12px 15px;
+    gap: 10px;
+    flex-shrink: 0;
+    /* Ocultar scrollbar */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .tp-survey-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tp-area-nav-item {
+    white-space: nowrap;
+    padding: 10px 18px;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .tp-survey-main {
+    padding: 15px;
+  }
+
+  .tp-area-banner {
+    height: 120px;
+    margin-bottom: 20px;
+  }
+
+  .tp-area-banner h2 {
+    font-size: 1.4rem;
+    bottom: 15px;
+    left: 15px;
+  }
+
+  .tp-items-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+
+  .tp-tech-item {
+    padding: 10px;
+  }
+
+  .tp-tech-item img {
+    height: 120px;
+  }
+
+  /* OTROS MODALES */
+  .tp-modal-content-checklist, .tp-modal-content.evidencias-theme {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .tp-evidencias-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
