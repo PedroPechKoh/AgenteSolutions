@@ -8,7 +8,7 @@ import {
   MapPin, Phone, User, Wrench, Clock, 
   ChevronLeft, Navigation, CheckCircle2, AlertCircle,
   FileText, ArrowRight, Package, Lock, Camera, Layout,
-  X, Maximize2, ChevronRight
+  X, Maximize2, ChevronRight, AlertTriangle, Zap
 } from 'lucide-react';
 
 const TrabajoPropiedad = () => {
@@ -201,8 +201,53 @@ const TrabajoPropiedad = () => {
                 <FileText size={20} />
                 <h3>CONSISTE EN:</h3>
               </div>
-              <div className="tp-work-description">
-                <p>{data.descripcion || "Sin descripción detallada."}</p>
+              <div className="tp-work-description-v2">
+                {(() => {
+                  if (!data.descripcion) return <p className="tp-empty-desc">Sin descripción detallada.</p>;
+                  
+                  // Intentar formatear si viene con el tag de equipo afectado
+                  if (data.descripcion.includes('[EQUIPO AFECTADO]:')) {
+                    const parts = data.descripcion.split('[EQUIPO AFECTADO]:');
+                    const problema = parts[0].trim();
+                    const equipo = parts[1].trim();
+
+                    return (
+                      <div className="tp-description-grid">
+                        <div className="tp-desc-item">
+                          <div className="tp-desc-icon problem">
+                            <AlertTriangle size={20} />
+                          </div>
+                          <div className="tp-desc-text">
+                            <label>TIPO DE FALLA / PROBLEMA</label>
+                            <strong>{problema || 'No especificado'}</strong>
+                          </div>
+                        </div>
+
+                        <div className="tp-desc-item">
+                          <div className="tp-desc-icon equipment">
+                            <Zap size={20} />
+                          </div>
+                          <div className="tp-desc-text">
+                            <label>EQUIPO O COMPONENTE AFECTADO</label>
+                            <strong>{equipo || 'No especificado'}</strong>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <div className="tp-desc-fallback">
+                      <div className="tp-desc-icon general">
+                        <FileText size={20} />
+                      </div>
+                      <div className="tp-desc-text">
+                        <label>DETALLES DEL SERVICIO</label>
+                        <p style={{ whiteSpace: 'pre-line' }}>{data.descripcion}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
               
               <div className="tp-work-meta">

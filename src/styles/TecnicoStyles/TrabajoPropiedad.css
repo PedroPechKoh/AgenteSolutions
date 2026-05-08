@@ -185,17 +185,94 @@
   letter-spacing: 1px;
 }
 
-/* DESCRIPCIÓN DEL TRABAJO */
-.tp-work-description {
-  font-size: 18px;
-  line-height: 1.6;
-  font-weight: 600;
-  color: #2c3e50;
-  padding: 15px;
-  background: rgba(242, 102, 36, 0.05);
+/* DESCRIPCIÓN DEL TRABAJO V2 */
+.tp-work-description-v2 {
+  margin-bottom: 25px;
+}
+
+.tp-description-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tp-desc-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 16px 20px;
+  border-radius: 18px;
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  transition: all 0.3s ease;
+}
+
+.tp-desc-item:hover {
+  transform: translateX(8px);
+  border-color: var(--tp-primary);
+  background: white;
+  box-shadow: 0 8px 25px rgba(242, 102, 36, 0.1);
+}
+
+.tp-desc-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.tp-desc-item:hover .tp-desc-icon {
+  transform: scale(1.1);
+}
+
+.tp-desc-icon.problem { background: #fee2e2; color: #dc2626; }
+.tp-desc-icon.equipment { background: #fff7ed; color: #f26624; }
+.tp-desc-icon.general { background: #f0f9ff; color: #0ea5e9; }
+
+.tp-desc-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tp-desc-text label {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.tp-desc-text strong {
+  font-size: 17px;
+  color: #1e293b;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.tp-desc-fallback {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  background: #f8fafc;
+  padding: 22px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+}
+
+.tp-empty-desc {
+  color: #94a3b8;
+  font-style: italic;
+  text-align: center;
+  padding: 30px;
+  background: #f8f9fa;
   border-radius: 15px;
-  border-left: 4px solid var(--tp-primary);
-  margin-bottom: 20px;
+  border: 1px dashed #cbd5e1;
 }
 
 .tp-work-meta {
