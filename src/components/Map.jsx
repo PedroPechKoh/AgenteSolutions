@@ -124,10 +124,17 @@ const Map = () => {
                       onClick={() => {
                         const clienteData = {
                           id: marcadorActivo.client_id,
+                          name: marcadorActivo.owner_name,
                           nombre: marcadorActivo.owner_name,
+                          email: marcadorActivo.email,
+                          correo: marcadorActivo.email,
+                          phone: marcadorActivo.phone,
                           telefono: marcadorActivo.phone,
                           profile_picture: marcadorActivo.picture,
-                          direccion: marcadorActivo.address
+                          profile_picture_url: marcadorActivo.picture,
+                          address: marcadorActivo.address,
+                          direccion: marcadorActivo.address,
+                          rol: 'CLIENTE'
                         };
                         navigate('/detalle-cliente', { state: { cliente: clienteData } });
                       }}
