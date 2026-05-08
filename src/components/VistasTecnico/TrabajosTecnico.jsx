@@ -373,22 +373,7 @@ const TrabajosTecnico = () => {
         <h3 className="section-title-visitas">
           TABLERO DE OPERACIONES {!materialRecibido && <span className="lock-text"><Lock size={14}/> Bloqueado</span>}
         </h3>
-        <div className="tt-filter-date-wrapper">
-          <label><Calendar size={14}/> Ver histórico:</label>
-          <button 
-            className="tt-date-button-trigger"
-            onClick={() => dateInputRef.current && dateInputRef.current.showPicker()}
-          >
-            {filtroFechaAtrasados || 'Seleccionar fecha'}
-          </button>
-          <input 
-            type="date" 
-            ref={dateInputRef}
-            className="tt-date-picker-hidden" 
-            onChange={(e) => setFiltroFechaAtrasados(e.target.value)} 
-          />
-          {filtroFechaAtrasados && <button className="btn-clear-filter" onClick={() => setFiltroFechaAtrasados(null)}><X size={14}/></button>}
-        </div>
+        {/* El filtro de fecha se movió a la cabecera de la columna de mañana */}
       </div>
 
       <div className={`tt-board-container-kanban ${!materialRecibido ? 'table-locked' : ''}`}>
@@ -415,9 +400,32 @@ const TrabajosTecnico = () => {
 
         {/* COLUMNA 2: MAÑANA / PRÓXIMOS (CON FILTRO) */}
         <div className="tt-kanban-col col-futuros">
-          <div className="tt-col-header">
-            <span>TRABAJOS DE MAÑANA / FILTRO</span>
-            <span className="count-pill">{tableroData.futuros.length}</span>
+          <div className="tt-col-header header-with-filter">
+            <div className="header-label-group">
+              <span>MAÑANA / HISTÓRICO</span>
+              <span className="count-pill">{tableroData.futuros.length}</span>
+            </div>
+            
+            <div className="tt-filter-date-wrapper-mini">
+              <button 
+                className="tt-date-button-trigger-mini"
+                onClick={() => dateInputRef.current && dateInputRef.current.showPicker()}
+              >
+                <Calendar size={12}/>
+                {filtroFechaAtrasados || 'Cambiar fecha'}
+              </button>
+              <input 
+                type="date" 
+                ref={dateInputRef}
+                className="tt-date-picker-hidden" 
+                onChange={(e) => setFiltroFechaAtrasados(e.target.value)} 
+              />
+              {filtroFechaAtrasados && (
+                <button className="btn-clear-filter-mini" onClick={() => setFiltroFechaAtrasados(null)}>
+                  <X size={12}/>
+                </button>
+              )}
+            </div>
           </div>
           <div className="tt-col-content">
             {futurosAgrupados.map(([nombreGrupo, items]) => (

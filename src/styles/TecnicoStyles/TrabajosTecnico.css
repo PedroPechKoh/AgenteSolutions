@@ -190,6 +190,62 @@ body, html { margin: 0; padding: 0; overflow: hidden; height: 100%; }
   gap: 5px;
 }
 
+/* NUEVOS ESTILOS PARA EL FILTRO DENTRO DE LA COLUMNA */
+.header-with-filter {
+  display: flex;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  padding: 12px 15px !important;
+}
+
+.header-label-group {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.tt-filter-date-wrapper-mini {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.tt-date-button-trigger-mini {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+
+.tt-date-button-trigger-mini:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #f26624;
+}
+
+.btn-clear-filter-mini {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ff4d4d;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .tt-date-picker-inline {
   border: none;
   background: transparent;
