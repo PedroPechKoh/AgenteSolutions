@@ -66,7 +66,8 @@ const TrabajoPropiedad = () => {
 
       // Check if reports exist
       try {
-        const reportsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}/reportes`);
+        const realId = id.includes('-') ? id.split('-')[1] : id;
+        const reportsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${realId}/reportes`);
         if (reportsRes.data && reportsRes.data.length > 0) {
           setHasReports(true);
         }
