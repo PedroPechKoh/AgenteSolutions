@@ -139,20 +139,21 @@ useEffect(() => {
         }
       />
 
-      {/* ------RUTAS DE LA VISTA DEL TECNICO ------*/}
-      <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
-      <Route path="/Checklist/:id" element={<CheckList />} />
-      <Route path="/detalleTrabajo" element={<DetalleTrabajo />} />
-      <Route path="/galeria-reportes" element={<GaleriaReportes />} />
-      <Route path="/reporte-individual" element={<ReporteIndividual />} />
-      <Route path="/nuevo-reporte" element={<NuevoReporte />} />
-      <Route path="/trabajo-inicio/:id" element={<TrabajoInicio />} />
-      <Route path="/trabajo-propiedad/:id" element={<TrabajoPropiedad />} />
-      <Route path="/venta-cruzada" element={<VentaCruzada />} />
-      <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
-      <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />
-      <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
-      <Route path="/detalle-tecnico" element={<VistaDetalleTecnico />} />
+      {/* ------RUTAS DE LA VISTA DEL TECNICO (PROTEGIDAS) ------*/}
+      <Route element={<ProtectedRoute allowedRoles={[0, 1, 2]} />}>
+        <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
+        <Route path="/Checklist/:id" element={<CheckList />} />
+        <Route path="/detalleTrabajo" element={<DetalleTrabajo />} />
+        <Route path="/galeria-reportes" element={<GaleriaReportes />} />
+        <Route path="/reporte-individual/:id?" element={<ReporteIndividual />} />
+        <Route path="/nuevo-reporte" element={<NuevoReporte />} />
+        <Route path="/trabajo-inicio/:id" element={<TrabajoInicio />} />
+        <Route path="/trabajo-propiedad/:id" element={<TrabajoPropiedad />} />
+        <Route path="/venta-cruzada" element={<VentaCruzada />} />
+        <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
+        <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />
+        <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
+      </Route>
 
       {/* ------RUTAS DE LA VISTA DEL ADMIN (PROTEGIDAS POR ROL) ------*/}
       {/* RUTAS ACCESIBLES POR ADMIN Y CLIENTE */}
@@ -183,6 +184,7 @@ useEffect(() => {
         <Route path="/bodeguero" element={<VistaBodeguero/>} />
         <Route path="/detalle-propiedad/:id" element={<DetallePropiedadadmin/>} />
         <Route path="/tablero-servicios" element={<VistaServiciosAdmin />} />
+        <Route path="/detalle-tecnico" element={<VistaDetalleTecnico />} />
       </Route>
 
       <Route path="/notificaciones" element={<VistaNotificaciones />} />
