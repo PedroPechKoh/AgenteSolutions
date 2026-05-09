@@ -54,16 +54,29 @@ const GaleriaReportes = () => {
           </button>
         </div>
 
-        {/* DETALLES DE LA PROPIEDAD */}
-        {servicio && (
-          <div style={{ width: '90%', maxWidth: '1000px', backgroundColor: '#fff', borderRadius: '20px', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ color: '#F26522', marginBottom: '10px', marginTop: 0 }}>DATOS DEL TRABAJO</h3>
-            <p style={{ margin: '5px 0' }}><strong>Propiedad:</strong> {servicio.property ? (servicio.property.type + ' - ' + (servicio.property.custom_curp || '')) : 'N/A'}</p>
-            <p style={{ margin: '5px 0' }}><strong>Cliente:</strong> {servicio.property?.client?.name || 'Usuario'}</p>
-            <p style={{ margin: '5px 0' }}><strong>Trabajo a realizar:</strong> {servicio.title}</p>
-            <p style={{ margin: '5px 0' }}><strong>ID Trabajo:</strong> {trabajoId}</p>
+        {/* DETALLES DE LA PROPIEDAD EN FORMATO DE ETIQUETAS */}
+        <div style={{ width: '90%', maxWidth: '1000px', display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'center', marginBottom: '30px' }}>
+          <div className="id-property-tag" style={{ margin: 0 }}>
+            <span>TRABAJO ID:</span>
+            <strong>{trabajoId || 'N/A'}</strong>
           </div>
-        )}
+          {servicio && (
+            <>
+              <div className="id-property-tag" style={{ margin: 0 }}>
+                <span>PROPIEDAD:</span>
+                <strong>{servicio.property ? (servicio.property.type + ' - ' + (servicio.property.custom_curp || '')) : 'N/A'}</strong>
+              </div>
+              <div className="id-property-tag" style={{ margin: 0 }}>
+                <span>CLIENTE:</span>
+                <strong>{servicio.property?.client?.name || 'Usuario'}</strong>
+              </div>
+              <div className="id-property-tag" style={{ margin: 0 }}>
+                <span>TRABAJO:</span>
+                <strong>{servicio.title || 'Mantenimiento'}</strong>
+              </div>
+            </>
+          )}
+        </div>
 
       <div className="galeria-body" style={{ width: '100%', marginTop: '0' }}>
 
