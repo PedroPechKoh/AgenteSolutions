@@ -38,7 +38,7 @@ const TrabajoInicio = () => {
   return (
     <>
     <Header />
-    <div className="tt-body-full" style={{ marginTop: '80px' }}>
+    <div className="tt-body-full" style={{ marginTop: '10px' }}>
       <div className="tt-main-card-large">
         
         {/* BURBUJAS SUPERIORES - SIN LOGO AQUÍ */}
@@ -48,7 +48,11 @@ const TrabajoInicio = () => {
             <strong>{data.id}</strong>
           </div>
           <div className="tt-bubble-info">
-            <span>ID PROPIEDAD</span>
+            <span>PROPIEDAD</span>
+            <strong>{data.propiedad_nombre || 'Sin Nombre'}</strong>
+          </div>
+          <div className="tt-bubble-info">
+            <span>CURP / ID</span>
             <strong>{data.identificador_curp || data.property_id}</strong>
           </div>
           <div className="tt-bubble-info">
