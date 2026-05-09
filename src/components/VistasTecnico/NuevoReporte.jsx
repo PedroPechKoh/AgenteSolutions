@@ -12,6 +12,7 @@ const NuevoReporte = () => {
   const galleryRef = useRef(null);
 
   const trabajoId = location.state?.trabajoId;
+  const servicio = location.state?.servicio;
 
   const [imagePreview, setImagePreview] = useState(null);
   const [descripcion, setDescripcion] = useState('');
@@ -77,7 +78,7 @@ const NuevoReporte = () => {
       });
 
       alert('¡Reporte guardado con éxito!');
-      navigate('/galeria-reportes', { state: { trabajoId } });
+      navigate('/galeria-reportes', { state: { trabajoId, servicio } });
     } catch (error) {
       console.error('Error al guardar reporte:', error);
       alert('Ocurrió un error al intentar guardar el reporte. Inténtalo de nuevo.');

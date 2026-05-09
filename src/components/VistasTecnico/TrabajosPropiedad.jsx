@@ -374,7 +374,7 @@ const TrabajoPropiedad = () => {
                   className={`tp-btn-primary ${!materialesConfirmados ? 'locked' : ''}`} 
                   onClick={() => {
                     if (materialesConfirmados) {
-                      navigate(hasReports ? `/galeria-reportes` : `/nuevo-reporte`, { state: { trabajoId: data.id } });
+                      navigate(hasReports ? `/galeria-reportes` : `/nuevo-reporte`, { state: { trabajoId: data.id, servicio: data } });
                     }
                   }}
                   disabled={!materialesConfirmados}

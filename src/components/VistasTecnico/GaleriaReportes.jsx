@@ -9,6 +9,7 @@ const GaleriaReportes = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const trabajoId = location.state?.trabajoId;
+  const servicio = location.state?.servicio;
 
   const [reportes, setReportes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,30 +35,37 @@ const GaleriaReportes = () => {
   return (
     <>
       <Header />
-      <div style={{ padding: '20px 50px', display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-        <button 
-          onClick={() => navigate(-1)}
-          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          <ChevronLeft size={20} />
-          <span>REGRESAR</span>
-        </button>
-        <button
-          type="button"
-          className="btn-add-photo"
-          onClick={() => navigate('/nuevo-reporte', { state: { trabajoId } })}
-        >
-          <Plus size={26} strokeWidth={3} />
-        </button>
-      </div>
-
-      <div className="galeria-body" style={{ marginTop: '0' }}>
-
-        {/* ID PROPIEDAD */}
-        <div className="id-property-tag">
-          <span>TRABAJO ID:</span>
-          <strong>{trabajoId || 'N/A'}</strong>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {/* BOTONES DE ACCIÓN */}
+        <div style={{ width: '90%', maxWidth: '1000px', display: 'flex', justifyContent: 'space-between', marginTop: '20px', marginBottom: '20px' }}>
+          <button 
+            onClick={() => navigate(-1)}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            <ChevronLeft size={20} />
+            <span>REGRESAR</span>
+          </button>
+          <button
+            type="button"
+            className="btn-add-photo"
+            onClick={() => navigate('/nuevo-reporte', { state: { trabajoId, servicio } })}
+          >
+            <Plus size={26} strokeWidth={3} />
+          </button>
         </div>
+
+        {/* DETALLES DE LA PROPIEDAD */}
+        {servicio && (
+          <div style={{ width: '90%', maxWidth: '1000px', backgroundColor: '#fff', borderRadius: '20px', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            <h3 style={{ color: '#F26522', marginBottom: '10px', marginTop: 0 }}>DATOS DEL TRABAJO</h3>
+            <p style={{ margin: '5px 0' }}><strong>Propiedad:</strong> {servicio.property ? (servicio.property.type + ' - ' + (servicio.property.custom_curp || '')) : 'N/A'}</p>
+            <p style={{ margin: '5px 0' }}><strong>Cliente:</strong> {servicio.property?.client?.name || 'Usuario'}</p>
+            <p style={{ margin: '5px 0' }}><strong>Trabajo a realizar:</strong> {servicio.title}</p>
+            <p style={{ margin: '5px 0' }}><strong>ID Trabajo:</strong> {trabajoId}</p>
+          </div>
+        )}
+
+      <div className="galeria-body" style={{ width: '100%', marginTop: '0' }}>
 
         {loading ? (
           <p style={{ textAlign: 'center', marginTop: '50px' }}>Cargando reportes...</p>
@@ -93,6 +101,7 @@ const GaleriaReportes = () => {
         </div>
         )}
 
+      </div>
       </div>
     </>
   );
