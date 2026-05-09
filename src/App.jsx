@@ -143,7 +143,7 @@ useEffect(() => {
       <Route element={<ProtectedRoute allowedRoles={[0, 1, 2]} />}>
         <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
         <Route path="/Checklist/:id" element={<CheckList />} />
-        <Route path="/detalleTrabajo" element={<DetalleTrabajo />} />
+        <Route path="/detalleTrabajo/:id" element={<DetalleTrabajo />} />
         <Route path="/galeria-reportes" element={<GaleriaReportes />} />
         <Route path="/reporte-individual/:id?" element={<ReporteIndividual />} />
         <Route path="/nuevo-reporte" element={<NuevoReporte />} />

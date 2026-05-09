@@ -91,7 +91,7 @@ const TrabajoInicio = () => {
 
         {/* BOTONES DE ACCIÓN */}
         <div className="tt-footer-actions">
-          <button className="tt-btn-action orange" onClick={() => navigate('/Checklist/' + id)}>
+          <button className="tt-btn-action orange" onClick={() => navigate('/detalleTrabajo/' + id)}>
             INICIAR
           </button>
           <button className="tt-btn-action purple" onClick={() => navigate('/agendar')}>

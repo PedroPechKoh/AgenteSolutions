@@ -8,7 +8,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
   const [loading, setLoading] = useState(false);
 
   // Form State
-  const [tecnicoId, setTecnicoId] = useState(workOrder.tecnicoId || '');
+  const [tecnicosIds, setTecnicosIds] = useState(workOrder.tecnicosIds || (workOrder.tecnicoId ? [workOrder.tecnicoId] : []));
   
   // Custom Checklist State (The 3 Tabs)
   const [activeTab, setActiveTab] = useState('herramientas');
@@ -65,6 +65,12 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
     }
   };
 
+  const toggleTecnico = (id) => {
+    setTecnicosIds(prev => 
+      prev.includes(id) ? prev.filter(tid => tid !== id) : [...prev, id]
+    );
+  };
+
   const handleAddItem = () => {
     if (!newItem.trim()) return;
     setChecklist(prev => ({
@@ -104,7 +110,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
     setLoading(true);
     try {
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${workOrder.dbId}/assign`, {
-        tecnico_id: tecnicoId,
+        tecnicos_ids: tecnicosIds,
         custom_checklist: checklist
       });
       alert("Checklist asignado correctamente");
@@ -133,17 +139,30 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
 
         <div className="checklist-modal-body">
           {/* Selección de Técnico y Plantilla */}
-          <div className="assignment-section-mini">
-            <div className="form-group-cl">
-              <label><Settings size={14}/> TÉCNICO RESPONSABLE</label>
-              <select value={tecnicoId} onChange={e => setTecnicoId(e.target.value)}>
-                <option value="">-- Seleccionar Técnico --</option>
-                {tecnicos.map(t => (
-                  <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>
-                ))}
-              </select>
+          <div className="assignment-section-top">
+            <div className="form-group-cl full-width">
+              <label><Settings size={14}/> EQUIPO DE TRABAJO (Selecciona uno o más)</label>
+              <div className="tecnicos-grid">
+                {tecnicos.map(t => {
+                  const isSelected = tecnicosIds.includes(t.id);
+                  return (
+                    <div 
+                      key={t.id} 
+                      className={`tecnico-card-select ${isSelected ? 'selected' : ''}`} 
+                      onClick={() => toggleTecnico(t.id)}
+                    >
+                      <img src={t.profile_picture_url || t.profile_picture || 'https://via.placeholder.com/150'} alt="Técnico" />
+                      <div className="tecnico-card-info">
+                        <span className="tech-name">{t.first_name} {t.last_name?.charAt(0)}.</span>
+                      </div>
+                      {isSelected && <div className="check-badge"><CheckCircle size={16} /></div>}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <div className="form-group-cl">
+            
+            <div className="form-group-cl full-width template-selector-box">
               <label><Package size={14}/> CARGAR PLANTILLA</label>
               <select value={selectedTemplateId} onChange={handleTemplateChange}>
                 <option value="">-- Nueva Plantilla en Blanco --</option>
@@ -262,15 +281,28 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
 
         .checklist-modal-body { padding: 30px; flex: 1; overflow-y: auto; background: white; }
         
-        .assignment-section-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
+        .assignment-section-top { display: flex; flex-direction: column; gap: 20px; margin-bottom: 25px; }
         .full-width { width: 100%; }
         .form-group-cl { display: flex; flex-direction: column; gap: 8px; }
         .form-group-cl label { font-size: 0.75rem; font-weight: 900; color: #444; display: flex; align-items: center; gap: 6px; }
         .form-group-cl select, .datetime-input { 
           padding: 12px; border: 2px solid #ddd; border-radius: 12px; 
-          outline: none; font-weight: 600; color: #333; background: white;
+          outline: none; font-weight: 600; color: #333; background: white; width: 100%;
         }
         .form-group-cl select:focus, .datetime-input:focus { border-color: #F26522; }
+
+        .tecnicos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-top: 5px; max-height: 200px; overflow-y: auto; padding-right: 5px; }
+        .tecnico-card-select {
+          background: #f9f9f9; border: 2px solid #eee; border-radius: 12px; padding: 10px; cursor: pointer;
+          display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; transition: all 0.2s;
+        }
+        .tecnico-card-select:hover { border-color: #ffccbc; background: #fff5f0; }
+        .tecnico-card-select.selected { border-color: #F26522; background: #fff5f0; box-shadow: 0 4px 10px rgba(242, 101, 34, 0.2); }
+        .tecnico-card-select img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tech-name { font-size: 0.75rem; font-weight: 800; color: #444; text-align: center; }
+        .check-badge { position: absolute; top: -8px; right: -8px; background: white; color: #F26522; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        .template-selector-box { background: #f5f5f5; padding: 15px; border-radius: 12px; border: 1px dashed #ccc; }
 
         .cl-tabs-header { display: flex; gap: 10px; margin-bottom: 0; border-bottom: 2px solid #eee; }
         .cl-tab-btn {

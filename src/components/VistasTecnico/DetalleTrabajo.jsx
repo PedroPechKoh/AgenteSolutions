@@ -1,20 +1,37 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import "../../styles/TecnicoStyles/DetalleTrabajo.css";
-import { User, Image as ImageIcon, CheckCircle } from 'lucide-react';
+import { User, Image as ImageIcon, CheckCircle, Navigation } from 'lucide-react';
+import Header from '../Shared/Header';
 
 const DetalleTrabajo = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   
   // ESTADO PARA EL MODAL
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const equipo = [
-    { id: '12345', area: 'ELECTRICISTA' },
-    { id: '54321', area: 'PLOMERO' },
-    { id: '67890', area: 'TÉCNICO HVAC' },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching work details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
+
+  const equipo = data?.technicians || [];
 
   // FUNCIÓN AL DAR CLIC EN GUARDAR
   const manejarGuardar = () => {
@@ -25,21 +42,30 @@ const DetalleTrabajo = () => {
     }, 2500);
   };
 
+  if (loading) {
+    return <div className="loading-screen">Cargando detalles...</div>;
+  }
+
+  if (!data) {
+    return <div className="error-screen">No se encontraron los detalles del trabajo.</div>;
+  }
+
   return (
     <>
-      <div className="details-body">
+      <Header />
+      <div className="details-body" style={{ marginTop: '80px' }}>
         <div className="details-card">
 
           {/* FILA SUPERIOR */}
           <div className="details-top-row">
             <div className="info-pill">
               <span className="pill-label">FOLIO</span>
-              <span className="pill-value">1234</span>
+              <span className="pill-value">{data.id}</span>
             </div>
 
             <div className="info-pill">
               <span className="pill-label">ID PROPIEDAD</span>
-              <span className="pill-value">JDJF123</span>
+              <span className="pill-value">{data.identificador_curp || data.property_id}</span>
             </div>
           </div>
 
@@ -48,12 +74,24 @@ const DetalleTrabajo = () => {
             <div className="desc-box">
               <span className="box-label">DESCRIPCIÓN</span>
               <div className="custom-scrollbar-content">
-                {/* Contenido dinámico aquí */}
+                <p>{data.descripcion || 'Sin descripción disponible.'}</p>
+                <div style={{ marginTop: '15px' }}>
+                  <strong>Dirección:</strong> {data.direccion}
+                </div>
+                {data.coordenadas && (
+                  <button className="btn-nav-map" onClick={() => window.open(`https://maps.google.com/?q=${data.coordenadas}`, '_blank')}>
+                    <Navigation size={14} /> CÓMO LLEGAR
+                  </button>
+                )}
               </div>
             </div>
 
             <div className="photo-placeholder">
-              <ImageIcon size={60} strokeWidth={1.5} />
+              {data.foto_fachada ? (
+                <img src={data.foto_fachada} alt="Fachada" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '15px' }} />
+              ) : (
+                <ImageIcon size={60} strokeWidth={1.5} />
+              )}
             </div>
 
             <div className="team-section">
@@ -63,14 +101,20 @@ const DetalleTrabajo = () => {
                   {equipo.map((member) => (
                     <div key={member.id} className="team-member-card">
                       <div className="member-avatar">
-                        <User size={20} />
+                        {member.picture ? (
+                          <img src={member.picture} alt={member.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <User size={20} />
+                        )}
                       </div>
                       <div className="member-info">
+                        <p className="team-member-name">{member.name}</p>
                         <p>ID: {member.id}</p>
-                        <p>ÁREA: {member.area}</p>
+                        <p>ÁREA: {member.role || 'TÉCNICO'}</p>
                       </div>
                     </div>
                   ))}
+                  {equipo.length === 0 && <p className="no-team-msg">No hay equipo asignado.</p>}
                 </div>
               </div>
             </div>
@@ -97,12 +141,8 @@ const DetalleTrabajo = () => {
             <div className="dates-and-action">
               <div className="dates-row">
                 <div className="date-pill">
-                  <span className="date-label">FECHA DE INICIO</span>
-                  <span className="date-value">12-02-2026</span>
-                </div>
-                <div className="date-pill">
-                  <span className="date-label">FECHA DE VENCIMIENTO</span>
-                  <span className="date-value">12-02-2026</span>
+                  <span className="date-label">FECHA PROGRAMADA</span>
+                  <span className="date-value">{data.fecha_programada ? new Date(data.fecha_programada).toLocaleDateString() : 'N/A'}</span>
                 </div>
               </div>
 
@@ -110,9 +150,9 @@ const DetalleTrabajo = () => {
                 <button 
                   type="button" 
                   className="btn-guardar"
-                  onClick={manejarGuardar}
+                  onClick={() => navigate('/nuevo-reporte', { state: { trabajoId: data.id } })}
                 >
-                  GUARDAR
+                  INICIAR REPORTE
                 </button>
               </div>
             </div>
