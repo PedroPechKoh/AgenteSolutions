@@ -8,7 +8,8 @@ import Header from '../Shared/Header';
 const NuevoReporte = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const fileInputRef = useRef(null);
+  const cameraRef = useRef(null);
+  const galleryRef = useRef(null);
 
   const trabajoId = location.state?.trabajoId;
 
@@ -16,6 +17,7 @@ const NuevoReporte = () => {
   const [descripcion, setDescripcion] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
 
   // Liberar memoria cuando cambie la imagen
   useEffect(() => {
@@ -26,8 +28,17 @@ const NuevoReporte = () => {
     };
   }, [imagePreview]);
 
-  const handleImageClick = () => {
-    fileInputRef.current.click();
+  const openPhotoMenu = () => {
+    setIsPhotoMenuOpen(true);
+  };
+
+  const selectPhotoSource = (source) => {
+    if (source === 'camera') {
+      cameraRef.current.click();
+    } else {
+      galleryRef.current.click();
+    }
+    setIsPhotoMenuOpen(false);
   };
 
   const handleImageChange = (event) => {
@@ -100,7 +111,7 @@ const NuevoReporte = () => {
               {/* IMAGEN */}
               <div 
                 className="report-image-box upload-box"
-                onClick={handleImageClick}
+                onClick={openPhotoMenu}
               >
                 {imagePreview ? (
                   <img
@@ -117,7 +128,15 @@ const NuevoReporte = () => {
 
                 <input
                   type="file"
-                  ref={fileInputRef}
+                  ref={cameraRef}
+                  onChange={handleImageChange}
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                  capture="environment"
+                />
+                <input
+                  type="file"
+                  ref={galleryRef}
                   onChange={handleImageChange}
                   style={{ display: 'none' }}
                   accept="image/*"
@@ -151,7 +170,28 @@ const NuevoReporte = () => {
 
           </div>
         </div>
+        </div>
       </div>
+
+      {/* MODAL DE SELECCIÓN DE FOTO (Estilos heredados de Profile.css) */}
+      {isPhotoMenuOpen && (
+        <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
+          <div className="modal-content photo-menu-content" onClick={e => e.stopPropagation()}>
+            <h3 className="modal-title" style={{ color: '#ff6600', borderBottom: '2px solid #EEEEEE' }}>Subir Evidencia</h3>
+            <div className="photo-menu-actions">
+              <button className="btn-menu-action" onClick={() => selectPhotoSource('camera')}>
+                📷 Tomar Foto
+              </button>
+              <button className="btn-menu-action" onClick={() => selectPhotoSource('gallery')}>
+                🖼️ Elegir de la Galería
+              </button>
+              <button className="btn-menu-action btn-menu-cancel" onClick={() => setIsPhotoMenuOpen(false)}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
