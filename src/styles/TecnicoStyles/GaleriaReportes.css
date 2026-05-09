@@ -10,8 +10,7 @@
   align-items: center;
   padding: 5px 30px;
   border-radius: 25px;
-  margin-bottom: 30px;
-  margin-left: 20%; /* Ajuste para centrar un poco más según tu imagen */
+  color: #000; /* Texto oscuro para que contraste con el fondo gris claro */
 }
 
 .id-property-tag span { font-size: 10px; font-weight: 900; }
