@@ -1,46 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import "../../styles/TecnicoStyles/TrabajoInicio.css";
-import { User } from 'lucide-react';
+import { User, Navigation } from 'lucide-react';
+import Header from '../Shared/Header';
 
 const TrabajoInicio = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
 
-    const { id } = useParams();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const trabajo = {
-    folio: "1234",
-    propiedadId: "JDJF123",
-    fecha: "06-02-2026",
-    fechaInicio: "12-02-2026",
-    fechaVencimiento: "12-02-2026",
-    descripcion: "Sin descripción disponible."
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching work details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
 
-  const equipo = [
-    { id: "12345", area: "ELECTRICISTA" },
-    { id: "67890", area: "PLOMERO" },
-    { id: "54321", area: "TÉCNICO HVAC" },
-    { id: "11223", area: "PINTOR" },
-  ];
+  if (loading) return <div className="tt-body-full"><div style={{padding: '50px', color: '#000'}}>Cargando información...</div></div>;
+  if (!data) return <div className="tt-body-full"><div style={{padding: '50px', color: '#000'}}>Error al cargar datos.</div></div>;
+
+  const equipo = data?.technicians || [];
+
+
 
   return (
-    <div className="tt-body-full">
+    <>
+    <Header />
+    <div className="tt-body-full" style={{ marginTop: '80px' }}>
       <div className="tt-main-card-large">
         
         {/* BURBUJAS SUPERIORES - SIN LOGO AQUÍ */}
         <div className="tt-top-info-group">
           <div className="tt-bubble-info">
             <span>FOLIO</span>
-            <strong>{trabajo.folio}</strong>
+            <strong>{data.id}</strong>
           </div>
           <div className="tt-bubble-info">
             <span>ID PROPIEDAD</span>
-            <strong>{trabajo.propiedadId}</strong>
+            <strong>{data.identificador_curp || data.property_id}</strong>
           </div>
           <div className="tt-bubble-info">
-            <span>FECHA</span>
-            <strong>{trabajo.fecha}</strong>
+            <span>FECHA PROGRAMADA</span>
+            <strong>{data.fecha_programada ? new Date(data.fecha_programada).toLocaleDateString() : 'Por asignar'}</strong>
           </div>
         </div>
 
@@ -51,18 +64,20 @@ const TrabajoInicio = () => {
           <div className="tt-detail-left">
             <div className="tt-label-pill">DESCRIPCIÓN</div>
             <div className="tt-description-box">
-              <p>{trabajo.descripcion}</p>
-            </div>
-
-            <div className="tt-dates-row">
-              <div className="tt-bubble-info white-bg">
-                <span>FECHA DE INICIO</span>
-                <strong>{trabajo.fechaInicio}</strong>
+              <p style={{ color: '#000', margin: 0 }}>{data.descripcion || 'Sin descripción disponible.'}</p>
+              <div style={{ marginTop: '15px', color: '#000', fontSize: '14px' }}>
+                <p><strong>Propiedad:</strong> {data.propiedad_nombre}</p>
+                <p><strong>Dirección:</strong> {data.direccion}</p>
+                <p><strong>Propietario:</strong> {data.propietario}</p>
               </div>
-              <div className="tt-bubble-info white-bg">
-                <span>FECHA DE VENCIMIENTO</span>
-                <strong>{trabajo.fechaVencimiento}</strong>
-              </div>
+              {data.coordenadas && (
+                <button 
+                  style={{ marginTop: '15px', padding: '10px 20px', borderRadius: '15px', backgroundColor: '#333', color: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}
+                  onClick={() => window.open(`https://maps.google.com/?q=${data.coordenadas}`, '_blank')}
+                >
+                  <Navigation size={16} /> CÓMO LLEGAR
+                </button>
+              )}
             </div>
           </div>
 
@@ -74,14 +89,20 @@ const TrabajoInicio = () => {
                 {equipo.map((miembro, index) => (
                   <div key={index} className="tt-member-card">
                     <div className="tt-member-avatar">
-                      <User size={22} color="#000" />
+                      {miembro.picture ? (
+                        <img src={miembro.picture} alt={miembro.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                      ) : (
+                        <User size={22} color="#000" />
+                      )}
                     </div>
                     <div className="tt-member-data">
-                      <p>ID: {miembro.id}</p>
-                      <p>ÁREA: {miembro.area}</p>
+                      <p style={{ color: '#fff', fontSize: '12px' }}>{miembro.name}</p>
+                      <p style={{ color: '#ddd' }}>ID: {miembro.id}</p>
+                      <p style={{ color: '#ddd' }}>ÁREA: {miembro.role || 'TÉCNICO'}</p>
                     </div>
                   </div>
                 ))}
+                {equipo.length === 0 && <p style={{ color: '#000', fontWeight: 'bold' }}>No hay equipo asignado.</p>}
               </div>
               {/* Línea negra sólida de scroll */}
               <div className="tt-black-scroll-line"></div>
@@ -98,8 +119,10 @@ const TrabajoInicio = () => {
             AGENDAR
           </button>
         </div>
+        </div>
       </div>
     </div>
+    </>
   );
 };
 
