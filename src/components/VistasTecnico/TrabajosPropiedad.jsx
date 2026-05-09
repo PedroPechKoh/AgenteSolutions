@@ -298,6 +298,32 @@ const TrabajoPropiedad = () => {
                 <p><strong>Tipo:</strong> {data.tipoPropiedad}</p>
               </div>
             </motion.div>
+
+            <motion.div 
+              className="tp-card tp-team-card"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="tp-card-header">
+                <User size={20} />
+                <h3>EQUIPO DE TRABAJO</h3>
+              </div>
+              <div className="tp-team-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                {(data?.technicians || []).map((tech, index) => (
+                  <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#e2e2e2', padding: '10px', borderRadius: '10px' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#d1d1d1', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {tech.picture ? <img src={tech.picture} alt={tech.name} style={{width: '100%', height: '100%', objectFit: 'cover'}} /> : <User size={24} color="#000" />}
+                    </div>
+                    <div>
+                      <p style={{ margin: 0, fontWeight: 'bold', color: '#333' }}>{tech.name}</p>
+                      <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>ID: {tech.id} | ÁREA: {tech.role || 'TÉCNICO'}</p>
+                    </div>
+                  </div>
+                ))}
+                {(data?.technicians || []).length === 0 && <p style={{color: '#000'}}>No hay equipo asignado.</p>}
+              </div>
+            </motion.div>
           </div>
 
           <div className="tp-actions-column">
@@ -335,13 +361,13 @@ const TrabajoPropiedad = () => {
                   className={`tp-btn-primary ${!materialesConfirmados ? 'locked' : ''}`} 
                   onClick={() => {
                     if (materialesConfirmados) {
-                      navigate(data.custom_checklist ? `/Checklist/${id}` : `/trabajo-inicio/${id}`);
+                      navigate(`/nuevo-reporte`, { state: { trabajoId: data.id } });
                     }
                   }}
                   disabled={!materialesConfirmados}
                 >
                   {!materialesConfirmados && <Lock size={18} />}
-                  <span>INICIAR TRABAJO</span>
+                  <span>INICIAR REPORTE</span>
                   <ArrowRight size={18} />
                 </button>
 
