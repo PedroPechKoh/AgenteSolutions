@@ -119,7 +119,6 @@ const TrabajoInicio = () => {
             AGENDAR
           </button>
         </div>
-        </div>
       </div>
     </div>
     </>
