@@ -170,9 +170,7 @@ const NuevoReporte = () => {
 
           </div>
         </div>
-        </div>
       </div>
-
       {/* MODAL DE SELECCIÓN DE FOTO (Estilos heredados de Profile.css) */}
       {isPhotoMenuOpen && (
         <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
