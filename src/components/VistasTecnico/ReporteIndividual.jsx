@@ -1,32 +1,46 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import "../../styles/TecnicoStyles/ReporteIndividual.css";
-import { Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon, ChevronLeft } from 'lucide-react';
+import Header from '../Shared/Header';
 
 const ReporteIndividual = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const reporte = {
-    titulo: "REPORTE",
-    descripcion: "",
-    imagen: null
+  const reporte = location.state?.reporte || {
+    titulo: "REPORTE NO ENCONTRADO",
+    description: "",
+    image_url: null,
+    technician: null
   };
 
   return (
     <>
-      <div className="report-detail-body">
+      <Header />
+      <div className="report-detail-body" style={{ marginTop: '20px' }}>
+        <div style={{ marginBottom: '20px', display: 'flex' }}>
+          <button 
+            onClick={() => navigate(-1)}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            <ChevronLeft size={20} />
+            <span>REGRESAR</span>
+          </button>
+        </div>
+
         <div className="report-main-card">
           <div className="report-inner-content">
             
-            <h3 className="report-label">{reporte.titulo}</h3>
+            <h3 className="report-label">REPORTE DE: {reporte.technician?.name || 'TÉCNICO'}</h3>
 
             <div className="report-flex-container">
               
               {/* IMAGEN */}
               <div className="report-image-box">
-                {reporte.imagen ? (
+                {reporte.image_url ? (
                   <img
-                    src={reporte.imagen}
+                    src={reporte.image_url}
                     alt="Imagen del reporte"
                     className="report-image-preview"
                   />
@@ -37,8 +51,8 @@ const ReporteIndividual = () => {
 
               {/* INFORMACIÓN */}
               <div className="report-info-box">
-                {reporte.descripcion ? (
-                  <p>{reporte.descripcion}</p>
+                {reporte.description ? (
+                  <p>{reporte.description}</p>
                 ) : (
                   <p className="report-empty-text">
                     No hay información disponible para este reporte.
@@ -52,9 +66,9 @@ const ReporteIndividual = () => {
               <button
                 type="button"
                 className="btn-guardar-reporte"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate('/galeria-reportes', { state: { trabajoId: reporte.service_id } })}
               >
-                GUARDAR
+                VOLVER A LA GALERÍA
               </button>
             </div>
 

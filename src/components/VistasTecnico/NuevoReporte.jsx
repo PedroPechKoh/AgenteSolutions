@@ -1,15 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import "../../styles/TecnicoStyles/ReporteIndividual.css";
-import { Camera } from 'lucide-react';
+import { Camera, ChevronLeft } from 'lucide-react';
+import Header from '../Shared/Header';
 
 const NuevoReporte = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const fileInputRef = useRef(null);
+
+  const trabajoId = location.state?.trabajoId;
 
   const [imagePreview, setImagePreview] = useState(null);
   const [descripcion, setDescripcion] = useState('');
   const [imageFile, setImageFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Liberar memoria cuando cambie la imagen
   useEffect(() => {
@@ -33,26 +39,57 @@ const NuevoReporte = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!descripcion.trim()) {
       alert('La descripción es obligatoria.');
       return;
     }
+    if (!imageFile) {
+      alert('Debes subir una foto como evidencia.');
+      return;
+    }
+    if (!trabajoId) {
+      alert('Error: No se encontró el ID del trabajo.');
+      return;
+    }
 
-    const nuevoReporte = {
-      descripcion,
-      imagen: imageFile,
-      fecha: new Date().toISOString()
-    };
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append('description', descripcion);
+      formData.append('image', imageFile);
 
-    console.log('Reporte guardado:', nuevoReporte);
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}/reportes`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
-    navigate(-1);
+      alert('¡Reporte guardado con éxito!');
+      navigate('/galeria-reportes', { state: { trabajoId } });
+    } catch (error) {
+      console.error('Error al guardar reporte:', error);
+      alert('Ocurrió un error al intentar guardar el reporte. Inténtalo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <>
-      <div className="report-detail-body">
+      <Header />
+      <div className="report-detail-body" style={{ marginTop: '20px' }}>
+        {/* BOTÓN REGRESAR NARANJA COMO PIDIÓ EL USUARIO */}
+        <div style={{ marginBottom: '20px', display: 'flex' }}>
+          <button 
+            onClick={() => navigate(-1)}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            <ChevronLeft size={20} />
+            <span>REGRESAR</span>
+          </button>
+        </div>
+
         <div className="report-main-card">
           <div className="report-inner-content">
             
@@ -105,8 +142,10 @@ const NuevoReporte = () => {
                 type="button"
                 className="btn-guardar-reporte"
                 onClick={handleSubmit}
+                disabled={isSubmitting}
+                style={{ opacity: isSubmitting ? 0.6 : 1 }}
               >
-                GUARDAR
+                {isSubmitting ? 'SUBIENDO...' : 'GUARDAR REPORTE'}
               </button>
             </div>
 

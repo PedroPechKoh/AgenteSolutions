@@ -372,6 +372,21 @@ const TrabajoPropiedad = () => {
                 </button>
 
                 <button 
+                  className={`tp-btn-primary ${!materialesConfirmados ? 'locked' : ''}`} 
+                  onClick={() => {
+                    if (materialesConfirmados) {
+                      navigate(`/galeria-reportes`, { state: { trabajoId: data.id } });
+                    }
+                  }}
+                  disabled={!materialesConfirmados}
+                  style={{ background: '#3b82f6', borderColor: '#3b82f6' }}
+                >
+                  {!materialesConfirmados && <Lock size={18} />}
+                  <span>CONTINUAR REPORTE</span>
+                  <ArrowRight size={18} />
+                </button>
+
+                <button 
                   className="tp-btn-secondary"
                   onClick={handleFinalizar}
                 >
