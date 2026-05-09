@@ -78,9 +78,9 @@ const NuevoReporte = () => {
   return (
     <>
       <Header />
-      <div className="report-detail-body" style={{ marginTop: '20px' }}>
+      <div className="report-detail-body" style={{ marginTop: '20px', flexDirection: 'column' }}>
         {/* BOTÓN REGRESAR NARANJA COMO PIDIÓ EL USUARIO */}
-        <div style={{ marginBottom: '20px', display: 'flex' }}>
+        <div style={{ width: '90%', maxWidth: '1000px', marginBottom: '20px', display: 'flex' }}>
           <button 
             onClick={() => navigate(-1)}
             style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
