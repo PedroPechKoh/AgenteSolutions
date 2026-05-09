@@ -36,46 +36,49 @@ const GaleriaReportes = () => {
     <>
       <Header />
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        {/* BOTONES DE ACCIÓN */}
-        <div style={{ width: '90%', maxWidth: '1000px', display: 'flex', justifyContent: 'space-between', marginTop: '20px', marginBottom: '20px' }}>
+        {/* BOTONES DE ACCIÓN Y ETIQUETAS */}
+        <div style={{ width: '95%', maxWidth: '1200px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', marginBottom: '30px' }}>
+          
           <button 
             onClick={() => navigate(-1)}
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', flexShrink: 0 }}
           >
             <ChevronLeft size={20} />
             <span>REGRESAR</span>
           </button>
+
+          {/* DETALLES DE LA PROPIEDAD EN FORMATO DE ETIQUETAS */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', flexGrow: 1, padding: '0 20px' }}>
+            <div className="id-property-tag" style={{ margin: 0, padding: '5px 20px' }}>
+              <span>TRABAJO ID:</span>
+              <strong>{trabajoId || 'N/A'}</strong>
+            </div>
+            {servicio && (
+              <>
+                <div className="id-property-tag" style={{ margin: 0, padding: '5px 20px' }}>
+                  <span>PROPIEDAD:</span>
+                  <strong>{servicio.tipoPropiedad ? (servicio.tipoPropiedad + ' - ' + (servicio.identificador_curp || '')) : 'N/A'}</strong>
+                </div>
+                <div className="id-property-tag" style={{ margin: 0, padding: '5px 20px' }}>
+                  <span>CLIENTE:</span>
+                  <strong>{servicio.propietario || 'Usuario'}</strong>
+                </div>
+                <div className="id-property-tag" style={{ margin: 0, padding: '5px 20px' }}>
+                  <span>TRABAJO:</span>
+                  <strong>{servicio.titulo || 'Mantenimiento'}</strong>
+                </div>
+              </>
+            )}
+          </div>
+
           <button
             type="button"
             className="btn-add-photo"
             onClick={() => navigate('/nuevo-reporte', { state: { trabajoId, servicio } })}
+            style={{ flexShrink: 0 }}
           >
             <Plus size={26} strokeWidth={3} />
           </button>
-        </div>
-
-        {/* DETALLES DE LA PROPIEDAD EN FORMATO DE ETIQUETAS */}
-        <div style={{ width: '90%', maxWidth: '1000px', display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'center', marginBottom: '30px' }}>
-          <div className="id-property-tag" style={{ margin: 0 }}>
-            <span>TRABAJO ID:</span>
-            <strong>{trabajoId || 'N/A'}</strong>
-          </div>
-          {servicio && (
-            <>
-              <div className="id-property-tag" style={{ margin: 0 }}>
-                <span>PROPIEDAD:</span>
-                <strong>{servicio.property ? (servicio.property.type + ' - ' + (servicio.property.custom_curp || '')) : 'N/A'}</strong>
-              </div>
-              <div className="id-property-tag" style={{ margin: 0 }}>
-                <span>CLIENTE:</span>
-                <strong>{servicio.property?.client?.name || 'Usuario'}</strong>
-              </div>
-              <div className="id-property-tag" style={{ margin: 0 }}>
-                <span>TRABAJO:</span>
-                <strong>{servicio.title || 'Mantenimiento'}</strong>
-              </div>
-            </>
-          )}
         </div>
 
       <div className="galeria-body" style={{ width: '100%', marginTop: '0' }}>
