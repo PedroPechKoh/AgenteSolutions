@@ -104,3 +104,32 @@
   background-color: #f0f0f0;
   transition: 0.3s;
 }
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .report-detail-body {
+    padding: 10px;
+  }
+  .report-main-card {
+    width: 100%;
+    padding: 15px;
+    border-radius: 20px;
+  }
+  .report-inner-content {
+    padding: 15px;
+    border-radius: 15px;
+  }
+  .report-flex-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .report-image-box, .report-info-box {
+    width: 100%;
+    height: 200px;
+  }
+  .report-label {
+    text-align: center;
+    padding-right: 0;
+    font-size: 20px;
+  }
+}

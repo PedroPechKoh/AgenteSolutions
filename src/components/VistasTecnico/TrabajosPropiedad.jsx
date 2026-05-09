@@ -20,6 +20,7 @@ const TrabajoPropiedad = () => {
   const [showModalMateriales, setShowModalMateriales] = useState(false);
   const [materialesConfirmados, setMaterialesConfirmados] = useState(false);
   const [itemsCheck, setItemsCheck] = useState({ materiales: [], equipo: [], herramientas: [] });
+  const [hasReports, setHasReports] = useState(false);
 
   // --- ESTADOS PARA CONSULTA DE LEVANTAMIENTO ---
   const [modalSurveyVisible, setModalSurveyVisible] = useState(false);
@@ -62,6 +63,17 @@ const TrabajoPropiedad = () => {
       setLoading(true);
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
       setData(res.data.data || res.data); // Manejar ambos formatos si es necesario
+
+      // Check if reports exist
+      try {
+        const reportsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}/reportes`);
+        if (reportsRes.data && reportsRes.data.length > 0) {
+          setHasReports(true);
+        }
+      } catch (err) {
+        console.error("Error checking reports:", err);
+      }
+
     } catch (error) {
       console.error("Error fetching job details:", error);
     } finally {
@@ -361,28 +373,14 @@ const TrabajoPropiedad = () => {
                   className={`tp-btn-primary ${!materialesConfirmados ? 'locked' : ''}`} 
                   onClick={() => {
                     if (materialesConfirmados) {
-                      navigate(`/nuevo-reporte`, { state: { trabajoId: data.id } });
+                      navigate(hasReports ? `/galeria-reportes` : `/nuevo-reporte`, { state: { trabajoId: data.id } });
                     }
                   }}
                   disabled={!materialesConfirmados}
+                  style={hasReports ? { background: '#3b82f6', borderColor: '#3b82f6' } : {}}
                 >
                   {!materialesConfirmados && <Lock size={18} />}
-                  <span>INICIAR REPORTE</span>
-                  <ArrowRight size={18} />
-                </button>
-
-                <button 
-                  className={`tp-btn-primary ${!materialesConfirmados ? 'locked' : ''}`} 
-                  onClick={() => {
-                    if (materialesConfirmados) {
-                      navigate(`/galeria-reportes`, { state: { trabajoId: data.id } });
-                    }
-                  }}
-                  disabled={!materialesConfirmados}
-                  style={{ background: '#3b82f6', borderColor: '#3b82f6' }}
-                >
-                  {!materialesConfirmados && <Lock size={18} />}
-                  <span>CONTINUAR REPORTE</span>
+                  <span>{hasReports ? 'CONTINUAR REPORTE' : 'INICIAR REPORTE'}</span>
                   <ArrowRight size={18} />
                 </button>
 
