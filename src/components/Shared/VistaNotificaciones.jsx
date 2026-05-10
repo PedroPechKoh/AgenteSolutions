@@ -85,27 +85,31 @@ const VistaNotificaciones = () => {
               {notificacionesFiltradas.map((notif) => {
                 const esNueva = notif.read_at === null;
 
-                const handleNavigate = (n) => {
-                  let url = n.data.url;
-                  
-                  console.log("Notificación clickeada:", n);
-                  console.log("URL original:", url);
-
-                  // Fallback para notificaciones antiguas o sin URL explícita
-                  if (!url) {
+                  const handleNavigate = (n) => {
+                    let url = n.data.url;
                     const type = n.data.alert_type || n.data.type;
-                    if (type === 'work_order_finished') url = '/reportes-globales';
-                    else if (type === 'missed_visit') url = '/tablero-servicios';
-                    else if (type === 'new_work_order') url = '/levantamientos';
-                    else if (type === 'new_service_requested') url = '/levantamientos';
-                  }
 
-                  console.log("URL final de navegación:", url);
+                    console.log("Notificación clickeada:", n);
+                    
+                    // Normalización de URLs antiguas o erróneas
+                    if (type === 'work_order_finished') {
+                      url = '/reportes-globales'; // Forzamos reportes para trabajos terminados
+                    } else if (url === '/VistaServiciosAdmin') {
+                      url = '/tablero-servicios';
+                    }
 
-                  if (url) {
-                    navigate(url);
-                  }
-                };
+                    // Fallback para notificaciones sin URL
+                    if (!url) {
+                      if (type === 'missed_visit') url = '/tablero-servicios';
+                      else if (type === 'new_work_order' || type === 'new_service_requested') url = '/tablero-servicios';
+                    }
+
+                    console.log("URL final de navegación:", url);
+
+                    if (url) {
+                      navigate(url);
+                    }
+                  };
 
                 return (
                   <li

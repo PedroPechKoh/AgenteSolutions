@@ -51,16 +51,21 @@ const NotificationBell = () => {
       setIsOpen(false);
 
       let url = notification.data.url;
-      
+      const type = notification.data.alert_type || notification.data.type;
+
       console.log("Notification from Bell clicked:", notification);
       
+      // Normalización de URLs antiguas o erróneas
+      if (type === 'work_order_finished') {
+        url = '/reportes-globales';
+      } else if (url === '/VistaServiciosAdmin') {
+        url = '/tablero-servicios';
+      }
+
       // Fallback para tipos conocidos si no tienen URL en la BD
       if (!url) {
-        const type = notification.data.alert_type || notification.data.type;
-        if (type === 'work_order_finished') url = '/reportes-globales';
-        else if (type === 'missed_visit') url = '/tablero-servicios';
-        else if (type === 'new_work_order') url = '/levantamientos';
-        else if (type === 'new_service_requested') url = '/levantamientos';
+        if (type === 'missed_visit') url = '/tablero-servicios';
+        else if (type === 'new_work_order' || type === 'new_service_requested') url = '/tablero-servicios';
       }
 
       console.log("Final URL from Bell:", url);
