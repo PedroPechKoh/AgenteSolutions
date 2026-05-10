@@ -406,6 +406,16 @@ const VistaServiciosAdmin = () => {
                           <CheckCircle2 size={18} /> {procesandoAccion ? 'Finalizando...' : 'MARCAR COMO LISTO'}
                         </button>
                       ) : null}
+
+                      {tareaSeleccionada.estado === 'done' && (
+                        <button 
+                          className="modal-action-btn variant-orange" 
+                          onClick={() => navigate('/galeria-reportes', { state: { trabajoId: tareaSeleccionada.dbId, servicio: tareaSeleccionada } })}
+                          style={{ background: '#f26624', marginTop: '20px' }}
+                        >
+                          <Camera size={18} /> CONSULTAR REPORTE DE TRABAJO
+                        </button>
+                      )}
                     </div>
                   </div>
                 ) : (

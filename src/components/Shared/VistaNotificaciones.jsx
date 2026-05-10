@@ -87,6 +87,9 @@ const VistaNotificaciones = () => {
 
                 const handleNavigate = (n) => {
                   let url = n.data.url;
+                  
+                  console.log("Notificación clickeada:", n);
+                  console.log("URL original:", url);
 
                   // Fallback para notificaciones antiguas o sin URL explícita
                   if (!url) {
@@ -96,6 +99,8 @@ const VistaNotificaciones = () => {
                     else if (type === 'new_work_order') url = '/levantamientos';
                     else if (type === 'new_service_requested') url = '/levantamientos';
                   }
+
+                  console.log("URL final de navegación:", url);
 
                   if (url) {
                     navigate(url);

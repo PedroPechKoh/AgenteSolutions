@@ -52,6 +52,8 @@ const NotificationBell = () => {
 
       let url = notification.data.url;
       
+      console.log("Notification from Bell clicked:", notification);
+      
       // Fallback para tipos conocidos si no tienen URL en la BD
       if (!url) {
         const type = notification.data.alert_type || notification.data.type;
@@ -60,6 +62,8 @@ const NotificationBell = () => {
         else if (type === 'new_work_order') url = '/levantamientos';
         else if (type === 'new_service_requested') url = '/levantamientos';
       }
+
+      console.log("Final URL from Bell:", url);
 
       if (url) {
         navigate(url);
