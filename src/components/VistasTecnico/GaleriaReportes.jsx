@@ -47,28 +47,31 @@ const GaleriaReportes = () => {
             <span>REGRESAR</span>
           </button>
 
-          {/* DETALLES DE LA PROPIEDAD EN FORMATO DE ETIQUETAS */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', flexGrow: 1, padding: '0 20px' }}>
-            <div className="id-property-tag" style={{ margin: 0, padding: '5px 20px' }}>
-              <span>TRABAJO ID:</span>
-              <strong>{trabajoId || 'N/A'}</strong>
+          {/* INFO CARD */}
+          <div style={{ 
+            flex: 1, 
+            margin: '0 15px', 
+            background: '#f8f9fa', 
+            padding: '15px 20px', 
+            borderRadius: '20px',
+            border: '1px solid #eee',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>
+              <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#999' }}>WKF-ORD-{trabajoId || 'N/A'}</span>
+              <span style={{ fontSize: '0.7rem', fontWeight: '900', color: '#F26522' }}>{servicio?.propietario || 'CLIENTE'}</span>
             </div>
-            {servicio && (
-              <>
-                <div className="id-property-tag" style={{ margin: 0, padding: '5px 20px' }}>
-                  <span>PROPIEDAD:</span>
-                  <strong>{servicio.tipoPropiedad ? (servicio.tipoPropiedad + ' - ' + (servicio.identificador_curp || '')) : 'N/A'}</strong>
-                </div>
-                <div className="id-property-tag" style={{ margin: 0, padding: '5px 20px' }}>
-                  <span>CLIENTE:</span>
-                  <strong>{servicio.propietario || 'Usuario'}</strong>
-                </div>
-                <div className="id-property-tag" style={{ margin: 0, padding: '5px 20px' }}>
-                  <span>TRABAJO:</span>
-                  <strong>{servicio.titulo || 'Mantenimiento'}</strong>
-                </div>
-              </>
-            )}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '900', color: '#333', textTransform: 'uppercase' }}>
+                {servicio?.titulo || 'Mantenimiento General'}
+              </h4>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: '#666', marginTop: '2px' }}>
+                📍 {servicio?.tipoPropiedad || 'Propiedad'} - {servicio?.identificador_curp || 'S/N'}
+              </p>
+            </div>
           </div>
 
           <button
