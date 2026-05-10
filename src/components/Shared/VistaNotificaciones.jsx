@@ -83,22 +83,39 @@ const VistaNotificaciones = () => {
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {notificacionesFiltradas.map((notif) => {
-                const esNueva = notif.read_at === null; 
+                const esNueva = notif.read_at === null;
+
+                const handleNavigate = (n) => {
+                  let url = n.data.url;
+
+                  // Fallback para notificaciones antiguas o sin URL explícita
+                  if (!url) {
+                    const type = n.data.alert_type || n.data.type;
+                    if (type === 'work_order_finished') url = '/reportes-globales';
+                    else if (type === 'missed_visit') url = '/tablero-servicios';
+                    else if (type === 'new_work_order') url = '/levantamientos';
+                    else if (type === 'new_service_requested') url = '/levantamientos';
+                  }
+
+                  if (url) {
+                    navigate(url);
+                  }
+                };
 
                 return (
-                  <li 
+                  <li
                     key={notif.id}
-                    style={{ 
-                      padding: '20px', 
+                    style={{
+                      padding: '20px',
                       borderBottom: '1px solid #eee',
-                      backgroundColor: esNueva ? '#fffafa' : 'white', 
+                      backgroundColor: esNueva ? '#fffafa' : 'white',
                       display: 'flex',
                       gap: '15px',
                       alignItems: 'flex-start',
-                      cursor: notif.data.url ? 'pointer' : 'default',
+                      cursor: 'pointer',
                       transition: 'background 0.2s'
                     }}
-                    onClick={() => notif.data.url && navigate(notif.data.url)}
+                    onClick={() => handleNavigate(notif)}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = esNueva ? '#ffe9df' : '#f9f9f9'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = esNueva ? '#fffafa' : 'white'}
                   >

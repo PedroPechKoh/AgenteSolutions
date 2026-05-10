@@ -50,8 +50,19 @@ const NotificationBell = () => {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       setIsOpen(false);
 
-      if (notification.data.url) {
-        navigate(notification.data.url);
+      let url = notification.data.url;
+      
+      // Fallback para tipos conocidos si no tienen URL en la BD
+      if (!url) {
+        const type = notification.data.alert_type || notification.data.type;
+        if (type === 'work_order_finished') url = '/reportes-globales';
+        else if (type === 'missed_visit') url = '/tablero-servicios';
+        else if (type === 'new_work_order') url = '/levantamientos';
+        else if (type === 'new_service_requested') url = '/levantamientos';
+      }
+
+      if (url) {
+        navigate(url);
       }
     } catch (error) {
       console.error("Error al marcar como leída", error);
