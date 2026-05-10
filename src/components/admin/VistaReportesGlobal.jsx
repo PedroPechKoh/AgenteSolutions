@@ -73,72 +73,95 @@ const VistaReportesGlobal = () => {
           <div className="global-gallery-grouped">
             {Object.entries(
               filteredReportes.reduce((acc, r) => {
-                const propName = r.service?.property?.custom_curp || 'PROPIEDAD NO ESPECIFICADA';
-                if (!acc[propName]) acc[propName] = [];
-                acc[propName].push(r);
+                const prop = r.service?.property;
+                const propName = prop?.property_name || 'PROPIEDAD SIN NOMBRE';
+                const curp = prop?.custom_curp || 'SIN CURP';
+                const owner = prop?.client?.name || 'Usuario';
+                
+                // Llave compuesta para agrupar y pasar datos al renderizado
+                const groupKey = `${propName}|${curp}|${owner}`;
+                
+                if (!acc[groupKey]) acc[groupKey] = [];
+                acc[groupKey].push(r);
                 return acc;
               }, {})
-            ).map(([propiedad, reports]) => (
-              <div key={propiedad} className="property-group-section" style={{ marginBottom: '40px' }}>
-                <div style={{ 
-                  background: 'white', 
-                  padding: '12px 25px', 
-                  borderRadius: '15px', 
-                  marginBottom: '20px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '10px',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-                  borderLeft: '5px solid #F26522'
-                }}>
-                  <MapPin size={20} color="#F26522" />
-                  <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#333', fontWeight: '900' }}>
-                    PROPIEDAD: <span style={{ color: '#F26522' }}>{propiedad}</span>
-                  </h3>
-                  <span style={{ marginLeft: 'auto', background: '#eee', padding: '2px 10px', borderRadius: '10px', fontSize: '0.8rem', fontWeight: 'bold', color: '#666' }}>
-                    {reports.length} {reports.length === 1 ? 'Reporte' : 'Reportes'}
-                  </span>
-                </div>
-
-                <div className="global-gallery-grid">
-                  {reports.map(r => (
-                    <div key={r.id} className="global-report-card">
-                      <img 
-                        src={r.image_url} 
-                        alt="Reporte" 
-                        className="global-report-image" 
-                        onClick={() => window.open(r.image_url, '_blank')} 
-                        title="Clic para ver tamaño completo"
-                      />
-                      <div className="global-report-info">
-                        
-                        <div className="gr-tech-info">
-                          {r.technician?.profile_picture ? (
-                            <img src={r.technician.profile_picture} className="gr-tech-avatar" alt="Tecnico" />
-                          ) : (
-                            <div className="gr-tech-avatar" style={{ background: '#ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', color: '#fff' }}>
-                              {r.technician?.first_name?.charAt(0) || 'T'}
-                            </div>
-                          )}
-                          <span>{r.technician ? `${r.technician.first_name} ${r.technician.last_name}` : 'Técnico Desconocido'}</span>
-                        </div>
-
-                        <p className="gr-detail"><FileText size={14} style={{marginRight:'8px', color: '#F26522'}}/> 
-                          <strong>Trabajo ID:</strong> &nbsp;{r.service_id}
-                        </p>
-                        <p className="gr-detail"><Calendar size={14} style={{marginRight:'8px', color: '#F26522'}}/> 
-                          <strong>Subido:</strong> &nbsp;{new Date(r.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}
-                        </p>
-
-                        <div className="gr-desc">
-                          "{r.description || 'Sin descripción o comentario adjunto.'}"
-                        </div>
+            ).map(([groupKey, reports]) => {
+              const [nombre, curp, dueno] = groupKey.split('|');
+              
+              return (
+                <div key={groupKey} className="property-group-section" style={{ marginBottom: '40px' }}>
+                  <div style={{ 
+                    background: 'white', 
+                    padding: '15px 25px', 
+                    borderRadius: '15px', 
+                    marginBottom: '20px', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    gap: '5px',
+                    boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+                    borderLeft: '5px solid #F26522',
+                    position: 'relative'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <MapPin size={20} color="#F26522" />
+                      <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#333', fontWeight: '900', textTransform: 'uppercase' }}>
+                        {nombre}
+                      </h3>
+                      <span style={{ marginLeft: 'auto', background: '#F26522', color: 'white', padding: '4px 12px', borderRadius: '15px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                        {reports.length} {reports.length === 1 ? 'Reporte' : 'Reportes'}
+                      </span>
+                    </div>
+                    
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginTop: '5px', paddingLeft: '30px' }}>
+                      <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                        <strong>CURP:</strong> <span style={{ color: '#F26522', fontWeight: 'bold' }}>{curp}</span>
+                      </div>
+                      <div style={{ fontSize: '0.85rem', color: '#666' }}>
+                        <strong>DUEÑO:</strong> <span style={{ fontWeight: 'bold', color: '#333' }}>{dueno}</span>
                       </div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="global-gallery-grid">
+                    {reports.map(r => (
+                      <div key={r.id} className="global-report-card">
+                        <img 
+                          src={r.image_url} 
+                          alt="Reporte" 
+                          className="global-report-image" 
+                          onClick={() => window.open(r.image_url, '_blank')} 
+                          title="Clic para ver tamaño completo"
+                        />
+                        <div className="global-report-info">
+                          
+                          <div className="gr-tech-info">
+                            {r.technician?.profile_picture ? (
+                              <img src={r.technician.profile_picture} className="gr-tech-avatar" alt="Tecnico" />
+                            ) : (
+                              <div className="gr-tech-avatar" style={{ background: '#ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', color: '#fff' }}>
+                                {r.technician?.first_name?.charAt(0) || 'T'}
+                              </div>
+                            )}
+                            <span>{r.technician ? `${r.technician.first_name} ${r.technician.last_name}` : 'Técnico Desconocido'}</span>
+                          </div>
+
+                          <p className="gr-detail"><FileText size={14} style={{marginRight:'8px', color: '#F26522'}}/> 
+                            <strong>Trabajo ID:</strong> &nbsp;{r.service_id}
+                          </p>
+                          <p className="gr-detail"><Calendar size={14} style={{marginRight:'8px', color: '#F26522'}}/> 
+                            <strong>Subido:</strong> &nbsp;{new Date(r.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}
+                          </p>
+
+                          <div className="gr-desc">
+                            "{r.description || 'Sin descripción o comentario adjunto.'}"
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
