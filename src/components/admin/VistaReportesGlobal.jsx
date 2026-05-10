@@ -73,7 +73,7 @@ const VistaReportesGlobal = () => {
           <div className="global-gallery-grouped">
             {Object.entries(
               filteredReportes.reduce((acc, r) => {
-                const prop = r.service?.property;
+                const prop = r.service?.property || r.work_order?.property;
                 const propName = prop?.property_name || 'PROPIEDAD SIN NOMBRE';
                 const curp = prop?.custom_curp || 'SIN CURP';
                 const owner = prop?.client?.name || 'Usuario';
