@@ -192,51 +192,71 @@ const VistaServiciosAdmin = () => {
 
   if (loading) return <div className="loading-screen">Cargando Tablero de Servicios...</div>;
 
-  const renderColumna = (colId, titulo, clase) => (
-    <div className={`scrum-column ${clase}`}>
-      <div className="column-header">
-        <span className="column-title-text">{titulo}</span>
-        <span className="column-badge">{tareasData.filter(t => t.estado === colId).length}</span>
-      </div>
-      <div className="cards-container">
-        {tareasData.filter(t => t.estado === colId).map(tarea => (
-          <div key={tarea.dbId} className="card-wrapper">
-            <button 
-              className={`task-card-premium ${
-                tarea.isOverdue ? 'is-overdue' : ''
-              } ${
-                tarea.estado === 'sos' ? 'is-sos' : 
-                tarea.estado === 'progress' ? (tarea.prioridad === 'SOS' ? 'is-sos is-active' : 'is-active') : 
-                tarea.estado === 'done' ? 'is-done' : ''
-              }`}
-              onClick={() => abrirModal(tarea)}
-            >
-              <div className="prop-badge-card">{tarea.propiedad}</div>
-              <h5 className="task-title-card">
-                {(tarea.estado === 'sos' || (tarea.estado === 'progress' && tarea.prioridad === 'SOS')) && <AlertTriangle size={14} className="sos-icon-inline" />}
-                {tarea.titulo}
-              </h5>
-              <div className="card-status-row">
-                {tarea.estado === 'done' ? (
-                  <div className="status-pill-done">
-                    <CheckCircle2 size={12} /> <span>Finalizado</span>
+  const renderColumna = (colId, titulo, clase) => {
+    const tareasFiltradas = tareasData.filter(t => t.estado === colId);
+    
+    return (
+      <div className={`scrum-column ${clase}`}>
+        <div className="column-header">
+          <span className="column-title-text">{titulo}</span>
+          <span className="column-badge">{tareasFiltradas.length}</span>
+        </div>
+        <div className="cards-container">
+          {tareasFiltradas.length > 0 ? (
+            tareasFiltradas.map(tarea => (
+              <div key={tarea.dbId} className="card-wrapper">
+                <button 
+                  className={`task-card-premium ${
+                    tarea.isOverdue ? 'is-overdue' : ''
+                  } ${
+                    tarea.estado === 'sos' ? 'is-sos' : 
+                    tarea.estado === 'progress' ? (tarea.prioridad === 'SOS' ? 'is-sos is-active' : 'is-active') : 
+                    tarea.estado === 'done' ? 'is-done' : ''
+                  }`}
+                  onClick={() => abrirModal(tarea)}
+                >
+                  <div className="prop-badge-card">{tarea.propiedad}</div>
+                  <h5 className="task-title-card">
+                    {(tarea.estado === 'sos' || (tarea.estado === 'progress' && tarea.prioridad === 'SOS')) && <AlertTriangle size={14} className="sos-icon-inline" />}
+                    {tarea.titulo}
+                  </h5>
+                  <div className="card-status-row">
+                    {tarea.estado === 'done' ? (
+                      <div className="status-pill-done">
+                        <CheckCircle2 size={12} /> <span>Finalizado</span>
+                      </div>
+                    ) : (
+                      <span className={`priority-tag ${tarea.prioridad.toLowerCase()}`}>
+                        {tarea.prioridad.toUpperCase()}
+                      </span>
+                    )}
+                    <span className={`date-tag ${tarea.isOverdue ? 'is-overdue' : ''}`}>
+                      {tarea.isOverdue ? <AlertTriangle size={12} /> : <Clock size={12} />}
+                      {tarea.isOverdue ? 'ATRASADO - ' : ''} {tarea.fechaFin}
+                    </span>
                   </div>
-                ) : (
-                  <span className={`priority-tag ${tarea.prioridad.toLowerCase()}`}>
-                    {tarea.prioridad.toUpperCase()}
-                  </span>
-                )}
-                <span className={`date-tag ${tarea.isOverdue ? 'is-overdue' : ''}`}>
-                  {tarea.isOverdue ? <AlertTriangle size={12} /> : <Clock size={12} />}
-                  {tarea.isOverdue ? 'ATRASADO - ' : ''} {tarea.fechaFin}
-                </span>
+                </button>
               </div>
-            </button>
-          </div>
-        ))}
+            ))
+          ) : (
+            <div className="empty-column-message" style={{ 
+              textAlign: 'center', 
+              padding: '40px 20px', 
+              color: '#999', 
+              fontSize: '0.9rem',
+              fontStyle: 'italic',
+              background: 'rgba(255,255,255,0.5)',
+              borderRadius: '15px',
+              margin: '10px',
+              border: '1px dashed #ccc'
+            }}>
+              <p>No hay servicios en {titulo.toLowerCase()}</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="scrum-container admin-theme">
