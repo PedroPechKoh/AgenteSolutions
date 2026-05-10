@@ -9,15 +9,14 @@ const VistaInicioAdmin = () => {
   const menuItems = [
     { id: 1, title: 'USUARIOS', icon: '👤',  path: '/usuarios'}, 
     { id: 2, title: 'PROPIEDADES', icon: '🏠',  path: '/propiedades' },
-    { id: 3, title: 'DASHBOARD', icon: '📊',  path: '/dashboard'},
-    { id: 4, title: 'LEVANTAMIENTOS', icon: '📋', path: '/levantamientos' },
+    { id: 3, title: 'LEVANTAMIENTOS', icon: '📋', path: '/levantamientos' },
+    { id: 4, title: 'REPORTES', icon: '📸', path: '/reportes-globales' },
     { id: 5, title: 'COTIZACIONES', icon: '🧾' , path: '/vista-cotizaciones'},
-    { id: 6, title: 'PRODUCTOS', icon: '📦', path: '/vista-producto' },
+    { id: 6, title: 'SERVICIOS', icon: '🔧', path: '/tablero-servicios' },
     { id: 7, title: 'BODEGA', icon: '🏭', path: '/bodeguero' },
-    { id: 8, title: 'PERSONALIZAR', icon: '🎨', path: '/customize-login' },
-    { id: 9, title: 'SERVICIOS', icon: '🔧', path: '/tablero-servicios' },
-    
-   
+    { id: 8, title: 'PRODUCTOS', icon: '📦', path: '/vista-producto' },
+    { id: 9, title: 'DASHBOARD', icon: '📊',  path: '/dashboard'},
+    { id: 10, title: 'PERSONALIZAR', icon: '🎨', path: '/customize-login' },
   ];
 
   return (
