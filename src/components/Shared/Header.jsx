@@ -20,7 +20,7 @@ const Header = ({ rolTexto = "USUARIO" }) => {
     if (!user) return;
     switch (Number(user.role_id)) {
       case 0: navigate('/VistaRoot'); break;
-      case 1: navigate('/VistaAdmin'); break;
+      case 1: navigate('/VistaRoot'); break; // Admin también va al inicio de admin
       case 2: navigate('/VistaTecnico'); break;
       case 3: navigate('/propiedades'); break;
       default: navigate('/'); break;

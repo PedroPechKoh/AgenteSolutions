@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Shared/Header';
-import { Search, MapPin, Calendar, FileText } from 'lucide-react';
+import { Search, MapPin, Calendar, FileText, ChevronLeft } from 'lucide-react';
 import '../../styles/Admin/VistaReportesGlobal.css';
 
 const VistaReportesGlobal = () => {
@@ -42,10 +42,11 @@ const VistaReportesGlobal = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
           <h2 style={{ margin: 0, color: '#F26522', fontWeight: 900, fontStyle: 'italic', fontSize: '28px' }}>GALERÍA GLOBAL DE REPORTES</h2>
           <button 
-            onClick={() => navigate('/inicio-admin')} 
-            style={{ padding: '10px 25px', borderRadius: '25px', border: 'none', background: '#000', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}
+            onClick={() => navigate(-1)} 
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
           >
-            REGRESAR AL MENÚ
+            <ChevronLeft size={20} />
+            <span>REGRESAR</span>
           </button>
         </div>
 

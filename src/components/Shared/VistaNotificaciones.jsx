@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Bell, CheckCircle, Info } from 'lucide-react';
+import { Bell, CheckCircle, Info, ChevronLeft } from 'lucide-react';
 import Header from './Header';
 
 const VistaNotificaciones = () => {
@@ -45,9 +45,18 @@ const VistaNotificaciones = () => {
       <Header />
       
       <main style={{ maxWidth: '800px', margin: '40px auto', padding: '0 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-          <Bell size={28} color="#F26522" />
-          <h2 style={{ color: '#333', margin: 0 }}>Historial de Notificaciones</h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Bell size={28} color="#F26522" />
+            <h2 style={{ color: '#333', margin: 0 }}>Historial de Notificaciones</h2>
+          </div>
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            <ChevronLeft size={18} />
+            <span>REGRESAR</span>
+          </button>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
