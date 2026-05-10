@@ -47,30 +47,30 @@ const GaleriaReportes = () => {
             <span>REGRESAR</span>
           </button>
 
-          {/* INFO CARD */}
+          {/* CONTENEDOR DE DATOS ACOMODADOS */}
           <div style={{ 
-            flex: 1, 
-            margin: '0 15px', 
-            background: '#f8f9fa', 
-            padding: '15px 20px', 
-            borderRadius: '20px',
-            border: '1px solid #eee',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '10px', 
+            flexGrow: 1, 
+            padding: '0 15px',
+            maxWidth: '600px'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>
-              <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#999' }}>WKF-ORD-{trabajoId || 'N/A'}</span>
-              <span style={{ fontSize: '0.7rem', fontWeight: '900', color: '#F26522' }}>{servicio?.propietario || 'CLIENTE'}</span>
+            <div className="id-property-tag" style={{ padding: '5px 15px', width: '100%' }}>
+              <span>ID TRABAJO:</span>
+              <strong>{trabajoId || 'N/A'}</strong>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '900', color: '#333', textTransform: 'uppercase' }}>
-                {servicio?.titulo || 'Mantenimiento General'}
-              </h4>
-              <p style={{ margin: 0, fontSize: '0.8rem', color: '#666', marginTop: '2px' }}>
-                📍 {servicio?.tipoPropiedad || 'Propiedad'} - {servicio?.identificador_curp || 'S/N'}
-              </p>
+            <div className="id-property-tag" style={{ padding: '5px 15px', width: '100%' }}>
+              <span>CLIENTE:</span>
+              <strong>{servicio?.propietario || 'Usuario'}</strong>
+            </div>
+            <div className="id-property-tag" style={{ padding: '5px 15px', width: '100%', gridColumn: 'span 2' }}>
+              <span>PROPIEDAD:</span>
+              <strong>{servicio?.tipoPropiedad || 'N/A'} - {servicio?.identificador_curp || 'S/N'}</strong>
+            </div>
+            <div className="id-property-tag" style={{ padding: '5px 15px', width: '100%', gridColumn: 'span 2', background: '#e0e0e0' }}>
+              <span>TRABAJO:</span>
+              <strong style={{ fontSize: '11px', textAlign: 'center' }}>{servicio?.titulo || 'Mantenimiento'}</strong>
             </div>
           </div>
 
