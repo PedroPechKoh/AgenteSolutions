@@ -209,7 +209,7 @@ const TrabajosTecnico = () => {
 
     serviciosFiltrados.forEach(s => {
       const status = s.status?.toLowerCase();
-      const isDone = ['completed', 'finalizado'].includes(status);
+      const isDone = ['completed', 'finalizado', 'listo'].includes(status);
       const fechaServicio = s.scheduled_start || s.created_at;
       const fStr = getDayStr(fechaServicio);
 

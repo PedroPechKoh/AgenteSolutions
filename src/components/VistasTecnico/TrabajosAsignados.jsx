@@ -70,8 +70,8 @@ const TrabajosAsignados = () => {
   };
 
   // Filtros por estatus
-  const pendientes = servicios.filter((s) => s.status !== "completed" && s.status !== "Finalizado");
-  const finalizados = servicios.filter((s) => s.status === "completed" || s.status === "Finalizado");
+  const pendientes = servicios.filter((s) => s.status !== "completed" && s.status !== "Finalizado" && s.status !== "Listo");
+  const finalizados = servicios.filter((s) => s.status === "completed" || s.status === "Finalizado" || s.status === "Listo");
 
   const handleRegresar = () => {
     if (window.history.state && window.history.state.idx > 0) {
