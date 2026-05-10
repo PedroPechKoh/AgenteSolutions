@@ -35,54 +35,68 @@ const GaleriaReportes = () => {
   return (
     <>
       <Header />
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        {/* BOTONES DE ACCIÓN Y ETIQUETAS */}
-        <div style={{ width: '95%', maxWidth: '1200px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', marginBottom: '30px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', padding: '0 20px' }}>
+        
+        {/* INFO SECTION (Above Buttons) */}
+        <div style={{ 
+          width: '100%', 
+          maxWidth: '800px', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '12px', 
+          marginTop: '20px',
+          alignItems: 'center'
+        }}>
+          <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+            <div className="id-property-tag" style={{ flex: 1 }}>
+              <span>ID TRABAJO:</span>
+              <strong>{trabajoId || 'N/A'}</strong>
+            </div>
+            <div className="id-property-tag" style={{ flex: 1 }}>
+              <span>CLIENTE:</span>
+              <strong>{servicio?.propietario || 'Usuario'}</strong>
+            </div>
+          </div>
           
+          <div className="id-property-tag" style={{ width: '100%' }}>
+            <span>PROPIEDAD:</span>
+            <strong>{servicio?.tipoPropiedad || 'N/A'} - {servicio?.identificador_curp || 'S/N'}</strong>
+          </div>
+
+          <div className="id-property-tag" style={{ width: '100%', background: '#f0f0f0' }}>
+            <span>TRABAJO:</span>
+            <strong style={{ fontSize: '12px', textAlign: 'center' }}>{servicio?.titulo || 'Mantenimiento'}</strong>
+          </div>
+        </div>
+
+        {/* ACTION BUTTONS (Below Info) */}
+        <div style={{ 
+          width: '100%', 
+          maxWidth: '800px', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          marginTop: '20px', 
+          marginBottom: '30px' 
+        }}>
           <button 
             onClick={() => navigate(-1)}
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', flexShrink: 0 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '12px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
           >
             <ChevronLeft size={20} />
             <span>REGRESAR</span>
           </button>
 
-          {/* CONTENEDOR DE DATOS ACOMODADOS */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: '10px', 
-            flexGrow: 1, 
-            padding: '0 15px',
-            maxWidth: '600px'
-          }}>
-            <div className="id-property-tag" style={{ padding: '5px 15px', width: '100%' }}>
-              <span>ID TRABAJO:</span>
-              <strong>{trabajoId || 'N/A'}</strong>
-            </div>
-            <div className="id-property-tag" style={{ padding: '5px 15px', width: '100%' }}>
-              <span>CLIENTE:</span>
-              <strong>{servicio?.propietario || 'Usuario'}</strong>
-            </div>
-            <div className="id-property-tag" style={{ padding: '5px 15px', width: '100%', gridColumn: 'span 2' }}>
-              <span>PROPIEDAD:</span>
-              <strong>{servicio?.tipoPropiedad || 'N/A'} - {servicio?.identificador_curp || 'S/N'}</strong>
-            </div>
-            <div className="id-property-tag" style={{ padding: '5px 15px', width: '100%', gridColumn: 'span 2', background: '#e0e0e0' }}>
-              <span>TRABAJO:</span>
-              <strong style={{ fontSize: '11px', textAlign: 'center' }}>{servicio?.titulo || 'Mantenimiento'}</strong>
-            </div>
-          </div>
-
           <button
             type="button"
             className="btn-add-photo"
             onClick={() => navigate('/nuevo-reporte', { state: { trabajoId, servicio } })}
-            style={{ flexShrink: 0 }}
+            style={{ width: '60px', height: '60px', borderRadius: '50%', padding: 0 }}
           >
-            <Plus size={26} strokeWidth={3} />
+            <Plus size={32} strokeWidth={3} />
           </button>
         </div>
+      </div>
 
       <div className="galeria-body" style={{ width: '100%', marginTop: '0' }}>
 
