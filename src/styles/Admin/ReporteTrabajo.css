@@ -364,25 +364,32 @@
 
 .btn-delete-photo {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(255, 0, 0, 0.8);
-    color: white;
-    border: none;
-    width: 24px;
-    height: 24px;
+    top: 8px;
+    right: 8px;
+    background: #ff0000 !important; /* Rojo sólido e intenso */
+    color: #ffffff !important; /* Blanco puro para la X */
+    border: 2px solid white; /* Borde blanco para mayor contraste */
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
-    z-index: 10;
+    transition: all 0.2s;
+    z-index: 100;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    padding: 0;
 }
 
 .imagen-item:hover .btn-delete-photo {
     opacity: 1;
+}
+
+.btn-delete-photo svg {
+    display: block;
+    color: white !important;
 }
 
 .btn-delete-photo:hover {

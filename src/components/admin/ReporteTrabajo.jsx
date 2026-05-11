@@ -386,7 +386,7 @@ const ReporteTrabajo = () => {
                   }}
                   title="Eliminar de este reporte"
                 >
-                  <X size={14} />
+                  <X size={18} />
                 </button>
 
                 <div className="photo-zoom-hint no-print" onClick={() => setSelectedImage(img)}>
