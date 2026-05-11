@@ -54,8 +54,9 @@
 }
 
 .logo-reporte {
-    max-height: 50px; /* Más pequeño para ahorrar espacio */
+    max-height: 60px; /* Un poco más grande para que se vea bien */
     width: auto;
+    object-fit: contain;
     display: block;
 }
 

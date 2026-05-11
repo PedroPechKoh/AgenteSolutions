@@ -22,7 +22,7 @@ const ReporteTrabajo = () => {
   const [reportData, setReportData] = useState({
     folio: `FT-${new Date().getFullYear()}-${String(trabajoId || '001').padStart(3, '0')}`,
     fechaTrabajo: servicio?.fecha_programada || new Date().toLocaleDateString("es-MX"),
-    horaInicio: "09:00 AM",
+    horaInicio: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
     horaFin: "02:00 PM",
     cliente: {
       nombre: servicio?.cliente_nombre || "Cargando...",
@@ -138,7 +138,7 @@ const ReporteTrabajo = () => {
   }, [trabajoId]);
 
   const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
+    contentRef: componentRef,
     documentTitle: `Reporte_Trabajo_${reportData.folio}`,
   });
 
@@ -283,7 +283,7 @@ const ReporteTrabajo = () => {
               <input className="editable-span" value={reportData.propiedad.tipo} onChange={(e) => updateField('propiedad', 'tipo', e.target.value)} />
             </div>
             <div className="info-linea full-width">
-              <strong>UBICACIÓN:</strong> 
+              <strong>DIRECCIÓN:</strong> 
               <input className="editable-span" value={reportData.propiedad.direccion} onChange={(e) => updateField('propiedad', 'direccion', e.target.value)} />
             </div>
           </div>
