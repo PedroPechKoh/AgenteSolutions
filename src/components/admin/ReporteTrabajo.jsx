@@ -62,20 +62,32 @@ const ReporteTrabajo = () => {
         // 1. Intentar cargar reporte final guardado
         const resFinal = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}/final-report`);
         
+        // 2. Cargar datos del servicio/cliente reales de la BD SIEMPRE
+        const resService = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}`);
+        const s = resService.data;
+        
         if (resFinal.data) {
-          // Si ya existe un reporte guardado, lo usamos
+          // Si ya existe un reporte guardado, lo usamos PERO rellenamos vacíos con datos frescos
+          const finalData = resFinal.data;
           setReportData(prev => ({
             ...prev,
-            ...resFinal.data,
-            cliente: { ...prev.cliente, ...(resFinal.data.cliente || {}) },
-            propiedad: { ...prev.propiedad, ...(resFinal.data.propiedad || {}) },
-            tecnico: { ...prev.tecnico, ...(resFinal.data.tecnico || {}) },
+            ...finalData,
+            cliente: { 
+              nombre: finalData.cliente?.nombre || s.propietario || s.cliente_nombre || prev.cliente.nombre,
+              telefono: finalData.cliente?.telefono || s.telefono_cliente || prev.cliente.telefono,
+              correo: finalData.cliente?.correo || s.cliente_email || prev.cliente.correo,
+              direccion: finalData.cliente?.direccion || s.direccion || prev.cliente.direccion,
+            },
+            propiedad: { 
+              nombre: finalData.propiedad?.nombre || s.propiedad_nombre || prev.propiedad.nombre,
+              direccion: finalData.propiedad?.direccion || s.direccion || prev.propiedad.direccion,
+              tipo: finalData.propiedad?.tipo || s.tipoPropiedad || prev.propiedad.tipo,
+              superficie: finalData.propiedad?.superficie || s.superficie || "N/A",
+            },
+            tecnico: { ...prev.tecnico, ...(finalData.tecnico || {}) },
           }));
         } else {
-          // 2. Si no hay reporte guardado, cargar datos del servicio/cliente reales de la BD
-          const resService = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}`);
-          const s = resService.data;
-          
+          // 3. Si no hay reporte guardado, cargar datos del servicio/cliente reales de la BD
           setReportData(prev => ({
             ...prev,
             fechaTrabajo: s.fecha_programada || prev.fechaTrabajo,
