@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import "../../styles/TecnicoStyles/GaleriaReportes.css";
-import { Plus, ChevronLeft } from 'lucide-react';
+import { Plus, ChevronLeft, FileText } from 'lucide-react';
+
 import Header from '../Shared/Header';
 
 const GaleriaReportes = () => {
@@ -85,6 +86,21 @@ const GaleriaReportes = () => {
           >
             <ChevronLeft size={20} />
             <span>REGRESAR</span>
+          </button>
+
+          {/* BOTÓN REPORTE OFICIAL (Para Admin/Coordinador) */}
+          <button 
+            onClick={() => navigate('/reporte-trabajo-admin', { 
+              state: { 
+                trabajoId, 
+                servicio, 
+                imagenes: reportes.map(r => r.image_url) 
+              } 
+            })}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#003366', color: 'white', padding: '12px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(0,51,102,0.3)' }}
+          >
+            <FileText size={20} />
+            <span>GENERAR REPORTE OFICIAL</span>
           </button>
 
           <button

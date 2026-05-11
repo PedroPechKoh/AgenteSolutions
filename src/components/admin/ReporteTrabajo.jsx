@@ -1,81 +1,170 @@
 // ReporteTrabajo.jsx
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useReactToPrint } from "react-to-print";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../../styles/Admin/ReporteTrabajo.css";
 import logo from '../../assets/fondo.png';
+import { Save, Plus, Trash2, Printer, ChevronLeft } from "lucide-react";
 
-const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
+const ReporteTrabajo = () => {
   const componentRef = useRef();
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Datos recibidos de la navegación
+  const { trabajoId, servicio, imagenes: imagenesEvidencia } = location.state || {};
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  
+  // Estado principal del reporte
+  const [reportData, setReportData] = useState({
+    folio: `FT-${new Date().getFullYear()}-${String(trabajoId || '001').padStart(3, '0')}`,
+    fechaTrabajo: servicio?.fecha_programada || new Date().toLocaleDateString("es-MX"),
+    horaInicio: "09:00 AM",
+    horaFin: "02:00 PM",
+    cliente: {
+      nombre: servicio?.cliente_nombre || "Cargando...",
+      telefono: servicio?.telefono_cliente || "",
+      correo: servicio?.cliente_email || "",
+      direccion: servicio?.direccion || "",
+    },
+    propiedad: {
+      nombre: servicio?.propiedad_nombre || "",
+      direccion: servicio?.direccion || "",
+      tipo: servicio?.tipoPropiedad || "Residencial",
+      superficie: "N/A",
+    },
+    tecnico: {
+      nombre: servicio?.tecnico_nombre || "",
+      especialidad: "Técnico Especialista",
+      cedula: "",
+    },
+    descripcion: servicio?.descripcion || "",
+    materiales: [
+      { nombre: "", cantidad: 1, unidad: "pza", precio: 0 },
+    ],
+    observaciones: "El cliente queda satisfecho con el trabajo realizado.",
+    imagenes: imagenesEvidencia || [],
+    firmaCliente: null,
+    firmaTecnico: null,
+  });
+
+  // Cargar datos guardados si existen
+  useEffect(() => {
+    const fetchFinalReport = async () => {
+      if (!trabajoId) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}/final-report`);
+        if (response.data) {
+          // Si ya existe un reporte guardado, lo usamos
+          setReportData(prev => ({
+            ...prev,
+            ...response.data,
+            // Aseguramos que los objetos anidados no se pierdan si el backend solo manda lo editable
+            cliente: { ...prev.cliente, ...(response.data.cliente || {}) },
+            propiedad: { ...prev.propiedad, ...(response.data.propiedad || {}) },
+            tecnico: { ...prev.tecnico, ...(response.data.tecnico || {}) },
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching final report:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFinalReport();
+  }, [trabajoId, servicio]);
 
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
-    documentTitle: `Reporte_Trabajo_${trabajo?.id || "Nuevo"}`,
-    onAfterPrint: () => console.log("Reporte impreso"),
+    documentTitle: `Reporte_Trabajo_${reportData.folio}`,
   });
 
-  const datosReporte = {
-    folio: trabajo?.id || "FT-2024-001",
-    fechaEmision: new Date().toLocaleDateString("es-MX"),
-    fechaTrabajo: trabajo?.fecha || "15/04/2024",
-    horaInicio: trabajo?.hora_inicio || "09:00 AM",
-    horaFin: trabajo?.hora_fin || "02:00 PM",
-    
-    cliente: {
-      nombre: cliente?.nombre || "Carlos Basulto",
-      telefono: cliente?.telefono || "999-123-4567",
-      correo: cliente?.correo || "carlos@email.com",
-      direccion: cliente?.direccion || "Calle Principal #123, Colonia Centro",
-    },
-    
-    propiedad: {
-      nombre: propiedad?.nombre || "Residencia Los Pinos",
-      direccion: propiedad?.direccion || "Av. Las Torres #456, Mérida, Yucatán",
-      tipo: propiedad?.tipo || "Casa Habitación",
-      superficie: propiedad?.superficie || "250 m²",
-    },
-    
-    tecnico: {
-      nombre: tecnico?.nombre || "Jorge Casas",
-      especialidad: tecnico?.especialidad || "Electricidad y Fontanería",
-      cedula: tecnico?.cedula || "12345678",
-    },
-    
-    descripcion: trabajo?.descripcion || "Instalación de sistema eléctrico completo, incluyendo cableado, interruptores y centros de carga. Se realizó mantenimiento preventivo en toda la instalación existente.",
-    
-    materiales: trabajo?.materiales || [
-      { nombre: "Cable Calibre 12", cantidad: 3, unidad: "rollos", precio: 850.00 },
-      { nombre: "Interruptor Termomagnético", cantidad: 5, unidad: "piezas", precio: 120.00 },
-      { nombre: "Contactos Blindados", cantidad: 10, unidad: "piezas", precio: 45.00 },
-      { nombre: "Cinta Aislante", cantidad: 2, unidad: "rollos", precio: 25.00 },
-    ],
-    
-    observaciones: trabajo?.observaciones || "Se recomienda realizar mantenimiento cada 6 meses. El cliente quedó satisfecho con el trabajo realizado.",
-    
-    firmaCliente: trabajo?.firmaCliente || null,
-    firmaTecnico: trabajo?.firmaTecnico || null,
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}/final-report`, {
+        ...reportData,
+        service_id: trabajoId
+      });
+      alert("¡Reporte guardado con éxito!");
+    } catch (error) {
+      console.error("Error saving report:", error);
+      alert("Error al guardar el reporte.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const totalMateriales = datosReporte.materiales.reduce(
-    (sum, m) => sum + m.cantidad * m.precio,
+  const updateField = (section, field, value) => {
+    if (section) {
+      setReportData(prev => ({
+        ...prev,
+        [section]: { ...prev[section], [field]: value }
+      }));
+    } else {
+      setReportData(prev => ({ ...prev, [field]: value }));
+    }
+  };
+
+  const handleMaterialChange = (index, field, value) => {
+    const newMateriales = [...reportData.materiales];
+    newMateriales[index][field] = field === 'cantidad' || field === 'precio' ? Number(value) : value;
+    setReportData(prev => ({ ...prev, materiales: newMateriales }));
+  };
+
+  const addMaterial = () => {
+    setReportData(prev => ({
+      ...prev,
+      materiales: [...prev.materiales, { nombre: "", cantidad: 1, unidad: "pza", precio: 0 }]
+    }));
+  };
+
+  const removeMaterial = (index) => {
+    setReportData(prev => ({
+      ...prev,
+      materiales: prev.materiales.filter((_, i) => i !== index)
+    }));
+  };
+
+  const toggleImage = (url) => {
+      const currentImages = reportData.imagenes || [];
+      if (currentImages.includes(url)) {
+          setReportData(prev => ({ ...prev, imagenes: currentImages.filter(img => img !== url) }));
+      } else {
+          setReportData(prev => ({ ...prev, imagenes: [...currentImages, url] }));
+      }
+  };
+
+  const totalMateriales = reportData.materiales.reduce(
+    (sum, m) => sum + (m.cantidad * m.precio),
     0
   );
-  
-  const imagenesTrabajo = imagenes || [
-    "https://via.placeholder.com/300x200?text=Foto+1",
-    "https://via.placeholder.com/300x200?text=Foto+2",
-    "https://via.placeholder.com/300x200?text=Foto+3",
-  ];
+
+  if (loading) return <div className="loading-report">Cargando editor de reporte...</div>;
 
   return (
     <div className="reporte-container">
-      <div className="print-actions">
+      <div className="print-actions no-print">
+        <button onClick={() => navigate(-1)} className="btn-back">
+          <ChevronLeft size={18} /> REGRESAR
+        </button>
+        <button onClick={handleSave} className="btn-save" disabled={saving}>
+          <Save size={18} /> {saving ? "GUARDANDO..." : "GUARDAR CAMBIOS"}
+        </button>
         <button onClick={handlePrint} className="btn-print">
-          🖨️ IMPRIMIR REPORTE
+          <Printer size={18} /> IMPRIMIR REPORTE
         </button>
       </div>
 
-      <div ref={componentRef} className="reporte-content">
-        {/* Encabezado Corregido */}
+      <div ref={componentRef} className="reporte-content editable-mode">
+        {/* Encabezado */}
         <div className="reporte-header">
           <div className="header-left">
             <img src={logo} alt="Logo" className="logo-reporte" />
@@ -83,9 +172,12 @@ const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
           <div className="header-right">
             <div className="folio-box">
               <span className="folio-label">FOLIO:</span>
-              <span className="folio-number">{datosReporte.folio}</span>
+              <input 
+                className="editable-folio" 
+                value={reportData.folio} 
+                onChange={(e) => updateField(null, 'folio', e.target.value)} 
+              />
             </div>
-           
           </div>
         </div>
 
@@ -93,8 +185,13 @@ const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
         <div className="reporte-title">
           <h2>REPORTE DE TRABAJO REALIZADO</h2>
           <div className="fecha-trabajo">
-            <span>📅 Fecha: {datosReporte.fechaTrabajo}</span>
-            <span>⏰ Horario: {datosReporte.horaInicio} - {datosReporte.horaFin}</span>
+            <span>📅 Fecha: 
+                <input type="text" className="inline-input" value={reportData.fechaTrabajo} onChange={(e) => updateField(null, 'fechaTrabajo', e.target.value)} />
+            </span>
+            <span>⏰ Horario: 
+                <input type="text" className="inline-input" style={{width: '80px'}} value={reportData.horaInicio} onChange={(e) => updateField(null, 'horaInicio', e.target.value)} /> - 
+                <input type="text" className="inline-input" style={{width: '80px'}} value={reportData.horaFin} onChange={(e) => updateField(null, 'horaFin', e.target.value)} />
+            </span>
           </div>
         </div>
 
@@ -103,16 +200,20 @@ const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
           <h3>INFORMACIÓN DEL CLIENTE</h3>
           <div className="info-grid-2cols">
             <div className="info-linea">
-              <strong>NOMBRE:</strong> <span>{datosReporte.cliente.nombre}</span>
+              <strong>NOMBRE:</strong> 
+              <input className="editable-span" value={reportData.cliente.nombre} onChange={(e) => updateField('cliente', 'nombre', e.target.value)} />
             </div>
             <div className="info-linea">
-              <strong>TELÉFONO:</strong> <span>{datosReporte.cliente.telefono}</span>
+              <strong>TELÉFONO:</strong> 
+              <input className="editable-span" value={reportData.cliente.telefono} onChange={(e) => updateField('cliente', 'telefono', e.target.value)} />
             </div>
             <div className="info-linea">
-              <strong>CORREO:</strong> <span>{datosReporte.cliente.correo}</span>
+              <strong>CORREO:</strong> 
+              <input className="editable-span" value={reportData.cliente.correo} onChange={(e) => updateField('cliente', 'correo', e.target.value)} />
             </div>
             <div className="info-linea full-width">
-              <strong>DIRECCIÓN:</strong> <span>{datosReporte.cliente.direccion}</span>
+              <strong>DIRECCIÓN:</strong> 
+              <input className="editable-span" value={reportData.cliente.direccion} onChange={(e) => updateField('cliente', 'direccion', e.target.value)} />
             </div>
           </div>
         </div>
@@ -122,16 +223,20 @@ const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
           <h3>INFORMACIÓN DE LA PROPIEDAD</h3>
           <div className="info-grid-2cols">
             <div className="info-linea">
-              <strong>PROPIEDAD:</strong> <span>{datosReporte.propiedad.nombre}</span>
+              <strong>PROPIEDAD:</strong> 
+              <input className="editable-span" value={reportData.propiedad.nombre} onChange={(e) => updateField('propiedad', 'nombre', e.target.value)} />
             </div>
             <div className="info-linea">
-              <strong>TIPO:</strong> <span>{datosReporte.propiedad.tipo}</span>
+              <strong>TIPO:</strong> 
+              <input className="editable-span" value={reportData.propiedad.tipo} onChange={(e) => updateField('propiedad', 'tipo', e.target.value)} />
             </div>
             <div className="info-linea">
-              <strong>SUPERFICIE:</strong> <span>{datosReporte.propiedad.superficie}</span>
+              <strong>SUPERFICIE:</strong> 
+              <input className="editable-span" value={reportData.propiedad.superficie} onChange={(e) => updateField('propiedad', 'superficie', e.target.value)} />
             </div>
             <div className="info-linea full-width">
-              <strong>UBICACIÓN:</strong> <span>{datosReporte.propiedad.direccion}</span>
+              <strong>UBICACIÓN:</strong> 
+              <input className="editable-span" value={reportData.propiedad.direccion} onChange={(e) => updateField('propiedad', 'direccion', e.target.value)} />
             </div>
           </div>
         </div>
@@ -141,13 +246,16 @@ const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
           <h3>TÉCNICO RESPONSABLE</h3>
           <div className="info-grid-2cols">
             <div className="info-linea">
-              <strong>NOMBRE:</strong> <span>{datosReporte.tecnico.nombre}</span>
+              <strong>NOMBRE:</strong> 
+              <input className="editable-span" value={reportData.tecnico.nombre} onChange={(e) => updateField('tecnico', 'nombre', e.target.value)} />
             </div>
             <div className="info-linea">
-              <strong>ESPECIALIDAD:</strong> <span>{datosReporte.tecnico.especialidad}</span>
+              <strong>ESPECIALIDAD:</strong> 
+              <input className="editable-span" value={reportData.tecnico.especialidad} onChange={(e) => updateField('tecnico', 'especialidad', e.target.value)} />
             </div>
             <div className="info-linea">
-              <strong>CÉDULA:</strong> <span>{datosReporte.tecnico.cedula}</span>
+              <strong>CÉDULA:</strong> 
+              <input className="editable-span" value={reportData.tecnico.cedula} onChange={(e) => updateField('tecnico', 'cedula', e.target.value)} />
             </div>
           </div>
         </div>
@@ -156,36 +264,48 @@ const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
         <div className="info-section">
           <h3>DESCRIPCIÓN DEL TRABAJO</h3>
           <div className="descripcion-box">
-            <p>{datosReporte.descripcion}</p>
+            <textarea 
+                className="editable-textarea" 
+                value={reportData.descripcion} 
+                onChange={(e) => updateField(null, 'descripcion', e.target.value)}
+                placeholder="Escribe aquí el resumen de las actividades realizadas..."
+            />
           </div>
         </div>
 
         {/* Materiales */}
         <div className="info-section">
-          <h3>MATERIALES UTILIZADOS</h3>
+          <h3>MATERIALES UTILIZADOS 
+              <button className="btn-add-item no-print" onClick={addMaterial}><Plus size={14}/> AGREGAR</button>
+          </h3>
           <table className="materiales-table">
             <thead>
               <tr>
                 <th>Descripción</th>
-                <th>Cantidad</th>
-                <th>Unidad</th>
-                <th>Precio Unitario</th>
-                <th>Subtotal</th>
+                <th style={{width: '60px'}}>Cant.</th>
+                <th style={{width: '80px'}}>Unidad</th>
+                <th style={{width: '100px'}}>P. Unitario</th>
+                <th style={{width: '100px'}}>Subtotal</th>
+                <th className="no-print" style={{width: '40px'}}></th>
               </tr>
             </thead>
             <tbody>
-              {datosReporte.materiales.map((material, idx) => (
+              {reportData.materiales.map((material, idx) => (
                 <tr key={idx}>
-                  <td>{material.nombre}</td>
-                  <td>{material.cantidad}</td>
-                  <td>{material.unidad}</td>
-                  <td>${material.precio.toFixed(2)}</td>
+                  <td><input className="table-input" value={material.nombre} onChange={(e) => handleMaterialChange(idx, 'nombre', e.target.value)} /></td>
+                  <td><input className="table-input center" type="number" value={material.cantidad} onChange={(e) => handleMaterialChange(idx, 'cantidad', e.target.value)} /></td>
+                  <td><input className="table-input center" value={material.unidad} onChange={(e) => handleMaterialChange(idx, 'unidad', e.target.value)} /></td>
+                  <td><input className="table-input" type="number" value={material.precio} onChange={(e) => handleMaterialChange(idx, 'precio', e.target.value)} /></td>
                   <td>${(material.cantidad * material.precio).toFixed(2)}</td>
+                  <td className="no-print">
+                      <button className="btn-row-delete" onClick={() => removeMaterial(idx)}><Trash2 size={12}/></button>
+                  </td>
                 </tr>
               ))}
               <tr className="total-row">
                 <td colSpan="4" className="total-label">TOTAL MATERIALES:</td>
                 <td className="total-amount">${totalMateriales.toFixed(2)}</td>
+                <td className="no-print"></td>
               </tr>
             </tbody>
           </table>
@@ -193,14 +313,15 @@ const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
 
         {/* Galería */}
         <div className="info-section">
-          <h3>EVIDENCIA FOTOGRÁFICA</h3>
+          <h3>EVIDENCIA FOTOGRÁFICA (Toca para ocultar/mostrar en reporte)</h3>
           <div className="galeria-imagenes">
-            {imagenesTrabajo.map((img, idx) => (
-              <div key={idx} className="imagen-item">
+            {reportData.imagenes.map((img, idx) => (
+              <div key={idx} className={`imagen-item ${reportData.imagenes.includes(img) ? '' : 'hidden-print'}`} onClick={() => toggleImage(img)}>
                 <img src={img} alt={`Evidencia ${idx + 1}`} />
-                <p>Foto {idx + 1}</p>
+                <p className="no-print">Foto {idx + 1}</p>
               </div>
             ))}
+            {reportData.imagenes.length === 0 && <p className="empty-gallery">No se han seleccionado imágenes de la galería.</p>}
           </div>
         </div>
 
@@ -208,7 +329,11 @@ const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
         <div className="info-section">
           <h3>OBSERVACIONES Y RECOMENDACIONES</h3>
           <div className="observaciones-box">
-            <p>{datosReporte.observaciones}</p>
+            <textarea 
+                className="editable-textarea" 
+                value={reportData.observaciones} 
+                onChange={(e) => updateField(null, 'observaciones', e.target.value)}
+            />
           </div>
         </div>
 
@@ -216,21 +341,13 @@ const ReporteTrabajo = ({ trabajo, propiedad, tecnico, cliente, imagenes }) => {
         <div className="firmas-section">
           <div className="firma-cliente">
             <div className="firma-linea">
-              {datosReporte.firmaCliente ? (
-                <img src={datosReporte.firmaCliente} alt="Firma Cliente" />
-              ) : (
                 <div className="linea-firma"></div>
-              )}
             </div>
             <p>Firma del Cliente</p>
           </div>
           <div className="firma-tecnico">
             <div className="firma-linea">
-              {datosReporte.firmaTecnico ? (
-                <img src={datosReporte.firmaTecnico} alt="Firma Técnico" />
-              ) : (
                 <div className="linea-firma"></div>
-              )}
             </div>
             <p>Firma del Técnico</p>
           </div>
