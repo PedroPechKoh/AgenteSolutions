@@ -4,7 +4,7 @@ import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/Admin/ReporteTrabajo.css";
-import logo from '../../assets/fondo.png';
+import logo from '../../assets/Logo3.png';
 import { Printer, ChevronLeft, Save, Trash2, X, Maximize2, Plus } from 'lucide-react';
 
 const ReporteTrabajo = () => {
