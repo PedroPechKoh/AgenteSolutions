@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import Header from "../Shared/Header";
 import UniversalSearch from "../Shared/UniversalSearch";
+import { Building, MapPin, User, UserCheck, FileText, X } from "lucide-react";
 
 const VistaLevantamientos = () => {
   const navigate = useNavigate();
@@ -30,6 +31,15 @@ const VistaLevantamientos = () => {
 
   const dateInputRef = useRef(null);
   const timeInputRef = useRef(null);
+
+  // Estados para el Modal de Detalles de Propiedad
+  const [modalDetalleVisible, setModalDetalleVisible] = useState(false);
+  const [detallePropiedad, setDetallePropiedad] = useState(null);
+
+  const verDetallesPropiedad = (item) => {
+    setDetallePropiedad(item);
+    setModalDetalleVisible(true);
+  };
 
   const abrirDatePicker = () => {
     if (dateInputRef.current && dateInputRef.current.showPicker) {
@@ -228,7 +238,14 @@ const VistaLevantamientos = () => {
                 filtrados.map((s) => (
                   <tr key={s.id}>
                     <td style={{ color: '#333', fontWeight: '900' }}>#{s.id || "0"}</td>
-                    <td className="lev-bold">{s.title === "Levantamiento Inicial" && s.cliente_nombre ? `Levantamiento de ${s.cliente_nombre}` : s.title}</td>
+                    <td className="lev-bold">
+                      <span 
+                        onClick={() => verDetallesPropiedad(s)}
+                        style={{ cursor: 'pointer', color: '#F26522', textDecoration: 'underline' }}
+                      >
+                        {s.title === "Levantamiento Inicial" && s.cliente_nombre ? `Levantamiento de ${s.cliente_nombre}` : s.title}
+                      </span>
+                    </td>
                     <td>
                       <span
                         className={`prio-${s.priority?.toLowerCase()}`}
@@ -501,6 +518,88 @@ const VistaLevantamientos = () => {
               </form>
             )}
 
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL DE DETALLES DE PROPIEDAD --- */}
+      {modalDetalleVisible && detallePropiedad && (
+        <div className="lev-modal-overlay" onClick={() => setModalDetalleVisible(false)}>
+          <div className="modal-detalle-formal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Detalles de la Propiedad</h3>
+              <button className="close-modal" onClick={() => setModalDetalleVisible(false)}>
+                <X />
+              </button>
+            </div>
+
+            <div className="modal-body-formal">
+              {detallePropiedad.foto_fachada && (
+                <div className="facade-photo-container">
+                  <img
+                    src={detallePropiedad.foto_fachada}
+                    alt="Fachada"
+                    className="facade-img"
+                    onError={(e) => { e.target.style.display = "none"; }}
+                  />
+                </div>
+              )}
+
+              <div className="info-grid-formal">
+                <div className="info-item-formal">
+                  <span className="icon-wrapper"><Building size={20} /></span>
+                  <div className="info-content">
+                    <label>Nombre Propiedad</label>
+                    <p>{detallePropiedad.propiedad_nombre}</p>
+                  </div>
+                </div>
+
+                <div className="info-item-formal">
+                  <span className="icon-wrapper"><MapPin size={20} /></span>
+                  <div className="info-content">
+                    <label>Dirección Completa</label>
+                    <p>{detallePropiedad.direccion}</p>
+                  </div>
+                </div>
+
+                <div className="info-item-formal">
+                  <span className="icon-wrapper"><User size={20} /></span>
+                  <div className="info-content">
+                    <label>Dueño / Cliente</label>
+                    <p>{detallePropiedad.cliente_nombre}</p>
+                  </div>
+                </div>
+
+                {/* Supervisor e Instrucciones solo si existen (omitidos si es levantamiento inicial sin datos) */}
+                {detallePropiedad.supervisor_name && (
+                  <div className="info-item-formal">
+                    <span className="icon-wrapper"><UserCheck size={20} /></span>
+                    <div className="info-content">
+                      <label>Supervisor</label>
+                      <p>{detallePropiedad.supervisor_name}</p>
+                    </div>
+                  </div>
+                )}
+
+                {detallePropiedad.description && (
+                  <div className="info-item-formal full">
+                    <span className="icon-wrapper"><FileText size={20} /></span>
+                    <div className="info-content">
+                      <label>Instrucciones</label>
+                      <div className="desc-box-formal">
+                        {detallePropiedad.description}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="modal-footer-formal">
+              <button className="btn-close-formal" onClick={() => setModalDetalleVisible(false)}>
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}
