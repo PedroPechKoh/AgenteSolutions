@@ -218,7 +218,7 @@
 @media print {
     @page {
         size: auto;
-        margin: 0mm; /* Elimina encabezados y pies de página del navegador */
+        margin: 0 !important; /* Forzado para todos los tamaños de papel */
     }
 
     body {
