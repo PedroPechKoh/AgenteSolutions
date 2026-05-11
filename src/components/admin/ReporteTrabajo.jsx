@@ -1,6 +1,5 @@
 // ReporteTrabajo.jsx
 import React, { useRef, useState, useEffect } from "react";
-import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/Admin/ReporteTrabajo.css";
@@ -138,10 +137,9 @@ const ReporteTrabajo = () => {
     fetchInitialData();
   }, [trabajoId]);
 
-  const handlePrint = useReactToPrint({
-    contentRef: componentRef,
-    documentTitle: `Reporte_Trabajo_${reportData.folio}`,
-  });
+  const handlePrint = () => {
+    window.print();
+  };
 
   const handleSave = async () => {
     setSaving(true);

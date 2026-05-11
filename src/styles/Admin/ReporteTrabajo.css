@@ -217,51 +217,36 @@
 /* AJUSTES DE IMPRESIÓN PARA UNA HOJA */
 @media print {
     @page {
-        size: letter;
-        margin: 0.5cm; /* Márgenes de impresión mínimos */
+        size: auto;
+        margin: 10mm;
     }
 
-    .no-print { display: none !important; }
-    .print-actions { display: none !important; }
-    
-    .reporte-container { padding: 0 !important; background: white !important; }
-    
-    .reporte-content { 
-        padding: 0 !important; 
-        margin: 0 !important;
-        box-shadow: none !important; 
+    /* Escondemos todo el sitio */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Mostramos solo el área del reporte */
+    .reporte-content, .reporte-content * {
+        visibility: visible !important;
+    }
+
+    /* Posicionamos el reporte al inicio de la página de impresión */
+    .reporte-content {
+        position: absolute;
+        left: 0;
+        top: 0;
         width: 100% !important;
-        border: none !important;
-        display: block !important;
-        overflow: visible !important;
-        position: relative !important;
-        height: auto !important;
-        min-height: auto !important;
-    }
-
-    .info-grid-2cols {
-        display: block !important;
-    }
-
-    .info-linea {
-        display: block !important;
-        margin-bottom: 5px;
-    }
-
-    /* Ocultar bordes de inputs al imprimir */
-    input, textarea {
-        border: none !important;
-        background: transparent !important;
+        margin: 0 !important;
         padding: 0 !important;
-        font-family: inherit !important;
-        color: black !important;
-        resize: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        display: block !important;
     }
 
-    .reporte-header {
-        background: #eeeeee !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+    .no-print, .print-actions {
+        display: none !important;
+        visibility: hidden !important;
     }
 
     /* Forzar visibilidad de todo el texto y fondos */
