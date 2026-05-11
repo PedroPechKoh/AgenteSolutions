@@ -28,7 +28,7 @@ const VistaReportesGlobal = () => {
 
   const filteredReportes = reportes.filter(r => {
     const techName = r.technician ? `${r.technician.first_name} ${r.technician.last_name}`.toLowerCase() : '';
-    const prop = r.service?.property || r.workOrder?.property;
+    const prop = r.service?.property || r.work_order?.property;
     const propName = prop?.custom_curp?.toLowerCase() || '';
     const desc = r.description?.toLowerCase() || '';
     const search = searchTerm.toLowerCase();
@@ -74,7 +74,7 @@ const VistaReportesGlobal = () => {
           <div className="global-gallery-grouped">
             {Object.entries(
               filteredReportes.reduce((acc, r) => {
-                const prop = r.service?.property || r.workOrder?.property;
+                const prop = r.service?.property || r.work_order?.property;
                 const propName = prop?.property_name || 'PROPIEDAD SIN NOMBRE';
                 const curp = prop?.custom_curp || 'SIN CURP';
                 const owner = prop?.client?.name || 'Usuario';
@@ -114,12 +114,15 @@ const VistaReportesGlobal = () => {
                       <button 
                         onClick={() => {
                           const firstReport = reports[0];
-                          const serviceData = firstReport.service || firstReport.workOrder;
+                          // Intentamos detectar si es servicio o work_order basándonos en cuál tiene la propiedad vinculada
+                          const isService = !!firstReport.service?.property;
+                          const serviceData = isService ? firstReport.service : (firstReport.work_order || firstReport.service);
                           const prop = serviceData?.property;
+                          const prefijo = isService ? 'servicio' : (firstReport.work_order ? 'work_order' : 'servicio');
                           
                           navigate('/reporte-trabajo-admin', { 
                             state: { 
-                              trabajoId: firstReport.service ? `servicio-${firstReport.service_id}` : `work_order-${firstReport.service_id}`, 
+                              trabajoId: `${prefijo}-${firstReport.service_id}`, 
                               servicio: {
                                 cliente_nombre: dueno,
                                 cliente_email: prop?.client?.email || '',
