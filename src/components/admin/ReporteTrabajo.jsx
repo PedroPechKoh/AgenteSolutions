@@ -51,35 +51,63 @@ const ReporteTrabajo = () => {
     firmaTecnico: null,
   });
 
-  // Cargar datos guardados si existen
+  // Cargar datos reales de la BD
   useEffect(() => {
-    const fetchFinalReport = async () => {
+    const fetchInitialData = async () => {
       if (!trabajoId) {
         setLoading(false);
         return;
       }
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}/final-report`);
-        if (response.data) {
+        // 1. Intentar cargar reporte final guardado
+        const resFinal = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}/final-report`);
+        
+        if (resFinal.data) {
           // Si ya existe un reporte guardado, lo usamos
           setReportData(prev => ({
             ...prev,
-            ...response.data,
-            // Aseguramos que los objetos anidados no se pierdan si el backend solo manda lo editable
-            cliente: { ...prev.cliente, ...(response.data.cliente || {}) },
-            propiedad: { ...prev.propiedad, ...(response.data.propiedad || {}) },
-            tecnico: { ...prev.tecnico, ...(response.data.tecnico || {}) },
+            ...resFinal.data,
+            cliente: { ...prev.cliente, ...(resFinal.data.cliente || {}) },
+            propiedad: { ...prev.propiedad, ...(resFinal.data.propiedad || {}) },
+            tecnico: { ...prev.tecnico, ...(resFinal.data.tecnico || {}) },
+          }));
+        } else {
+          // 2. Si no hay reporte guardado, cargar datos del servicio/cliente reales de la BD
+          const resService = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}`);
+          const s = resService.data;
+          
+          setReportData(prev => ({
+            ...prev,
+            fechaTrabajo: s.fecha_programada || prev.fechaTrabajo,
+            cliente: {
+              nombre: s.propietario || s.cliente_nombre || prev.cliente.nombre,
+              telefono: s.telefono_cliente || prev.cliente.telefono,
+              correo: s.cliente_email || prev.cliente.correo,
+              direccion: s.direccion || prev.cliente.direccion,
+            },
+            propiedad: {
+              nombre: s.propiedad_nombre || prev.propiedad.nombre,
+              direccion: s.direccion || prev.propiedad.direccion,
+              tipo: s.tipoPropiedad || prev.propiedad.tipo,
+              superficie: "N/A",
+            },
+            tecnico: {
+              nombre: s.tecnico || prev.tecnico.nombre,
+              especialidad: "Técnico Especialista",
+              cedula: "",
+            },
+            descripcion: s.descripcion || prev.descripcion,
           }));
         }
       } catch (error) {
-        console.error("Error fetching final report:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFinalReport();
-  }, [trabajoId, servicio]);
+    fetchInitialData();
+  }, [trabajoId]);
 
   const handlePrint = useReactToPrint({
     content: () => componentRef.current,
