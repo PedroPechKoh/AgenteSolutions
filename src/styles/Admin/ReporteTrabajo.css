@@ -362,6 +362,54 @@
     padding: 2px;
 }
 
+.btn-delete-photo {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 10;
+}
+
+.imagen-item:hover .btn-delete-photo {
+    opacity: 1;
+}
+
+.btn-delete-photo:hover {
+    background: red;
+    transform: scale(1.1);
+}
+
+.photo-zoom-hint {
+    position: absolute;
+    bottom: 25px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.imagen-item:hover .photo-zoom-hint {
+    opacity: 1;
+}
+
 .galeria-imagenes {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -402,6 +450,54 @@
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 0.6rem;
+}
+
+/* Modal de Zoom */
+.image-zoom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+}
+
+.zoom-modal-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.zoom-main-image {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    object-fit: contain;
+}
+
+.zoom-close-btn {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    transition: transform 0.2s;
+}
+
+.zoom-close-btn:hover {
+    transform: scale(1.2);
 }
 
 .loading-report {

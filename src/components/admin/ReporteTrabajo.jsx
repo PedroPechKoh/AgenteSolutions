@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../../styles/Admin/ReporteTrabajo.css";
 import logo from '../../assets/fondo.png';
-import { Save, Plus, Trash2, Printer, ChevronLeft } from "lucide-react";
+import { Printer, ChevronLeft, Save, Trash2, X, Maximize2, Plus } from 'lucide-react';
 
 const ReporteTrabajo = () => {
   const componentRef = useRef();
@@ -17,6 +17,7 @@ const ReporteTrabajo = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null); // Para el modal de zoom
   
   // Estado principal del reporte
   const [reportData, setReportData] = useState({
@@ -365,17 +366,51 @@ const ReporteTrabajo = () => {
 
         {/* Galería */}
         <div className="info-section">
-          <h3>EVIDENCIA FOTOGRÁFICA (Toca para ocultar/mostrar en reporte)</h3>
+          <h3>EVIDENCIA FOTOGRÁFICA</h3>
           <div className="galeria-imagenes">
             {reportData.imagenes.map((img, idx) => (
-              <div key={idx} className={`imagen-item ${reportData.imagenes.includes(img) ? '' : 'hidden-print'}`} onClick={() => toggleImage(img)}>
-                <img src={img} alt={`Evidencia ${idx + 1}`} />
+              <div key={idx} className="imagen-item">
+                <img 
+                  src={img} 
+                  alt={`Evidencia ${idx + 1}`} 
+                  onClick={() => setSelectedImage(img)}
+                  style={{ cursor: 'zoom-in' }}
+                />
+                
+                {/* Botón de eliminar en hover (no se imprime) */}
+                <button 
+                  className="btn-delete-photo no-print" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleImage(img);
+                  }}
+                  title="Eliminar de este reporte"
+                >
+                  <X size={14} />
+                </button>
+
+                <div className="photo-zoom-hint no-print" onClick={() => setSelectedImage(img)}>
+                  <Maximize2 size={12} />
+                </div>
+                
                 <p className="no-print">Foto {idx + 1}</p>
               </div>
             ))}
-            {reportData.imagenes.length === 0 && <p className="empty-gallery">No se han seleccionado imágenes de la galería.</p>}
+            {reportData.imagenes.length === 0 && <p className="empty-gallery">No hay imágenes en el reporte.</p>}
           </div>
         </div>
+
+        {/* Modal de Zoom de Imagen */}
+        {selectedImage && (
+          <div className="image-zoom-modal no-print" onClick={() => setSelectedImage(null)}>
+            <div className="zoom-modal-content" onClick={e => e.stopPropagation()}>
+              <button className="zoom-close-btn" onClick={() => setSelectedImage(null)}>
+                <X size={24} />
+              </button>
+              <img src={selectedImage} alt="Zoom evidencia" className="zoom-main-image" />
+            </div>
+          </div>
+        )}
 
         {/* Observaciones */}
         <div className="info-section">
