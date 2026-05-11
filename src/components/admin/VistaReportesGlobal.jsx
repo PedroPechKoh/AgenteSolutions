@@ -114,14 +114,18 @@ const VistaReportesGlobal = () => {
                         onClick={() => {
                           const firstReport = reports[0];
                           const serviceData = firstReport.service || firstReport.work_order;
+                          const prop = serviceData?.property;
+                          
                           navigate('/reporte-trabajo-admin', { 
                             state: { 
                               trabajoId: firstReport.service_id, 
                               servicio: {
                                 cliente_nombre: dueno,
-                                direccion: serviceData?.property?.address || serviceData?.address,
+                                cliente_email: prop?.client?.email || '',
+                                cliente_telefono: prop?.client?.phone || '',
+                                direccion: prop?.address || serviceData?.address || '',
                                 propiedad_nombre: nombre,
-                                tipoPropiedad: serviceData?.property?.type || serviceData?.tipoPropiedad,
+                                tipoPropiedad: prop?.type || serviceData?.tipoPropiedad || 'CASA',
                                 identificador_curp: curp,
                                 titulo: serviceData?.title || serviceData?.type || 'Mantenimiento',
                                 descripcion: serviceData?.description

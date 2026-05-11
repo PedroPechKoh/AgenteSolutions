@@ -26,7 +26,7 @@ const ReporteTrabajo = () => {
     horaFin: "02:00 PM",
     cliente: {
       nombre: servicio?.cliente_nombre || "Cargando...",
-      telefono: servicio?.telefono_cliente || "",
+      telefono: servicio?.cliente_telefono || servicio?.telefono_cliente || "",
       correo: servicio?.cliente_email || "",
       direccion: servicio?.direccion || "",
     },
@@ -89,7 +89,7 @@ const ReporteTrabajo = () => {
               nombre: s.propiedad_nombre || prev.propiedad.nombre,
               direccion: s.direccion || prev.propiedad.direccion,
               tipo: s.tipoPropiedad || prev.propiedad.tipo,
-              superficie: "N/A",
+              superficie: s.superficie || "N/A",
             },
             tecnico: {
               nombre: s.tecnico || prev.tecnico.nombre,
