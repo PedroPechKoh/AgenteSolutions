@@ -107,9 +107,47 @@ const VistaReportesGlobal = () => {
                       <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#333', fontWeight: '900', textTransform: 'uppercase' }}>
                         {nombre}
                       </h3>
-                      <span style={{ marginLeft: 'auto', background: '#F26522', color: 'white', padding: '4px 12px', borderRadius: '15px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                      <span style={{ marginLeft: '10px', background: '#F26522', color: 'white', padding: '4px 12px', borderRadius: '15px', fontSize: '0.75rem', fontWeight: 'bold' }}>
                         {reports.length} {reports.length === 1 ? 'Reporte' : 'Reportes'}
                       </span>
+                      <button 
+                        onClick={() => {
+                          const firstReport = reports[0];
+                          const serviceData = firstReport.service || firstReport.work_order;
+                          navigate('/reporte-trabajo-admin', { 
+                            state: { 
+                              trabajoId: firstReport.service_id, 
+                              servicio: {
+                                cliente_nombre: dueno,
+                                direccion: serviceData?.property?.address || serviceData?.address,
+                                propiedad_nombre: nombre,
+                                tipoPropiedad: serviceData?.property?.type || serviceData?.tipoPropiedad,
+                                identificador_curp: curp,
+                                titulo: serviceData?.title || serviceData?.type || 'Mantenimiento',
+                                descripcion: serviceData?.description
+                              }, 
+                              imagenes: reports.map(r => r.image_url) 
+                            } 
+                          })
+                        }}
+                        style={{ 
+                          marginLeft: 'auto', 
+                          background: '#003366', 
+                          color: 'white', 
+                          padding: '8px 15px', 
+                          borderRadius: '20px', 
+                          border: 'none', 
+                          cursor: 'pointer', 
+                          fontWeight: 'bold', 
+                          fontSize: '0.7rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          boxShadow: '0 4px 10px rgba(0,51,102,0.2)'
+                        }}
+                      >
+                        <FileText size={14} /> GENERAR REPORTE OFICIAL
+                      </button>
                     </div>
                     
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginTop: '5px', paddingLeft: '30px' }}>
