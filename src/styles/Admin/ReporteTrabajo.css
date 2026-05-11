@@ -228,12 +228,24 @@
     
     .reporte-content { 
         padding: 0 !important; 
+        margin: 0 !important;
         box-shadow: none !important; 
         width: 100% !important;
         border: none !important;
         display: block !important;
         overflow: visible !important;
         position: relative !important;
+        height: auto !important;
+        min-height: auto !important;
+    }
+
+    .info-grid-2cols {
+        display: block !important;
+    }
+
+    .info-linea {
+        display: block !important;
+        margin-bottom: 5px;
     }
 
     /* Ocultar bordes de inputs al imprimir */
@@ -252,10 +264,18 @@
         print-color-adjust: exact;
     }
 
-    /* Forzar visibilidad de todo el texto */
+    /* Forzar visibilidad de todo el texto y fondos */
     * {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Asegurar que las imágenes se impriman */
+    img {
+        max-width: 100% !important;
+        height: auto !important;
+        display: block !important;
     }
 }
 
