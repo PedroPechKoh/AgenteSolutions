@@ -66,49 +66,57 @@ const ReporteTrabajo = () => {
         const resService = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}`);
         const s = resService.data;
         
+        const isInvalid = (val) => !val || val === "Sin Propietario" || val === "Dirección no registrada" || val === "Propiedad Sin Nombre" || val === "N/A" || val === "Cargando..." || val === "Usuario" || val.trim() === "";
+        const getValid = (...values) => {
+            for(let v of values) {
+                if(!isInvalid(v)) return v;
+            }
+            return "";
+        };
+
         if (resFinal.data) {
-          // Si ya existe un reporte guardado, lo usamos PERO rellenamos vacíos con datos frescos
-          const finalData = resFinal.data;
+          // Si ya existe un reporte guardado, lo usamos PERO rellenamos vacíos con datos frescos o del estado previo
+          const f = resFinal.data;
           setReportData(prev => ({
             ...prev,
-            ...finalData,
+            ...f,
             cliente: { 
-              nombre: finalData.cliente?.nombre || s.propietario || s.cliente_nombre || prev.cliente.nombre,
-              telefono: finalData.cliente?.telefono || s.telefono_cliente || prev.cliente.telefono,
-              correo: finalData.cliente?.correo || s.cliente_email || prev.cliente.correo,
-              direccion: finalData.cliente?.direccion || s.direccion || prev.cliente.direccion,
+              nombre: getValid(f.cliente?.nombre, prev.cliente.nombre, s.propietario, s.cliente_nombre),
+              telefono: getValid(f.cliente?.telefono, prev.cliente.telefono, s.telefono_cliente),
+              correo: getValid(f.cliente?.correo, prev.cliente.correo, s.cliente_email),
+              direccion: getValid(f.cliente?.direccion, prev.cliente.direccion, s.direccion),
             },
             propiedad: { 
-              nombre: finalData.propiedad?.nombre || s.propiedad_nombre || prev.propiedad.nombre,
-              direccion: finalData.propiedad?.direccion || s.direccion || prev.propiedad.direccion,
-              tipo: finalData.propiedad?.tipo || s.tipoPropiedad || prev.propiedad.tipo,
-              superficie: finalData.propiedad?.superficie || s.superficie || "N/A",
+              nombre: getValid(f.propiedad?.nombre, prev.propiedad.nombre, s.propiedad_nombre),
+              direccion: getValid(f.propiedad?.direccion, prev.propiedad.direccion, s.direccion),
+              tipo: getValid(f.propiedad?.tipo, prev.propiedad.tipo, s.tipoPropiedad, "Residencial"),
+              superficie: getValid(f.propiedad?.superficie, prev.propiedad.superficie, s.superficie, "N/A"),
             },
-            tecnico: { ...prev.tecnico, ...(finalData.tecnico || {}) },
+            tecnico: { ...prev.tecnico, ...(f.tecnico || {}) },
           }));
         } else {
-          // 3. Si no hay reporte guardado, cargar datos del servicio/cliente reales de la BD
+          // 3. Si no hay reporte guardado, cargar datos del estado previo y rellenar con servicio real de la BD
           setReportData(prev => ({
             ...prev,
             fechaTrabajo: s.fecha_programada || prev.fechaTrabajo,
             cliente: {
-              nombre: s.propietario || s.cliente_nombre || prev.cliente.nombre,
-              telefono: s.telefono_cliente || prev.cliente.telefono,
-              correo: s.cliente_email || prev.cliente.correo,
-              direccion: s.direccion || prev.cliente.direccion,
+              nombre: getValid(prev.cliente.nombre, s.propietario, s.cliente_nombre),
+              telefono: getValid(prev.cliente.telefono, s.telefono_cliente),
+              correo: getValid(prev.cliente.correo, s.cliente_email),
+              direccion: getValid(prev.cliente.direccion, s.direccion),
             },
             propiedad: {
-              nombre: s.propiedad_nombre || prev.propiedad.nombre,
-              direccion: s.direccion || prev.propiedad.direccion,
-              tipo: s.tipoPropiedad || prev.propiedad.tipo,
-              superficie: s.superficie || "N/A",
+              nombre: getValid(prev.propiedad.nombre, s.propiedad_nombre),
+              direccion: getValid(prev.propiedad.direccion, s.direccion),
+              tipo: getValid(prev.propiedad.tipo, s.tipoPropiedad, "Residencial"),
+              superficie: getValid(prev.propiedad.superficie, s.superficie, "N/A"),
             },
             tecnico: {
-              nombre: s.tecnico || prev.tecnico.nombre,
+              nombre: getValid(prev.tecnico.nombre, s.tecnico),
               especialidad: "Técnico Especialista",
               cedula: "",
             },
-            descripcion: s.descripcion || prev.descripcion,
+            descripcion: getValid(prev.descripcion, s.descripcion),
           }));
         }
       } catch (error) {
