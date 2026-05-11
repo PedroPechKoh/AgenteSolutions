@@ -4,6 +4,7 @@ import "../../styles/Admin/VistaLevantamientos.css";
 import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import Header from "../Shared/Header";
+import UniversalSearch from "../Shared/UniversalSearch";
 
 const VistaLevantamientos = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const VistaLevantamientos = () => {
   const isClient = user?.role_id === 3;
 
   const [tabActual, setTabActual] = useState("PENDIENTES");
-  const [busqueda, setBusqueda] = useState("");
+  const [serviciosFiltrados, setServiciosFiltrados] = useState([]);
 
   // ESTADOS PARA DATOS REALES
   const [servicios, setServicios] = useState([]);
@@ -78,17 +79,8 @@ const VistaLevantamientos = () => {
     cargarDatos();
   }, [isClient]);
 
-  // 2. FILTRADO LÓGICO
-  const filtrados = servicios.filter((s) => {
-    const coincideTab =
-      tabActual === "REALIZADOS"
-        ? (s.status === "Finalizado" || s.status === "completed")
-        : (s.status !== "Finalizado" && s.status !== "completed");
-    const coincideBusqueda =
-      s.title?.toLowerCase().includes(busqueda?.toLowerCase() || "") ||
-      s.id?.toString().includes(busqueda || "");
-    return coincideTab && coincideBusqueda;
-  });
+  // El filtrado ahora lo maneja el UniversalSearch
+  const filtrados = serviciosFiltrados;
 
 
   const abrirAsignacion = (servicio) => {
@@ -182,28 +174,13 @@ const VistaLevantamientos = () => {
 
 
       <main className="lev-container" style={isClient ? { padding: '20px 16px', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
-        <div style={{ display: "flex", justifyContent: isClient ? "center" : "flex-end", marginBottom: "20px", width: "100%", paddingLeft: isClient ? "0" : "auto" }}>
-          {isClient && (
-            <button
-              className="lev-btn-add"
-              onClick={() => navigate("/assign-service")}
-              style={{ fontSize: 'clamp(0.75rem, 2vw, 0.95rem)', padding: 'clamp(10px 14px, 2vw, 12px 25px)' }}
-            >
-              + PEDIR SERVICIO
-            </button>
-          )}
-        </div>
-        <div className="lev-search-box" style={isClient ? { width: '100%' } : {}}>
-          <input
-            type="text"
-            placeholder="BUSCAR..."
-            className="lev-input-search"
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            style={{ fontSize: 'clamp(0.85rem, 2vw, 1rem)' }}
-          />
-          <span className="lev-search-icon">🔍</span>
-        </div>
+        <UniversalSearch 
+          data={servicios}
+          setFilteredData={setServiciosFiltrados}
+          placeholder="BUSCAR POR PROPIEDAD, ID O ESTADO..."
+          filtroActual={tabActual}
+          type="LEVANTAMIENTOS"
+        />
 
         <div className="lev-tabs">
           <button

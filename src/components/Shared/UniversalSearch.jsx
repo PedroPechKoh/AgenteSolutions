@@ -30,6 +30,12 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
         }
       } else if (type === 'TECNICO_TABLERO') {
         coincideFiltro = true; // El tablero ya está filtrado por técnico, la búsqueda es global sobre eso
+      } else if (type === 'LEVANTAMIENTOS') {
+        if (filtroActual === "REALIZADOS") {
+          coincideFiltro = item.status === "Finalizado" || item.status === "completed";
+        } else {
+          coincideFiltro = item.status !== "Finalizado" && item.status !== "completed";
+        }
       }
 
       // Búsqueda por texto (Lupa)
