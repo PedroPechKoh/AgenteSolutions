@@ -218,7 +218,12 @@
 @media print {
     @page {
         size: auto;
-        margin: 10mm;
+        margin: 0mm; /* Elimina encabezados y pies de página del navegador */
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
     }
 
     /* Escondemos todo el sitio */
@@ -231,17 +236,19 @@
         visibility: visible !important;
     }
 
-    /* Posicionamos el reporte al inicio de la página de impresión */
+    /* Posicionamos el reporte con un margen interno para que no toque los bordes físicos */
     .reporte-content {
         position: absolute;
-        left: 0;
-        top: 0;
-        width: 100% !important;
+        left: 5mm;
+        right: 5mm;
+        top: 5mm;
+        width: calc(100% - 10mm) !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 10mm !important;
         box-shadow: none !important;
         border: none !important;
         display: block !important;
+        background: white !important;
     }
 
     .no-print, .print-actions {
