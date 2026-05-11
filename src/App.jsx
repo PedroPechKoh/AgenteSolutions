@@ -32,7 +32,7 @@ import VistaUsuarios from "./components/admin/VistaUsuarios";
 import VistaBodeguero from "./components/admin/VistaBodeguero";
 import VistaServiciosAdmin from "./components/admin/VistaServiciosAdmin";
 import VistaReportesGlobal from "./components/admin/VistaReportesGlobal";
-
+import ReporteTrabajoAdmin from "./components/admin/ReporteTrabajo";
 
 /* ------RUTAS DE LA VISTA DEL TECNICO ------*/
 import VistaInicioTecnico from "./components/VistaInicioTecnico";
@@ -187,6 +187,7 @@ useEffect(() => {
         <Route path="/tablero-servicios" element={<VistaServiciosAdmin />} />
         <Route path="/detalle-tecnico" element={<VistaDetalleTecnico />} />
         <Route path="/reportes-globales" element={<VistaReportesGlobal />} />
+        <Route path="/reporte-trabajo-admin" element={<ReporteTrabajoAdmin />} />
       </Route>
 
       <Route path="/notificaciones" element={<VistaNotificaciones />} />
