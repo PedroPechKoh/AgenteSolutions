@@ -231,6 +231,9 @@
         box-shadow: none !important; 
         width: 100% !important;
         border: none !important;
+        display: block !important;
+        overflow: visible !important;
+        position: relative !important;
     }
 
     /* Ocultar bordes de inputs al imprimir */
@@ -249,8 +252,8 @@
         print-color-adjust: exact;
     }
 
-    .folio-box {
-        background: #333333 !important;
+    /* Forzar visibilidad de todo el texto */
+    * {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }

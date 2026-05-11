@@ -139,7 +139,7 @@ const ReporteTrabajo = () => {
   }, [trabajoId]);
 
   const handlePrint = useReactToPrint({
-    contentRef: componentRef,
+    content: () => componentRef.current,
     documentTitle: `Reporte_Trabajo_${reportData.folio}`,
   });
 
