@@ -39,7 +39,8 @@ const ReporteTrabajo = () => {
     tecnico: {
       nombre: servicio?.tecnico_nombre || "",
       especialidad: "Técnico Especialista",
-      cedula: "",
+      celular: "",
+      correo: "",
     },
     descripcion: servicio?.descripcion || "",
     materiales: [
@@ -92,7 +93,13 @@ const ReporteTrabajo = () => {
               tipo: getValid(f.propiedad?.tipo, prev.propiedad.tipo, s.tipoPropiedad, "Residencial"),
               superficie: getValid(f.propiedad?.superficie, prev.propiedad.superficie, s.superficie, "N/A"),
             },
-            tecnico: { ...prev.tecnico, ...(f.tecnico || {}) },
+            tecnico: { 
+              ...prev.tecnico, 
+              ...(f.tecnico || {}),
+              nombre: getValid(f.tecnico?.nombre, prev.tecnico.nombre, (s.technicians?.length ? s.technicians.map(t=>t.name).join(', ') : s.tecnico)),
+              celular: getValid(f.tecnico?.celular, prev.tecnico.celular, (s.technicians?.length ? s.technicians.map(t=>t.phone_number).filter(Boolean).join(', ') : s.tecnico_celular)),
+              correo: getValid(f.tecnico?.correo, prev.tecnico.correo, (s.technicians?.length ? s.technicians.map(t=>t.email).filter(Boolean).join(', ') : s.tecnico_email)),
+            },
           }));
         } else {
           // 3. Si no hay reporte guardado, cargar datos del estado previo y rellenar con servicio real de la BD
@@ -112,9 +119,10 @@ const ReporteTrabajo = () => {
               superficie: getValid(prev.propiedad.superficie, s.superficie, "N/A"),
             },
             tecnico: {
-              nombre: getValid(prev.tecnico.nombre, s.tecnico),
+              nombre: getValid(prev.tecnico.nombre, (s.technicians?.length ? s.technicians.map(t=>t.name).join(', ') : s.tecnico)),
               especialidad: "Técnico Especialista",
-              cedula: "",
+              celular: getValid(prev.tecnico.celular, (s.technicians?.length ? s.technicians.map(t=>t.phone_number).filter(Boolean).join(', ') : s.tecnico_celular)),
+              correo: getValid(prev.tecnico.correo, (s.technicians?.length ? s.technicians.map(t=>t.email).filter(Boolean).join(', ') : s.tecnico_email)),
             },
             descripcion: getValid(prev.descripcion, s.descripcion),
           }));
@@ -255,13 +263,9 @@ const ReporteTrabajo = () => {
               <strong>TELÉFONO:</strong> 
               <input className="editable-span" value={reportData.cliente.telefono} onChange={(e) => updateField('cliente', 'telefono', e.target.value)} />
             </div>
-            <div className="info-linea">
+            <div className="info-linea full-width">
               <strong>CORREO:</strong> 
               <input className="editable-span" value={reportData.cliente.correo} onChange={(e) => updateField('cliente', 'correo', e.target.value)} />
-            </div>
-            <div className="info-linea full-width">
-              <strong>DIRECCIÓN:</strong> 
-              <input className="editable-span" value={reportData.cliente.direccion} onChange={(e) => updateField('cliente', 'direccion', e.target.value)} />
             </div>
           </div>
         </div>
@@ -278,10 +282,6 @@ const ReporteTrabajo = () => {
               <strong>TIPO:</strong> 
               <input className="editable-span" value={reportData.propiedad.tipo} onChange={(e) => updateField('propiedad', 'tipo', e.target.value)} />
             </div>
-            <div className="info-linea">
-              <strong>SUPERFICIE:</strong> 
-              <input className="editable-span" value={reportData.propiedad.superficie} onChange={(e) => updateField('propiedad', 'superficie', e.target.value)} />
-            </div>
             <div className="info-linea full-width">
               <strong>UBICACIÓN:</strong> 
               <input className="editable-span" value={reportData.propiedad.direccion} onChange={(e) => updateField('propiedad', 'direccion', e.target.value)} />
@@ -293,7 +293,7 @@ const ReporteTrabajo = () => {
         <div className="info-section">
           <h3>TÉCNICO RESPONSABLE</h3>
           <div className="info-grid-2cols">
-            <div className="info-linea">
+            <div className="info-linea full-width">
               <strong>NOMBRE:</strong> 
               <input className="editable-span" value={reportData.tecnico.nombre} onChange={(e) => updateField('tecnico', 'nombre', e.target.value)} />
             </div>
@@ -302,8 +302,12 @@ const ReporteTrabajo = () => {
               <input className="editable-span" value={reportData.tecnico.especialidad} onChange={(e) => updateField('tecnico', 'especialidad', e.target.value)} />
             </div>
             <div className="info-linea">
-              <strong>CÉDULA:</strong> 
-              <input className="editable-span" value={reportData.tecnico.cedula} onChange={(e) => updateField('tecnico', 'cedula', e.target.value)} />
+              <strong>CELULAR:</strong> 
+              <input className="editable-span" value={reportData.tecnico.celular} onChange={(e) => updateField('tecnico', 'celular', e.target.value)} />
+            </div>
+            <div className="info-linea full-width">
+              <strong>CORREO:</strong> 
+              <input className="editable-span" value={reportData.tecnico.correo} onChange={(e) => updateField('tecnico', 'correo', e.target.value)} />
             </div>
           </div>
         </div>
