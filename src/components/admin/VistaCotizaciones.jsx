@@ -48,9 +48,9 @@ const VistaCotizaciones = () => {
 
   const filtradas = cotizaciones.filter(c => {
     const coincideFiltro = 
-      (filtro === 'Pendiente' && (c.estado === 'Pendiente' || c.estado === 'En proceso')) ||
-      (filtro === 'Aprobado' && c.estado === 'Aprobado') ||
-      (filtro === 'Rechazado' && c.estado === 'Rechazado');
+      (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
+      (filtro === 'Aprobado' && c.status === 'Aprobado') ||
+      (filtro === 'Rechazado' && c.status === 'Rechazado');
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
                              (c.folio?.toString() || "").includes(busqueda || "");
@@ -105,7 +105,7 @@ const VistaCotizaciones = () => {
         return (
           <div className="detalle-parseado">
             {/* Conceptos / Servicios */}
-            {detalle.conceptos && detalle.conceptos.some(c => c.descripcion) && (
+            {(detalle.conceptos || detalle.servicios) && (detalle.conceptos || detalle.servicios).some(c => c.descripcion) && (
               <div className="detalle-seccion">
                 <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px' }}>Servicios / Conceptos</h4>
                 <table className="modal-items-table">
@@ -117,11 +117,11 @@ const VistaCotizaciones = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {detalle.conceptos.filter(c => c.descripcion).map((c, i) => (
+                    {(detalle.conceptos || detalle.servicios).filter(c => c.descripcion).map((c, i) => (
                       <tr key={i}>
                         <td>{c.descripcion}</td>
                         <td style={{ textAlign: 'center' }}>{c.cantidad || 1}</td>
-                        <td style={{ textAlign: 'center' }}>${parseFloat(c.precio_u || 0).toLocaleString('es-MX')}</td>
+                        <td style={{ textAlign: 'center' }}>${parseFloat(c.precio_u || c.precio || 0).toLocaleString('es-MX')}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -130,7 +130,7 @@ const VistaCotizaciones = () => {
             )}
 
             {/* Materiales */}
-            {detalle.materiales && detalle.materiales.some(m => m.nombre) && (
+            {detalle.materiales && detalle.materiales.some(m => m.nombre || m.descripcion) && (
               <div className="detalle-seccion" style={{ marginTop: '15px' }}>
                 <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px' }}>Materiales</h4>
                 <table className="modal-items-table">
@@ -142,11 +142,11 @@ const VistaCotizaciones = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {detalle.materiales.filter(m => m.nombre).map((m, i) => (
+                    {detalle.materiales.filter(m => m.nombre || m.descripcion).map((m, i) => (
                       <tr key={i}>
-                        <td>{m.nombre}</td>
+                        <td>{m.nombre || m.descripcion}</td>
                         <td style={{ textAlign: 'center' }}>{m.cantidad || 1}</td>
-                        <td style={{ textAlign: 'center' }}>${parseFloat(m.costo_u || 0).toLocaleString('es-MX')}</td>
+                        <td style={{ textAlign: 'center' }}>${parseFloat(m.costo_u || m.precio || 0).toLocaleString('es-MX')}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -229,7 +229,7 @@ const VistaCotizaciones = () => {
         <td className="bold-folio">{c.folio}</td>
         <td className="cliente-name">{c.cliente}</td>
         <td className="monto-final">
-          {c.tipo === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
+          {c.type === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
         </td>
         <td>
           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -299,7 +299,7 @@ const VistaCotizaciones = () => {
                   <p><strong>Fecha:</strong> {cotizacionSeleccionada.fecha}</p>
                 </div>
 
-                {cotizacionSeleccionada.tipo === 'archivo' ? (
+                {cotizacionSeleccionada.type === 'archivo' ? (
                   
                   <div style={{ position: 'relative', background: '#e0e0e0', padding: '15px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '350px' }}>
                     
@@ -345,7 +345,7 @@ const VistaCotizaciones = () => {
                   </div>
 
                 ) : (
-                  renderConceptoDetalle(cotizacionSeleccionada.concepto)
+                  renderConceptoDetalle(cotizacionSeleccionada.concept)
                 )}
 
                 <div className="modal-total-section">
@@ -380,7 +380,7 @@ const VistaCotizaciones = () => {
 
             <div className="modal-footer-btns" style={{ flexShrink: 0, justifyContent: 'space-between', display: 'flex' }}>
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  {esCliente && cotizacionSeleccionada.estado === 'Pendiente' && !rechazando && (
+                  {esCliente && cotizacionSeleccionada.status === 'Pendiente' && !rechazando && (
                     <>
                       <button 
                         className="btn-modal-print" 
@@ -421,7 +421,7 @@ const VistaCotizaciones = () => {
                 </div>
 
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  {cotizacionSeleccionada.tipo !== 'archivo' && (
+                  {cotizacionSeleccionada.type !== 'archivo' && (
                     <button className="btn-modal-print" onClick={handleImprimirPDF}>🖨️ VER PDF</button>
                   )}
                   <button className="btn-modal-close" onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>CERRAR</button>

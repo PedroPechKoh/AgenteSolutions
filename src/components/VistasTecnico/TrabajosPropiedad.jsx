@@ -40,21 +40,40 @@ const TrabajoPropiedad = () => {
   const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
   const [observacionesCotizacion, setObservacionesCotizacion] = useState('');
   const [archivoCotizacion, setArchivoCotizacion] = useState(null);
+  const [cotizacionExistente, setCotizacionExistente] = useState(null);
+  const [modoConsulta, setModoConsulta] = useState(false);
   const [enviandoCotizacion, setEnviandoCotizacion] = useState(false);
   const [cotizacionEnviada, setCotizacionEnviada] = useState(false);
 
   useEffect(() => {
     fetchJobDetails();
+    checkExistingQuote();
   }, [id]);
+
+  const checkExistingQuote = async () => {
+    try {
+      const realId = id.includes('-') ? id.split('-')[1] : id;
+      const isWorkOrder = id.includes('work_order');
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
+      const allQuotes = res.data.data || res.data;
+      const found = allQuotes.find(q => 
+        (isWorkOrder && q.work_order_id === parseInt(realId)) || 
+        (!isWorkOrder && q.service_id === parseInt(realId))
+      );
+      if (found) {
+        setCotizacionExistente(found);
+      }
+    } catch (error) {
+      console.error("Error al buscar cotización previa:", error);
+    }
+  };
 
   useEffect(() => {
     if (data) {
-      // Cargar estado de confirmación específico de este trabajo
       const realId = id.includes('-') ? id.split('-')[1] : id;
       const confirmado = localStorage.getItem(`materiales_confirmados_${realId}`) === 'true';
       setMaterialesConfirmados(confirmado);
 
-      // Parsear el checklist dinámico
       const cl = data.custom_checklist 
         ? (typeof data.custom_checklist === 'string' ? JSON.parse(data.custom_checklist) : data.custom_checklist)
         : { materiales: [], equipo: [], herramientas: [] };
@@ -75,9 +94,7 @@ const TrabajoPropiedad = () => {
     try {
       setLoading(true);
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
-      setData(res.data.data || res.data); // Manejar ambos formatos si es necesario
-
-      // Check if reports exist
+      setData(res.data.data || res.data);
       try {
         const reportsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}/reportes`);
         if (reportsRes.data && reportsRes.data.length > 0) {
@@ -86,12 +103,33 @@ const TrabajoPropiedad = () => {
       } catch (err) {
         console.error("Error checking reports:", err);
       }
-
     } catch (error) {
       console.error("Error fetching job details:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAbrirCotizacion = () => {
+    if (cotizacionExistente) {
+      setModoConsulta(true);
+      // Usamos los nombres en inglés que vienen del controlador actualizado
+      if (cotizacionExistente.type === 'manual') {
+        const parsed = typeof cotizacionExistente.concept === 'string' ? JSON.parse(cotizacionExistente.concept) : cotizacionExistente.concept;
+        setFilasConceptos(parsed.servicios.map((s, i) => ({ id: i, desc: s.descripcion, cant: s.cantidad, precio: s.precio })));
+        setFilasMateriales(parsed.materiales.map((m, i) => ({ id: i + 1000, desc: m.descripcion, cant: m.cantidad, precio: m.precio })));
+        setObservacionesCotizacion(cotizacionExistente.observations || '');
+        setTabCotizacion('manual');
+      } else {
+        setTabCotizacion('archivo');
+      }
+    } else {
+      setModoConsulta(false);
+      setFilasConceptos([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
+      setFilasMateriales([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
+      setObservacionesCotizacion('');
+    }
+    setShowModalCotizacion(true);
   };
 
   const handleFinalizar = async () => {
@@ -148,7 +186,6 @@ const TrabajoPropiedad = () => {
     }
   };
 
-  // --- LÓGICA DE COTIZACIÓN ---
   const addFila = (setter) => setter(prev => [...prev, { id: Date.now(), desc: '', cant: 1, precio: 0 }]);
   const removeFila = (setter, id) => setter(prev => prev.filter(f => f.id !== id));
   const updateFila = (setter, id, field, value) => {
@@ -198,7 +235,6 @@ const TrabajoPropiedad = () => {
         setTimeout(() => {
           setShowModalCotizacion(false);
           setCotizacionEnviada(false);
-          // Resetear campos
           setFilasConceptos([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
           setFilasMateriales([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
           setArchivoCotizacion(null);
@@ -295,7 +331,6 @@ const TrabajoPropiedad = () => {
                 {(() => {
                   if (!data.descripcion) return <p className="tp-empty-desc">Sin descripción detallada.</p>;
                   
-                  // Intentar formatear si viene con el tag de equipo afectado
                   if (data.descripcion.includes('[EQUIPO AFECTADO]:')) {
                     const parts = data.descripcion.split('[EQUIPO AFECTADO]:');
                     const problema = parts[0].trim();
@@ -352,7 +387,6 @@ const TrabajoPropiedad = () => {
               </div>
             </motion.div>
 
-            {/* SECCIÓN DE MATERIALES REQUERIDOS (VISTA RÁPIDA) */}
             {checklistObj && (
               <motion.div 
                 className="tp-card tp-materials-preview-card"
@@ -426,7 +460,6 @@ const TrabajoPropiedad = () => {
               <p className="tp-flow-instruction">¿Listo para comenzar o terminar?</p>
               
               <div className="tp-flow-buttons">
-                {/* BOTONES DE CONSULTA (COPIADOS DE ADMIN) */}
                 <button className="tp-btn-consult variant-orange" onClick={() => setVerEvidencias(true)}>
                   <Camera size={18} />
                   <span>VER EVIDENCIAS Y PROCESO</span>
@@ -437,9 +470,9 @@ const TrabajoPropiedad = () => {
                   <span>CONSULTAR LEVANTAMIENTO</span>
                 </button>
 
-                <button className="tp-btn-consult variant-quote" onClick={() => setShowModalCotizacion(true)}>
+                <button className="tp-btn-consult variant-quote" onClick={handleAbrirCotizacion}>
                   <Calculator size={18} />
-                  <span>COTIZAR TRABAJO</span>
+                  <span>{cotizacionExistente ? 'CONSULTAR COTIZACIÓN' : 'COTIZAR TRABAJO'}</span>
                 </button>
 
                 <div className="tp-divider-mini"></div>
@@ -487,7 +520,6 @@ const TrabajoPropiedad = () => {
         </div>
       </div>
 
-      {/* MODAL: CHECKLIST DE MATERIALES */}
       <AnimatePresence>
         {showModalMateriales && (
           <div className="tp-modal-overlay">
@@ -504,7 +536,6 @@ const TrabajoPropiedad = () => {
               </div>
 
               <div className="tp-modal-scroll-body">
-                {/* MATERIALES */}
                 {(checklistObj?.materiales || checklistObj?.material || []).length > 0 && (
                   <div className="tp-check-section">
                     <h4>Materiales</h4>
@@ -519,7 +550,6 @@ const TrabajoPropiedad = () => {
                   </div>
                 )}
 
-                {/* EQUIPO */}
                 {(checklistObj?.equipo || []).length > 0 && (
                   <div className="tp-check-section">
                     <h4>Equipo</h4>
@@ -534,7 +564,6 @@ const TrabajoPropiedad = () => {
                   </div>
                 )}
 
-                {/* HERRAMIENTAS */}
                 {(checklistObj?.herramientas || []).length > 0 && (
                   <div className="tp-check-section">
                     <h4>Herramientas</h4>
@@ -547,10 +576,6 @@ const TrabajoPropiedad = () => {
                       ))}
                     </div>
                   </div>
-                )}
-
-                {(!checklistObj || (!checklistObj.materiales && !checklistObj.material && !checklistObj.equipo && !checklistObj.herramientas)) && (
-                   <p className="tp-empty-check">No hay materiales registrados para este trabajo.</p>
                 )}
               </div>
 
@@ -568,7 +593,6 @@ const TrabajoPropiedad = () => {
         )}
       </AnimatePresence>
 
-      {/* MODAL: LEVANTAMIENTO (SURVEY) */}
       <AnimatePresence>
         {modalSurveyVisible && (
           <div className="tp-modal-overlay survey-theme">
@@ -652,7 +676,6 @@ const TrabajoPropiedad = () => {
         )}
       </AnimatePresence>
 
-      {/* MODAL: EVIDENCIAS */}
       <AnimatePresence>
         {verEvidencias && (
           <div className="tp-modal-overlay">
@@ -686,7 +709,6 @@ const TrabajoPropiedad = () => {
         )}
       </AnimatePresence>
 
-      {/* ZOOM IMAGE */}
       <AnimatePresence>
         {imagenExpandida && (
           <div className="tp-zoom-full-overlay" onClick={() => setImagenExpandida(null)}>
@@ -702,7 +724,6 @@ const TrabajoPropiedad = () => {
         )}
       </AnimatePresence>
 
-      {/* MODAL: FINALIZAR */}
       <AnimatePresence>
         {showModalFinalizar && (
           <div className="tp-modal-overlay">
@@ -723,7 +744,6 @@ const TrabajoPropiedad = () => {
         )}
       </AnimatePresence>
 
-      {/* MODAL: NUEVA COTIZACIÓN (DISEÑO PREMIUM SOLICITADO) */}
       <AnimatePresence>
         {showModalCotizacion && (
           <div className="tp-modal-overlay">
@@ -735,39 +755,39 @@ const TrabajoPropiedad = () => {
             >
               <div className="tp-modal-q-header">
                 <div className="tp-q-header-title">
-                   <Calculator size={24} color="#f26624" />
-                   <h2>NUEVA COTIZACIÓN - S/N</h2>
+                  <Calculator size={24} color="#f26624" />
+                  <h2>{modoConsulta ? 'DETALLE DE COTIZACIÓN' : 'NUEVA COTIZACIÓN'} - {data?.propiedad_nombre || 'S/N'}</h2>
                 </div>
                 <button className="tp-close-modal-btn" onClick={() => setShowModalCotizacion(false)}><X size={24}/></button>
               </div>
 
-              <div className="tp-modal-q-tabs">
-                <button 
-                  className={`tp-q-tab ${tabCotizacion === 'manual' ? 'active' : ''}`}
-                  onClick={() => setTabCotizacion('manual')}
-                >
-                  <FileText size={18} />
-                  <span>Registro Manual</span>
-                </button>
-                <button 
-                  className={`tp-q-tab ${tabCotizacion === 'archivo' ? 'active' : ''}`}
-                  onClick={() => setTabCotizacion('archivo')}
-                >
-                  <Upload size={18} />
-                  <span>Cargar Archivo</span>
-                </button>
-              </div>
+              {!modoConsulta && (
+                <div className="tp-modal-q-tabs">
+                  <button 
+                    className={`tp-q-tab ${tabCotizacion === 'manual' ? 'active' : ''}`}
+                    onClick={() => setTabCotizacion('manual')}
+                  >
+                    <FileText size={18} />
+                    <span>Registro Manual</span>
+                  </button>
+                  <button 
+                    className={`tp-q-tab ${tabCotizacion === 'archivo' ? 'active' : ''}`}
+                    onClick={() => setTabCotizacion('archivo')}
+                  >
+                    <Upload size={18} />
+                    <span>Cargar Archivo</span>
+                  </button>
+                </div>
+              )}
 
               <div className="tp-modal-q-body">
                 {tabCotizacion === 'manual' ? (
                   <div className="tp-q-manual-form">
-                    {/* SECCIÓN 1: CONCEPTOS */}
                     <div className="tp-q-section">
                       <div className="tp-q-section-header">
                         <h3>1. CONCEPTOS DE SERVICIO</h3>
                         <div className="tp-q-line"></div>
                       </div>
-                      
                       <div className="tp-q-table-header">
                         <span className="col-desc">DESCRIPCIÓN</span>
                         <span className="col-cant">CANT.</span>
@@ -775,7 +795,6 @@ const TrabajoPropiedad = () => {
                         <span className="col-sub">SUBTOTAL</span>
                         <span className="col-actions"></span>
                       </div>
-
                       <div className="tp-q-rows-container">
                         {filasConceptos.map(f => (
                           <div key={f.id} className="tp-q-row">
@@ -785,34 +804,40 @@ const TrabajoPropiedad = () => {
                               placeholder="Ej: Instalación de luminarias"
                               value={f.desc}
                               onChange={(e) => updateFila(setFilasConceptos, f.id, 'desc', e.target.value)}
+                              readOnly={modoConsulta}
                             />
                             <input 
                               type="number" 
                               className="tp-q-input cant" 
                               value={f.cant}
                               onChange={(e) => updateFila(setFilasConceptos, f.id, 'cant', e.target.value)}
+                              readOnly={modoConsulta}
                             />
                             <div className="tp-q-price-wrapper">
                               <span>$</span>
                               <input 
                                 type="number" 
-                                className="tp-q-input price" 
+                                className="tp-q-input" 
                                 value={f.precio}
                                 onChange={(e) => updateFila(setFilasConceptos, f.id, 'precio', e.target.value)}
+                                readOnly={modoConsulta}
                               />
                             </div>
                             <span className="tp-q-subtotal">${(f.cant * f.precio).toLocaleString()}</span>
-                            <button className="tp-q-btn-del" onClick={() => removeFila(setFilasConceptos, f.id)}><Trash2 size={16}/></button>
+                            {!modoConsulta && (
+                              <button className="tp-q-btn-del" onClick={() => removeFila(setFilasConceptos, f.id)}><X size={16}/></button>
+                            )}
                           </div>
                         ))}
                       </div>
-                      <button className="tp-q-btn-add" onClick={() => addFila(setFilasConceptos)}>
-                        <Plus size={16} />
-                        <span>Agregar Concepto</span>
-                      </button>
+                      {!modoConsulta && (
+                        <button className="tp-q-btn-add" onClick={() => addFila(setFilasConceptos)}>
+                          <Plus size={16} />
+                          <span>Agregar Concepto</span>
+                        </button>
+                      )}
                     </div>
 
-                    {/* SECCIÓN 2: MATERIALES */}
                     <div className="tp-q-section">
                       <div className="tp-q-section-header">
                         <h3>2. MATERIALES</h3>
@@ -874,21 +899,30 @@ const TrabajoPropiedad = () => {
                         placeholder="Notas internas..."
                         value={observacionesCotizacion}
                         onChange={(e) => setObservacionesCotizacion(e.target.value)}
+                        readOnly={modoConsulta}
                       ></textarea>
                     </div>
                   </div>
                 ) : (
                   <div className="tp-q-file-upload">
-                    <div className="tp-upload-area" onClick={() => document.getElementById('q-file-input').click()}>
-                      <Upload size={48} color="#f26624" />
-                      <p>{archivoCotizacion ? archivoCotizacion.name : "Haga clic para seleccionar el archivo de cotización (PDF/Imagen)"}</p>
-                      <input 
-                        id="q-file-input" 
-                        type="file" 
-                        hidden 
-                        onChange={(e) => setArchivoCotizacion(e.target.files[0])}
-                      />
-                    </div>
+                    {modoConsulta ? (
+                      <div className="tp-q-view-file">
+                        <FileText size={48} color="#f26624" />
+                        <p>Esta cotización fue cargada como archivo.</p>
+                        <a href={cotizacionExistente.archivo_url} target="_blank" rel="noreferrer" className="tp-q-btn-view">VER ARCHIVO</a>
+                      </div>
+                    ) : (
+                      <div className="tp-upload-area" onClick={() => document.getElementById('q-file-input').click()}>
+                        <Upload size={48} color="#f26624" />
+                        <p>{archivoCotizacion ? archivoCotizacion.name : "Haga clic para seleccionar el archivo de cotización (PDF/Imagen)"}</p>
+                        <input 
+                          id="q-file-input" 
+                          type="file" 
+                          hidden 
+                          onChange={(e) => setArchivoCotizacion(e.target.files[0])}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -899,14 +933,20 @@ const TrabajoPropiedad = () => {
                   <span className="tp-q-total-amount">${Number(calcularTotal()).toLocaleString()}</span>
                 </div>
                 <div className="tp-q-footer-actions">
-                  <button className="tp-q-btn-cancel-new" onClick={() => setShowModalCotizacion(false)}>CANCELAR</button>
-                  <button 
-                    className={`tp-q-btn-save-new ${enviandoCotizacion ? 'loading' : ''}`}
-                    onClick={enviarCotizacion}
-                    disabled={enviandoCotizacion || cotizacionEnviada}
-                  >
-                    {enviandoCotizacion ? "ENVIANDO..." : cotizacionEnviada ? "¡ENVIADO!" : "GUARDAR COTIZACIÓN"}
-                  </button>
+                  {modoConsulta ? (
+                    <button className="tp-q-btn-cancel-new" onClick={() => setShowModalCotizacion(false)}>CERRAR</button>
+                  ) : (
+                    <>
+                      <button className="tp-q-btn-cancel-new" onClick={() => setShowModalCotizacion(false)}>CANCELAR</button>
+                      <button 
+                        className={`tp-q-btn-save-new ${enviandoCotizacion ? 'loading' : ''}`}
+                        onClick={enviarCotizacion}
+                        disabled={enviandoCotizacion || cotizacionEnviada}
+                      >
+                        {enviandoCotizacion ? "ENVIANDO..." : cotizacionEnviada ? "¡ENVIADO!" : "GUARDAR COTIZACIÓN"}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </motion.div>
