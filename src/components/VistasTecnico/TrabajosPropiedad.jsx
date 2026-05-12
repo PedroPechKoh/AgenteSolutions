@@ -8,7 +8,8 @@ import {
   MapPin, Phone, User, Wrench, Clock, 
   ChevronLeft, Navigation, CheckCircle2, AlertCircle,
   FileText, ArrowRight, Package, Lock, Camera, Layout,
-  X, Maximize2, ChevronRight, AlertTriangle, Zap
+  X, Maximize2, ChevronRight, AlertTriangle, Zap,
+  Plus, Trash2, Upload, Calculator
 } from 'lucide-react';
 
 const TrabajoPropiedad = () => {
@@ -29,6 +30,15 @@ const TrabajoPropiedad = () => {
   const [areaActivaSurvey, setAreaActivaSurvey] = useState(null);
   const [verEvidencias, setVerEvidencias] = useState(false);
   const [imagenExpandida, setImagenExpandida] = useState(null);
+
+  // --- ESTADOS PARA COTIZACIÓN ---
+  const [showModalCotizacion, setShowModalCotizacion] = useState(false);
+  const [tabCotizacion, setTabCotizacion] = useState('manual'); // 'manual' o 'archivo'
+  const [filasConceptos, setFilasConceptos] = useState([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
+  const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
+  const [archivoCotizacion, setArchivoCotizacion] = useState(null);
+  const [enviandoCotizacion, setEnviandoCotizacion] = useState(false);
+  const [cotizacionEnviada, setCotizacionEnviada] = useState(false);
 
   useEffect(() => {
     fetchJobDetails();
@@ -132,6 +142,69 @@ const TrabajoPropiedad = () => {
   const openInGoogleMaps = () => {
     if (data?.coordenadas) {
       window.open(`https://www.google.com/maps/search/?api=1&query=${data.coordenadas}`, '_blank');
+    }
+  };
+
+  // --- LÓGICA DE COTIZACIÓN ---
+  const addFila = (setter) => setter(prev => [...prev, { id: Date.now(), desc: '', cant: 1, precio: 0 }]);
+  const removeFila = (setter, id) => setter(prev => prev.filter(f => f.id !== id));
+  const updateFila = (setter, id, field, value) => {
+    setter(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
+  };
+
+  const calcularTotal = () => {
+    const totalConceptos = filasConceptos.reduce((acc, f) => acc + (f.cant * f.precio), 0);
+    const totalMateriales = filasMateriales.reduce((acc, f) => acc + (f.cant * f.precio), 0);
+    return totalConceptos + totalMateriales;
+  };
+
+  const enviarCotizacion = async () => {
+    try {
+      setEnviandoCotizacion(true);
+      const realId = id.includes('-') ? id.split('-')[1] : id;
+      const isWorkOrder = id.includes('work_order');
+
+      const formData = new FormData();
+      formData.append('type', tabCotizacion);
+      
+      if (isWorkOrder) {
+        formData.append('work_order_id', realId);
+      } else {
+        formData.append('service_id', realId);
+      }
+
+      if (tabCotizacion === 'manual') {
+        const conceptData = {
+          servicios: filasConceptos.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio })),
+          materiales: filasMateriales.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio }))
+        };
+        formData.append('concept', JSON.stringify(conceptData));
+        formData.append('estimated_amount', calcularTotal());
+      } else {
+        if (!archivoCotizacion) return alert("Por favor seleccione un archivo.");
+        formData.append('file', archivoCotizacion);
+      }
+
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (res.status === 201) {
+        setCotizacionEnviada(true);
+        setTimeout(() => {
+          setShowModalCotizacion(false);
+          setCotizacionEnviada(false);
+          // Resetear campos
+          setFilasConceptos([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
+          setFilasMateriales([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
+          setArchivoCotizacion(null);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error enviando cotización:", error);
+      alert("Hubo un error al enviar la cotización.");
+    } finally {
+      setEnviandoCotizacion(false);
     }
   };
 
@@ -357,6 +430,11 @@ const TrabajoPropiedad = () => {
                 <button className="tp-btn-consult variant-dark" onClick={abrirSurvey}>
                   <Layout size={18} />
                   <span>CONSULTAR LEVANTAMIENTO</span>
+                </button>
+
+                <button className="tp-btn-consult variant-quote" onClick={() => setShowModalCotizacion(true)}>
+                  <Calculator size={18} />
+                  <span>COTIZAR TRABAJO</span>
                 </button>
 
                 <div className="tp-divider-mini"></div>
@@ -632,6 +710,183 @@ const TrabajoPropiedad = () => {
               <h2>¡TRABAJO FINALIZADO!</h2>
               <p>Se ha enviado para verificación del administrador.</p>
               <button onClick={() => navigate('/trabajos-tecnico')}>VOLVER AL TABLERO</button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* MODAL: NUEVA COTIZACIÓN (DISEÑO PREMIUM SOLICITADO) */}
+      <AnimatePresence>
+        {showModalCotizacion && (
+          <div className="tp-modal-overlay">
+            <motion.div 
+              className="tp-modal-quotation-card"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+            >
+              <div className="tp-modal-q-header">
+                <div className="tp-q-header-title">
+                   <Calculator size={24} color="#f26624" />
+                   <h2>NUEVA COTIZACIÓN - S/N</h2>
+                </div>
+                <button className="tp-close-modal-btn" onClick={() => setShowModalCotizacion(false)}><X size={24}/></button>
+              </div>
+
+              <div className="tp-modal-q-tabs">
+                <button 
+                  className={`tp-q-tab ${tabCotizacion === 'manual' ? 'active' : ''}`}
+                  onClick={() => setTabCotizacion('manual')}
+                >
+                  <FileText size={18} />
+                  <span>Registro Manual</span>
+                </button>
+                <button 
+                  className={`tp-q-tab ${tabCotizacion === 'archivo' ? 'active' : ''}`}
+                  onClick={() => setTabCotizacion('archivo')}
+                >
+                  <Upload size={18} />
+                  <span>Cargar Archivo</span>
+                </button>
+              </div>
+
+              <div className="tp-modal-q-body">
+                {tabCotizacion === 'manual' ? (
+                  <div className="tp-q-manual-form">
+                    {/* SECCIÓN 1: CONCEPTOS */}
+                    <div className="tp-q-section">
+                      <div className="tp-q-section-header">
+                        <h3>1. CONCEPTOS DE SERVICIO</h3>
+                        <div className="tp-q-line"></div>
+                      </div>
+                      
+                      <div className="tp-q-table-header">
+                        <span className="col-desc">DESCRIPCIÓN</span>
+                        <span className="col-cant">CANT.</span>
+                        <span className="col-price">PRECIO U.</span>
+                        <span className="col-sub">SUBTOTAL</span>
+                        <span className="col-actions"></span>
+                      </div>
+
+                      <div className="tp-q-rows-container">
+                        {filasConceptos.map(f => (
+                          <div key={f.id} className="tp-q-row">
+                            <input 
+                              type="text" 
+                              className="tp-q-input desc" 
+                              placeholder="Ej: Instalación de luminarias"
+                              value={f.desc}
+                              onChange={(e) => updateFila(setFilasConceptos, f.id, 'desc', e.target.value)}
+                            />
+                            <input 
+                              type="number" 
+                              className="tp-q-input cant" 
+                              value={f.cant}
+                              onChange={(e) => updateFila(setFilasConceptos, f.id, 'cant', e.target.value)}
+                            />
+                            <div className="tp-q-price-wrapper">
+                              <span>$</span>
+                              <input 
+                                type="number" 
+                                className="tp-q-input price" 
+                                value={f.precio}
+                                onChange={(e) => updateFila(setFilasConceptos, f.id, 'precio', e.target.value)}
+                              />
+                            </div>
+                            <span className="tp-q-subtotal">${(f.cant * f.precio).toLocaleString()}</span>
+                            <button className="tp-q-btn-del" onClick={() => removeFila(setFilasConceptos, f.id)}><Trash2 size={16}/></button>
+                          </div>
+                        ))}
+                      </div>
+                      <button className="tp-q-btn-add" onClick={() => addFila(setFilasConceptos)}>
+                        <Plus size={16} />
+                        <span>Agregar Concepto</span>
+                      </button>
+                    </div>
+
+                    {/* SECCIÓN 2: MATERIALES */}
+                    <div className="tp-q-section">
+                      <div className="tp-q-section-header">
+                        <h3>2. MATERIALES</h3>
+                        <div className="tp-q-line"></div>
+                      </div>
+                      
+                      <div className="tp-q-table-header">
+                        <span className="col-desc">MATERIAL</span>
+                        <span className="col-cant">CANT.</span>
+                        <span className="col-price">COSTO U.</span>
+                        <span className="col-sub">SUBTOTAL</span>
+                        <span className="col-actions"></span>
+                      </div>
+
+                      <div className="tp-q-rows-container">
+                        {filasMateriales.map(f => (
+                          <div key={f.id} className="tp-q-row">
+                            <input 
+                              type="text" 
+                              className="tp-q-input desc" 
+                              placeholder="Ej: Cable UTP"
+                              value={f.desc}
+                              onChange={(e) => updateFila(setFilasMateriales, f.id, 'desc', e.target.value)}
+                            />
+                            <input 
+                              type="number" 
+                              className="tp-q-input cant" 
+                              value={f.cant}
+                              onChange={(e) => updateFila(setFilasMateriales, f.id, 'cant', e.target.value)}
+                            />
+                            <div className="tp-q-price-wrapper">
+                              <span>$</span>
+                              <input 
+                                type="number" 
+                                className="tp-q-input price" 
+                                value={f.precio}
+                                onChange={(e) => updateFila(setFilasMateriales, f.id, 'precio', e.target.value)}
+                              />
+                            </div>
+                            <span className="tp-q-subtotal">${(f.cant * f.precio).toLocaleString()}</span>
+                            <button className="tp-q-btn-del" onClick={() => removeFila(setFilasMateriales, f.id)}><Trash2 size={16}/></button>
+                          </div>
+                        ))}
+                      </div>
+                      <button className="tp-q-btn-add" onClick={() => addFila(setFilasMateriales)}>
+                        <Plus size={16} />
+                        <span>Agregar Material</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="tp-q-file-upload">
+                    <div className="tp-upload-area" onClick={() => document.getElementById('q-file-input').click()}>
+                      <Upload size={48} color="#f26624" />
+                      <p>{archivoCotizacion ? archivoCotizacion.name : "Haga clic para seleccionar el archivo de cotización (PDF/Imagen)"}</p>
+                      <input 
+                        id="q-file-input" 
+                        type="file" 
+                        hidden 
+                        onChange={(e) => setArchivoCotizacion(e.target.files[0])}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="tp-modal-q-footer">
+                <div className="tp-q-total-box">
+                  <span className="tp-q-total-label">TOTAL ESTIMADO:</span>
+                  <span className="tp-q-total-amount">${calcularTotal().toLocaleString()}</span>
+                </div>
+                <div className="tp-q-footer-actions">
+                  <button className="tp-q-btn-cancel" onClick={() => setShowModalCotizacion(false)}>CANCELAR</button>
+                  <button 
+                    className={`tp-q-btn-save ${enviandoCotizacion ? 'loading' : ''}`}
+                    onClick={enviarCotizacion}
+                    disabled={enviandoCotizacion || cotizacionEnviada}
+                  >
+                    {enviandoCotizacion ? "ENVIANDO..." : cotizacionEnviada ? "¡ENVIADO!" : "GUARDAR COTIZACIÓN"}
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
