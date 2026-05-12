@@ -38,8 +38,6 @@ const TrabajoPropiedad = () => {
   const [tabCotizacion, setTabCotizacion] = useState('manual'); // 'manual' o 'archivo'
   const [filasConceptos, setFilasConceptos] = useState([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
   const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
-  const [filasHerramientas, setFilasHerramientas] = useState([{ id: Date.now() + 2, desc: '' }]);
-  const [filasEspeciales, setFilasEspeciales] = useState([{ id: Date.now() + 3, desc: '' }]);
   const [observacionesCotizacion, setObservacionesCotizacion] = useState('');
   const [archivoCotizacion, setArchivoCotizacion] = useState(null);
   const [enviandoCotizacion, setEnviandoCotizacion] = useState(false);
@@ -181,9 +179,7 @@ const TrabajoPropiedad = () => {
       if (tabCotizacion === 'manual') {
         const conceptData = {
           servicios: filasConceptos.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio })),
-          materiales: filasMateriales.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio })),
-          herramientas: filasHerramientas.map(f => ({ descripcion: f.desc })),
-          especiales: filasEspeciales.map(f => ({ descripcion: f.desc }))
+          materiales: filasMateriales.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio }))
         };
         formData.append('concept', JSON.stringify(conceptData));
         formData.append('estimated_amount', calcularTotal());
@@ -866,61 +862,11 @@ const TrabajoPropiedad = () => {
                       </button>
                     </div>
 
-                    {/* SECCIÓN 3: HERRAMIENTAS Y ESPECIALES */}
-                    <div className="tp-q-grid-half">
-                       <div className="tp-q-section">
-                          <div className="tp-q-section-header">
-                            <h3>3.1 HERRAMIENTAS BÁSICAS</h3>
-                            <div className="tp-q-line"></div>
-                          </div>
-                          <div className="tp-q-rows-container">
-                            {filasHerramientas.map(f => (
-                              <div key={f.id} className="tp-q-row-simple">
-                                <input 
-                                  type="text" 
-                                  className="tp-q-input" 
-                                  placeholder="Herramienta..."
-                                  value={f.desc}
-                                  onChange={(e) => updateFila(setFilasHerramientas, f.id, 'desc', e.target.value)}
-                                />
-                                <button className="tp-q-btn-del small" onClick={() => removeFila(setFilasHerramientas, f.id)}><X size={14}/></button>
-                              </div>
-                            ))}
-                          </div>
-                          <button className="tp-q-btn-add-circle" onClick={() => addFila(setFilasHerramientas)}>
-                            <Plus size={16} />
-                          </button>
-                       </div>
-
-                       <div className="tp-q-section">
-                          <div className="tp-q-section-header">
-                            <h3>3.2 ESPECIALES</h3>
-                            <div className="tp-q-line"></div>
-                          </div>
-                          <div className="tp-q-rows-container">
-                            {filasEspeciales.map(f => (
-                              <div key={f.id} className="tp-q-row-simple">
-                                <input 
-                                  type="text" 
-                                  className="tp-q-input" 
-                                  placeholder="Especial..."
-                                  value={f.desc}
-                                  onChange={(e) => updateFila(setFilasEspeciales, f.id, 'desc', e.target.value)}
-                                />
-                                <button className="tp-q-btn-del small" onClick={() => removeFila(setFilasEspeciales, f.id)}><X size={14}/></button>
-                              </div>
-                            ))}
-                          </div>
-                          <button className="tp-q-btn-add-circle" onClick={() => addFila(setFilasEspeciales)}>
-                            <Plus size={16} />
-                          </button>
-                       </div>
-                    </div>
-
-                    {/* SECCIÓN 4: OBSERVACIONES */}
+                    {/* SECCIÓN 3: OBSERVACIONES */}
                     <div className="tp-q-section">
                       <div className="tp-q-section-header">
-                        <h3>Observaciones Adicionales</h3>
+                        <h3>3. OBSERVACIONES ADICIONALES</h3>
+                        <div className="tp-q-line"></div>
                       </div>
                       <textarea 
                         className="tp-q-textarea"
