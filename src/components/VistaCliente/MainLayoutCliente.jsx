@@ -36,8 +36,8 @@ const MainLayoutCliente = ({ children }) => {
   ];
 
   const propertyNavButtons = [
-    { label: 'DETALLES PROPIEDAD', path: detailPath, icon: <Home size={18} /> },
-    { label: 'VER TABLERO', path: tableroPath, icon: <LayoutDashboard size={18} /> },
+    { label: 'DETALLES PROPIEDAD', path: tableroPath, icon: <Home size={18} /> },
+    { label: 'REPORTE TÉCNICO', path: detailPath, icon: <FileText size={18} /> },
     { label: 'SOS', path: '/SOSView', icon: <Bell size={18} /> },
     { label: 'COTIZACIONES', path: '/vista-cotizaciones', icon: <FileText size={18} /> },
   ];

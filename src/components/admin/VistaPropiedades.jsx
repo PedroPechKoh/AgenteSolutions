@@ -342,15 +342,17 @@ const VistaPropiedades = () => {
                       <button
                         className="btn-overlay secondary"
                         onClick={() => {
-                          if (isClient && p.id_levantamiento) {
-                            localStorage.setItem('current_property_id', p.id);
+                          localStorage.setItem('current_property_id', p.id);
+                          if (p.id_levantamiento) {
                             localStorage.setItem('current_levantamiento_id', p.id_levantamiento);
-                            navigate(`/detalle-reporte/${p.id_levantamiento}`);
+                          }
+                          
+                          if (isClient) {
+                            navigate(`/DetallePropiedad/${p.id}`);
                           } else {
                             navigate(`/detalle-propiedad/${p.id}`);
                           }
                         }}
-
                       >
                         DETALLES DE PROPIEDAD
                       </button>
