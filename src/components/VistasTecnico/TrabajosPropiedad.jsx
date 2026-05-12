@@ -38,6 +38,9 @@ const TrabajoPropiedad = () => {
   const [tabCotizacion, setTabCotizacion] = useState('manual'); // 'manual' o 'archivo'
   const [filasConceptos, setFilasConceptos] = useState([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
   const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
+  const [filasHerramientas, setFilasHerramientas] = useState([{ id: Date.now() + 2, desc: '' }]);
+  const [filasEspeciales, setFilasEspeciales] = useState([{ id: Date.now() + 3, desc: '' }]);
+  const [observacionesCotizacion, setObservacionesCotizacion] = useState('');
   const [archivoCotizacion, setArchivoCotizacion] = useState(null);
   const [enviandoCotizacion, setEnviandoCotizacion] = useState(false);
   const [cotizacionEnviada, setCotizacionEnviada] = useState(false);
@@ -155,8 +158,8 @@ const TrabajoPropiedad = () => {
   };
 
   const calcularTotal = () => {
-    const totalConceptos = filasConceptos.reduce((acc, f) => acc + (f.cant * f.precio), 0);
-    const totalMateriales = filasMateriales.reduce((acc, f) => acc + (f.cant * f.precio), 0);
+    const totalConceptos = filasConceptos.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
+    const totalMateriales = filasMateriales.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
     return totalConceptos + totalMateriales;
   };
 
@@ -178,10 +181,13 @@ const TrabajoPropiedad = () => {
       if (tabCotizacion === 'manual') {
         const conceptData = {
           servicios: filasConceptos.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio })),
-          materiales: filasMateriales.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio }))
+          materiales: filasMateriales.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio })),
+          herramientas: filasHerramientas.map(f => ({ descripcion: f.desc })),
+          especiales: filasEspeciales.map(f => ({ descripcion: f.desc }))
         };
         formData.append('concept', JSON.stringify(conceptData));
         formData.append('estimated_amount', calcularTotal());
+        formData.append('observations', observacionesCotizacion);
       } else {
         if (!archivoCotizacion) return alert("Por favor seleccione un archivo.");
         formData.append('file', archivoCotizacion);
@@ -859,6 +865,70 @@ const TrabajoPropiedad = () => {
                         <span>Agregar Material</span>
                       </button>
                     </div>
+
+                    {/* SECCIÓN 3: HERRAMIENTAS Y ESPECIALES */}
+                    <div className="tp-q-grid-half">
+                       <div className="tp-q-section">
+                          <div className="tp-q-section-header">
+                            <h3>3.1 HERRAMIENTAS BÁSICAS</h3>
+                            <div className="tp-q-line"></div>
+                          </div>
+                          <div className="tp-q-rows-container">
+                            {filasHerramientas.map(f => (
+                              <div key={f.id} className="tp-q-row-simple">
+                                <input 
+                                  type="text" 
+                                  className="tp-q-input" 
+                                  placeholder="Herramienta..."
+                                  value={f.desc}
+                                  onChange={(e) => updateFila(setFilasHerramientas, f.id, 'desc', e.target.value)}
+                                />
+                                <button className="tp-q-btn-del small" onClick={() => removeFila(setFilasHerramientas, f.id)}><X size={14}/></button>
+                              </div>
+                            ))}
+                          </div>
+                          <button className="tp-q-btn-add-circle" onClick={() => addFila(setFilasHerramientas)}>
+                            <Plus size={16} />
+                          </button>
+                       </div>
+
+                       <div className="tp-q-section">
+                          <div className="tp-q-section-header">
+                            <h3>3.2 ESPECIALES</h3>
+                            <div className="tp-q-line"></div>
+                          </div>
+                          <div className="tp-q-rows-container">
+                            {filasEspeciales.map(f => (
+                              <div key={f.id} className="tp-q-row-simple">
+                                <input 
+                                  type="text" 
+                                  className="tp-q-input" 
+                                  placeholder="Especial..."
+                                  value={f.desc}
+                                  onChange={(e) => updateFila(setFilasEspeciales, f.id, 'desc', e.target.value)}
+                                />
+                                <button className="tp-q-btn-del small" onClick={() => removeFila(setFilasEspeciales, f.id)}><X size={14}/></button>
+                              </div>
+                            ))}
+                          </div>
+                          <button className="tp-q-btn-add-circle" onClick={() => addFila(setFilasEspeciales)}>
+                            <Plus size={16} />
+                          </button>
+                       </div>
+                    </div>
+
+                    {/* SECCIÓN 4: OBSERVACIONES */}
+                    <div className="tp-q-section">
+                      <div className="tp-q-section-header">
+                        <h3>Observaciones Adicionales</h3>
+                      </div>
+                      <textarea 
+                        className="tp-q-textarea"
+                        placeholder="Notas internas..."
+                        value={observacionesCotizacion}
+                        onChange={(e) => setObservacionesCotizacion(e.target.value)}
+                      ></textarea>
+                    </div>
                   </div>
                 ) : (
                   <div className="tp-q-file-upload">
@@ -877,14 +947,14 @@ const TrabajoPropiedad = () => {
               </div>
 
               <div className="tp-modal-q-footer">
-                <div className="tp-q-total-box">
+                <div className="tp-q-total-card">
                   <span className="tp-q-total-label">TOTAL ESTIMADO:</span>
-                  <span className="tp-q-total-amount">${calcularTotal().toLocaleString()}</span>
+                  <span className="tp-q-total-amount">${Number(calcularTotal()).toLocaleString()}</span>
                 </div>
                 <div className="tp-q-footer-actions">
-                  <button className="tp-q-btn-cancel" onClick={() => setShowModalCotizacion(false)}>CANCELAR</button>
+                  <button className="tp-q-btn-cancel-new" onClick={() => setShowModalCotizacion(false)}>CANCELAR</button>
                   <button 
-                    className={`tp-q-btn-save ${enviandoCotizacion ? 'loading' : ''}`}
+                    className={`tp-q-btn-save-new ${enviandoCotizacion ? 'loading' : ''}`}
                     onClick={enviarCotizacion}
                     disabled={enviandoCotizacion || cotizacionEnviada}
                   >
