@@ -11,8 +11,10 @@ import {
   X, Maximize2, ChevronRight, AlertTriangle, Zap,
   Plus, Trash2, Upload, Calculator
 } from 'lucide-react';
+import { useAuth } from "../../context/AuthContext";
 
 const TrabajoPropiedad = () => {
+  const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
@@ -462,13 +464,16 @@ const TrabajoPropiedad = () => {
                   <ArrowRight size={18} />
                 </button>
 
-                <button 
-                  className="tp-btn-secondary"
-                  onClick={handleFinalizar}
-                >
-                  <CheckCircle2 size={18} />
-                  <span>MARCAR COMO LISTO</span>
-                </button>
+                {(user?.role_id === 0 || user?.role_id === 1) && (
+                  <button 
+                    className="tp-btn-secondary"
+                    onClick={handleFinalizar}
+                    style={{ background: '#3b82f6' }}
+                  >
+                    <CheckCircle2 size={18} />
+                    <span>MARCAR COMO LISTO (ADMIN)</span>
+                  </button>
+                )}
               </div>
               
               {!materialesConfirmados && (

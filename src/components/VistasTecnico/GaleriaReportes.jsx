@@ -6,7 +6,10 @@ import { Plus, ChevronLeft, FileText } from 'lucide-react';
 
 import Header from '../Shared/Header';
 
+import { useAuth } from "../../context/AuthContext";
+
 const GaleriaReportes = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const trabajoId = location.state?.trabajoId;
@@ -88,20 +91,22 @@ const GaleriaReportes = () => {
             <span>REGRESAR</span>
           </button>
 
-          {/* BOTÓN REPORTE OFICIAL (Para Admin/Coordinador) */}
-          <button 
-            onClick={() => navigate('/reporte-trabajo-admin', { 
-              state: { 
-                trabajoId, 
-                servicio, 
-                imagenes: reportes.map(r => r.image_url) 
-              } 
-            })}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#003366', color: 'white', padding: '12px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(0,51,102,0.3)' }}
-          >
-            <FileText size={20} />
-            <span>GENERAR REPORTE OFICIAL</span>
-          </button>
+          {/* BOTÓN REPORTE OFICIAL (Solo para Admin/Supervisor) */}
+          {(user?.role_id === 0 || user?.role_id === 1) && (
+            <button 
+              onClick={() => navigate('/reporte-trabajo-admin', { 
+                state: { 
+                  trabajoId, 
+                  servicio, 
+                  imagenes: reportes.map(r => r.image_url) 
+                } 
+              })}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#003366', color: 'white', padding: '12px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 4px 15px rgba(0,51,102,0.3)' }}
+            >
+              <FileText size={20} />
+              <span>GENERAR REPORTE OFICIAL</span>
+            </button>
+          )}
 
           <button
             type="button"
