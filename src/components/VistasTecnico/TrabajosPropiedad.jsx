@@ -206,7 +206,8 @@ const TrabajoPropiedad = () => {
       }
     } catch (error) {
       console.error("Error enviando cotización:", error);
-      alert("Hubo un error al enviar la cotización.");
+      const msg = error.response?.data?.error || error.message || "Error desconocido";
+      alert("Hubo un error al enviar la cotización: " + msg);
     } finally {
       setEnviandoCotizacion(false);
     }
