@@ -58,6 +58,15 @@ const VistaCotizaciones = () => {
     }
   };
 
+  const filtradas = cotizaciones.filter(c => {
+    const coincideFiltro = 
+      (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
+      (filtro === 'Aprobado' && c.status === 'Aprobado') ||
+      (filtro === 'Rechazado' && c.status === 'Rechazado');
+
+    const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
+                             (c.folio?.toString() || "").includes(busqueda || "");
+
     const correspondeAlCliente = !esCliente || c.cliente_user_id === usuarioId;
 
     const coincideTipo = 
