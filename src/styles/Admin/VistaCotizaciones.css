@@ -633,13 +633,15 @@
     }
 
     .cotiz-tabs-pills {
+        flex-direction: column;
         width: 100%;
-        overflow-x: auto;
-        padding-bottom: 5px;
+        gap: 8px;
     }
 
     .cotiz-pill {
-        flex: 0 0 auto;
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
     }
 
     .cotiz-advanced-filters {
@@ -748,6 +750,19 @@
     .filter-group, .sort-btn {
         width: 100%;
         justify-content: space-between;
+    }
+
+    .cotiz-tabs-pills.origin-pills {
+        margin-top: 10px;
+        flex-direction: column;
+        background: transparent;
+        padding: 0;
+        gap: 8px;
+    }
+
+    .cotiz-tabs-pills.origin-pills .cotiz-pill {
+        background: #f1f5f9;
+        width: 100%;
     }
 }
 
