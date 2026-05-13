@@ -23,26 +23,62 @@ const VistaCotizacionPrint = () => {
       const data = JSON.parse(datosGuardados);
       setCotizacion(data);
 
+      // El backend puede enviar 'concept' o 'concepto'
+      const rawConcept = data.concept || data.concepto;
       let items = [];
+      
       try {
-        const detalle = typeof data.concepto === 'string' ? JSON.parse(data.concepto) : data.concepto;
+        const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
         
         if (detalle && typeof detalle === 'object') {
-          if (detalle.conceptos) {
-            detalle.conceptos.filter(c => c.descripcion).forEach(c => {
-              items.push({ descripcion: c.descripcion, cantidad: c.cantidad || 1, unidad: 'S', precio_u: c.precio_u || 0, importe: (c.cantidad || 1) * (c.precio_u || 0) });
+          // Soporta 'conceptos' o 'servicios' (enviado por técnicos)
+          const listadoServicios = detalle.conceptos || detalle.servicios || [];
+          listadoServicios.filter(c => c.descripcion).forEach(c => {
+            const precio = parseFloat(c.precio_u || c.precio || 0);
+            const cant = parseFloat(c.cantidad || 1);
+            items.push({ 
+              descripcion: c.descripcion, 
+              cantidad: cant, 
+              unidad: 'S', 
+              precio_u: precio, 
+              importe: cant * precio 
             });
-          }
+          });
+
+          // Soporta 'materiales'
           if (detalle.materiales) {
-            detalle.materiales.filter(m => m.nombre).forEach(m => {
-              items.push({ descripcion: m.nombre, cantidad: m.cantidad || 1, unidad: 'PZA', precio_u: m.costo_u || 0, importe: (m.cantidad || 1) * (m.costo_u || 0) });
+            detalle.materiales.filter(m => m.nombre || m.descripcion).forEach(m => {
+              const precio = parseFloat(m.costo_u || m.precio || 0);
+              const cant = parseFloat(m.cantidad || 1);
+              items.push({ 
+                descripcion: m.nombre || m.descripcion, 
+                cantidad: cant, 
+                unidad: 'PZA', 
+                precio_u: precio, 
+                importe: cant * precio 
+              });
             });
           }
-        } else {
-          items.push({ descripcion: data.concepto, cantidad: 1, unidad: 'S', precio_u: data.total, importe: data.total });
+        } else if (rawConcept) {
+          // Fallback si es solo texto
+          items.push({ 
+            descripcion: rawConcept, 
+            cantidad: 1, 
+            unidad: 'S', 
+            precio_u: parseFloat(data.total || 0), 
+            importe: parseFloat(data.total || 0) 
+          });
         }
       } catch (error) {
-        items.push({ descripcion: data.concepto, cantidad: 1, unidad: 'S', precio_u: data.total, importe: data.total });
+        if (rawConcept) {
+          items.push({ 
+            descripcion: rawConcept, 
+            cantidad: 1, 
+            unidad: 'S', 
+            precio_u: parseFloat(data.total || 0), 
+            importe: parseFloat(data.total || 0) 
+          });
+        }
       }
       
       setElementosTabla(items);
@@ -111,7 +147,7 @@ const VistaCotizacionPrint = () => {
     return <div style={{ padding: '50px', textAlign: 'center' }}>Cargando información...</div>;
   }
 
-  const totalCotizacion = parseFloat(cotizacion.total);
+  const totalCotizacion = parseFloat(cotizacion.total || 0);
   const subtotal = totalCotizacion / 1.16;
   const iva = totalCotizacion - subtotal;
 
@@ -166,16 +202,28 @@ const VistaCotizacionPrint = () => {
             <img src={logo} alt="logo" className="logo" />
             <div className="info-cliente">
               <p><strong>ATENCION A:</strong></p>
-              <h2>{cotizacion.cliente.toUpperCase()}</h2>
+              <h2>{(cotizacion.cliente || 'CLIENTE').toUpperCase()}</h2>
+              {cotizacion.propiedad && (
+                <>
+                  <p><strong>PROPIEDAD:</strong></p>
+                  <h3>{cotizacion.propiedad.toUpperCase()}</h3>
+                </>
+              )}
               <p><strong>LOCACION:</strong></p>
-              <h3>MERIDA, YUCATAN</h3>
+              <h3>{(cotizacion.ubicacion || 'MERIDA, YUCATAN').toUpperCase()}</h3>
             </div>
           </div>
           <div className="header-right">
             <div className="fecha-box">
               <span>FECHA DE COTIZACIÓN</span>
-              <p>{cotizacion.fecha}</p> 
+              <p>{cotizacion.fecha || new Date().toLocaleDateString()}</p> 
             </div>
+            {cotizacion.tecnico && (
+              <div className="fecha-box" style={{ marginTop: '10px', background: '#333' }}>
+                <span style={{ color: '#eee' }}>TÉCNICO ASIGNADO</span>
+                <p style={{ color: 'white' }}>{cotizacion.tecnico.toUpperCase()}</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -197,7 +245,7 @@ const VistaCotizacionPrint = () => {
               {elementosTabla.map((item, index) => (
                 <tr key={index}>
                   <td>{index + 1}</td>
-                  <td style={{ textAlign: 'left' }}>{item.descripcion.toUpperCase()}</td>
+                  <td style={{ textAlign: 'left' }}>{(item.descripcion || '').toUpperCase()}</td>
                   <td>{item.cantidad}</td>
                   <td>{item.unidad}</td>
                   <td>{formatearDinero(item.precio_u)}</td>
