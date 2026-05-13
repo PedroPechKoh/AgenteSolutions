@@ -270,133 +270,118 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           padding: 10px;
         }
         .checklist-modal-card {
-          width: 100%; max-width: 800px;
-          max-height: 95vh;
-          background: white; border-radius: 20px;
+          width: 95%; max-width: 650px;
+          max-height: 90vh;
+          background: white; border-radius: 16px;
           display: flex; flex-direction: column;
-          overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+          overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
           animation: modalAppear 0.3s ease-out;
         }
         @keyframes modalAppear {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; transform: translateY(10px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
         .checklist-modal-header {
-          padding: 15px 25px; border-bottom: 1px solid #eee;
+          padding: 12px 20px; border-bottom: 1px solid #eee;
           display: flex; justify-content: space-between; align-items: center;
-          background: white;
+          background: #fff;
         }
-        .header-title-main { display: flex; align-items: center; gap: 15px; }
-        .header-title-main h3 { margin: 0; font-weight: 900; color: #333; text-transform: uppercase; font-size: 1.1rem; }
-        .header-title-main p { margin: 0; color: #888; font-size: 0.75rem; font-weight: bold; }
+        .header-title-main { display: flex; align-items: center; gap: 12px; }
+        .header-title-main h3 { margin: 0; font-weight: 800; color: #333; text-transform: uppercase; font-size: 1rem; }
+        .header-title-main p { margin: 0; color: #999; font-size: 0.7rem; }
         
-        .close-btn { background: #f5f5f5; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .close-btn:hover { background: #eee; transform: rotate(90deg); }
+        .close-btn { background: #f8f8f8; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; }
 
-        .checklist-modal-body { padding: 20px; flex: 1; overflow-y: auto; background: white; }
+        .checklist-modal-body { padding: 15px 20px; flex: 1; overflow-y: auto; background: white; }
         
-        .assignment-section-top { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
-        .full-width { width: 100%; }
-        .form-group-cl { display: flex; flex-direction: column; gap: 8px; }
-        .form-group-cl label { font-size: 0.7rem; font-weight: 900; color: #444; display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
+        .assignment-section-top { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+        .form-group-cl label { font-size: 0.65rem; font-weight: 800; color: #666; display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
         .form-group-cl select { 
-          padding: 10px; border: 2px solid #ddd; border-radius: 12px; 
-          outline: none; font-weight: 600; color: #333; background: white; width: 100%; font-size: 0.9rem;
+          padding: 8px 12px; border: 1px solid #ddd; border-radius: 10px; 
+          outline: none; font-weight: 600; color: #333; background: #fafafa; width: 100%; font-size: 0.85rem;
         }
-        .form-group-cl select:focus { border-color: #F26522; }
 
         .tecnicos-grid { 
           display: grid; 
-          grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
-          gap: 10px; 
-          margin-top: 5px; 
-          max-height: 180px; 
+          grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); 
+          gap: 8px; 
+          max-height: 140px; 
           overflow-y: auto; 
-          padding: 5px;
+          padding: 8px;
+          background: #fdfdfd;
           border: 1px solid #f0f0f0;
-          border-radius: 12px;
+          border-radius: 10px;
         }
         .tecnico-card-select {
-          background: #f9f9f9; border: 2px solid #eee; border-radius: 12px; padding: 8px; cursor: pointer;
-          display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; transition: all 0.2s;
+          background: white; border: 1px solid #eee; border-radius: 10px; padding: 6px; cursor: pointer;
+          display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; transition: all 0.2s;
         }
-        .tecnico-card-select:hover { border-color: #ffccbc; background: #fff5f0; }
-        .tecnico-card-select.selected { border-color: #F26522; background: #fff5f0; box-shadow: 0 4px 10px rgba(242, 101, 34, 0.2); }
+        .tecnico-card-select.selected { border-color: #F26522; background: #fff9f5; }
         
         .tecnico-card-select img, .tech-avatar-fallback { 
-          width: 45px; height: 45px; border-radius: 50%; object-fit: cover; 
-          border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+          width: 38px; height: 38px; border-radius: 50%; object-fit: cover; 
+          border: 1px solid #eee;
         }
         .tech-avatar-fallback {
-          background: #eee; color: #666; font-weight: bold; font-size: 0.9rem;
-          display: flex; align-items: center; justify-content: center;
+          background: #f0f0f0; color: #888; font-size: 0.8rem;
         }
-        .tech-name { font-size: 0.7rem; font-weight: 800; color: #444; text-align: center; }
-        .check-badge { position: absolute; top: -5px; right: -5px; background: white; color: #F26522; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .tech-name { font-size: 0.65rem; font-weight: 700; color: #555; }
         
-        .template-selector-box { background: #fdfdfd; padding: 12px; border-radius: 12px; border: 1px dashed #ddd; }
+        .template-selector-box { background: #fcfcfc; padding: 10px; border-radius: 10px; border: 1px solid #efefef; }
 
-        .cl-tabs-header { display: flex; gap: 5px; margin-bottom: 0; border-bottom: 2px solid #eee; overflow-x: auto; scrollbar-width: none; }
-        .cl-tabs-header::-webkit-scrollbar { display: none; }
-        
+        .cl-tabs-header { display: flex; gap: 5px; margin-bottom: 0; border-bottom: 1px solid #eee; }
         .cl-tab-btn {
-          padding: 10px 15px; border: none; background: transparent;
-          font-weight: 800; font-size: 0.7rem; color: #999;
-          display: flex; align-items: center; gap: 6px; cursor: pointer;
-          position: relative; transition: all 0.2s; white-space: nowrap;
+          padding: 8px 12px; border: none; background: transparent;
+          font-weight: 700; font-size: 0.7rem; color: #aaa;
+          display: flex; align-items: center; gap: 5px; cursor: pointer;
+          position: relative;
         }
         .cl-tab-btn.active { color: #F26522; }
         .cl-tab-btn.active::after {
-          content: ""; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: #F26522;
+          content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #F26522;
         }
 
-        .cl-tab-content { background: #fafafa; padding: 15px; border-radius: 0 0 16px 16px; margin-bottom: 15px; border: 1px solid #eee; }
-        .add-item-row { display: flex; gap: 8px; margin-bottom: 15px; }
+        .cl-tab-content { background: #fafafa; padding: 12px; border-radius: 0 0 12px 12px; margin-bottom: 12px; border: 1px solid #eee; border-top: none; }
+        .add-item-row { display: flex; gap: 8px; margin-bottom: 12px; }
         .add-item-row input { 
-          flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; 
-          outline: none; background: white; color: #333; font-size: 0.9rem;
+          flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; 
+          outline: none; font-size: 0.85rem;
         }
-        .add-item-row input:focus { border-color: #F26522; }
-        .btn-add-item { background: #333; color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
+        .btn-add-item { background: #333; color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
 
-        .items-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; padding-right: 5px; }
+        .items-list-container { display: flex; flex-direction: column; gap: 5px; max-height: 150px; overflow-y: auto; }
         .cl-item-editable {
-          background: white; padding: 8px 12px; border-radius: 8px;
+          background: white; padding: 6px 10px; border-radius: 6px;
           display: flex; justify-content: space-between; align-items: center;
-          border: 1px solid #eee; transition: all 0.2s;
+          border: 1px solid #f0f0f0;
         }
-        .cl-item-editable span { font-weight: 600; color: #333; font-size: 0.85rem; }
-        .btn-remove-item { background: #fff1f1; color: #e53e3e; border: none; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .cl-item-editable span { font-weight: 600; color: #444; font-size: 0.8rem; }
+        .btn-remove-item { background: #fff5f5; color: #ff5c5c; border: none; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; }
         
         .save-template-footer {
-          display: flex; gap: 10px; align-items: center;
-          padding: 12px; background: #fff5f0; border-radius: 12px; border: 1px dashed #F26522;
+          display: flex; gap: 8px; align-items: center;
+          padding: 10px; background: #fff9f5; border-radius: 10px; border: 1px dashed #ffd8c4;
         }
         .save-template-footer input { 
-          flex: 1; padding: 8px 12px; border: 1px solid #ffccbc; border-radius: 8px; 
-          outline: none; background: white; color: #333; font-size: 0.85rem;
+          flex: 1; padding: 6px 10px; border: 1px solid #eee; border-radius: 6px; 
+          font-size: 0.8rem; outline: none;
         }
-        .btn-save-template { background: #F26522; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 0.8rem; }
+        .btn-save-template { background: #F26522; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
 
         .checklist-modal-footer {
-          padding: 15px 25px; background: #f5f5f5; display: flex; justify-content: flex-end; gap: 10px;
+          padding: 12px 20px; background: #f9f9f9; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee;
         }
-        .btn-secondary { padding: 10px 20px; border-radius: 8px; border: none; background: #ddd; color: #666; font-weight: 800; cursor: pointer; font-size: 0.85rem; }
-        .btn-primary { padding: 10px 20px; border-radius: 8px; border: none; background: #2e7d32; color: white; font-weight: 800; cursor: pointer; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2); }
+        .btn-secondary { padding: 8px 15px; border-radius: 6px; border: none; background: #e0e0e0; color: #666; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+        .btn-primary { padding: 8px 20px; border-radius: 6px; border: none; background: #2e7d32; color: white; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
 
-        /* MEDIA QUERIES PARA RESPONSIVO */
         @media (max-width: 600px) {
-          .checklist-modal-card { height: 100vh; max-height: 100vh; border-radius: 0; }
-          .checklist-modal-body { padding: 15px; }
+          .checklist-modal-card { width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; }
           .cl-tab-btn .tab-text { display: none; }
-          .cl-tab-btn { padding: 10px; }
           .add-item-row { flex-direction: column; }
-          .btn-add-item { padding: 12px; justify-content: center; }
           .save-template-footer { flex-direction: column; align-items: stretch; }
-          .btn-save-template { justify-content: center; padding: 12px; }
-          .checklist-modal-header h3 { font-size: 1rem; }
           .tecnicos-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
         }
+      `}</style>
       `}</style>
       `}</style>
     </div>
