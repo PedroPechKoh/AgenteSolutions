@@ -295,10 +295,10 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         .checklist-modal-body { padding: 15px 20px; flex: 1; overflow-y: auto; background: white; }
         
         .assignment-section-top { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
-        .form-group-cl label { font-size: 0.65rem; font-weight: 800; color: #666; display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
+        .form-group-cl label { font-size: 0.65rem; font-weight: 800; color: #888; display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
         .form-group-cl select { 
-          padding: 8px 12px; border: 1px solid #ddd; border-radius: 10px; 
-          outline: none; font-weight: 600; color: #333; background: #fafafa; width: 100%; font-size: 0.85rem;
+          padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 10px; 
+          outline: none; font-weight: 600; color: #444; background: #fff; width: 100%; font-size: 0.85rem;
         }
 
         .tecnicos-grid { 
@@ -308,7 +308,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           max-height: 140px; 
           overflow-y: auto; 
           padding: 8px;
-          background: #fdfdfd;
+          background: #fcfcfc;
           border: 1px solid #f0f0f0;
           border-radius: 10px;
         }
@@ -323,11 +323,11 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           border: 1px solid #eee;
         }
         .tech-avatar-fallback {
-          background: #f0f0f0; color: #888; font-size: 0.8rem;
+          background: #f5f5f5; color: #999; font-size: 0.8rem;
         }
-        .tech-name { font-size: 0.65rem; font-weight: 700; color: #555; }
+        .tech-name { font-size: 0.65rem; font-weight: 700; color: #666; }
         
-        .template-selector-box { background: #fcfcfc; padding: 10px; border-radius: 10px; border: 1px solid #efefef; }
+        .template-selector-box { background: #f9f9f9; padding: 10px; border-radius: 10px; border: 1px solid #eee; }
 
         .cl-tabs-header { display: flex; gap: 5px; margin-bottom: 0; border-bottom: 1px solid #eee; }
         .cl-tab-btn {
@@ -336,43 +336,43 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           display: flex; align-items: center; gap: 5px; cursor: pointer;
           position: relative;
         }
-        .cl-tab-btn.active { color: #F26522; }
+        .cl-tab-btn.active { color: #333; }
         .cl-tab-btn.active::after {
-          content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #F26522;
+          content: ""; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #333;
         }
 
-        .cl-tab-content { background: #fafafa; padding: 12px; border-radius: 0 0 12px 12px; margin-bottom: 12px; border: 1px solid #eee; border-top: none; }
+        .cl-tab-content { background: #fff; padding: 12px; border-radius: 0 0 12px 12px; margin-bottom: 12px; border: 1px solid #eee; border-top: none; }
         .add-item-row { display: flex; gap: 8px; margin-bottom: 12px; }
         .add-item-row input { 
-          flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; 
-          outline: none; font-size: 0.85rem;
+          flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; 
+          outline: none; font-size: 0.85rem; color: #333; background: #fcfcfc;
         }
-        .btn-add-item { background: #333; color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
+        .btn-add-item { background: #444; color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
 
         .items-list-container { display: flex; flex-direction: column; gap: 5px; max-height: 150px; overflow-y: auto; }
         .cl-item-editable {
-          background: white; padding: 6px 10px; border-radius: 6px;
+          background: #fdfdfd; padding: 6px 10px; border-radius: 6px;
           display: flex; justify-content: space-between; align-items: center;
           border: 1px solid #f0f0f0;
         }
-        .cl-item-editable span { font-weight: 600; color: #444; font-size: 0.8rem; }
-        .btn-remove-item { background: #fff5f5; color: #ff5c5c; border: none; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; }
+        .cl-item-editable span { font-weight: 600; color: #555; font-size: 0.8rem; }
+        .btn-remove-item { background: #fff1f1; color: #ff5c5c; border: none; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; }
         
         .save-template-footer {
           display: flex; gap: 8px; align-items: center;
-          padding: 10px; background: #fff9f5; border-radius: 10px; border: 1px dashed #ffd8c4;
+          padding: 10px; background: #f9f9f9; border-radius: 10px; border: 1px dashed #ddd;
         }
         .save-template-footer input { 
           flex: 1; padding: 6px 10px; border: 1px solid #eee; border-radius: 6px; 
-          font-size: 0.8rem; outline: none;
+          font-size: 0.8rem; outline: none; background: white;
         }
-        .btn-save-template { background: #F26522; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
+        .btn-save-template { background: #666; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
 
         .checklist-modal-footer {
-          padding: 12px 20px; background: #f9f9f9; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee;
+          padding: 12px 20px; background: #f5f5f5; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee;
         }
-        .btn-secondary { padding: 8px 15px; border-radius: 6px; border: none; background: #e0e0e0; color: #666; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
-        .btn-primary { padding: 8px 20px; border-radius: 6px; border: none; background: #2e7d32; color: white; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+        .btn-secondary { padding: 8px 15px; border-radius: 6px; border: none; background: #dcdcdc; color: #555; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
+        .btn-primary { padding: 8px 20px; border-radius: 6px; border: none; background: #333; color: white; font-weight: 700; cursor: pointer; font-size: 0.8rem; }
 
         @media (max-width: 600px) {
           .checklist-modal-card { width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; }
