@@ -347,7 +347,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; 
           outline: none; font-size: 0.85rem; color: #333; background: #fcfcfc;
         }
-        .btn-add-item { background: #444; color: white; border: none; padding: 0 12px; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
+        .btn-add-item { background: #dcdcdc; color: #000; border: 1px solid #ccc; padding: 0 12px; border-radius: 8px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
 
         .items-list-container { display: flex; flex-direction: column; gap: 5px; max-height: 150px; overflow-y: auto; }
         .cl-item-editable {
@@ -366,7 +366,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           flex: 1; padding: 6px 10px; border: 1px solid #eee; border-radius: 6px; 
           font-size: 0.8rem; outline: none; background: white;
         }
-        .btn-save-template { background: #666; color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
+        .btn-save-template { background: #dcdcdc; color: #000; border: 1px solid #ccc; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
 
         .checklist-modal-footer {
           padding: 12px 20px; background: #f5f5f5; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee;
