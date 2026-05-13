@@ -248,18 +248,20 @@ const VistaCotizaciones = () => {
             </button>
           </div>
 
-          <div className="cotiz-tabs-pills origin-pills">
-            <button className={`cotiz-pill mini ${filtroOrigen === 'todos' ? 'active' : ''}`} onClick={() => setFiltroOrigen('todos')}>TODOS</button>
-            <button className={`cotiz-pill mini ${filtroOrigen === 'admin' ? 'active' : ''}`} onClick={() => setFiltroOrigen('admin')}>
-               <User size={14} /> ADMIN
-            </button>
-            <button className={`cotiz-pill mini ${filtroOrigen === 'tecnicos' ? 'active' : ''}`} onClick={() => setFiltroOrigen('tecnicos')}>
-               <Wrench size={14} /> TÉCNICOS
-            </button>
-            <button className={`cotiz-pill mini ${filtroOrigen === 'proveedores' ? 'active' : ''}`} onClick={() => setFiltroOrigen('proveedores')}>
-               <Truck size={14} /> PROVEEDORES
-            </button>
-          </div>
+          {!esCliente && (
+            <div className="cotiz-tabs-pills origin-pills">
+              <button className={`cotiz-pill mini ${filtroOrigen === 'todos' ? 'active' : ''}`} onClick={() => setFiltroOrigen('todos')}>TODOS</button>
+              <button className={`cotiz-pill mini ${filtroOrigen === 'admin' ? 'active' : ''}`} onClick={() => setFiltroOrigen('admin')}>
+                 <User size={14} /> ADMIN
+              </button>
+              <button className={`cotiz-pill mini ${filtroOrigen === 'tecnicos' ? 'active' : ''}`} onClick={() => setFiltroOrigen('tecnicos')}>
+                 <Wrench size={14} /> TÉCNICOS
+              </button>
+              <button className={`cotiz-pill mini ${filtroOrigen === 'proveedores' ? 'active' : ''}`} onClick={() => setFiltroOrigen('proveedores')}>
+                 <Truck size={14} /> PROVEEDORES
+              </button>
+            </div>
+          )}
 
           <div className="cotiz-advanced-filters">
             <div className="filter-group">
@@ -287,7 +289,7 @@ const VistaCotizaciones = () => {
               <tr>
                 <th>FOLIO</th>
                 <th>FECHA</th>
-                <th>CLIENTE</th>
+                {!esCliente && <th>CLIENTE</th>}
                 <th>TOTAL</th>
                 <th>ACCIONES</th>
               </tr>
@@ -326,18 +328,20 @@ const VistaCotizaciones = () => {
             {c.created_at ? new Date(c.created_at).toLocaleDateString('es-MX') : c.fecha || '---'}
           </div>
         </td>
-        <td className="cliente-name" data-label="CLIENTE">
-          <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{c.cliente}</div>
-          {c.created_by_role === 'Técnico' ? (
-            <div className="origin-tag-mini">
-              <Wrench size={10} /> TÉCNICO: {c.tecnico}
-            </div>
-          ) : (
-            <div className="origin-tag-mini admin">
-              <User size={10} /> ADMINISTRATIVO
-            </div>
-          )}
-        </td>
+        {!esCliente && (
+          <td className="cliente-name" data-label="CLIENTE">
+            <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{c.cliente}</div>
+            {c.created_by_role === 'Técnico' ? (
+              <div className="origin-tag-mini">
+                <Wrench size={10} /> TÉCNICO: {c.tecnico}
+              </div>
+            ) : (
+              <div className="origin-tag-mini admin">
+                <User size={10} /> ADMINISTRATIVO
+              </div>
+            )}
+          </td>
+        )}
         <td className="monto-final" data-label="TOTAL">
           {c.type === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
         </td>
