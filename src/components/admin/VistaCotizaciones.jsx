@@ -3,6 +3,13 @@ import axios from 'axios';
 import "../../styles/Admin/VistaCotizaciones.css";
 import Header from "../Shared/Header";
 import AssignWorkModal from "./AssignWorkModal";
+import { 
+  Plus, Search, Filter, Calendar, 
+  ArrowUpDown, FileText, Upload, 
+  MoreVertical, Eye, CheckCircle, 
+  XCircle, Clock, ChevronDown
+} from 'lucide-react';
+import CreateQuotationModal from "./CreateQuotationModal";
 
 const VistaCotizaciones = () => {
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -19,6 +26,11 @@ const VistaCotizaciones = () => {
   const [rechazando, setRechazando] = useState(false);
   const [motivoRechazo, setMotivoRechazo] = useState('');
   const [procesando, setProcesando] = useState(false);
+
+  // --- NUEVOS ESTADOS ---
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [ordenMonto, setOrdenMonto] = useState(null); // 'asc' | 'desc' | null
+  const [filtroTipo, setFiltroTipo] = useState('todos'); // 'todos' | 'manual' | 'archivo'
 
   useEffect(() => {
     try {
@@ -46,18 +58,19 @@ const VistaCotizaciones = () => {
     }
   };
 
-  const filtradas = cotizaciones.filter(c => {
-    const coincideFiltro = 
-      (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
-      (filtro === 'Aprobado' && c.status === 'Aprobado') ||
-      (filtro === 'Rechazado' && c.status === 'Rechazado');
-
-    const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
-                             (c.folio?.toString() || "").includes(busqueda || "");
-
     const correspondeAlCliente = !esCliente || c.cliente_user_id === usuarioId;
 
-    return coincideFiltro && coincideBusqueda && correspondeAlCliente;
+    const coincideTipo = 
+      filtroTipo === 'todos' || 
+      (filtroTipo === 'manual' && c.type !== 'archivo') || 
+      (filtroTipo === 'archivo' && c.type === 'archivo');
+
+    return coincideFiltro && coincideBusqueda && correspondeAlCliente && coincideTipo;
+  }).sort((a, b) => {
+    if (!ordenMonto) return 0;
+    const valA = parseFloat(a.total) || 0;
+    const valB = parseFloat(b.total) || 0;
+    return ordenMonto === 'asc' ? valA - valB : valB - valA;
   });
 
 
@@ -191,23 +204,57 @@ const VistaCotizaciones = () => {
       {/* 👆 Se eliminaron los div de las barras manuales y el tag <header> 👆 */}
 
       <main className="cotiz-main-content" style={esCliente ? { padding: '20px 0', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
-        <div className="cotiz-search-wrapper" style={esCliente ? { width: '100%' } : {}}>
-          <div className="cotiz-search-bar">
+        <div className="cotiz-top-actions">
+          <div className="cotiz-search-bar-v2">
+            <Search size={18} className="search-icon-svg" />
             <input 
               type="text" 
-              placeholder="BUSCAR CLIENTE O FOLIO..." 
-              className="cotiz-input-field"
+              placeholder="Buscar cliente, folio o servicio..." 
+              className="cotiz-input-v2"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
             />
-            <span className="cotiz-search-icon">🔍</span>
           </div>
+          
+          {!esCliente && (
+            <button className="btn-new-cotiz" onClick={() => setShowCreateModal(true)}>
+              <Plus size={18} />
+              <span>NUEVA COTIZACIÓN</span>
+            </button>
+          )}
         </div>
 
-        <div className="cotiz-tabs-row">
-          <button className={`cotiz-tab-btn ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>📩 NUEVAS</button>
-          <button className={`cotiz-tab-btn ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>✅ APROBADAS</button>
-          <button className={`cotiz-tab-btn ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>❌ RECHAZADAS</button>
+        <div className="cotiz-filters-row">
+          <div className="cotiz-tabs-pills">
+            <button className={`cotiz-pill ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>
+              <Clock size={16} /> 📩 NUEVAS
+            </button>
+            <button className={`cotiz-pill ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>
+              <CheckCircle size={16} /> ✅ APROBADAS
+            </button>
+            <button className={`cotiz-pill ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>
+              <XCircle size={16} /> ❌ RECHAZADAS
+            </button>
+          </div>
+
+          <div className="cotiz-advanced-filters">
+            <div className="filter-group">
+              <Filter size={14} />
+              <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}>
+                <option value="todos">Todos los tipos</option>
+                <option value="manual">Manual</option>
+                <option value="archivo">Archivo</option>
+              </select>
+            </div>
+            
+            <button 
+              className={`sort-btn ${ordenMonto ? 'active' : ''}`} 
+              onClick={() => setOrdenMonto(prev => prev === 'asc' ? 'desc' : (prev === 'desc' ? null : 'asc'))}
+            >
+              <ArrowUpDown size={14} />
+              Monto {ordenMonto === 'asc' ? '(Min-Max)' : (ordenMonto === 'desc' ? '(Max-Min)' : '')}
+            </button>
+          </div>
         </div>
 
         <div className="cotiz-table-container" style={esCliente ? { width: '100%' } : {}}>
@@ -215,6 +262,7 @@ const VistaCotizaciones = () => {
             <thead>
               <tr>
                 <th>FOLIO</th>
+                <th>FECHA</th>
                 <th>CLIENTE</th>
                 <th>TOTAL</th>
                 <th>ACCIONES</th>
@@ -226,7 +274,13 @@ const VistaCotizaciones = () => {
   ) : filtradas.length > 0 ? (
     filtradas.map((c) => (
       <tr key={c.id}>
-        <td className="bold-folio">{c.folio}</td>
+        <td className="bold-folio">#{c.folio}</td>
+        <td className="cotiz-date">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem', color: '#666' }}>
+            <Calendar size={14} />
+            {c.created_at ? new Date(c.created_at).toLocaleDateString('es-MX') : c.fecha || '---'}
+          </div>
+        </td>
         <td className="cliente-name">{c.cliente}</td>
         <td className="monto-final">
           {c.type === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
@@ -452,6 +506,16 @@ const VistaCotizaciones = () => {
           onAssign={() => {
             setShowAssignModal(false);
             setCotizacionParaAsignar(null);
+            cargarCotizaciones();
+          }}
+        />
+      )}
+
+      {showCreateModal && (
+        <CreateQuotationModal 
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => {
+            setShowCreateModal(false);
             cargarCotizaciones();
           }}
         />
