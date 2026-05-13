@@ -98,6 +98,21 @@ const VistaServiciosAdmin = () => {
     fetchTecnicos();
   }, [fetchOrders]);
 
+  // --- AUTO-OPEN MODAL IF jobId IN URL ---
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const jobId = params.get('jobId');
+    if (jobId && tareasData.length > 0) {
+      const tarea = tareasData.find(t => t.dbId === parseInt(jobId));
+      if (tarea) {
+        setTabActiva(tarea.estado); // Cambiamos a la pestaña correcta (SOS, Todo, etc.)
+        abrirModal(tarea);
+        // Limpiamos la URL para no re-abrir al recargar
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
+  }, [tareasData]);
+
   // --- ACCIONES ---
   const abrirModal = (tarea) => {
     setTareaSeleccionada(tarea);

@@ -498,6 +498,18 @@ const VistaCotizaciones = () => {
                   renderConceptoDetalle(cotizacionSeleccionada.concept)
                 )}
 
+                {cotizacionSeleccionada.status === 'Aprobado' && !esCliente && (
+                    <div style={{ marginTop: '20px', padding: '15px', background: '#f0fdf4', borderRadius: '12px', border: '1px solid #16a34a', textAlign: 'center' }}>
+                      <p style={{ margin: '0 0 10px 0', color: '#16a34a', fontWeight: 'bold' }}>✅ ESTA COTIZACIÓN HA SIDO APROBADA</p>
+                      <button 
+                        onClick={() => navigate(`/tablero-servicios?jobId=${cotizacionSeleccionada.work_order_id || cotizacionSeleccionada.service_id}`)}
+                        style={{ background: '#16a34a', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto' }}
+                      >
+                        <Layout size={18} /> IR AL TABLERO DE TRABAJO
+                      </button>
+                    </div>
+                  )}
+
                 <div className="modal-total-section">
                   <h3>TOTAL: ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}</h3>
                 </div>
