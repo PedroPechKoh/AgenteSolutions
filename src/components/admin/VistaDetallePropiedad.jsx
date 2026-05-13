@@ -119,6 +119,17 @@ const VistaDetallePropiedad = () => {
 
   // Manejador del select de zonas en el modal
   const handleZonaChange = async (areaId) => {
+    if (areaId === 'otro') {
+      setNuevoServicio({ 
+        ...nuevoServicio, 
+        area_id: 'otro', 
+        zona: 'Otro', 
+        equipo: '' 
+      });
+      setEquiposDisponibles([]);
+      return;
+    }
+
     const selectedArea = zonasDisponibles.find(z => z.id === parseInt(areaId));
     setNuevoServicio({ 
       ...nuevoServicio, 
@@ -354,7 +365,6 @@ const VistaDetallePropiedad = () => {
                   onChange={(e) => setNuevoServicio({...nuevoServicio, tipo: e.target.value})}
                 >
                   <option value="">Selecciona el tipo...</option>
-                  <option value="Consulta">Consulta / Duda</option>
                   <option value="Mantenimiento">Mantenimiento Preventivo</option>
                   <option value="Problema">Problema / Reparación</option>
                 </select>
@@ -371,13 +381,14 @@ const VistaDetallePropiedad = () => {
                   {zonasDisponibles.map(zona => (
                     <option key={zona.id} value={zona.id}>{zona.name}</option>
                   ))}
+                  <option value="otro">Otro (No está en la lista)</option>
                 </select>
               </div>
               <div className="form-group">
                 <label><Wrench size={16}/> Equipo afectado (Opcional)</label>
                 <select 
                   value={nuevoServicio.equipo}
-                  disabled={!nuevoServicio.zona}
+                  disabled={!nuevoServicio.area_id || loadingEquipos}
                   onChange={(e) => setNuevoServicio({...nuevoServicio, equipo: e.target.value})}
                 >
                   <option value="">
