@@ -43,7 +43,7 @@ import GaleriaReportes from "./components/VistasTecnico/GaleriaReportes";
 import ReporteIndividual from "./components/VistasTecnico/ReporteIndividual";
 import NuevoReporte from "./components/VistasTecnico/NuevoReporte";
 import TrabajoInicio from "./components/VistasTecnico/TrabajoInicio";
-import TrabajoPropiedad from "./components/VistasTecnico/TrabajosPropiedad";
+import TrabajoPropiedad from "./components/VistasTecnico/TrabajoPropiedad";
 import VentaCruzada from "./components/VistasTecnico/VentaCruzada";
 import RegistrarVentaCruzada from "./components/VistasTecnico/RegistrarVentaCruzada";
 import LevantamientoPropiedad from "./components/VistasTecnico/LevantamientoPropiedad";
@@ -96,52 +96,29 @@ useEffect(() => {
       <Route path="/" element={<LoginAgente />} />
       <Route path="/registro-cliente" element={<RegistroCliente />} />
 
-      {/* RUTA COMPARTIDA PROPIEDADES (Sin Sidebar para admin, con Sidebar para clientes) */}
+      {/* RUTA COMPARTIDA PROPIEDADES */}
       <Route path="/propiedades" element={
-        <ProtectedRoute allowedRoles={[0, 1, 3]}>
-          {user?.role_id === 3 ? <MainLayoutCliente><VistaPropiedades /></MainLayoutCliente> : <VistaPropiedades />}
-        </ProtectedRoute>
+          user?.role_id === 3 ? <MainLayoutCliente><VistaPropiedades /></MainLayoutCliente> : <VistaPropiedades />
       } />
 
-      {/* RUTA COMPARTIDA DETALLE REPORTE (Con Sidebar para clientes) */}
+      {/* RUTA COMPARTIDA DETALLE REPORTE */}
       <Route path="/detalle-reporte/:id" element={
-        <ProtectedRoute allowedRoles={[0, 1, 3]}>
-          {user?.role_id === 3 
+          user?.role_id === 3 
             ? <MainLayoutCliente><DetalleReporte /></MainLayoutCliente> 
             : <DetalleReporte />
-          }
-        </ProtectedRoute>
       } />
 
-      <Route
-        path="/VistaRoot"
-        element={
-          <ProtectedRoute allowedRoles={[0]}>
-            <VistaInicioAdmin />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/VistaTecnico"
-        element={
-          <ProtectedRoute allowedRoles={[1, 2]}>
-            <VistaInicioTecnico />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/VistaRoot" element={<VistaInicioAdmin />} />
+      <Route path="/VistaTecnico" element={<VistaInicioTecnico />} />
 
       <Route
         path="/registro-propiedades"
         element={
-          <ProtectedRoute allowedRoles={[0, 1, 3]}>
-            {user?.role_id === 3 ? <MainLayoutCliente><RegisterProperties /></MainLayoutCliente> : <RegisterProperties />}
-          </ProtectedRoute>
+            user?.role_id === 3 ? <MainLayoutCliente><RegisterProperties /></MainLayoutCliente> : <RegisterProperties />
         }
       />
 
-      {/* ------RUTAS DE LA VISTA DEL TECNICO (PROTEGIDAS) ------*/}
-      <Route element={<ProtectedRoute allowedRoles={[0, 1, 2]} />}>
+      {/* ------RUTAS DE LA VISTA DEL TECNICO (LIBERADAS) ------*/}
         <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
         <Route path="/Checklist/:id" element={<CheckList />} />
         <Route path="/detalleTrabajo/:id" element={<DetalleTrabajo />} />
@@ -154,11 +131,8 @@ useEffect(() => {
         <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
         <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />
         <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
-      </Route>
 
-      {/* ------RUTAS DE LA VISTA DEL ADMIN (PROTEGIDAS POR ROL) ------*/}
-      {/* RUTAS ACCESIBLES POR ADMIN Y CLIENTE */}
-      <Route element={<ProtectedRoute allowedRoles={[0, 1, 2, 3]} />}>
+      {/* ------RUTAS DE LA VISTA DEL ADMIN (LIBERADAS) ------*/}
         <Route path="/vista-cotizaciones" element={
           user?.role_id === 3 ? <MainLayoutCliente><VistaCotizaciones /></MainLayoutCliente> : <VistaCotizaciones />
         } />
@@ -168,10 +142,8 @@ useEffect(() => {
         <Route path="/mi-perfil" element={
           user?.role_id === 3 ? <MainLayoutCliente><Profile /></MainLayoutCliente> : <Profile />
         } />
-      </Route>
 
 
-      <Route element={<ProtectedRoute allowedRoles={[0, 1]} />}>
         <Route path="/detalle-producto" element={<ProductoDetalleView />} />
         <Route path="/vista-producto" element={<ProductosView />} />
         <Route path="/dashboard" element={<VistaDashboard />} />
@@ -188,32 +160,22 @@ useEffect(() => {
         <Route path="/detalle-tecnico" element={<VistaDetalleTecnico />} />
         <Route path="/reportes-globales" element={<VistaReportesGlobal />} />
         <Route path="/reporte-trabajo-admin" element={<ReporteTrabajoAdmin />} />
-      </Route>
 
       <Route path="/notificaciones" element={<VistaNotificaciones />} />
       <Route path="/trabajos-asignados" element={<TrabajosAsignados />} />
 
       {/* Vista de inicio del cliente sin Sidebar */}
-      <Route path="/VistaInicioCliente" element={
-        <ProtectedRoute allowedRoles={[3]}>
-          <VistaInicioCliente />
-        </ProtectedRoute>
-      } />
+      <Route path="/VistaInicioCliente" element={<VistaInicioCliente />} />
 
       {/* Rutas del cliente con Sidebar */}
-      <Route element={<ProtectedRoute allowedRoles={[3]}><MainLayoutCliente /></ProtectedRoute>}>
-        <Route path="/Cotizaciones" element={<Cotizaciones />} />
-        <Route path="/Pago" element={<Pago />} />
-        <Route path="/SOSView" element={<SOSView />} />
-        <Route path="/propiedad/:id/tablero" element={<TableroScrum />} />
-        <Route path="/DetallePropiedad/:id" element={<VistaDetallePropiedad />} />
-        <Route path="/ReporteTrabajo" element={<ReporteTrabajo />} />
-        <Route path="/VistaDetallePropiedad" element={<VistaDetallePropiedad />} />
-        <Route path="/propiedad/:id" element={<VistaDetallePropiedad />} />
-      </Route>
-
-
-
+        <Route path="/Cotizaciones" element={<MainLayoutCliente><Cotizaciones /></MainLayoutCliente>} />
+        <Route path="/Pago" element={<MainLayoutCliente><Pago /></MainLayoutCliente>} />
+        <Route path="/SOSView" element={<MainLayoutCliente><SOSView /></MainLayoutCliente>} />
+        <Route path="/propiedad/:id/tablero" element={<MainLayoutCliente><TableroScrum /></MainLayoutCliente>} />
+        <Route path="/DetallePropiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedad /></MainLayoutCliente>} />
+        <Route path="/ReporteTrabajo" element={<MainLayoutCliente><ReporteTrabajo /></MainLayoutCliente>} />
+        <Route path="/VistaDetallePropiedad" element={<MainLayoutCliente><VistaDetallePropiedad /></MainLayoutCliente>} />
+        <Route path="/propiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedad /></MainLayoutCliente>} />
 
 
       <Route path="/registro" element={<RegisteRoot />} />
