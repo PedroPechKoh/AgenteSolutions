@@ -158,9 +158,24 @@
     transition: all 0.2s ease;
 }
 
-.sort-btn.active {
-    border-color: #f26624;
-    color: #f26624;
+.origin-tag-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.origin-tag-mini.admin {
+    background: #f1f5f9;
+    color: #475569;
 }
 
 /* --- TABLA RE-DISEÑADA --- */

@@ -326,7 +326,18 @@ const VistaCotizaciones = () => {
             {c.created_at ? new Date(c.created_at).toLocaleDateString('es-MX') : c.fecha || '---'}
           </div>
         </td>
-        <td className="cliente-name" data-label="CLIENTE">{c.cliente}</td>
+        <td className="cliente-name" data-label="CLIENTE">
+          <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{c.cliente}</div>
+          {c.tecnico ? (
+            <div className="origin-tag-mini">
+              <Wrench size={10} /> TÉCNICO: {c.tecnico}
+            </div>
+          ) : (
+            <div className="origin-tag-mini admin">
+              <User size={10} /> ADMINISTRATIVO
+            </div>
+          )}
+        </td>
         <td className="monto-final" data-label="TOTAL">
           {c.type === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
         </td>
