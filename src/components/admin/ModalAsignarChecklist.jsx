@@ -151,11 +151,6 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
                       className={`tecnico-card-select ${isSelected ? 'selected' : ''}`} 
                       onClick={() => toggleTecnico(t.id)}
                     >
-                    <div 
-                      key={t.id} 
-                      className={`tecnico-card-select ${isSelected ? 'selected' : ''}`} 
-                      onClick={() => toggleTecnico(t.id)}
-                    >
                       {t.profile_picture_url ? (
                         <img 
                           src={t.profile_picture_url} 
