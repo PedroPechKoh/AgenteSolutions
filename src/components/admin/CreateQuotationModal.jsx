@@ -110,17 +110,25 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
         formData.append('file', archivo);
       }
 
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, formData, {
+      let endpoint = `${import.meta.env.VITE_API_BASE_URL}/cotizaciones`;
+      let successMsg = "¡Cotización creada y enviada al cliente exitosamente!";
+
+      if (prefillData?.status === 'Rechazado') {
+        endpoint = `${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${prefillData.id}/update`;
+        successMsg = "¡Cotización actualizada y reenviada al cliente!";
+      }
+
+      const res = await axios.post(endpoint, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       if (res.status === 201 || res.status === 200) {
-        alert("¡Cotización creada y enviada al cliente exitosamente!");
+        alert(successMsg);
         onSuccess();
       }
     } catch (error) {
-      console.error("Error creando cotización:", error);
-      alert("Hubo un error al crear la cotización.");
+      console.error("Error procesando cotización:", error);
+      alert("Hubo un error al procesar la cotización.");
     } finally {
       setLoading(false);
     }

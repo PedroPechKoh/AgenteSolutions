@@ -320,7 +320,7 @@ const VistaCotizaciones = () => {
         return ordenMonto === 'asc' ? valA - valB : valB - valA;
       })
       .map((c) => (
-      <tr key={c.id}>
+      <tr key={c.id} style={c.status === 'Rechazado' ? { backgroundColor: '#fff5f5', borderLeft: '4px solid #ef4444' } : {}}>
         <td className="bold-folio" data-label="FOLIO">#{c.folio}</td>
         <td className="cotiz-date" data-label="FECHA">
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem', color: '#666' }}>
@@ -350,13 +350,26 @@ const VistaCotizaciones = () => {
             <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)} style={{ fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}>
               👁️ VER
             </button>
+            {/* Botón para editar si está rechazada */}
+            {!esCliente && c.status === 'Rechazado' && (
+              <button 
+                className="btn-view-detail" 
+                style={{ background: '#3b82f6', color: 'white', border: 'none' }}
+                onClick={() => {
+                  setCotizacionParaAsignar(c); 
+                  setShowCreateModal(true);
+                }}
+              >
+                ✏️ RE-EDITAR
+              </button>
+            )}
             {/* Si es de un técnico y está pendiente, permitir generar la del cliente */}
             {!esCliente && c.created_by_role === 'Técnico' && c.status === 'Pendiente de Admin' && (
               <button 
                 className="btn-view-detail" 
                 style={{ background: '#ff8800', color: 'white', border: 'none' }}
                 onClick={() => {
-                  setCotizacionParaAsignar(c); // Reutilizamos el estado para pasar la data al modal
+                  setCotizacionParaAsignar(c); 
                   setShowCreateModal(true);
                 }}
               >
@@ -422,9 +435,12 @@ const VistaCotizaciones = () => {
                 
                 <div className="modal-info-summary">
                   {cotizacionSeleccionada.tecnico && (
-                    <div style={{ gridColumn: 'span 2', background: '#e0f2fe', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #0369a1', marginBottom: '10px' }}>
-                      <p style={{ margin: 0, fontSize: '0.95rem', color: '#0369a1', fontWeight: '700' }}>
-                        🛠️ Cotización enviada por {cotizacionSeleccionada.tecnico} del trabajo en la Propiedad: {cotizacionSeleccionada.propiedad_nombre || 'Sin nombre'} de {cotizacionSeleccionada.cliente}
+                    <div style={{ gridColumn: 'span 2', background: '#f8fafc', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #f26624', marginBottom: '10px' }}>
+                      <p style={{ margin: 0, fontSize: '0.95rem', color: '#334155', fontWeight: '500' }}>
+                        🛠️ {cotizacionSeleccionada.created_by_role === 'Técnico' ? 'Propuesta técnica enviada al Administrador' : 'Cotización oficial para el Cliente'}
+                      </p>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>
+                        Propiedad: {cotizacionSeleccionada.propiedad_nombre || 'Sin nombre'}
                       </p>
                     </div>
                   )}
