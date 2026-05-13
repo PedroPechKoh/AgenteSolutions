@@ -151,7 +151,25 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
                       className={`tecnico-card-select ${isSelected ? 'selected' : ''}`} 
                       onClick={() => toggleTecnico(t.id)}
                     >
-                      <img src={t.profile_picture_url || t.profile_picture || 'https://via.placeholder.com/150'} alt="Técnico" />
+                    <div 
+                      key={t.id} 
+                      className={`tecnico-card-select ${isSelected ? 'selected' : ''}`} 
+                      onClick={() => toggleTecnico(t.id)}
+                    >
+                      {t.profile_picture_url ? (
+                        <img 
+                          src={t.profile_picture_url} 
+                          alt="Técnico" 
+                          onError={(e) => {
+                            e.target.onerror = null; 
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div className="tech-avatar-fallback" style={{ display: t.profile_picture_url ? 'none' : 'flex' }}>
+                        {t.first_name?.charAt(0)}{t.last_name?.charAt(0)}
+                      </div>
                       <div className="tecnico-card-info">
                         <span className="tech-name">{t.first_name} {t.last_name?.charAt(0)}.</span>
                       </div>
@@ -179,19 +197,19 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
               className={`cl-tab-btn ${activeTab === 'herramientas' ? 'active' : ''}`}
               onClick={() => setActiveTab('herramientas')}
             >
-              <Settings size={16} /> HERRAMIENTAS
+              <Settings size={16} /> <span className="tab-text">HERRAMIENTAS</span>
             </button>
             <button 
               className={`cl-tab-btn ${activeTab === 'equipo' ? 'active' : ''}`}
               onClick={() => setActiveTab('equipo')}
             >
-              <Wrench size={16} /> EQUIPO DE TRABAJO
+              <Wrench size={16} /> <span className="tab-text">EQUIPO</span>
             </button>
             <button 
               className={`cl-tab-btn ${activeTab === 'material' ? 'active' : ''}`}
               onClick={() => setActiveTab('material')}
             >
-              <Package size={16} /> MATERIAL
+              <Package size={16} /> <span className="tab-text">MATERIAL</span>
             </button>
           </div>
 
@@ -199,7 +217,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
             <div className="add-item-row">
               <input 
                 type="text" 
-                placeholder={`Agregar nuevo ítem a ${activeTab}...`} 
+                placeholder={`Agregar a ${activeTab}...`} 
                 value={newItem}
                 onChange={e => setNewItem(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAddItem()}
@@ -228,12 +246,12 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           <div className="save-template-footer">
             <input 
               type="text" 
-              placeholder="Nombre para guardar esta plantilla..." 
+              placeholder="Nombre de plantilla..." 
               value={newTemplateName}
               onChange={e => setNewTemplateName(e.target.value)}
             />
             <button onClick={handleSaveTemplate} disabled={savingTemplate || checklist[activeTab].length === 0} className="btn-save-template">
-              <Save size={18} /> {savingTemplate ? 'Guardando...' : 'GUARDAR PLANTILLA'}
+              <Save size={18} /> <span className="btn-text">{savingTemplate ? 'Guardando...' : 'GUARDAR PLANTILLA'}</span>
             </button>
           </div>
         </div>
@@ -241,7 +259,7 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         <div className="checklist-modal-footer">
           <button className="btn-secondary" onClick={onClose}>CANCELAR</button>
           <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? 'GUARDANDO...' : (workOrder.custom_checklist ? '✓ ACTUALIZAR CHECKLIST' : '✓ ASIGNAR CHECKLIST')}
+            {loading ? 'GUARDANDO...' : (workOrder.custom_checklist ? '✓ ACTUALIZAR' : '✓ ASIGNAR')}
           </button>
         </div>
       </div>
@@ -254,10 +272,11 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           backdrop-filter: blur(4px);
           z-index: 20000;
           display: flex; align-items: center; justify-content: center;
-          padding: 20px;
+          padding: 10px;
         }
         .checklist-modal-card {
           width: 100%; max-width: 800px;
+          max-height: 95vh;
           background: white; border-radius: 20px;
           display: flex; flex-direction: column;
           overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
@@ -268,93 +287,122 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           to { opacity: 1; transform: translateY(0); }
         }
         .checklist-modal-header {
-          padding: 20px 30px; border-bottom: 1px solid #eee;
+          padding: 15px 25px; border-bottom: 1px solid #eee;
           display: flex; justify-content: space-between; align-items: center;
           background: white;
         }
         .header-title-main { display: flex; align-items: center; gap: 15px; }
-        .header-title-main h3 { margin: 0; font-weight: 900; color: #333; text-transform: uppercase; }
-        .header-title-main p { margin: 0; color: #888; font-size: 0.8rem; font-weight: bold; }
+        .header-title-main h3 { margin: 0; font-weight: 900; color: #333; text-transform: uppercase; font-size: 1.1rem; }
+        .header-title-main p { margin: 0; color: #888; font-size: 0.75rem; font-weight: bold; }
         
-        .close-btn { background: #f5f5f5; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .close-btn { background: #f5f5f5; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .close-btn:hover { background: #eee; transform: rotate(90deg); }
 
-        .checklist-modal-body { padding: 30px; flex: 1; overflow-y: auto; background: white; }
+        .checklist-modal-body { padding: 20px; flex: 1; overflow-y: auto; background: white; }
         
-        .assignment-section-top { display: flex; flex-direction: column; gap: 20px; margin-bottom: 25px; }
+        .assignment-section-top { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
         .full-width { width: 100%; }
         .form-group-cl { display: flex; flex-direction: column; gap: 8px; }
-        .form-group-cl label { font-size: 0.75rem; font-weight: 900; color: #444; display: flex; align-items: center; gap: 6px; }
-        .form-group-cl select, .datetime-input { 
-          padding: 12px; border: 2px solid #ddd; border-radius: 12px; 
-          outline: none; font-weight: 600; color: #333; background: white; width: 100%;
+        .form-group-cl label { font-size: 0.7rem; font-weight: 900; color: #444; display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
+        .form-group-cl select { 
+          padding: 10px; border: 2px solid #ddd; border-radius: 12px; 
+          outline: none; font-weight: 600; color: #333; background: white; width: 100%; font-size: 0.9rem;
         }
-        .form-group-cl select:focus, .datetime-input:focus { border-color: #F26522; }
+        .form-group-cl select:focus { border-color: #F26522; }
 
-        .tecnicos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-top: 5px; max-height: 200px; overflow-y: auto; padding-right: 5px; }
+        .tecnicos-grid { 
+          display: grid; 
+          grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+          gap: 10px; 
+          margin-top: 5px; 
+          max-height: 180px; 
+          overflow-y: auto; 
+          padding: 5px;
+          border: 1px solid #f0f0f0;
+          border-radius: 12px;
+        }
         .tecnico-card-select {
-          background: #f9f9f9; border: 2px solid #eee; border-radius: 12px; padding: 10px; cursor: pointer;
-          display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; transition: all 0.2s;
+          background: #f9f9f9; border: 2px solid #eee; border-radius: 12px; padding: 8px; cursor: pointer;
+          display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; transition: all 0.2s;
         }
         .tecnico-card-select:hover { border-color: #ffccbc; background: #fff5f0; }
         .tecnico-card-select.selected { border-color: #F26522; background: #fff5f0; box-shadow: 0 4px 10px rgba(242, 101, 34, 0.2); }
-        .tecnico-card-select img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .tech-name { font-size: 0.75rem; font-weight: 800; color: #444; text-align: center; }
-        .check-badge { position: absolute; top: -8px; right: -8px; background: white; color: #F26522; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         
-        .template-selector-box { background: #f5f5f5; padding: 15px; border-radius: 12px; border: 1px dashed #ccc; }
+        .tecnico-card-select img, .tech-avatar-fallback { 
+          width: 45px; height: 45px; border-radius: 50%; object-fit: cover; 
+          border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+        }
+        .tech-avatar-fallback {
+          background: #eee; color: #666; font-weight: bold; font-size: 0.9rem;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .tech-name { font-size: 0.7rem; font-weight: 800; color: #444; text-align: center; }
+        .check-badge { position: absolute; top: -5px; right: -5px; background: white; color: #F26522; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        .template-selector-box { background: #fdfdfd; padding: 12px; border-radius: 12px; border: 1px dashed #ddd; }
 
-        .cl-tabs-header { display: flex; gap: 10px; margin-bottom: 0; border-bottom: 2px solid #eee; }
+        .cl-tabs-header { display: flex; gap: 5px; margin-bottom: 0; border-bottom: 2px solid #eee; overflow-x: auto; scrollbar-width: none; }
+        .cl-tabs-header::-webkit-scrollbar { display: none; }
+        
         .cl-tab-btn {
-          padding: 12px 20px; border: none; background: transparent;
-          font-weight: 800; font-size: 0.8rem; color: #999;
-          display: flex; align-items: center; gap: 8px; cursor: pointer;
-          position: relative; transition: all 0.2s;
+          padding: 10px 15px; border: none; background: transparent;
+          font-weight: 800; font-size: 0.7rem; color: #999;
+          display: flex; align-items: center; gap: 6px; cursor: pointer;
+          position: relative; transition: all 0.2s; white-space: nowrap;
         }
         .cl-tab-btn.active { color: #F26522; }
         .cl-tab-btn.active::after {
           content: ""; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: #F26522;
         }
 
-        .cl-tab-content { background: #f9f9f9; padding: 25px; border-radius: 0 0 16px 16px; margin-bottom: 20px; border: 1px solid #eee; }
-        .add-item-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        .cl-tab-content { background: #fafafa; padding: 15px; border-radius: 0 0 16px 16px; margin-bottom: 15px; border: 1px solid #eee; }
+        .add-item-row { display: flex; gap: 8px; margin-bottom: 15px; }
         .add-item-row input { 
-          flex: 1; padding: 12px; border: 2px solid #ccc; border-radius: 10px; 
-          outline: none; background: white; color: #333;
+          flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; 
+          outline: none; background: white; color: #333; font-size: 0.9rem;
         }
         .add-item-row input:focus { border-color: #F26522; }
-        .btn-add-item { background: #333; color: white; border: none; padding: 0 20px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .btn-add-item { background: #333; color: white; border: none; padding: 0 15px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.8rem; }
 
-        .items-list-container { display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; }
+        .items-list-container { display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; padding-right: 5px; }
         .cl-item-editable {
-          background: white; padding: 10px 15px; border-radius: 8px;
+          background: white; padding: 8px 12px; border-radius: 8px;
           display: flex; justify-content: space-between; align-items: center;
-          border: 1px solid #ddd; transition: all 0.2s;
+          border: 1px solid #eee; transition: all 0.2s;
         }
-        .cl-item-editable:hover { border-color: #F26522; }
-        .cl-item-editable span { font-weight: 600; color: #333; }
-        .btn-remove-item { background: #fff1f1; color: #e53e3e; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .btn-remove-item:hover { background: #e53e3e; color: white; }
+        .cl-item-editable span { font-weight: 600; color: #333; font-size: 0.85rem; }
+        .btn-remove-item { background: #fff1f1; color: #e53e3e; border: none; width: 28px; height: 28px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         
-        .empty-checklist-msg { text-align: center; color: #bbb; font-style: italic; padding: 20px; }
-
         .save-template-footer {
-          display: flex; gap: 15px; align-items: center;
-          padding: 15px; background: #fff5f0; border-radius: 12px; border: 1px dashed #F26522;
+          display: flex; gap: 10px; align-items: center;
+          padding: 12px; background: #fff5f0; border-radius: 12px; border: 1px dashed #F26522;
         }
         .save-template-footer input { 
-          flex: 1; padding: 10px; border: 1px solid #ffccbc; border-radius: 8px; 
-          outline: none; background: white; color: #333;
+          flex: 1; padding: 8px 12px; border: 1px solid #ffccbc; border-radius: 8px; 
+          outline: none; background: white; color: #333; font-size: 0.85rem;
         }
-        .btn-save-template { background: #F26522; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-        .btn-save-template:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-save-template { background: #F26522; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 0.8rem; }
 
         .checklist-modal-footer {
-          padding: 20px 30px; background: #f5f5f5; display: flex; justify-content: flex-end; gap: 15px;
+          padding: 15px 25px; background: #f5f5f5; display: flex; justify-content: flex-end; gap: 10px;
         }
-        .btn-secondary { padding: 12px 25px; border-radius: 10px; border: none; background: #ddd; color: #666; font-weight: 800; cursor: pointer; }
-        .btn-primary { padding: 12px 30px; border-radius: 10px; border: none; background: #2e7d32; color: white; font-weight: 800; cursor: pointer; box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3); }
-        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-secondary { padding: 10px 20px; border-radius: 8px; border: none; background: #ddd; color: #666; font-weight: 800; cursor: pointer; font-size: 0.85rem; }
+        .btn-primary { padding: 10px 20px; border-radius: 8px; border: none; background: #2e7d32; color: white; font-weight: 800; cursor: pointer; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2); }
+
+        /* MEDIA QUERIES PARA RESPONSIVO */
+        @media (max-width: 600px) {
+          .checklist-modal-card { height: 100vh; max-height: 100vh; border-radius: 0; }
+          .checklist-modal-body { padding: 15px; }
+          .cl-tab-btn .tab-text { display: none; }
+          .cl-tab-btn { padding: 10px; }
+          .add-item-row { flex-direction: column; }
+          .btn-add-item { padding: 12px; justify-content: center; }
+          .save-template-footer { flex-direction: column; align-items: stretch; }
+          .btn-save-template { justify-content: center; padding: 12px; }
+          .checklist-modal-header h3 { font-size: 1rem; }
+          .tecnicos-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+        }
+      `}</style>
       `}</style>
     </div>
   );
