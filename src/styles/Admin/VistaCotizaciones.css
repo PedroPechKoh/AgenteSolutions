@@ -96,11 +96,23 @@
     text-transform: uppercase;
 }
 
+.cotiz-pill.mini {
+    padding: 6px 14px;
+    font-size: 0.75rem;
+    border-radius: 15px;
+}
+
 .cotiz-pill.active {
     background: #f26624;
     border-color: #f26624;
     color: white;
     box-shadow: 0 4px 10px rgba(242, 102, 36, 0.2);
+}
+
+.origin-pills {
+    background: #f1f5f9;
+    padding: 5px;
+    border-radius: 20px;
 }
 
 .cotiz-advanced-filters {

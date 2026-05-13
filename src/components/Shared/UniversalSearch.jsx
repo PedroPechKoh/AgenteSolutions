@@ -22,11 +22,11 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
         const estadoActual = String(item.estado || item.status || '').toLowerCase();
         
         if (filtroActual === 'Pendiente') {
-          coincideFiltro = estadoActual === 'pendiente' || estadoActual === 'en proceso';
+          coincideFiltro = estadoActual === 'pendiente' || estadoActual === 'en proceso' || estadoActual.includes('admin') || estadoActual.includes('enviada');
         } else if (filtroActual === 'Aprobado') {
-          coincideFiltro = estadoActual === 'aprobado' || estadoActual === 'aprobada';
+          coincideFiltro = estadoActual.includes('aprobad'); // Captura aprobado y aprobada
         } else if (filtroActual === 'Rechazado') {
-          coincideFiltro = estadoActual === 'rechazado' || estadoActual === 'rechazada';
+          coincideFiltro = estadoActual.includes('rechazad'); // Captura rechazado y rechazada
         }
       } else if (type === 'TECNICO_TABLERO') {
         coincideFiltro = true; // El tablero ya está filtrado por técnico, la búsqueda es global sobre eso

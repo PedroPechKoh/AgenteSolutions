@@ -7,7 +7,8 @@ import {
   Plus, Search, Filter, Calendar, 
   ArrowUpDown, FileText, Upload, 
   MoreVertical, Eye, CheckCircle, 
-  XCircle, Clock, ChevronDown
+  XCircle, Clock, ChevronDown, 
+  User, Wrench, Truck
 } from 'lucide-react';
 import CreateQuotationModal from "./CreateQuotationModal";
 import UniversalSearch from "../Shared/UniversalSearch";
@@ -32,6 +33,7 @@ const VistaCotizaciones = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [ordenMonto, setOrdenMonto] = useState(null); // 'asc' | 'desc' | null
   const [filtroTipo, setFiltroTipo] = useState('todos'); // 'todos' | 'manual' | 'archivo'
+  const [filtroOrigen, setFiltroOrigen] = useState('todos'); // 'todos' | 'admin' | 'tecnicos' | 'proveedores'
   const [cotizacionesFiltradas, setCotizacionesFiltradas] = useState([]);
 
   useEffect(() => {
@@ -236,13 +238,26 @@ const VistaCotizaciones = () => {
         <div className="cotiz-filters-row">
           <div className="cotiz-tabs-pills">
             <button className={`cotiz-pill ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>
-              <Clock size={16} /> 📩 NUEVAS
+              <Clock size={16} /> NUEVAS
             </button>
             <button className={`cotiz-pill ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>
-              <CheckCircle size={16} /> ✅ APROBADAS
+              <CheckCircle size={16} /> APROBADAS
             </button>
             <button className={`cotiz-pill ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>
-              <XCircle size={16} /> ❌ RECHAZADAS
+              <XCircle size={16} /> RECHAZADAS
+            </button>
+          </div>
+
+          <div className="cotiz-tabs-pills origin-pills">
+            <button className={`cotiz-pill mini ${filtroOrigen === 'todos' ? 'active' : ''}`} onClick={() => setFiltroOrigen('todos')}>TODOS</button>
+            <button className={`cotiz-pill mini ${filtroOrigen === 'admin' ? 'active' : ''}`} onClick={() => setFiltroOrigen('admin')}>
+               <User size={14} /> ADMIN
+            </button>
+            <button className={`cotiz-pill mini ${filtroOrigen === 'tecnicos' ? 'active' : ''}`} onClick={() => setFiltroOrigen('tecnicos')}>
+               <Wrench size={14} /> TÉCNICOS
+            </button>
+            <button className={`cotiz-pill mini ${filtroOrigen === 'proveedores' ? 'active' : ''}`} onClick={() => setFiltroOrigen('proveedores')}>
+               <Truck size={14} /> PROVEEDORES
             </button>
           </div>
 
@@ -282,6 +297,20 @@ const VistaCotizaciones = () => {
     <tr><td colSpan="4" className="no-data">Cargando cotizaciones...</td></tr>
   ) : cotizacionesFiltradas.length > 0 ? (
     cotizacionesFiltradas
+      .filter(c => {
+        const coincideTipo = 
+          filtroTipo === 'todos' || 
+          (filtroTipo === 'manual' && c.type !== 'archivo') || 
+          (filtroTipo === 'archivo' && c.type === 'archivo');
+          
+        const coincideOrigen = 
+          filtroOrigen === 'todos' ||
+          (filtroOrigen === 'admin' && !c.tecnico_id && !c.provider_id) ||
+          (filtroOrigen === 'tecnicos' && !!c.tecnico_id) ||
+          (filtroOrigen === 'proveedores' && !!c.provider_id);
+
+        return coincideTipo && coincideOrigen;
+      })
       .sort((a, b) => {
         if (!ordenMonto) return 0;
         const valA = parseFloat(a.total) || 0;
