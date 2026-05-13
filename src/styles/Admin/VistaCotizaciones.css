@@ -693,3 +693,49 @@
     }
 }
 
+/* --- MEJORAS DE RESPONSIVIDAD BOTONES --- */
+.cotiz-actions-cell {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .cotiz-actions-cell {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 8px;
+        padding: 10px 0;
+    }
+
+    .btn-view-detail {
+        width: 100% !important;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 44px;
+    }
+
+    .cotiz-data-table td {
+        padding: 12px 15px;
+    }
+
+    .cotiz-advanced-filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .filter-group, .sort-btn {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
