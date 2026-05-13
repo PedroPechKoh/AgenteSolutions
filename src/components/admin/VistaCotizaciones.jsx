@@ -10,6 +10,7 @@ import {
   XCircle, Clock, ChevronDown
 } from 'lucide-react';
 import CreateQuotationModal from "./CreateQuotationModal";
+import UniversalSearch from "../Shared/UniversalSearch";
 
 const VistaCotizaciones = () => {
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -31,6 +32,7 @@ const VistaCotizaciones = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [ordenMonto, setOrdenMonto] = useState(null); // 'asc' | 'desc' | null
   const [filtroTipo, setFiltroTipo] = useState('todos'); // 'todos' | 'manual' | 'archivo'
+  const [cotizacionesFiltradas, setCotizacionesFiltradas] = useState([]);
 
   useEffect(() => {
     try {
@@ -213,20 +215,18 @@ const VistaCotizaciones = () => {
       {/* 👆 Se eliminaron los div de las barras manuales y el tag <header> 👆 */}
 
       <main className="cotiz-main-content" style={esCliente ? { padding: '20px 0', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
-        <div className="cotiz-top-actions">
-          <div className="cotiz-search-bar-v2">
-            <Search size={18} className="search-icon-svg" />
-            <input 
-              type="text" 
-              placeholder="Buscar cliente, folio o servicio..." 
-              className="cotiz-input-v2"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
-          </div>
+        
+        <div className="cotiz-header-actions">
+          <UniversalSearch 
+            data={cotizaciones}
+            setFilteredData={setCotizacionesFiltradas}
+            placeholder="Buscar por cliente, folio o monto..."
+            filtroActual={filtro}
+            type="COTIZACIONES"
+          />
           
           {!esCliente && (
-            <button className="btn-new-cotiz" onClick={() => setShowCreateModal(true)}>
+            <button className="btn-new-cotiz-v2" onClick={() => setShowCreateModal(true)}>
               <Plus size={18} />
               <span>NUEVA COTIZACIÓN</span>
             </button>
@@ -280,21 +280,28 @@ const VistaCotizaciones = () => {
             <tbody>
   {cargando ? (
     <tr><td colSpan="4" className="no-data">Cargando cotizaciones...</td></tr>
-  ) : filtradas.length > 0 ? (
-    filtradas.map((c) => (
+  ) : cotizacionesFiltradas.length > 0 ? (
+    cotizacionesFiltradas
+      .sort((a, b) => {
+        if (!ordenMonto) return 0;
+        const valA = parseFloat(a.total) || 0;
+        const valB = parseFloat(b.total) || 0;
+        return ordenMonto === 'asc' ? valA - valB : valB - valA;
+      })
+      .map((c) => (
       <tr key={c.id}>
-        <td className="bold-folio">#{c.folio}</td>
-        <td className="cotiz-date">
+        <td className="bold-folio" data-label="FOLIO">#{c.folio}</td>
+        <td className="cotiz-date" data-label="FECHA">
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem', color: '#666' }}>
             <Calendar size={14} />
             {c.created_at ? new Date(c.created_at).toLocaleDateString('es-MX') : c.fecha || '---'}
           </div>
         </td>
-        <td className="cliente-name">{c.cliente}</td>
-        <td className="monto-final">
+        <td className="cliente-name" data-label="CLIENTE">{c.cliente}</td>
+        <td className="monto-final" data-label="TOTAL">
           {c.type === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
         </td>
-        <td>
+        <td data-label="ACCIONES">
           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
             <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)} style={{ fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}>
               👁️ VER
