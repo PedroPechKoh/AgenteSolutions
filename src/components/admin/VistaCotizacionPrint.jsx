@@ -205,7 +205,7 @@ const VistaCotizacionPrint = () => {
          </div>
       </div>
 
-      <div id="cotizacion-pdf" className="cotizacion-container" style={{ backgroundColor: 'white', width: '21cm', minHeight: '29.7cm', padding: '1.5cm 2cm', boxShadow: '0 0 15px rgba(0,0,0,0.1)' }}>
+      <div id="cotizacion-pdf" className="cotizacion-container printable-page-container">
 
         <div className="header">
           <div className="header-left">

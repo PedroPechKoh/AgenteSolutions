@@ -20,8 +20,26 @@ body {
   font-family: Arial, sans-serif;
   color: #000;
   box-sizing: border-box;
-    max-height: none; /* 👈 importante */
+  max-height: none; 
   overflow: visible;
+}
+
+.printable-page-container {
+  background-color: white;
+  width: 21cm;
+  min-height: 29.7cm;
+  padding: 1.5cm 2cm !important;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+@media print {
+  .printable-page-container {
+    width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 }
 
 /* HEADER */
@@ -150,6 +168,12 @@ body {
   margin-top: 20px;
 }
 
+@media print {
+  .notas {
+    margin-top: 10px;
+  }
+}
+
 .notas ul {
   padding-left: 18px;
 }
@@ -164,6 +188,13 @@ body {
   margin-top: 20px;
   border-top: 3px solid #ff4d00;
   padding-top: 10px;
+}
+
+@media print {
+  .fiscales {
+    margin-top: 10px;
+    padding-top: 5px;
+  }
 }
 
 .fiscales h3 {
@@ -220,13 +251,12 @@ body {
   }
 
   .cotizacion-container {
-    position: absolute;
-    left: 0;
-    top: 0;
+    position: static !important;
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     box-shadow: none !important;
+    min-height: auto !important;
   }
 
   .tabla-container {
