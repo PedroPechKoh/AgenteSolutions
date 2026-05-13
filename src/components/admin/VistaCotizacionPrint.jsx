@@ -82,6 +82,16 @@ const VistaCotizacionPrint = () => {
       }
       
       setElementosTabla(items);
+
+      // --- LÓGICA PARA NOTAS PREDETERMINADAS (SOLO TÉCNICOS) ---
+      if (data.tecnico) {
+        const propName = data.propiedad || data.propiedad_nombre || "S/N";
+        const clientName = data.cliente || "S/N";
+        const defaultNotas = `Cotización realizada por el Técnico: ${data.tecnico}\nen la propiedad: ${propName}\nde Nombre del Cliente: ${clientName}\n\n`;
+        
+        // Solo establecemos si no hay notas previas guardadas en esta sesión
+        setNotas(prev => prev || defaultNotas);
+      }
     }
   }, []);
 
@@ -203,12 +213,17 @@ const VistaCotizacionPrint = () => {
             <div className="info-cliente">
               <p><strong>ATENCION A:</strong></p>
               <h2>{(cotizacion.cliente || 'CLIENTE').toUpperCase()}</h2>
-              {cotizacion.propiedad && (
+              
+              {/* Solo mostrar datos de la propiedad si es de un técnico */}
+              {cotizacion.tecnico && (cotizacion.propiedad || cotizacion.propiedad_nombre) && (
                 <>
                   <p><strong>PROPIEDAD:</strong></p>
-                  <h3>{cotizacion.propiedad.toUpperCase()}</h3>
+                  <h3 style={{ color: '#333', marginBottom: '10px' }}>
+                    {(cotizacion.propiedad || cotizacion.propiedad_nombre).toUpperCase()}
+                  </h3>
                 </>
               )}
+
               <p><strong>LOCACION:</strong></p>
               <h3>{(cotizacion.ubicacion || 'MERIDA, YUCATAN').toUpperCase()}</h3>
             </div>
