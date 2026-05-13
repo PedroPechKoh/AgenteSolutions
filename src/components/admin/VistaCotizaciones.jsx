@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import "../../styles/Admin/VistaCotizaciones.css";
 import Header from "../Shared/Header";
@@ -14,6 +15,7 @@ import CreateQuotationModal from "./CreateQuotationModal";
 import UniversalSearch from "../Shared/UniversalSearch";
 
 const VistaCotizaciones = () => {
+  const navigate = useNavigate();
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [cotizacionParaAsignar, setCotizacionParaAsignar] = useState(null);
   const [cotizaciones, setCotizaciones] = useState([]);
