@@ -382,8 +382,6 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
           .tecnicos-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
         }
       `}</style>
-      `}</style>
-      `}</style>
     </div>
   );
 };
