@@ -404,8 +404,15 @@ const VistaCotizaciones = () => {
             <div className="modal-body-content" style={{ overflowY: 'auto', flexGrow: 1 }}>
                 
                 <div className="modal-info-summary">
+                  {cotizacionSeleccionada.tecnico && (
+                    <div style={{ gridColumn: 'span 2', background: '#e0f2fe', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #0369a1', marginBottom: '10px' }}>
+                      <p style={{ margin: 0, fontSize: '0.95rem', color: '#0369a1', fontWeight: '700' }}>
+                        🛠️ Cotización enviada por {cotizacionSeleccionada.tecnico} del trabajo en la Propiedad: {cotizacionSeleccionada.propiedad_nombre || 'Sin nombre'} de {cotizacionSeleccionada.cliente}
+                      </p>
+                    </div>
+                  )}
                   <p><strong>Cliente:</strong> {cotizacionSeleccionada.cliente}</p>
-                  <p><strong>Técnico:</strong> {cotizacionSeleccionada.tecnico}</p>
+                  {cotizacionSeleccionada.tecnico && <p><strong>Técnico:</strong> {cotizacionSeleccionada.tecnico}</p>}
                   <p><strong>Fecha:</strong> {cotizacionSeleccionada.fecha}</p>
                 </div>
 
