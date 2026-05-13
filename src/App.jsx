@@ -43,7 +43,7 @@ import GaleriaReportes from "./components/VistasTecnico/GaleriaReportes";
 import ReporteIndividual from "./components/VistasTecnico/ReporteIndividual";
 import NuevoReporte from "./components/VistasTecnico/NuevoReporte";
 import TrabajoInicio from "./components/VistasTecnico/TrabajoInicio";
-import TrabajoPropiedad from "./components/VistasTecnico/TrabajoPropiedad";
+import TrabajoPropiedad from "./components/VistasTecnico/TrabajosPropiedad";
 import VentaCruzada from "./components/VistasTecnico/VentaCruzada";
 import RegistrarVentaCruzada from "./components/VistasTecnico/RegistrarVentaCruzada";
 import LevantamientoPropiedad from "./components/VistasTecnico/LevantamientoPropiedad";
