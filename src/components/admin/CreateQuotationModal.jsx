@@ -6,7 +6,7 @@ import {
   AlertCircle, CheckCircle, Upload
 } from 'lucide-react';
 
-const CreateQuotationModal = ({ onClose, onSuccess }) => {
+const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
   const [tab, setTab] = useState('manual');
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: Seleccionar Servicio, 2: Detalles
@@ -20,7 +20,34 @@ const CreateQuotationModal = ({ onClose, onSuccess }) => {
   const [filasConceptos, setFilasConceptos] = useState([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
   const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
   const [observaciones, setObservaciones] = useState('');
+  const [observacionesInternas, setObservacionesInternas] = useState('');
   const [archivo, setArchivo] = useState(null);
+
+  useEffect(() => {
+    if (prefillData) {
+      setServicioSeleccionado({
+        id: prefillData.service_id || prefillData.work_order_id,
+        is_work_order: !!prefillData.work_order_id,
+        identificador_curp: prefillData.folio,
+        propietario: prefillData.cliente,
+        propiedad_nombre: prefillData.propiedad_nombre || '---',
+        direccion: prefillData.direccion || '---'
+      });
+      
+      if (prefillData.concept) {
+        const c = prefillData.concept;
+        if (c.servicios || c.conceptos) {
+          setFilasConceptos((c.servicios || c.conceptos).map((f, i) => ({ id: Date.now() + i, desc: f.descripcion || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.precio_u || 0 })));
+        }
+        if (c.materiales) {
+          setFilasMateriales(c.materiales.map((f, i) => ({ id: Date.now() + 100 + i, desc: f.descripcion || f.nombre || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.costo_u || 0 })));
+        }
+      }
+      
+      setObservacionesInternas(`--- COTIZACIÓN TÉCNICO ---\n${prefillData.observations || 'Sin observaciones'}`);
+      setStep(2); // Ir directo a detalles
+    }
+  }, [prefillData]);
 
   useEffect(() => {
     if (busqueda.length > 2) {
@@ -74,6 +101,10 @@ const CreateQuotationModal = ({ onClose, onSuccess }) => {
         formData.append('concept', JSON.stringify(conceptData));
         formData.append('estimated_amount', calcularTotal());
         formData.append('observations', observaciones);
+        formData.append('internal_observations', observacionesInternas);
+        if (prefillData?.id) {
+          formData.append('parent_id', prefillData.id);
+        }
       } else {
         if (!archivo) return alert("Seleccione un archivo.");
         formData.append('file', archivo);
@@ -243,11 +274,23 @@ const CreateQuotationModal = ({ onClose, onSuccess }) => {
                   </button>
 
                   <textarea 
-                    placeholder="Observaciones o notas para el cliente..."
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', minHeight: '80px', marginBottom: '20px' }}
+                    placeholder="Observaciones para el CLIENTE..."
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', minHeight: '80px', marginBottom: '15px' }}
                     value={observaciones}
                     onChange={(e) => setObservaciones(e.target.value)}
                   />
+
+                  <div style={{ background: '#fff8e1', padding: '12px', borderRadius: '8px', border: '1px solid #ffe082' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#f57c00', display: 'block', marginBottom: '5px' }}>
+                      COMENTARIOS INTERNOS (Solo Admin/Técnico):
+                    </label>
+                    <textarea 
+                      placeholder="Notas que el cliente NO verá..."
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ffcc80', minHeight: '80px', background: '#fffde7' }}
+                      value={observacionesInternas}
+                      onChange={(e) => setObservacionesInternas(e.target.value)}
+                    />
+                  </div>
                 </div>
               ) : (
                 <div className="file-upload-zone" style={{ padding: '40px', border: '2px dashed #ddd', borderRadius: '12px', textAlign: 'center', background: '#f9f9f9', marginBottom: '20px' }}>

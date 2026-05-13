@@ -305,9 +305,9 @@ const VistaCotizaciones = () => {
           
         const coincideOrigen = 
           filtroOrigen === 'todos' ||
-          (filtroOrigen === 'admin' && !c.tecnico_id && !c.provider_id) ||
-          (filtroOrigen === 'tecnicos' && !!c.tecnico_id) ||
-          (filtroOrigen === 'proveedores' && !!c.provider_id);
+          (filtroOrigen === 'admin' && (c.created_by_role === 'Admin' || (!c.created_by_role && !c.tecnico))) ||
+          (filtroOrigen === 'tecnicos' && c.created_by_role === 'Técnico') ||
+          (filtroOrigen === 'proveedores' && c.created_by_role === 'Proveedor');
 
         return coincideTipo && coincideOrigen;
       })
@@ -328,7 +328,7 @@ const VistaCotizaciones = () => {
         </td>
         <td className="cliente-name" data-label="CLIENTE">
           <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{c.cliente}</div>
-          {c.tecnico ? (
+          {c.created_by_role === 'Técnico' ? (
             <div className="origin-tag-mini">
               <Wrench size={10} /> TÉCNICO: {c.tecnico}
             </div>
@@ -346,6 +346,19 @@ const VistaCotizaciones = () => {
             <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)} style={{ fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}>
               👁️ VER
             </button>
+            {/* Si es de un técnico y está pendiente, permitir generar la del cliente */}
+            {!esCliente && c.created_by_role === 'Técnico' && c.status === 'Pendiente de Admin' && (
+              <button 
+                className="btn-view-detail" 
+                style={{ background: '#ff8800', color: 'white', border: 'none' }}
+                onClick={() => {
+                  setCotizacionParaAsignar(c); // Reutilizamos el estado para pasar la data al modal
+                  setShowCreateModal(true);
+                }}
+              >
+                📝 GENERAR CLIENTE
+              </button>
+            )}
             {/* Solo mostrar acciones de asignación si es admin y está aprobada */}
             {!esCliente && filtro === 'Aprobado' && (
               c.tecnico ? (
@@ -469,11 +482,20 @@ const VistaCotizaciones = () => {
                   <h3>TOTAL: ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}</h3>
                 </div>
 
-                {cotizacionSeleccionada.observaciones && (
+                {cotizacionSeleccionada.observations && (
                   <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: '8px', marginTop: '15px', borderLeft: '4px solid #ff8800' }}>
-                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', color: '#333' }}>Mensajes / Observaciones:</h4>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', color: '#333' }}>Mensajes al Cliente:</h4>
                     <p style={{ margin: 0, fontSize: '0.9rem', color: '#555', whiteSpace: 'pre-wrap' }}>
-                      {cotizacionSeleccionada.observaciones}
+                      {cotizacionSeleccionada.observations}
+                    </p>
+                  </div>
+                )}
+
+                {!esCliente && cotizacionSeleccionada.internal_observations && (
+                  <div style={{ padding: '15px', background: '#fff9c4', borderRadius: '8px', marginTop: '15px', borderLeft: '4px solid #fbc02d' }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', color: '#f57f17' }}>Comentarios Internos:</h4>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: '#5d4037', whiteSpace: 'pre-wrap', fontStyle: 'italic' }}>
+                      {cotizacionSeleccionada.internal_observations}
                     </p>
                   </div>
                 )}
@@ -576,9 +598,14 @@ const VistaCotizaciones = () => {
 
       {showCreateModal && (
         <CreateQuotationModal 
-          onClose={() => setShowCreateModal(false)}
+          prefillData={cotizacionParaAsignar} // Pasamos la cotización de técnico si existe
+          onClose={() => {
+            setShowCreateModal(false);
+            setCotizacionParaAsignar(null);
+          }}
           onSuccess={() => {
             setShowCreateModal(false);
+            setCotizacionParaAsignar(null);
             cargarCotizaciones();
           }}
         />
