@@ -395,31 +395,6 @@ const RegistroZonas = () => {
                     />
                   )}
                 </div>
-
-                <div className="rz-upload-container">
-                  <div className="rz-upload-placeholder" onClick={() => document.getElementById('fileInput').click()}>
-                    {previewImg ? (
-                      <div className="rz-preview-image-wrapper">
-                        <img src={previewImg} alt="Preview" />
-                      </div>
-                    ) : (
-                      <>
-                        <ImageIcon size={50} color="#999" />
-                        <span>SUBIR IMAGEN DE REFERENCIA</span>
-                      </>
-                    )}
-                    <input 
-                      type="file" 
-                      id="fileInput" 
-                      hidden 
-                      accept="image/*" 
-                      onChange={handleFileSelect} 
-                    />
-                    <button className="rz-btn-upload" type="button">
-                      {previewImg ? 'CAMBIAR ARCHIVO' : 'SELECCIONAR ARCHIVO'}
-                    </button>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
