@@ -78,7 +78,7 @@ const NuevoReporte = () => {
       });
 
       alert('¡Reporte guardado con éxito!');
-      navigate('/galeria-reportes', { state: { trabajoId, servicio } });
+      navigate(`/galeria-reportes/${trabajoId}`, { state: { trabajoId, servicio } });
     } catch (error) {
       console.error('Error al guardar reporte:', error);
       alert('Ocurrió un error al intentar guardar el reporte. Inténtalo de nuevo.');

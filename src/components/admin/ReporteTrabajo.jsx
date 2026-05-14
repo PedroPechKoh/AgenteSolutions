@@ -1,6 +1,6 @@
 // ReporteTrabajo.jsx
 import React, { useRef, useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import "../../styles/Admin/ReporteTrabajo.css";
 import logo from '../../assets/Logo3.png';
@@ -11,8 +11,12 @@ const ReporteTrabajo = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
+  const { id: paramId } = useParams();
+  
   // Datos recibidos de la navegación
-  const { trabajoId: rawTrabajoId, servicio, imagenes: imagenesEvidencia } = location.state || {};
+  const { trabajoId: stateRawTrabajoId, servicio, imagenes: imagenesEvidencia } = location.state || {};
+  
+  const rawTrabajoId = paramId || stateRawTrabajoId;
   
   // Extraer el ID numérico real en caso de que venga con prefijo (ej. work_order-5)
   const trabajoId = rawTrabajoId?.toString().includes('-') 

@@ -128,7 +128,7 @@ const DetalleTrabajo = () => {
                 <button
                   type="button"
                   className="btn-ver-mas"
-                  onClick={() => navigate('/galeria-reportes')}
+                  onClick={() => navigate(`/galeria-reportes/${id}`, { state: { trabajoId: id, servicio: data } })}
                 >
                   VER MÁS
                 </button>

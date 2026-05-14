@@ -122,7 +122,7 @@ useEffect(() => {
         <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
         <Route path="/Checklist/:id" element={<CheckList />} />
         <Route path="/detalleTrabajo/:id" element={<DetalleTrabajo />} />
-        <Route path="/galeria-reportes" element={<GaleriaReportes />} />
+        <Route path="/galeria-reportes/:id?" element={<GaleriaReportes />} />
         <Route path="/reporte-individual/:id?" element={<ReporteIndividual />} />
         <Route path="/nuevo-reporte" element={<NuevoReporte />} />
         <Route path="/trabajo-inicio/:id" element={<TrabajoInicio />} />
@@ -159,7 +159,7 @@ useEffect(() => {
         <Route path="/tablero-servicios" element={<VistaServiciosAdmin />} />
         <Route path="/detalle-tecnico" element={<VistaDetalleTecnico />} />
         <Route path="/reportes-globales" element={<VistaReportesGlobal />} />
-        <Route path="/reporte-trabajo-admin" element={<ReporteTrabajoAdmin />} />
+        <Route path="/reporte-trabajo-admin/:id?" element={<ReporteTrabajoAdmin />} />
 
       <Route path="/notificaciones" element={<VistaNotificaciones />} />
       <Route path="/trabajos-asignados" element={<TrabajosAsignados />} />

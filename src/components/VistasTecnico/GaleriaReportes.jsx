@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import axios from 'axios';
 import "../../styles/TecnicoStyles/GaleriaReportes.css";
 import { Plus, ChevronLeft, FileText } from 'lucide-react';
@@ -10,9 +10,10 @@ import { useAuth } from "../../context/AuthContext";
 
 const GaleriaReportes = () => {
   const { user } = useAuth();
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const trabajoId = location.state?.trabajoId;
+  const trabajoId = id || location.state?.trabajoId;
   const servicio = location.state?.servicio;
 
   const [reportes, setReportes] = useState([]);
@@ -94,7 +95,7 @@ const GaleriaReportes = () => {
           {/* BOTÓN REPORTE OFICIAL (Solo para Admin/Supervisor) */}
           {(user?.role_id === 0 || user?.role_id === 1) && (
             <button 
-              onClick={() => navigate('/reporte-trabajo-admin', { 
+              onClick={() => navigate(`/reporte-trabajo-admin/${trabajoId}`, { 
                 state: { 
                   trabajoId, 
                   servicio, 

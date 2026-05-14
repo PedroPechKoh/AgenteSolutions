@@ -66,7 +66,10 @@ const ReporteIndividual = () => {
               <button
                 type="button"
                 className="btn-guardar-reporte"
-                onClick={() => navigate('/galeria-reportes', { state: { trabajoId: reporte.service_id } })}
+                onClick={() => {
+                  const id = reporte.work_order_id ? `work_order-${reporte.work_order_id}` : `servicio-${reporte.service_id}`;
+                  navigate(`/galeria-reportes/${id}`, { state: { trabajoId: id } });
+                }}
               >
                 VOLVER A LA GALERÍA
               </button>
