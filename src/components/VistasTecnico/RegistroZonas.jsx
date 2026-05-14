@@ -7,6 +7,7 @@ import Header from '../Shared/Header';
 import logoAgente from '../../assets/Logo3.png';
 import "../../styles/TecnicoStyles/RegistroZonas.css";
 
+
 const RegistroZonas = () => {
   const { curp } = useParams(); 
   const location = useLocation();
