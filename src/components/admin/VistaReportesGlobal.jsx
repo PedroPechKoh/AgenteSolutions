@@ -120,7 +120,7 @@ const VistaReportesGlobal = () => {
                           const prop = serviceData?.property;
                           const prefijo = isService ? 'servicio' : (firstReport.work_order ? 'work_order' : 'servicio');
                           
-                          navigate('/reporte-trabajo-admin', { 
+                          navigate(`/reporte-trabajo-admin/${prefijo}-${firstReport.service_id}`, { 
                             state: { 
                               trabajoId: `${prefijo}-${firstReport.service_id}`, 
                               servicio: {
