@@ -141,6 +141,16 @@ const DetalleReporte = () => {
         }
     };
 
+    // Redirección automática si no hay ID válido
+    useEffect(() => {
+        if (!cargando && (!datosBD || !id || id === 'null' || id === 'undefined')) {
+            const timer = setTimeout(() => {
+                navigate('/propiedades');
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [cargando, datosBD, id, navigate]);
+
     // --- CARGA DE DATOS DESDE API ---
     useEffect(() => {
         cargarReporte();
@@ -431,7 +441,34 @@ const DetalleReporte = () => {
 
     // --- RENDERIZADO DE CARGA ---
     if (cargando) return <div className="loading-screen">Cargando datos del reporte...</div>;
-    if (!datosBD) return <div className="loading-screen">Error: Reporte no encontrado.</div>;
+    if (!datosBD || !id || id === 'null' || id === 'undefined') {
+        return (
+            <div className="loading-screen" style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '20px', textAlign: 'center' }}>
+                <div style={{ fontSize: '4rem' }}>📋</div>
+                <h2 style={{ color: '#f26624' }}>No se encontró el levantamiento</h2>
+                <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '400px' }}>
+                    Solicita un levantamiento de esta propiedad para poder ver su reporte técnico.
+                </p>
+                <small style={{ color: '#999' }}>Redirigiendo a mis propiedades en 5 segundos...</small>
+                <button 
+                    onClick={() => navigate('/propiedades')}
+                    style={{
+                        padding: '12px 30px',
+                        backgroundColor: '#f26624',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '25px',
+                        fontSize: '1rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 10px rgba(242, 102, 36, 0.3)'
+                    }}
+                >
+                    IR A MIS PROPIEDADES
+                </button>
+            </div>
+        );
+    }
 
     const userData = JSON.parse(localStorage.getItem('agente_session'))?.userData;
     const isClient = Number(userData?.role_id) === 3;
