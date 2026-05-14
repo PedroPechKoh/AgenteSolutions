@@ -14,6 +14,13 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
   const [habitacionActiva, setHabitacionActiva] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [nuevaHabitacion, setNuevaHabitacion] = useState("");
+  const [subHabitacionesSeleccionadas, setSubHabitacionesSeleccionadas] = useState([]);
+  const [esOtraHabitacion, setEsOtraHabitacion] = useState(false);
+
+  const OPCIONES_SUB_PREDEFINIDAS = [
+    "BAÑO", "BAÑO COMPLETO", "MEDIO BAÑO", "VESTIDOR", "CLOSET", 
+    "TERRAZA", "BALCÓN", "PASILLO", "ÁREA DE LAVADO", "BODEGA"
+  ];
 
   // Opciones de Zona (Editar/Eliminar)
   const [mostrarOpcionesZona, setMostrarOpcionesZona] = useState(false);
@@ -115,27 +122,52 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
     }
   };
 
-  const guardarHabitacion = async () => {
-    if (!nuevaHabitacion) return alert("Por favor, ingresa el nombre de la habitación.");
+  const guardarHabitaciones = async () => {
+    if (subHabitacionesSeleccionadas.length === 0 && !nuevaHabitacion) {
+      return alert("Por favor, selecciona al menos una opción o escribe un nombre.");
+    }
 
     setGuardando(true);
+    const token = localStorage.getItem('agente_token');
+    
+    let nombresAGuardar = [...subHabitacionesSeleccionadas];
+    if (esOtraHabitacion && nuevaHabitacion) {
+      nombresAGuardar.push(nuevaHabitacion);
+    }
+
     try {
-      // Guardamos en property_areas apuntando al parent_id
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, {
-        property_id: zona.property_id,
-        parent_id: zona.id, // Esto la convierte en sub-habitación
-        name: nuevaHabitacion
+      const promesas = nombresAGuardar.map(nombre => {
+        return axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, {
+          property_id: zona.property_id,
+          parent_id: zona.id,
+          name: nombre,
+          description: ''
+        }, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
       });
+
+      await Promise.all(promesas);
       
       setIsModalOpen(false);
+      setSubHabitacionesSeleccionadas([]);
       setNuevaHabitacion("");
+      setEsOtraHabitacion(false);
       fetchHabitaciones(); 
     } catch (error) {
-      console.error("Error al guardar habitación:", error);
-      alert("Hubo un error al registrar la habitación.");
+      console.error("Error al guardar habitaciones:", error);
+      alert("Hubo un error al registrar las áreas.");
     } finally {
       setGuardando(false);
     }
+  };
+
+  const toggleSubSelection = (nombre) => {
+    setSubHabitacionesSeleccionadas(prev => 
+      prev.includes(nombre) 
+        ? prev.filter(n => n !== nombre) 
+        : [...prev, nombre]
+    );
   };
 
   if (habitacionActiva) {
@@ -301,22 +333,80 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
               
               <div className="modal-body" style={{ padding: '20px' }}>
                 <div className="input-container-modern">
-                  <label>NOMBRE (Ej. Cuarto de estar, Baño principal)</label>
-                  <input 
-                    type="text" 
-                    value={nuevaHabitacion} 
-                    onChange={(e) => setNuevaHabitacion(e.target.value.toUpperCase())} 
-                    placeholder="Escribe aquí..." 
-                    autoFocus 
-                  />
+                  <label>SELECCIONA LAS ÁREAS A AGREGAR</label>
+                  <div className="sub-multi-select-grid" style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', 
+                    gap: '10px', 
+                    marginTop: '10px',
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    padding: '10px',
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    borderRadius: '10px'
+                  }}>
+                    {OPCIONES_SUB_PREDEFINIDAS.map(opc => (
+                      <button
+                        key={opc}
+                        type="button"
+                        onClick={() => toggleSubSelection(opc)}
+                        style={{
+                          padding: '10px',
+                          borderRadius: '8px',
+                          border: '2px solid',
+                          borderColor: subHabitacionesSeleccionadas.includes(opc) ? '#F26522' : 'transparent',
+                          backgroundColor: subHabitacionesSeleccionadas.includes(opc) ? 'rgba(242, 101, 34, 0.2)' : 'rgba(255,255,255,0.1)',
+                          color: 'white',
+                          cursor: 'pointer',
+                          fontSize: '0.75rem',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        {opc}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setEsOtraHabitacion(!esOtraHabitacion)}
+                      style={{
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '2px solid',
+                        borderColor: esOtraHabitacion ? '#F26522' : 'transparent',
+                        backgroundColor: esOtraHabitacion ? 'rgba(242, 101, 34, 0.2)' : 'rgba(255,255,255,0.1)',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      OTRA...
+                    </button>
+                  </div>
+
+                  {esOtraHabitacion && (
+                    <input 
+                      type="text" 
+                      placeholder="ESCRIBE EL NOMBRE AQUÍ..." 
+                      value={nuevaHabitacion}
+                      onChange={(e) => setNuevaHabitacion(e.target.value.toUpperCase())}
+                      style={{ marginTop: '15px', width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white' }}
+                      autoFocus
+                    />
+                  )}
                 </div>
               </div>
 
               <div className="modal-footer">
-                <button className="btn-cancel" onClick={() => setIsModalOpen(false)}>
+                <button className="btn-cancel" onClick={() => {
+                  setIsModalOpen(false);
+                  setSubHabitacionesSeleccionadas([]);
+                  setEsOtraHabitacion(false);
+                }}>
                   CANCELAR
                 </button>
-                <button className="btn-confirm-grad" onClick={guardarHabitacion} disabled={guardando}>
+                <button className="btn-confirm-grad" onClick={guardarHabitaciones} disabled={guardando}>
                   {guardando ? <Loader2 size={16} className="animate-spin" /> : 'AGREGAR'}
                 </button>
               </div>
