@@ -17,6 +17,12 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
   
   const [nuevaCategoria, setNuevaCategoria] = useState('');
   const [creandoNuevaCategoria, setCreandoNuevaCategoria] = useState(false);
+  const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState([]);
+
+  const OPCIONES_CAT_PREDEFINIDAS = [
+    "ELÉCTRICO", "PLOMERÍA", "AIRE ACONDICIONADO", "ELECTRODOMÉSTICOS", 
+    "MUEBLES", "CARPINTERÍA", "PINTURA", "ILUMINACIÓN", "ACABADOS"
+  ];
 
   // NUEVO ESTADO: Controla a qué categoría entramos
   const [categoriaActiva, setCategoriaActiva] = useState(null); 
@@ -73,30 +79,50 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
     }
   };
 
-  const guardarCategoria = async () => {
-    if (!nuevaCategoria) return alert("Ingresa el nombre de la categoría.");
+  const guardarCategorias = async () => {
+    if (categoriasSeleccionadas.length === 0 && !nuevaCategoria) {
+      return alert("Selecciona al menos una categoría o escribe una nueva.");
+    }
+
     setGuardando(true);
+    const token = localStorage.getItem('agente_token');
+    
+    let nombresAGuardar = [...categoriasSeleccionadas];
+    if (creandoNuevaCategoria && nuevaCategoria) {
+      nombresAGuardar.push(nuevaCategoria);
+    }
+
     try {
-      // ✅ INYECTAMOS EL TOKEN
-      const token = localStorage.getItem('agente_token');
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-categories`, {
-        property_area_id: habitacion.id,
-        name: nuevaCategoria
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const promesas = nombresAGuardar.map(nombre => {
+        return axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-categories`, {
+          property_area_id: habitacion.id,
+          name: nombre
+        }, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
       });
+
+      await Promise.all(promesas);
+      
       setIsModalOpen(false);
+      setCategoriasSeleccionadas([]);
       setNuevaCategoria('');
       setCreandoNuevaCategoria(false);
       fetchCategorias(); 
     } catch (error) {
-      console.error("Error al guardar categoría:", error);
-      alert("Hubo un error al registrar la categoría.");
+      console.error("Error al guardar categorías:", error);
+      alert("Hubo un error al registrar las categorías.");
     } finally {
       setGuardando(false);
     }
+  };
+
+  const toggleCatSelection = (nombre) => {
+    setCategoriasSeleccionadas(prev => 
+      prev.includes(nombre) 
+        ? prev.filter(n => n !== nombre) 
+        : [...prev, nombre]
+    );
   };
 
   const handleFileSelect = (e) => {
@@ -340,58 +366,86 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
               <h2>NUEVA CATEGORÍA</h2>
             </div>
             
-            <div className="rdh-modal-form">
+            <div className="rdh-modal-form" style={{ padding: '20px' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{fontWeight: 900, fontSize: 14, marginBottom: 5, color: '#333'}}>
-                  SELECCIONA O AGREGA UNA CATEGORÍA
+                <label style={{fontWeight: 900, fontSize: 14, marginBottom: 15, color: '#333'}}>
+                  SELECCIONA LAS CATEGORÍAS A AGREGAR
                 </label>
                 
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  {creandoNuevaCategoria ? (
-                    <input 
-                      className="rdh-modal-input" 
-                      style={{ flex: 1 }}
-                      type="text" 
-                      value={nuevaCategoria} 
-                      onChange={(e) => setNuevaCategoria(e.target.value.toUpperCase())} 
-                      placeholder="Escribe la nueva categoría..." 
-                      autoFocus 
-                    />
-                  ) : (
-                    <select 
-                      className="rdh-modal-input" 
-                      style={{ flex: 1, cursor: 'pointer' }}
-                      value={nuevaCategoria}
-                      onChange={(e) => setNuevaCategoria(e.target.value)}
+                <div className="cat-multi-select-grid" style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', 
+                  gap: '10px', 
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  padding: '10px',
+                  backgroundColor: 'rgba(0,0,0,0.05)',
+                  borderRadius: '10px',
+                  marginBottom: '15px'
+                }}>
+                  {OPCIONES_CAT_PREDEFINIDAS.map(opc => (
+                    <button
+                      key={opc}
+                      type="button"
+                      onClick={() => toggleCatSelection(opc)}
+                      style={{
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '2px solid',
+                        borderColor: categoriasSeleccionadas.includes(opc) ? '#F26522' : '#ddd',
+                        backgroundColor: categoriasSeleccionadas.includes(opc) ? '#F26522' : 'white',
+                        color: categoriasSeleccionadas.includes(opc) ? 'white' : '#444',
+                        cursor: 'pointer',
+                        fontSize: '0.75rem',
+                        fontWeight: 'bold',
+                        transition: 'all 0.2s',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                      }}
                     >
-                      <option value="">Selecciona una opción...</option>
-                      <option value="ELÉCTRICO">ELÉCTRICO</option>
-                      <option value="ELECTRODOMÉSTICOS">ELECTRODOMÉSTICOS</option>
-                      <option value="MUEBLES">MUEBLES</option>
-                      <option value="PLOMERÍA">PLOMERÍA</option>
-                      <option value="CARPINTERÍA">CARPINTERÍA</option>
-                    </select>
-                  )}
-
-                  <button 
-                    onClick={() => {
-                      setCreandoNuevaCategoria(!creandoNuevaCategoria);
-                      setNuevaCategoria('');
+                      {opc}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setCreandoNuevaCategoria(!creandoNuevaCategoria)}
+                    style={{
+                      padding: '10px',
+                      borderRadius: '8px',
+                      border: '2px solid',
+                      borderColor: creandoNuevaCategoria ? '#F26522' : '#ddd',
+                      backgroundColor: creandoNuevaCategoria ? '#F26522' : 'white',
+                      color: creandoNuevaCategoria ? 'white' : '#444',
+                      cursor: 'pointer',
+                      fontSize: '0.75rem',
+                      fontWeight: 'bold',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                     }}
-                    style={{ backgroundColor: creandoNuevaCategoria ? '#666' : '#f26624', border: 'none', borderRadius: '15px', width: '45px', color: 'white', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
                   >
-                    {creandoNuevaCategoria ? <ArrowLeft size={20} /> : <Plus size={20} strokeWidth={3} />}
+                    OTRA...
                   </button>
                 </div>
+
+                {creandoNuevaCategoria && (
+                  <input 
+                    className="rdh-modal-input" 
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', textTransform: 'uppercase' }}
+                    type="text" 
+                    value={nuevaCategoria} 
+                    onChange={(e) => setNuevaCategoria(e.target.value.toUpperCase())} 
+                    placeholder="ESCRIBE LA NUEVA CATEGORÍA..." 
+                    autoFocus 
+                  />
+                )}
               </div>
             </div>
 
-            <div className="rdh-modal-btn-container" style={{ gap: '15px', marginTop: '30px' }}>
+            <div className="rdh-modal-btn-container" style={{ gap: '15px', marginTop: '10px', padding: '0 20px 20px' }}>
               <button className="dh-btn-save-3d" style={{ background: '#777', boxShadow: '0 6px 0px #444', height: '45px', padding: '0 30px', fontSize: '16px' }} onClick={() => {
                 setIsModalOpen(false);
                 setCreandoNuevaCategoria(false);
+                setCategoriasSeleccionadas([]);
               }}>CANCELAR</button>
-              <button className="dh-btn-save-3d" style={{ height: '45px', padding: '0 30px', fontSize: '16px' }} onClick={guardarCategoria} disabled={guardando}>
+              <button className="dh-btn-save-3d" style={{ height: '45px', padding: '0 30px', fontSize: '16px' }} onClick={guardarCategorias} disabled={guardando}>
                 {guardando ? <Loader2 size={16} className="animate-spin" /> : 'AGREGAR'}
               </button>
             </div>
