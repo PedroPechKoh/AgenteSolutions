@@ -26,15 +26,23 @@ const MainLayoutCliente = ({ children }) => {
     const syncIds = () => {
       const pId = localStorage.getItem('current_property_id');
       const lId = localStorage.getItem('current_levantamiento_id');
+      
+      // Si la URL tiene un ID de propiedad y es diferente al guardado, limpiamos el levantamiento 
+      // para evitar "fantasmas" de la propiedad anterior mientras carga la nueva.
+      if (urlPropertyId && urlPropertyId !== pId) {
+        setCurrentLevantamientoId(null);
+      } else {
+        setCurrentLevantamientoId(lId);
+      }
+      
       setCurrentPropertyId(pId);
-      setCurrentLevantamientoId(lId);
     };
 
     syncIds(); // Al montar y cambiar ruta
     
     window.addEventListener('sync-agente-ids', syncIds);
     return () => window.removeEventListener('sync-agente-ids', syncIds);
-  }, [location.pathname]);
+  }, [location.pathname, urlPropertyId]);
   
   // Priorizar el ID de la URL si estamos en un detalle
   const effectivePropertyId = urlPropertyId || currentPropertyId;
