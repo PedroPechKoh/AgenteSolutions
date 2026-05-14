@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Plus, X, Save, ImageIcon, Loader2, ArrowLeft, LayoutGrid, CheckCircle } from 'lucide-react';
 import DetalleZona from './DetalleZona'; 
 import Header from '../Shared/Header';
+import logoAgente from '../../assets/Logo3.png';
 import "../../styles/TecnicoStyles/RegistroZonas.css";
 
 const RegistroZonas = () => {
@@ -28,6 +29,13 @@ const RegistroZonas = () => {
   const [esOtraZona, setEsOtraZona] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null); // Archivo real
   const [previewImg, setPreviewImg] = useState(null);    // Vista previa
+  const [zonasSeleccionadas, setZonasSeleccionadas] = useState([]); // Selección múltiple
+
+  const OPCIONES_PREDEFINIDAS = [
+    "HABITACIÓN", "BAÑO", "BAÑO PRINCIPAL", "MEDIO BAÑO", "COCINA", 
+    "SALA DE ESTAR", "COMEDOR", "PATIO", "PASILLO", "GARAJE", 
+    "JARDÍN", "LAVADERO", "AZOTEA"
+  ];
 
   const [idPropiedadReal, setIdPropiedadReal] = useState(propertyId);
 
@@ -83,45 +91,62 @@ const RegistroZonas = () => {
     }
   };
 
-  const guardarZona = async () => {
-    if (!nuevaZona.nombre) return alert("Debes asignarle un nombre a la zona.");
+  const guardarZonas = async () => {
+    if (zonasSeleccionadas.length === 0 && !nuevaZona.nombre) {
+      return alert("Debes seleccionar al menos una zona o escribir el nombre de una nueva.");
+    }
 
     setLoading(true);
-
-    // USAMOS FORMDATA PARA ENVIAR LA IMAGEN
-    const formData = new FormData();
-    formData.append('property_id', idPropiedadReal);
-    formData.append('name', nuevaZona.nombre);
-
-    formData.append('description', nuevaZona.descripcion || '');
+    const token = localStorage.getItem('agente_token');
     
-    if (selectedFile) {
-      formData.append('image', selectedFile); // 'image' debe coincidir con el backend
+    // Lista final de zonas a registrar
+    let nombresAGuardar = [...zonasSeleccionadas];
+    if (esOtraZona && nuevaZona.nombre) {
+      nombresAGuardar.push(nuevaZona.nombre);
     }
 
     try {
-      // ✅ INYECTAMOS EL TOKEN PARA GUARDAR LA ZONA Y LA IMAGEN
-      const token = localStorage.getItem('agente_token');
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}` 
+      // Creamos todas las zonas en paralelo para mayor velocidad
+      const promesas = nombresAGuardar.map(nombre => {
+        const formData = new FormData();
+        formData.append('property_id', idPropiedadReal);
+        formData.append('name', nombre);
+        formData.append('description', '');
+        if (selectedFile) {
+          formData.append('image', selectedFile);
         }
+        
+        return axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}` 
+          }
+        });
       });
+
+      await Promise.all(promesas);
       
-      // Reset y Cerrar
       setModalAbierto(false);
+      setZonasSeleccionadas([]);
       setNuevaZona({ nombre: '', descripcion: '' });
       setEsOtraZona(false);
       setSelectedFile(null);
       setPreviewImg(null);
       fetchZonas(); 
     } catch (error) {
-      console.error("Error al guardar:", error);
-      alert("No se pudo registrar la zona.");
+      console.error("Error al guardar zonas:", error);
+      alert("Hubo un error al registrar algunas zonas.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleZonaSelection = (nombre) => {
+    setZonasSeleccionadas(prev => 
+      prev.includes(nombre) 
+        ? prev.filter(z => z !== nombre) 
+        : [...prev, nombre]
+    );
   };
 
   const finalizarLevantamiento = async () => {
@@ -252,9 +277,10 @@ const RegistroZonas = () => {
                 <img 
                   src={zona.image_path 
                     ? zona.image_path 
-                    : "https://images.homify.com/v1452164048/p/photo/image/1227856/3.jpg"
+                    : logoAgente
                   } 
                   alt={zona.name} 
+                  style={{ objectFit: zona.image_path ? 'cover' : 'contain', padding: zona.image_path ? '0' : '20px' }}
                 />
                 <div className="rz-image-overlay">
                   <span className="rz-zona-pill">{zona.name}</span>
@@ -289,7 +315,7 @@ const RegistroZonas = () => {
               <div className="rz-modal-header">
                 <h2 className="rz-modal-title">DETALLES DE ZONA</h2>
                 <div className="rz-modal-actions">
-                  <button className="rz-btn-action orange-gradient" onClick={guardarZona} disabled={loading}>
+                  <button className="rz-btn-action orange-gradient" onClick={guardarZonas} disabled={loading}>
                     {loading ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} 
                     {loading ? ' GUARDANDO...' : ' GUARDAR'}
                   </button>
@@ -307,43 +333,65 @@ const RegistroZonas = () => {
 
               <div className="rz-modal-body">
                 <div className="rz-input-group">
-                  <label>TIPO DE ZONA</label>
-                  <select 
-                    value={esOtraZona ? 'OTRA' : nuevaZona.nombre}
-                    onChange={(e) => {
-                      if(e.target.value === 'OTRA') {
-                        setEsOtraZona(true);
-                        setNuevaZona({...nuevaZona, nombre: ''});
-                      } else {
-                        setEsOtraZona(false);
-                        setNuevaZona({...nuevaZona, nombre: e.target.value});
-                      }
-                    }}
-                    className="rz-select-zone"
-                  >
-                    <option value="">SELECCIONA UNA ZONA...</option>
-                    <option value="HABITACIÓN">HABITACIÓN</option>
-                    <option value="BAÑO">BAÑO</option>
-                    <option value="BAÑO PRINCIPAL">BAÑO PRINCIPAL</option>
-                    <option value="MEDIO BAÑO">MEDIO BAÑO</option>
-                    <option value="COCINA">COCINA</option>
-                    <option value="SALA DE ESTAR">SALA DE ESTAR</option>
-                    <option value="COMEDOR">COMEDOR</option>
-                    <option value="PATIO">PATIO</option>
-                    <option value="PASILLO">PASILLO</option>
-                    <option value="GARAJE">GARAJE</option>
-                    <option value="JARDÍN">JARDÍN</option>
-                    <option value="LAVADERO">LAVADERO</option>
-                    <option value="AZOTEA">AZOTEA</option>
-                    <option value="OTRA">OTRA</option>
-                  </select>
+                  <label>SELECCIONA LAS ZONAS A AGREGAR</label>
+                  <div className="rz-multi-select-grid" style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', 
+                    gap: '10px', 
+                    marginTop: '10px',
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    padding: '10px',
+                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    borderRadius: '10px'
+                  }}>
+                    {OPCIONES_PREDEFINIDAS.map(opc => (
+                      <button
+                        key={opc}
+                        type="button"
+                        onClick={() => toggleZonaSelection(opc)}
+                        style={{
+                          padding: '10px',
+                          borderRadius: '8px',
+                          border: '2px solid',
+                          borderColor: zonasSeleccionadas.includes(opc) ? '#F26522' : 'transparent',
+                          backgroundColor: zonasSeleccionadas.includes(opc) ? 'rgba(242, 101, 34, 0.2)' : 'rgba(255,255,255,0.1)',
+                          color: 'white',
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        {opc}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setEsOtraZona(!esOtraZona)}
+                      style={{
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '2px solid',
+                        borderColor: esOtraZona ? '#F26522' : 'transparent',
+                        backgroundColor: esOtraZona ? 'rgba(242, 101, 34, 0.2)' : 'rgba(255,255,255,0.1)',
+                        color: 'white',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      OTRA...
+                    </button>
+                  </div>
+
                   {esOtraZona && (
                     <input 
                       type="text" 
-                      placeholder="ESCRIBE AQUÍ EL NOMBRE..." 
+                      placeholder="ESCRIBE AQUÍ EL NOMBRE DE LA ZONA..." 
                       value={nuevaZona.nombre}
                       onChange={(e) => setNuevaZona({...nuevaZona, nombre: e.target.value.toUpperCase()})}
-                      style={{ marginTop: '10px' }}
+                      style={{ marginTop: '15px', width: '100%', padding: '12px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white' }}
                     />
                   )}
                 </div>
