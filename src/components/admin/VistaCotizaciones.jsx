@@ -569,6 +569,21 @@ const VistaCotizaciones = () => {
 
             <div className="modal-footer-btns" style={{ flexShrink: 0, justifyContent: 'space-between', display: 'flex' }}>
                 <div style={{ display: 'flex', gap: '10px' }}>
+                  {/* BOTÓN PARA QUE EL ADMIN GENERE COTIZACIÓN A CLIENTE BASADA EN LA DEL TÉCNICO */}
+                  {!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico' && (
+                    <button 
+                      className="btn-modal-print" 
+                      style={{ background: '#F26522', color: 'white', fontWeight: 'bold' }} 
+                      onClick={() => {
+                        setCotizacionParaAsignar(cotizacionSeleccionada);
+                        setCotizacionSeleccionada(null);
+                        setShowCreateModal(true);
+                      }}
+                    >
+                      🛠️ GENERAR COTIZACIÓN A CLIENTE
+                    </button>
+                  )}
+
                   {esCliente && cotizacionSeleccionada.status === 'Pendiente' && !rechazando && (
                     <>
                       <button 
