@@ -55,22 +55,24 @@ const NotificationBell = () => {
 
       console.log("Notification from Bell clicked:", notification);
       
+      const isTecnico = user?.role_id === 2;
+
       // Normalización de URLs y Tipos
       if (type === 'work_order_finished' || type === 'new_report') {
-        url = '/reportes-globales';
+        url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
       } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected') {
-        url = '/vista-cotizaciones';
-      } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned') {
-        url = '/levantamientos';
-      } else if (url === '/VistaServiciosAdmin') {
-        url = '/tablero-servicios';
+        url = isTecnico ? '/trabajos-tecnico' : '/vista-cotizaciones';
+      } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned' || type === 'work_order_assigned') {
+        url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
+      } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
+        url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
       }
 
       // Fallback de seguridad
       if (!url) {
-        if (type?.includes('quote')) url = '/vista-cotizaciones';
-        else if (type?.includes('service') || type?.includes('work_order')) url = '/tablero-servicios';
-        else url = '/VistaRoot';
+        if (type?.includes('quote')) url = isTecnico ? '/trabajos-tecnico' : '/vista-cotizaciones';
+        else if (type?.includes('service') || type?.includes('work_order')) url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
+        else url = isTecnico ? '/trabajos-tecnico' : '/VistaRoot';
       }
 
       console.log("Final URL from Bell:", url);
