@@ -354,9 +354,7 @@ const VistaPropiedades = () => {
                         className="btn-overlay secondary"
                         onClick={() => {
                           localStorage.setItem('current_property_id', p.id);
-                          if (p.id_levantamiento) {
-                            localStorage.setItem('current_levantamiento_id', p.id_levantamiento);
-                          }
+                          localStorage.setItem('current_levantamiento_id', p.id_levantamiento || '');
                           
                           if (isClient) {
                             navigate(`/DetallePropiedad/${p.id}`);

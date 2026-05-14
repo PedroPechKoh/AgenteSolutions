@@ -44,8 +44,16 @@ const VistaDetallePropiedad = () => {
       const token = localStorage.getItem('agente_token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`, { headers });
+       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`, { headers });
       setData(response.data);
+      
+      // Sincronizamos el contexto del sidebar por si acaso
+      localStorage.setItem('current_property_id', id);
+      if (response.data.id_levantamiento) {
+        localStorage.setItem('current_levantamiento_id', response.data.id_levantamiento);
+      } else {
+        localStorage.removeItem('current_levantamiento_id');
+      }
       
       // Fetch real zones for this property
       setLoadingZonas(true);

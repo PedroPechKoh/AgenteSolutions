@@ -114,7 +114,13 @@ const DetalleReporte = () => {
                 `${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
-            setDatosBD(respuesta.data);
+             setDatosBD(respuesta.data);
+            
+            // Sincronizamos el contexto para que el sidebar funcione correctamente
+            localStorage.setItem('current_levantamiento_id', id);
+            if (respuesta.data.property_id) {
+                localStorage.setItem('current_property_id', respuesta.data.property_id);
+            }
 
             // Actualizar la subsección seleccionada si el modal está abierto
             if (selectedSubseccion) {
