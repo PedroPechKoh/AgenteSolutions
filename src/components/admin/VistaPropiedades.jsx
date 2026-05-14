@@ -387,7 +387,7 @@ const VistaPropiedades = () => {
                       <button
                         className="btn-overlay primary"
                         style={{ backgroundColor: '#F26522', color: 'white', border: 'none' }}
-                        onClick={() => navigate(`/RegistroZonas/${p.curp}`)} 
+                        onClick={() => navigate(`/RegistroZonas/${encodeURIComponent(p.curp)}`)} 
                       >
                         {p.levantamiento_realizado ? "✏️ EDITAR LEVANTAMIENTO" : "📸 REALIZAR MI PROPIO LEVANTAMIENTO"}
                       </button>

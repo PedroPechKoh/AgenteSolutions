@@ -34,7 +34,7 @@ const RegistroZonas = () => {
       if (!idPropiedadReal && curp) {
         try {
           const token = localStorage.getItem('agente_token');
-          const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/by-curp/${curp}`, {
+          const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/by-curp/${encodeURIComponent(curp)}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           setIdPropiedadReal(res.data.id);
