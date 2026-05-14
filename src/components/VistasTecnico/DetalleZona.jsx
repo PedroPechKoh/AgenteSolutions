@@ -4,6 +4,7 @@ import "../../styles/TecnicoStyles/DetalleZona.css";
 import { Plus, Edit3, Trash2, ArrowLeft, Settings, Send, Home, Loader2, DoorOpen, LayoutGrid, Camera, Save as SaveIcon } from 'lucide-react';
 import DetalleHabitacion from './DetalleHabitacion';
 import Header from '../Shared/Header';
+import logoAgente from '../../assets/Logo3.png';
 
 const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
   // Estados para las SUB-HABITACIONES
@@ -93,9 +94,10 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
       
       alert("Foto actualizada con éxito");
       setSelectedFile(null);
-      // Actualizamos la zona localmente para que el cambio se vea
+      // Actualizamos la zona localmente y el estado de vista previa
       if (res.data.image_path) {
         zona.image_path = res.data.image_path;
+        setPreviewImg(res.data.image_path);
       }
     } catch (error) {
       console.error("Error al subir foto:", error);
@@ -205,9 +207,9 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
         <div className="dz-main-card">
           <div className="dz-controls-row" style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
             {/* VISTA PREVIA DE LA FOTO DE LA ZONA */}
-            <div className="dz-main-photo-container" style={{ position: 'relative', width: '180px', height: '120px', borderRadius: '15px', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.1)', border: '2px solid rgba(242, 101, 34, 0.3)' }}>
+            <div className="dz-main-photo-container" style={{ position: 'relative', width: '180px', height: '120px', borderRadius: '15px', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.1)', border: '2px solid rgba(242, 101, 34, 0.3)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <img 
-                src={previewImg || "https://res.cloudinary.com/dcj5rcpi8/image/upload/v1715655000/Logo3_v8x.png"} 
+                src={previewImg || logoAgente} 
                 alt="Foto zona" 
                 style={{ width: '100%', height: '100%', objectFit: previewImg ? 'cover' : 'contain', padding: previewImg ? '0' : '10px' }} 
               />
@@ -354,13 +356,14 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
                           padding: '10px',
                           borderRadius: '8px',
                           border: '2px solid',
-                          borderColor: subHabitacionesSeleccionadas.includes(opc) ? '#F26522' : 'transparent',
-                          backgroundColor: subHabitacionesSeleccionadas.includes(opc) ? 'rgba(242, 101, 34, 0.2)' : 'rgba(255,255,255,0.1)',
-                          color: 'white',
+                          borderColor: subHabitacionesSeleccionadas.includes(opc) ? '#F26522' : '#ddd',
+                          backgroundColor: subHabitacionesSeleccionadas.includes(opc) ? '#F26522' : 'white',
+                          color: subHabitacionesSeleccionadas.includes(opc) ? 'white' : '#444',
                           cursor: 'pointer',
                           fontSize: '0.75rem',
                           fontWeight: 'bold',
-                          transition: 'all 0.2s'
+                          transition: 'all 0.2s',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                         }}
                       >
                         {opc}
@@ -373,12 +376,13 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
                         padding: '10px',
                         borderRadius: '8px',
                         border: '2px solid',
-                        borderColor: esOtraHabitacion ? '#F26522' : 'transparent',
-                        backgroundColor: esOtraHabitacion ? 'rgba(242, 101, 34, 0.2)' : 'rgba(255,255,255,0.1)',
-                        color: 'white',
+                        borderColor: esOtraHabitacion ? '#F26522' : '#ddd',
+                        backgroundColor: esOtraHabitacion ? '#F26522' : 'white',
+                        color: esOtraHabitacion ? 'white' : '#444',
                         cursor: 'pointer',
                         fontSize: '0.75rem',
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                       }}
                     >
                       OTRA...

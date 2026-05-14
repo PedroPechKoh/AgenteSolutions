@@ -354,13 +354,14 @@ const RegistroZonas = () => {
                           padding: '10px',
                           borderRadius: '8px',
                           border: '2px solid',
-                          borderColor: zonasSeleccionadas.includes(opc) ? '#F26522' : 'transparent',
-                          backgroundColor: zonasSeleccionadas.includes(opc) ? 'rgba(242, 101, 34, 0.2)' : 'rgba(255,255,255,0.1)',
-                          color: 'white',
+                          borderColor: zonasSeleccionadas.includes(opc) ? '#F26522' : '#ddd',
+                          backgroundColor: zonasSeleccionadas.includes(opc) ? '#F26522' : 'white',
+                          color: zonasSeleccionadas.includes(opc) ? 'white' : '#444',
                           cursor: 'pointer',
                           fontSize: '0.8rem',
                           fontWeight: 'bold',
-                          transition: 'all 0.2s'
+                          transition: 'all 0.2s',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                         }}
                       >
                         {opc}
@@ -369,17 +370,18 @@ const RegistroZonas = () => {
                     <button
                       type="button"
                       onClick={() => setEsOtraZona(!esOtraZona)}
-                      style={{
-                        padding: '10px',
-                        borderRadius: '8px',
-                        border: '2px solid',
-                        borderColor: esOtraZona ? '#F26522' : 'transparent',
-                        backgroundColor: esOtraZona ? 'rgba(242, 101, 34, 0.2)' : 'rgba(255,255,255,0.1)',
-                        color: 'white',
-                        cursor: 'pointer',
-                        fontSize: '0.8rem',
-                        fontWeight: 'bold'
-                      }}
+                        style={{
+                          padding: '10px',
+                          borderRadius: '8px',
+                          border: '2px solid',
+                          borderColor: esOtraZona ? '#F26522' : '#ddd',
+                          backgroundColor: esOtraZona ? '#F26522' : 'white',
+                          color: esOtraZona ? 'white' : '#444',
+                          cursor: 'pointer',
+                          fontSize: '0.8rem',
+                          fontWeight: 'bold',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                        }}
                     >
                       OTRA...
                     </button>
