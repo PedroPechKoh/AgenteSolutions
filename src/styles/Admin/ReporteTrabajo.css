@@ -138,7 +138,8 @@
 
 .info-linea strong {
     min-width: 80px;
-    color: #666;
+    color: #000 !important; /* Forzado a negro */
+    font-weight: bold;
 }
 
 /* Cuadros de texto compactos */
@@ -153,6 +154,7 @@
     margin: 0;
     line-height: 1.3;
     font-size: 0.7rem;
+    color: #000 !important; /* Forzado a negro */
 }
 
 /* Tabla de Materiales */
@@ -172,6 +174,7 @@
 .materiales-table td {
     padding: 4px 5px;
     border-bottom: 1px solid #eee;
+    color: #000 !important; /* Forzado a negro */
 }
 
 .total-amount {
@@ -211,7 +214,7 @@
     padding-top: 8px;
     border-top: 1px solid #eee;
     font-size: 0.6rem;
-    color: #333;
+    color: #000 !important; /* Forzado a negro */
 }
 
 /* AJUSTES DE IMPRESIÓN PARA UNA HOJA */
@@ -291,7 +294,7 @@
     gap: 8px;
 }
 
-.btn-back { background: #666; color: white; }
+.btn-back { background: #f26522; color: white; } /* Cambiado a naranja */
 .btn-save { background: #28a745; color: white; }
 
 .editable-span, .table-input, .editable-folio, .inline-input {
@@ -300,7 +303,7 @@
     width: 100%;
     font-family: inherit;
     font-size: inherit;
-    color: #333; /* Forzar color oscuro para evitar texto blanco */
+    color: #000 !important; /* Forzado a negro para evitar texto blanco */
     padding: 2px 4px;
     border-radius: 3px;
     transition: all 0.2s;
@@ -319,7 +322,7 @@
 }
 
 .editable-folio {
-    color: white; /* El folio va sobre fondo oscuro */
+    color: white !important; /* El folio va sobre fondo oscuro, aquí sí blanco */
     font-weight: bold;
     text-align: center;
     font-size: 0.9rem;
@@ -333,7 +336,7 @@
     font-family: inherit;
     font-size: 0.7rem;
     line-height: 1.3;
-    color: #333; /* Forzar color oscuro */
+    color: #000 !important; /* Forzado a negro */
     padding: 5px;
     resize: vertical;
     border-radius: 4px;

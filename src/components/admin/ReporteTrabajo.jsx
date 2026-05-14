@@ -12,7 +12,20 @@ const ReporteTrabajo = () => {
   const navigate = useNavigate();
   
   // Datos recibidos de la navegación
-  const { trabajoId, servicio, imagenes: imagenesEvidencia } = location.state || {};
+  const { trabajoId: rawTrabajoId, servicio, imagenes: imagenesEvidencia } = location.state || {};
+  
+  // Extraer el ID numérico real en caso de que venga con prefijo (ej. work_order-5)
+  const trabajoId = rawTrabajoId?.toString().includes('-') 
+    ? rawTrabajoId.split('-')[1] 
+    : rawTrabajoId;
+
+  // Evitar que el folio diga "work order-null" o similares
+  const cleanIdForFolio = (id) => {
+    if (!id || id === "null" || id === "undefined") return "001";
+    // Si sigue teniendo guion (ej. "work_order-5"), sacamos solo el número
+    const numericPart = id.toString().includes('-') ? id.split('-')[1] : id;
+    return numericPart;
+  };
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -20,7 +33,7 @@ const ReporteTrabajo = () => {
   
   // Estado principal del reporte
   const [reportData, setReportData] = useState({
-    folio: `FT-${new Date().getFullYear()}-${String(trabajoId || '001').padStart(3, '0')}`,
+    folio: `FT-${new Date().getFullYear()}-${String(cleanIdForFolio(trabajoId)).padStart(3, '0')}`,
     fechaTrabajo: servicio?.fecha_programada || new Date().toLocaleDateString("es-MX"),
     horaInicio: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
     horaFin: "02:00 PM",
@@ -55,16 +68,16 @@ const ReporteTrabajo = () => {
   // Cargar datos reales de la BD
   useEffect(() => {
     const fetchInitialData = async () => {
-      if (!trabajoId) {
+      if (!trabajoId || trabajoId === "null" || trabajoId === "undefined") {
         setLoading(false);
         return;
       }
       try {
         // 1. Intentar cargar reporte final guardado
-        const resFinal = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}/final-report`);
+        const resFinal = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${rawTrabajoId || trabajoId}/final-report`);
         
         // 2. Cargar datos del servicio/cliente reales de la BD SIEMPRE
-        const resService = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}`);
+        const resService = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${rawTrabajoId || trabajoId}`);
         const s = resService.data;
         
         const isInvalid = (val) => !val || val === "Sin Propietario" || val === "Dirección no registrada" || val === "Propiedad Sin Nombre" || val === "N/A" || val === "Cargando..." || val === "Usuario" || (typeof val === 'string' && val.trim() === "");
@@ -144,7 +157,7 @@ const ReporteTrabajo = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${trabajoId}/final-report`, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${rawTrabajoId || trabajoId}/final-report`, {
         ...reportData,
         service_id: trabajoId
       });
