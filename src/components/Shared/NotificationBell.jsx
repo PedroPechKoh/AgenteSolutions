@@ -55,17 +55,22 @@ const NotificationBell = () => {
 
       console.log("Notification from Bell clicked:", notification);
       
-      // Normalización de URLs antiguas o erróneas
-      if (type === 'work_order_finished') {
+      // Normalización de URLs y Tipos
+      if (type === 'work_order_finished' || type === 'new_report') {
         url = '/reportes-globales';
+      } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected') {
+        url = '/vista-cotizaciones';
+      } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned') {
+        url = '/levantamientos';
       } else if (url === '/VistaServiciosAdmin') {
         url = '/tablero-servicios';
       }
 
-      // Fallback para tipos conocidos si no tienen URL en la BD
+      // Fallback de seguridad
       if (!url) {
-        if (type === 'missed_visit') url = '/tablero-servicios';
-        else if (type === 'new_work_order' || type === 'new_service_requested') url = '/tablero-servicios';
+        if (type?.includes('quote')) url = '/vista-cotizaciones';
+        else if (type?.includes('service') || type?.includes('work_order')) url = '/tablero-servicios';
+        else url = '/VistaRoot';
       }
 
       console.log("Final URL from Bell:", url);
