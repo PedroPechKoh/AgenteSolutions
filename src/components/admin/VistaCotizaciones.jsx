@@ -8,7 +8,7 @@ import {
   Plus, Search, Filter, Calendar, 
   ArrowUpDown, FileText, Upload, 
   MoreVertical, Eye, CheckCircle, 
-  XCircle, Clock, ChevronDown, 
+  XCircle, Clock, ChevronDown, ChevronLeft,
   User, Wrench, Truck, Layout
 } from 'lucide-react';
 import CreateQuotationModal from "./CreateQuotationModal";
@@ -247,12 +247,21 @@ const VistaCotizaciones = () => {
             type="COTIZACIONES"
           />
           
-          {!esCliente && (
-            <button className="btn-new-cotiz-v2" onClick={() => setShowCreateModal(true)}>
-              <Plus size={18} />
-              <span>NUEVA COTIZACIÓN</span>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {!esCliente && (
+              <button className="btn-new-cotiz-v2" onClick={() => setShowCreateModal(true)}>
+                <Plus size={18} />
+                <span>NUEVA COTIZACIÓN</span>
+              </button>
+            )}
+            <button 
+              onClick={() => navigate(-1)} 
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+            >
+              <ChevronLeft size={18} />
+              <span>REGRESAR</span>
             </button>
-          )}
+          </div>
         </div>
 
         <div className="cotiz-filters-row">
@@ -618,7 +627,6 @@ const VistaCotizaciones = () => {
         </div>
       )}
 
-      {!esCliente && <button className="back-arrow-fixed" onClick={() => window.history.back()}>←</button>}
 
       {showAssignModal && cotizacionParaAsignar && (
         <AssignWorkModal 
