@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "../../styles/TecnicoStyles/DetalleZona.css";
-import { Plus, Edit3, Trash2, ArrowLeft, Settings, Send, Home, Loader2, DoorOpen, LayoutGrid } from 'lucide-react';
+import { Plus, Edit3, Trash2, ArrowLeft, Settings, Send, Home, Loader2, DoorOpen, LayoutGrid, Camera, Save as SaveIcon } from 'lucide-react';
 import DetalleHabitacion from './DetalleHabitacion';
 import Header from '../Shared/Header';
 
@@ -19,6 +19,11 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
   const [mostrarOpcionesZona, setMostrarOpcionesZona] = useState(false);
   const [editandoZonaNombre, setEditandoZonaNombre] = useState(false);
   const [nuevoNombreZona, setNuevoNombreZona] = useState(zona?.name || "");
+
+  // Edición de Foto
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewImg, setPreviewImg] = useState(zona?.image_path || null);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
 
   useEffect(() => {
     setNuevoNombreZona(zona?.name || "");
@@ -39,14 +44,57 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
 
   const guardarEdicionZona = async () => {
     if(!nuevoNombreZona.trim()) return alert("El nombre no puede estar vacío");
+    setGuardando(true);
     try {
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${zona.id}`, { name: nuevoNombreZona });
+      const token = localStorage.getItem('agente_token');
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${zona.id}`, { name: nuevoNombreZona }, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       zona.name = nuevoNombreZona.toUpperCase(); // Actualización optimista local
       setEditandoZonaNombre(false);
       setMostrarOpcionesZona(false);
     } catch (error) {
       console.error(error);
       alert("Error al editar el nombre de la zona.");
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  const manejarCambioFoto = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewImg(URL.createObjectURL(file));
+    }
+  };
+
+  const guardarNuevaFoto = async () => {
+    if (!selectedFile) return;
+    setSubiendoFoto(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${zona.id}/update-photo`, formData, {
+        headers: { 
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}` 
+        }
+      });
+      
+      alert("Foto actualizada con éxito");
+      setSelectedFile(null);
+      // Actualizamos la zona localmente para que el cambio se vea
+      if (res.data.image_path) {
+        zona.image_path = res.data.image_path;
+      }
+    } catch (error) {
+      console.error("Error al subir foto:", error);
+      alert("No se pudo actualizar la foto.");
+    } finally {
+      setSubiendoFoto(false);
     }
   };
 
@@ -123,61 +171,82 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
 
         {/* TARJETA PRINCIPAL */}
         <div className="dz-main-card">
-          <div className="dz-controls-row">
-            <div className="dz-category-tag" style={{ color: 'black', position: 'relative', display: 'flex', alignItems: 'center' }}>
-              CATEGORIA: 
-              {editandoZonaNombre ? (
-                <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginLeft: '8px' }}>
-                   <input 
-                     value={nuevoNombreZona} 
-                     onChange={e => setNuevoNombreZona(e.target.value.toUpperCase())}
-                     style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '13px', textTransform: 'uppercase', outline: 'none' }}
-                     autoFocus
-                   />
-                   <button onClick={guardarEdicionZona} style={{ padding: '4px 10px', background: '#f26624', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
-                   <button onClick={() => setEditandoZonaNombre(false)} style={{ padding: '4px 10px', background: '#666', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
-                </div>
-              ) : (
-                <>
-                  <strong style={{ marginLeft: '8px' }}>{zona?.name || "SIN NOMBRE"}</strong> 
-                  <Settings 
-                    size={16} 
-                    style={{ marginLeft: '8px', cursor: 'pointer', color: '#666' }} 
-                    onClick={() => setMostrarOpcionesZona(!mostrarOpcionesZona)} 
-                  />
-                  
-                  {mostrarOpcionesZona && (
-                    <div style={{ position: 'absolute', top: '100%', right: '0', background: 'white', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', border: '1px solid #eee', borderRadius: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', minWidth: '120px', marginTop: '5px', overflow: 'hidden' }}>
-                      <button 
-                        onClick={() => { setEditandoZonaNombre(true); setMostrarOpcionesZona(false); }} 
-                        style={{ padding: '10px 15px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#333' }}
-                        onMouseOver={(e) => e.target.style.background = '#f9f9f9'}
-                        onMouseOut={(e) => e.target.style.background = 'none'}
-                      >
-                        Editar nombre
-                      </button>
-                      <button 
-                        onClick={eliminarZona} 
-                        style={{ padding: '10px 15px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#e63946' }}
-                        onMouseOver={(e) => e.target.style.background = '#fdf2f2'}
-                        onMouseOut={(e) => e.target.style.background = 'none'}
-                      >
-                        Eliminar zona
-                      </button>
-                    </div>
-                  )}
-                </>
+          <div className="dz-controls-row" style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+            {/* VISTA PREVIA DE LA FOTO DE LA ZONA */}
+            <div className="dz-main-photo-container" style={{ position: 'relative', width: '180px', height: '120px', borderRadius: '15px', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.1)', border: '2px solid rgba(242, 101, 34, 0.3)' }}>
+              <img 
+                src={previewImg || "https://res.cloudinary.com/dcj5rcpi8/image/upload/v1715655000/Logo3_v8x.png"} 
+                alt="Foto zona" 
+                style={{ width: '100%', height: '100%', objectFit: previewImg ? 'cover' : 'contain', padding: previewImg ? '0' : '10px' }} 
+              />
+              <label className="dz-change-photo-label" style={{ position: 'absolute', bottom: '0', left: '0', right: '0', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', fontSize: '10px', textAlign: 'center', padding: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                <Camera size={12} /> {selectedFile ? 'FOTO SELECCIONADA' : 'CAMBIAR FOTO'}
+                <input type="file" accept="image/*" onChange={manejarCambioFoto} style={{ display: 'none' }} />
+              </label>
+              
+              {selectedFile && (
+                <button 
+                  onClick={guardarNuevaFoto} 
+                  disabled={subiendoFoto}
+                  style={{ position: 'absolute', top: '5px', right: '5px', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+                >
+                  {subiendoFoto ? <Loader2 size={14} className="animate-spin" /> : <SaveIcon size={14} />}
+                </button>
               )}
             </div>
-            
-            <div className="dz-actions-group">
-              <button className="dz-btn-plus"><Send size={20} /> ENVIAR</button>
-              <button className="dz-btn-save">GUARDAR</button>
-              <button className="dz-btn-save" onClick={() => setIsModalOpen(true)}>+</button>
-            </div>
 
-            <div className="dz-date-tag">
-              FECHA REGISTRO <strong>{new Date().toLocaleDateString()}</strong>
+            <div style={{ flex: 1 }}>
+              <div className="dz-category-tag" style={{ color: 'black', position: 'relative', display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                CATEGORÍA: 
+                {editandoZonaNombre ? (
+                  <div style={{ display: 'flex', gap: '5px', alignItems: 'center', marginLeft: '8px' }}>
+                    <input 
+                      value={nuevoNombreZona} 
+                      onChange={e => setNuevoNombreZona(e.target.value.toUpperCase())}
+                      style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '13px', textTransform: 'uppercase', outline: 'none' }}
+                      autoFocus
+                    />
+                    <button onClick={guardarEdicionZona} style={{ padding: '4px 10px', background: '#f26624', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
+                    <button onClick={() => setEditandoZonaNombre(false)} style={{ padding: '4px 10px', background: '#666', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+                  </div>
+                ) : (
+                  <>
+                    <strong style={{ marginLeft: '8px' }}>{zona?.name || "SIN NOMBRE"}</strong> 
+                    <Settings 
+                      size={16} 
+                      style={{ marginLeft: '8px', cursor: 'pointer', color: '#666' }} 
+                      onClick={() => setMostrarOpcionesZona(!mostrarOpcionesZona)} 
+                    />
+                    
+                    {mostrarOpcionesZona && (
+                      <div style={{ position: 'absolute', top: '100%', right: '0', background: 'white', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', border: '1px solid #eee', borderRadius: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', minWidth: '120px', marginTop: '5px', overflow: 'hidden' }}>
+                        <button 
+                          onClick={() => { setEditandoZonaNombre(true); setMostrarOpcionesZona(false); }} 
+                          style={{ padding: '10px 15px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#333' }}
+                        >
+                          Editar nombre
+                        </button>
+                        <button 
+                          onClick={eliminarZona} 
+                          style={{ padding: '10px 15px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#e63946' }}
+                        >
+                          Eliminar zona
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+              
+              <div className="dz-actions-group" style={{ marginBottom: '10px' }}>
+                <button className="dz-btn-plus"><Send size={20} /> ENVIAR</button>
+                <button className="dz-btn-save">GUARDAR</button>
+                <button className="dz-btn-save" onClick={() => setIsModalOpen(true)}>+</button>
+              </div>
+
+              <div className="dz-date-tag">
+                FECHA REGISTRO <strong>{new Date().toLocaleDateString()}</strong>
+              </div>
             </div>
           </div>
 
