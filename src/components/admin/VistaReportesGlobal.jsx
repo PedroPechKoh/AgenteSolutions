@@ -118,6 +118,7 @@ const VistaReportesGlobal = () => {
                           const isService = !!firstReport.service?.property;
                           const serviceData = isService ? firstReport.service : (firstReport.work_order || firstReport.service);
                           const prop = serviceData?.property;
+                          const prefijo = isService ? 'servicio' : (firstReport.work_order_id ? 'work_order' : 'servicio');
                           const realId = isService ? firstReport.service_id : (firstReport.work_order_id || firstReport.service_id);
                           
                           navigate(`/reporte-trabajo-admin/${prefijo}-${realId}`, { 
