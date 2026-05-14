@@ -19,10 +19,10 @@ const Header = ({ rolTexto = "USUARIO", titulo }) => {
   const irAlInicio = () => {
     if (!user) return;
     switch (Number(user.role_id)) {
-      case 0: navigate('/dashboard'); break; // Cambiado a dashboard para admin
-      case 1: navigate('/dashboard'); break; 
+      case 0: navigate('/VistaRoot'); break; 
+      case 1: navigate('/VistaRoot'); break; 
       case 2: navigate('/VistaTecnico'); break;
-      case 3: navigate('/propiedades'); break;
+      case 3: navigate('/VistaInicioCliente'); break;
       default: navigate('/'); break;
     }
   };
