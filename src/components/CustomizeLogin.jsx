@@ -93,7 +93,7 @@ const CustomizeLogin = () => {
       <div className="top-bar-black"></div>
 
       <div className="content-wrapper">
-        <Header rolTexto="ADMINISTRADOR" />
+        <Header titulo="PERSONALIZACIÓN" />
 
         <div className="customize-wrapper">
           <h2 className="customize-title">PERSONALIZAR PANTALLA DE LOGIN</h2>

@@ -58,7 +58,7 @@ const Map = () => {
     <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
       
       {/* ✅ REEMPLAZAMOS EL LOGO SUELTO POR EL HEADER COMPLETO */}
-      <Header rolTexto="MAPA DE PROPIEDADES" />
+      <Header titulo="MAPA" />
 
       <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
         <GoogleMap

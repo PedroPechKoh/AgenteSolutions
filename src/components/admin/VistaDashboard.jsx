@@ -40,7 +40,7 @@ const VistaDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <Header />
+      <Header titulo="INICIO" />
 
       <div style={{ padding: '20px 40px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button className="btn-back-dash" onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>

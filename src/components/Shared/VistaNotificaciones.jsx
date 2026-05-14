@@ -42,7 +42,7 @@ const VistaNotificaciones = () => {
 
   return (
     <div style={{ backgroundColor: '#f4f4f4', minHeight: '100vh' }}>
-      <Header />
+      <Header titulo="NOTIFICACIONES" />
       
       <main style={{ maxWidth: '800px', margin: '40px auto', padding: '0 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>

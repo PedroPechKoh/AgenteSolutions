@@ -213,7 +213,7 @@ const VistaCotizaciones = () => {
     <div className="cotiz-page">
       
       {/* 👇 AQUÍ ESTÁ EL NUEVO HEADER GLOBAL 👇 */}
-      {!esCliente && <Header />}
+      {!esCliente && <Header titulo="COTIZACIONES" />}
 
 
       {/* 👆 Se eliminaron los div de las barras manuales y el tag <header> 👆 */}

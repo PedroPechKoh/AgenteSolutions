@@ -38,7 +38,7 @@ const VistaReportesGlobal = () => {
 
   return (
     <div className="main-container" style={{ backgroundColor: '#EEEEEE', minHeight: '100vh' }}>
-      <Header rolTexto="ADMINISTRADOR" />
+      <Header titulo="REPORTES" />
       <div className="global-reports-container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
           <h2 style={{ margin: 0, color: '#F26522', fontWeight: 900, fontStyle: 'italic', fontSize: '28px' }}>GALERÍA GLOBAL DE REPORTES</h2>

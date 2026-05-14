@@ -275,7 +275,7 @@ const VistaServiciosAdmin = () => {
 
   return (
     <div className="scrum-container admin-theme">
-      <Header rolTexto="ADMINISTRADOR" />
+      <Header titulo="SERVICIOS" />
       
       <header className="scrum-header" style={{ marginTop: '20px' }}>
         <button 

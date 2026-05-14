@@ -218,7 +218,7 @@ const VistaPropiedades = () => {
         <>
           <div className="top-bar-orange" />
           <div className="top-bar-black" />
-          <Header rolTexto="ADMINISTRACIÓN DE PROPIEDADES" />
+          <Header titulo="PROPIEDADES" />
         </>
       )}
 

@@ -103,7 +103,7 @@ const VistaUsuarios = () => {
       <div className="top-bar-orange" />
       <div className="top-bar-black" />
 
-      <Header rolTexto="ADMINISTRACIÓN DE USUARIOS" />
+      <Header titulo="USUARIOS" />
 
       {/* 🔥 QUITAMOS overflowX:hidden */}
       <section className="content-area" style={{ padding: '10px' }}>

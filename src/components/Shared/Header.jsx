@@ -5,7 +5,7 @@ import { Home } from 'lucide-react'; // ✅ Importamos el ícono de la casita
 import logo from '../../assets/Logo3.png'; 
 import NotificationBell from '../Shared/NotificationBell'; 
 
-const Header = ({ rolTexto = "USUARIO" }) => {
+const Header = ({ rolTexto = "USUARIO", titulo }) => {
   const { user, logoutGlobal } = useAuth();
   const navigate = useNavigate();
   const [menuAbierto, setMenuAbierto] = useState(false);
@@ -19,8 +19,8 @@ const Header = ({ rolTexto = "USUARIO" }) => {
   const irAlInicio = () => {
     if (!user) return;
     switch (Number(user.role_id)) {
-      case 0: navigate('/VistaRoot'); break;
-      case 1: navigate('/VistaRoot'); break; // Admin también va al inicio de admin
+      case 0: navigate('/dashboard'); break; // Cambiado a dashboard para admin
+      case 1: navigate('/dashboard'); break; 
       case 2: navigate('/VistaTecnico'); break;
       case 3: navigate('/propiedades'); break;
       default: navigate('/'); break;
@@ -56,10 +56,10 @@ const Header = ({ rolTexto = "USUARIO" }) => {
         </button>
       </div>
 
-      {/* SECCIÓN CENTRAL: Título */}
+      {/* SECCIÓN CENTRAL: Título Dinámico */}
       <div className="center-title-section">
         <h1 className="welcome-title">
-          BIENVENIDO {(user?.first_name || user?.name) ? (user.first_name || user.name).toUpperCase() : rolTexto}
+          {titulo ? titulo.toUpperCase() : `BIENVENIDO ${(user?.first_name || user?.name) ? (user.first_name || user.name).toUpperCase() : rolTexto}`}
         </h1>
       </div>
 
