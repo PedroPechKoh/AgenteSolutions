@@ -24,7 +24,7 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
         if (filtroActual === 'Pendiente') {
           coincideFiltro = estadoActual === 'pendiente' || estadoActual === 'en proceso' || estadoActual.includes('admin') || estadoActual.includes('enviada');
         } else if (filtroActual === 'Aprobado') {
-          coincideFiltro = estadoActual.includes('aprobad'); // Captura aprobado y aprobada
+          coincideFiltro = estadoActual.includes('aprobad') || estadoActual.includes('procesada'); // Captura aprobado y procesada
         } else if (filtroActual === 'Rechazado') {
           coincideFiltro = estadoActual.includes('rechazad'); // Captura rechazado y rechazada
         }

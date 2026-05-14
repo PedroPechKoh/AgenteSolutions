@@ -70,7 +70,7 @@ const VistaCotizaciones = () => {
       if (roleId === 2) {
         data = data.filter(c => 
           c.created_by_role === 'Técnico' && 
-          (c.tecnico_id === userId || c.user_id === userId)
+          (c.tecnico_user_id === userId || c.user_id === userId)
         );
       }
 
@@ -85,7 +85,7 @@ const VistaCotizaciones = () => {
   const filtradas = cotizaciones.filter(c => {
     const coincideFiltro = 
       (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
-      (filtro === 'Aprobado' && c.status === 'Aprobado') ||
+      (filtro === 'Aprobado' && (c.status === 'Aprobado' || c.status === 'Procesada por Admin')) ||
       (filtro === 'Rechazado' && c.status === 'Rechazado');
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
