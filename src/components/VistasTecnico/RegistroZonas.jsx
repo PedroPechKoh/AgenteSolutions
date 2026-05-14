@@ -40,8 +40,8 @@ const RegistroZonas = () => {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           setIdPropiedadReal(res.data.id);
-          // Si el backend trae survey_finalized lo usamos
-          if (res.data.survey_finalized) {
+          // El backend usa 'levantamiento_realizado'
+          if (res.data.levantamiento_realizado) {
             setIsFinalizado(true);
           }
         } catch (error) {
