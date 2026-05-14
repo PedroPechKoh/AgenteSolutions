@@ -56,8 +56,15 @@ const DetallePropiedad = () => {
           resDash = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`, { headers });
         }
         
-        const { propiedad, stats: backStats, historial } = resDash.data;
+        const { propiedad, stats: backStats, historial, id_levantamiento } = resDash.data;
 
+        // GUARDAMOS LOS IDS EN LOCALSTORAGE PARA QUE EL SIDEBAR SEPA A DONDE IR
+        localStorage.setItem('current_property_id', id);
+        if (id_levantamiento) {
+          localStorage.setItem('current_levantamiento_id', id_levantamiento);
+        } else {
+          localStorage.removeItem('current_levantamiento_id');
+        }
 
         setDatosPropiedad({
           personaCargo: propiedad.propietario || "Sin asignar",
