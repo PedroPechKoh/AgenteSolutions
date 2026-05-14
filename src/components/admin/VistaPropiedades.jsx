@@ -355,6 +355,7 @@ const VistaPropiedades = () => {
                         onClick={() => {
                           localStorage.setItem('current_property_id', p.id);
                           localStorage.setItem('current_levantamiento_id', p.id_levantamiento || '');
+                          window.dispatchEvent(new Event('sync-agente-ids'));
                           
                           if (isClient) {
                             navigate(`/DetallePropiedad/${p.id}`);
@@ -374,6 +375,7 @@ const VistaPropiedades = () => {
                           onClick={() => {
                             localStorage.setItem('current_property_id', p.id);
                             localStorage.setItem('current_levantamiento_id', p.id_levantamiento);
+                            window.dispatchEvent(new Event('sync-agente-ids'));
                             navigate(`/detalle-reporte/${p.id_levantamiento}`);
                           }}
                         >

@@ -21,12 +21,19 @@ const MainLayoutCliente = ({ children }) => {
   const [currentPropertyId, setCurrentPropertyId] = React.useState(localStorage.getItem('current_property_id'));
   const [currentLevantamientoId, setCurrentLevantamientoId] = React.useState(localStorage.getItem('current_levantamiento_id'));
 
-  // Sincronizar cada vez que cambia la ruta
+  // Sincronizar cada vez que cambia la ruta O cuando se dispara el evento personalizado
   React.useEffect(() => {
-    const pId = localStorage.getItem('current_property_id');
-    const lId = localStorage.getItem('current_levantamiento_id');
-    setCurrentPropertyId(pId);
-    setCurrentLevantamientoId(lId);
+    const syncIds = () => {
+      const pId = localStorage.getItem('current_property_id');
+      const lId = localStorage.getItem('current_levantamiento_id');
+      setCurrentPropertyId(pId);
+      setCurrentLevantamientoId(lId);
+    };
+
+    syncIds(); // Al montar y cambiar ruta
+    
+    window.addEventListener('sync-agente-ids', syncIds);
+    return () => window.removeEventListener('sync-agente-ids', syncIds);
   }, [location.pathname]);
   
   // Priorizar el ID de la URL si estamos en un detalle

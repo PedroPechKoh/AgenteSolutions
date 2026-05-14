@@ -55,6 +55,9 @@ const VistaDetallePropiedad = () => {
         localStorage.removeItem('current_levantamiento_id');
       }
       
+      // DISPARAMOS EVENTO PARA QUE EL SIDEBAR SE ENTERE DEL CAMBIO
+      window.dispatchEvent(new Event('sync-agente-ids'));
+      
       // Fetch real zones for this property
       setLoadingZonas(true);
       const areasRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${id}/areas`, { headers });

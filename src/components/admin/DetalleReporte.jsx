@@ -121,6 +121,7 @@ const DetalleReporte = () => {
             if (respuesta.data.property_id) {
                 localStorage.setItem('current_property_id', respuesta.data.property_id);
             }
+            window.dispatchEvent(new Event('sync-agente-ids'));
 
             // Actualizar la subsección seleccionada si el modal está abierto
             if (selectedSubseccion) {
