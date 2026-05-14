@@ -238,29 +238,31 @@ const VistaCotizaciones = () => {
 
       <main className="cotiz-main-content" style={esCliente ? { padding: '20px 0', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
         
-        <div className="cotiz-header-actions">
-          <UniversalSearch 
-            data={cotizaciones}
-            setFilteredData={setCotizacionesFiltradas}
-            placeholder="Buscar por cliente, folio o monto..."
-            filtroActual={filtro}
-            type="COTIZACIONES"
-          />
+        <div className="cotiz-header-actions" style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'flex-start' }}>
           
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+          >
+            <ChevronLeft size={18} />
+            <span>REGRESAR</span>
+          </button>
+
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px' }}>
+            <UniversalSearch 
+              data={cotizaciones}
+              setFilteredData={setCotizacionesFiltradas}
+              placeholder="Buscar por cliente, folio o monto..."
+              filtroActual={filtro}
+              type="COTIZACIONES"
+            />
+            
             {!esCliente && (
               <button className="btn-new-cotiz-v2" onClick={() => setShowCreateModal(true)}>
                 <Plus size={18} />
                 <span>NUEVA COTIZACIÓN</span>
               </button>
             )}
-            <button 
-              onClick={() => navigate(-1)} 
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
-            >
-              <ChevronLeft size={18} />
-              <span>REGRESAR</span>
-            </button>
           </div>
         </div>
 

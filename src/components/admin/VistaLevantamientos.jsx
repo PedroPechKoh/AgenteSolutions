@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import Header from "../Shared/Header";
 import UniversalSearch from "../Shared/UniversalSearch";
-import { Building, MapPin, User, UserCheck, FileText, X } from "lucide-react";
+import { Building, MapPin, User, UserCheck, FileText, X, ChevronLeft } from "lucide-react";
 
 const VistaLevantamientos = () => {
   const navigate = useNavigate();
@@ -180,6 +180,17 @@ const VistaLevantamientos = () => {
   return (
     <div className="lev-main-page">
       {!isClient && <Header titulo="LEVANTAMIENTOS" />}
+      
+      {/* BOTÓN REGRESAR */}
+      <div style={{ padding: '0 20px', marginTop: '10px' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+        >
+          <ChevronLeft size={18} />
+          <span>REGRESAR</span>
+        </button>
+      </div>
 
 
 

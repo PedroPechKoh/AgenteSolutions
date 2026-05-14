@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logoAgente from '../assets/Logo_simple.png';
 import Header from './Shared/Header';
+import { ChevronLeft } from 'lucide-react';
 
 const containerStyle = {
   width: '100%',
@@ -61,6 +62,15 @@ const Map = () => {
       <Header titulo="MAPA" />
 
       <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ marginBottom: '15px' }}>
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+          >
+            <ChevronLeft size={18} />
+            <span>REGRESAR</span>
+          </button>
+        </div>
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={center}

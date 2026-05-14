@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { ChevronLeft } from 'lucide-react';
 import UniversalSearch from "../Shared/UniversalSearch"; 
 import Header from "../Shared/Header"; 
 import RegisterModal from "../Register";
@@ -104,6 +105,17 @@ const VistaUsuarios = () => {
       <div className="top-bar-black" />
 
       <Header titulo="USUARIOS" />
+      
+      {/* BOTÓN REGRESAR */}
+      <div style={{ padding: '0 10px', marginTop: '10px' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+        >
+          <ChevronLeft size={18} />
+          <span>REGRESAR</span>
+        </button>
+      </div>
 
       {/* 🔥 QUITAMOS overflowX:hidden */}
       <section className="content-area" style={{ padding: '10px' }}>

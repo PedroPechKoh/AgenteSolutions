@@ -5,7 +5,7 @@ import Swal from "sweetalert2";
 import UniversalSearch from "../Shared/UniversalSearch"; 
 import Header from "../Shared/Header"; 
 import "../../styles/Admin/VistaPropiedades.css";
-import { X, CheckCircle, User, AlertTriangle, ListChecks, Clock, CheckCircle2, LayoutDashboard } from "lucide-react";
+import { X, CheckCircle, User, AlertTriangle, ListChecks, Clock, CheckCircle2, LayoutDashboard, ChevronLeft } from "lucide-react";
 
 const TIPOS_PROPIEDAD = [
   { label: "TODAS", icon: "🌐", title: "TODAS" },
@@ -223,6 +223,17 @@ const VistaPropiedades = () => {
       )}
 
       <section className="content-area">
+        
+        {/* BOTÓN REGRESAR */}
+        <div style={{ padding: '0 20px', marginBottom: '15px' }}>
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+          >
+            <ChevronLeft size={18} />
+            <span>REGRESAR</span>
+          </button>
+        </div>
         
         {/* --- NUEVO TABLERO COMPACTO PARA PC (Solo Clientes) --- */}
         {isClient && (

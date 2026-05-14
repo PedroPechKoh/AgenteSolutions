@@ -280,10 +280,10 @@ const VistaServiciosAdmin = () => {
       <header className="scrum-header" style={{ marginTop: '20px' }}>
         <button 
           className="btn-back-dashboard" 
-          onClick={() => navigate('/VistaRoot')}
-          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+          onClick={() => navigate(-1)}
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
         >
-          <ChevronLeft size={20} /> VOLVER AL INICIO
+          <ChevronLeft size={20} /> REGRESAR
         </button>
         <h2 style={{ fontStyle: 'italic', fontWeight: '900' }}>GESTIÓN GLOBAL DE SERVICIOS</h2>
       </header>

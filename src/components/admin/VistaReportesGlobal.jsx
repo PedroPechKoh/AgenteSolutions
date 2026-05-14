@@ -40,8 +40,7 @@ const VistaReportesGlobal = () => {
     <div className="main-container" style={{ backgroundColor: '#EEEEEE', minHeight: '100vh' }}>
       <Header titulo="REPORTES" />
       <div className="global-reports-container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
-          <h2 style={{ margin: 0, color: '#F26522', fontWeight: 900, fontStyle: 'italic', fontSize: '28px' }}>GALERÍA GLOBAL DE REPORTES</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <button 
             onClick={() => navigate(-1)} 
             style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
@@ -49,6 +48,7 @@ const VistaReportesGlobal = () => {
             <ChevronLeft size={20} />
             <span>REGRESAR</span>
           </button>
+          <h2 style={{ margin: 0, color: '#F26522', fontWeight: 900, fontStyle: 'italic', fontSize: '28px' }}>GALERÍA GLOBAL DE REPORTES</h2>
         </div>
 
         <div className="report-filters">

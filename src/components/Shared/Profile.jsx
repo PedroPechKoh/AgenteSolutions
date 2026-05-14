@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, X } from 'lucide-react';
+import { Camera, X, ChevronLeft } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/Logo3.png"; 
@@ -160,9 +160,12 @@ const Profile = () => {
               <span>Cambiar Portada</span>
             </div>
             
-            <button className="back-oval-btn" onClick={(e) => { e.stopPropagation(); navigate(-1); }}>
-              <X size={20} className="close-icon" />
-              <span className="back-text">Regresar</span>
+            <button 
+              onClick={(e) => { e.stopPropagation(); navigate(-1); }}
+              style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 10, display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }}
+            >
+              <ChevronLeft size={18} />
+              <span>REGRESAR</span>
             </button>
             
             <div className="banner-logo-wrapper" onClick={(e) => e.stopPropagation()}>

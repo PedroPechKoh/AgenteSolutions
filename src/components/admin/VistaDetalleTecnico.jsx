@@ -114,7 +114,10 @@ const toggleSeccion = (seccion) => {
   return (
     <div className="detalle-cliente-container">
       <header className="detalle-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+        >
           <ChevronLeft size={20} /> REGRESAR
         </button>
         <div className="header-title">
