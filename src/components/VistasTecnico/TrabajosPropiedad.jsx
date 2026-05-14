@@ -278,9 +278,12 @@ const TrabajoPropiedad = () => {
       
       <div className="tp-content-body">
         <div className="tp-navigation-bar">
-          <button className="tp-back-btn" onClick={() => navigate('/trabajos-tecnico')}>
+          <button 
+            onClick={() => navigate('/trabajos-tecnico')} 
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+          >
             <ChevronLeft size={20} />
-            <span>Regresar</span>
+            <span>REGRESAR</span>
           </button>
           <div className="tp-status-pill" data-status={data.estado}>
             {data.estado}

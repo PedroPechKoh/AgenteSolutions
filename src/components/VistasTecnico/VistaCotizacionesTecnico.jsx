@@ -1,6 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
 import "../../styles/TecnicoStyles/VistaCotizacionesT.css";
 const VistaCotizacionesTecnico = () => {
+  const navigate = useNavigate();
   // --- ESTADOS DE NAVEGACIÓN ---
   const [filtro, setFiltro] = useState('TODAS');
   const [busqueda, setBusqueda] = useState('');
@@ -45,6 +47,16 @@ const VistaCotizacionesTecnico = () => {
     <div className="cotiz-page">
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
+
+      <div style={{ padding: '20px 20px 0', maxWidth: '1400px', margin: '0 auto' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+        >
+          <ChevronLeft size={18} />
+          <span>REGRESAR</span>
+        </button>
+      </div>
 
               <button className="btn-nueva-cotiz-orange" onClick={() => setMostrarNuevaCotiz(true)}>➕ NUEVA COTIZACIÓN</button>
 

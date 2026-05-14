@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import "../../styles/TecnicoStyles/LevantamientoPropiedad.css";
 
@@ -24,6 +24,15 @@ const LevantamientoPropiedad = () => {
 
   return (
     <>
+      <div style={{ padding: '15px 20px 0', maxWidth: '1400px', margin: '0 auto' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+        >
+          <ChevronLeft size={18} />
+          <span>REGRESAR</span>
+        </button>
+      </div>
       {/* BUSCADOR */}
       <div className="tt-search-row">
         <div className="tt-search-container">

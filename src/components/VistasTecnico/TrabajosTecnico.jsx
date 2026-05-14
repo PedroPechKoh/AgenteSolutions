@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import "../../styles/TecnicoStyles/TrabajosTecnico.css";
 import { 
   Search, Package, Wrench, CheckCircle2, Lock, Settings, 
-  Calendar, Clock, MapPin, AlertTriangle, ChevronRight, X
+  Calendar, Clock, MapPin, AlertTriangle, ChevronRight, X, ChevronLeft
 } from 'lucide-react';
 import Header from "../Shared/Header";
 import UniversalSearch from '../Shared/UniversalSearch';
@@ -373,6 +373,18 @@ const TrabajosTecnico = () => {
     <>
     <Header />
     <div className="tt-body">
+      
+      {/* BOTÓN REGRESAR */}
+      <div style={{ marginBottom: '15px' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+        >
+          <ChevronLeft size={18} />
+          <span>REGRESAR</span>
+        </button>
+      </div>
+
       <div className="tt-search-row">
         <div className="tt-search-wrapper-super">
           <UniversalSearch 
