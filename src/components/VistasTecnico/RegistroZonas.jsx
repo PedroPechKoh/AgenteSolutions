@@ -143,6 +143,23 @@ const RegistroZonas = () => {
     }
   };
 
+  const finalizarRegistroCliente = async () => {
+    try {
+      const token = localStorage.getItem('agente_token');
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/properties/${idPropiedadReal}/finalize-survey`, {}, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      alert("¡Registro de zonas completado con éxito! Ahora puedes solicitar servicios para estas áreas.");
+      navigate(-1);
+    } catch (error) {
+      console.error("Error al finalizar registro:", error);
+      alert("Error al enviar la notificación al administrador.");
+    }
+  };
+
+  const user = JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData;
+  const isClient = user?.role_id === 3;
+
   if (zonaSeleccionada) {
     return (
       <DetalleZona 
@@ -166,7 +183,7 @@ const RegistroZonas = () => {
             <button className="rz-btn-main purple-gradient" onClick={() => setModalAbierto(true)}>
               <Plus size={24} strokeWidth={3} /> AGREGAR
             </button>
-            {servicioId && (
+            {servicioId ? (
               <button 
                 className="rz-btn-main green-gradient" 
                 onClick={finalizarLevantamiento}
@@ -175,7 +192,14 @@ const RegistroZonas = () => {
                 {loading ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle size={20} />} 
                 FINALIZAR LEVANTAMIENTO
               </button>
-            )}
+            ) : isClient && zonas.length > 0 ? (
+              <button 
+                className="rz-btn-main green-gradient" 
+                onClick={finalizarRegistroCliente}
+              >
+                <CheckCircle size={20} /> FINALIZAR MI REGISTRO
+              </button>
+            ) : null}
           </div>
 
           <div className="rz-bubbles-group">

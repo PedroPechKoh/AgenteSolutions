@@ -158,6 +158,24 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
     }
   };
 
+  const finalizarRegistroCliente = async () => {
+    try {
+      const token = localStorage.getItem('agente_token');
+      // Usamos el ID de la propiedad que viene en la habitacion
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/properties/${habitacion.property_id}/finalize-survey`, {}, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      alert("¡Registro de zonas completado con éxito! Ahora puedes solicitar servicios para estas áreas.");
+      navigate(-1);
+    } catch (error) {
+      console.error("Error al finalizar registro:", error);
+      alert("Error al enviar la notificación al administrador.");
+    }
+  };
+
+  const user = JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData;
+  const isClient = user?.role_id === 3;
+
   // ========================================================
   // PUENTE AL NIVEL 5: Si hay categoría activa, mostramos la otra vista
   // ========================================================
@@ -285,7 +303,7 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
                 {actualizando ? <Loader2 className="animate-spin" size={24} /> : 'GUARDAR ZONA'}
               </button>
               
-              {servicioId && (
+              {servicioId ? (
                 <button 
                   onClick={finalizarLevantamiento}
                   disabled={actualizando}
@@ -297,7 +315,18 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
                 >
                   <CheckCircle size={22} /> FINALIZAR LEVANTAMIENTO
                 </button>
-              )}
+              ) : isClient ? (
+                <button 
+                  onClick={finalizarRegistroCliente}
+                  style={{ 
+                    width: '100%', minHeight: '80px', borderRadius: '40px', background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)', 
+                    color: '#fff', fontWeight: 'bold', fontSize: '13px', fontStyle: 'italic', border: 'none', cursor: 'pointer', 
+                    display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', boxShadow: '0 6px 0px #15803d' 
+                  }}
+                >
+                  <CheckCircle size={22} /> FINALIZAR MI REGISTRO
+                </button>
+              ) : null}
             </div>
           </div>
         </div>
