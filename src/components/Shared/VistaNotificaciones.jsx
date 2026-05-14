@@ -108,7 +108,7 @@ const VistaNotificaciones = () => {
                       url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
                     } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected') {
                       url = isTecnico ? '/trabajos-tecnico' : '/vista-cotizaciones';
-                    } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned' || type === 'work_order_assigned') {
+                    } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned' || type === 'work_order_assigned' || type === 'work_order_rescheduled') {
                       url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
                     } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
                       url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
