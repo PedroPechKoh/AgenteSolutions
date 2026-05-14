@@ -20,6 +20,8 @@ const RegistroZonas = () => {
   const [loading, setLoading] = useState(false);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [zonaSeleccionada, setZonaSeleccionada] = useState(null);
+  const [isFinalizado, setIsFinalizado] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   
   // Formulario
   const [nuevaZona, setNuevaZona] = useState({ nombre: '', descripcion: '' });
@@ -38,6 +40,10 @@ const RegistroZonas = () => {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           setIdPropiedadReal(res.data.id);
+          // Si el backend trae survey_finalized lo usamos
+          if (res.data.survey_finalized) {
+            setIsFinalizado(true);
+          }
         } catch (error) {
           console.error("Error al buscar propiedad por CURP:", error);
         }
@@ -149,11 +155,28 @@ const RegistroZonas = () => {
       await axios.post(`${import.meta.env.VITE_API_BASE_URL}/properties/${idPropiedadReal}/finalize-survey`, {}, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      alert("¡Registro de zonas completado con éxito! Ahora puedes solicitar servicios para estas áreas.");
-      navigate(-1);
+      alert("¡Registro de zonas completado con éxito!");
+      setIsFinalizado(true);
+      setEditMode(false);
+      // No navegamos atrás para que vea el cambio a "EDITAR"
     } catch (error) {
       console.error("Error al finalizar registro:", error);
       alert("Error al enviar la notificación al administrador.");
+    }
+  };
+
+  const eliminarZona = async (zonaId) => {
+    if (!window.confirm("¿Estás seguro de eliminar esta zona? Se borrarán todos sus equipos e inventario.")) return;
+    
+    try {
+      const token = localStorage.getItem('agente_token');
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${zonaId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      fetchZonas();
+    } catch (error) {
+      console.error("Error al eliminar zona:", error);
+      alert("No se pudo eliminar la zona.");
     }
   };
 
@@ -180,9 +203,11 @@ const RegistroZonas = () => {
             <button className="rz-btn-main orange-gradient" onClick={() => navigate(-1)}>
               <ArrowLeft size={20} /> VOLVER
             </button>
-            <button className="rz-btn-main purple-gradient" onClick={() => setModalAbierto(true)}>
-              <Plus size={24} strokeWidth={3} /> AGREGAR
-            </button>
+            {(!isFinalizado || editMode) && (
+              <button className="rz-btn-main purple-gradient" onClick={() => setModalAbierto(true)}>
+                <Plus size={24} strokeWidth={3} /> AGREGAR
+              </button>
+            )}
             {servicioId ? (
               <button 
                 className="rz-btn-main green-gradient" 
@@ -193,12 +218,22 @@ const RegistroZonas = () => {
                 FINALIZAR LEVANTAMIENTO
               </button>
             ) : isClient && zonas.length > 0 ? (
-              <button 
-                className="rz-btn-main green-gradient" 
-                onClick={finalizarRegistroCliente}
-              >
-                <CheckCircle size={20} /> FINALIZAR MI REGISTRO
-              </button>
+              isFinalizado && !editMode ? (
+                <button 
+                  className="rz-btn-main blue-gradient" 
+                  onClick={() => setEditMode(true)}
+                  style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' }}
+                >
+                  <Save size={20} /> EDITAR LEVANTAMIENTO
+                </button>
+              ) : (
+                <button 
+                  className="rz-btn-main green-gradient" 
+                  onClick={finalizarRegistroCliente}
+                >
+                  <CheckCircle size={20} /> {isFinalizado ? "FINALIZAR EDICIÓN" : "FINALIZAR MI REGISTRO"}
+                </button>
+              )
             ) : null}
           </div>
 
@@ -224,6 +259,17 @@ const RegistroZonas = () => {
                 <div className="rz-image-overlay">
                   <span className="rz-zona-pill">{zona.name}</span>
                 </div>
+                
+                {/* BOTÓN ELIMINAR EN MODO EDICIÓN */}
+                {editMode && (
+                  <button 
+                    className="rz-btn-delete-zone"
+                    onClick={(e) => { e.stopPropagation(); eliminarZona(zona.id); }}
+                    style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,0,0,0.8)', color: 'white', border: 'none', borderRadius: '50%', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}
+                  >
+                    <X size={18} />
+                  </button>
+                )}
               </div>
               <div className="rz-card-footer">
                 <button className="rz-btn-ver" onClick={() => setZonaSeleccionada(zona)}>VER ZONA</button>
