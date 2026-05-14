@@ -38,7 +38,10 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${habitacion.id}/components`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const filtrados = res.data.filter(comp => comp.category === categoriaActiva?.name);
+      
+      // ✅ PROTECCIÓN: Si res.data no es un array, usamos una lista vacía
+      const dataArray = Array.isArray(res.data) ? res.data : [];
+      const filtrados = dataArray.filter(comp => comp.category === categoriaActiva?.name);
       setComponentes(filtrados);
     } catch (error) {
       console.error("Error al cargar componentes:", error);
