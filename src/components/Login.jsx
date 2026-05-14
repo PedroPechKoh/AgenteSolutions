@@ -12,7 +12,7 @@ const LoginAgente = () => {
   const [mensaje, setMensaje] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { loginGlobal } = useAuth();
+  const { user, loginGlobal } = useAuth();
 
   const [isRecoverModalOpen, setIsRecoverModalOpen] = useState(false);
   const [recoverEmail, setRecoverEmail] = useState("");
@@ -25,7 +25,17 @@ const LoginAgente = () => {
   //Variablaes para personalizar el Login
 const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000' });
 
- useEffect(() => {
+  // 1. AUTO-LOGIN: Si ya existe sesión, redirigir según el rol
+  useEffect(() => {
+    if (user) {
+      if (user.role_id === 0) navigate("/VistaRoot");
+      else if (user.role_id === 1) navigate("/VistaAdmin");
+      else if (user.role_id === 2) navigate("/VistaTecnico");
+      else if (user.role_id === 3) navigate("/propiedades");
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
     const fetchSettings = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`);

@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const loginGlobal = (userData) => {
-    const TIEMPO_EXPIRACION = 2 * 60 * 60 * 1000; 
+    const TIEMPO_EXPIRACION = 36 * 60 * 60 * 1000; // 36 Horas
     const expirationTime = new Date().getTime() + TIEMPO_EXPIRACION;
 
     const sessionData = {
@@ -53,10 +53,27 @@ export const AuthProvider = ({ children }) => {
   const logoutGlobal = () => {
     setUser(null);
     localStorage.removeItem('agente_session');
+    localStorage.removeItem('agente_token'); // Limpiar también el token
+    delete axios.defaults.headers.common["Authorization"];
     
     // 👇 3. DESVINCULAMOS ONESIGNAL AL CERRAR SESIÓN
     OneSignal.logout();
   };
+
+  // INTERCEPTOR PARA MANEJAR EXPIRACIÓN DE TOKEN (401)
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && error.response.status === 401) {
+          logoutGlobal();
+          window.location.href = "/";
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => axios.interceptors.response.eject(interceptor);
+  }, []);
 
   useEffect(() => {
     let intervalo;
