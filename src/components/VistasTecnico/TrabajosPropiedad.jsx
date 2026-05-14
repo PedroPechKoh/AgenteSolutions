@@ -500,16 +500,15 @@ const TrabajoPropiedad = () => {
                   <ArrowRight size={18} />
                 </button>
 
-                {(user?.role_id === 0 || user?.role_id === 1) && (
-                  <button 
-                    className="tp-btn-secondary"
-                    onClick={handleFinalizar}
-                    style={{ background: '#3b82f6' }}
-                  >
-                    <CheckCircle2 size={18} />
-                    <span>MARCAR COMO LISTO (ADMIN)</span>
-                  </button>
-                )}
+                {/* BOTÓN FINALIZAR (Visible para Admin y Técnico) */}
+                <button 
+                  className="tp-btn-secondary"
+                  onClick={handleFinalizar}
+                  style={{ background: '#22c55e', marginTop: '10px' }}
+                >
+                  <CheckCircle2 size={18} />
+                  <span>{user?.role_id === 2 ? 'FINALIZAR TRABAJO' : 'MARCAR COMO LISTO (ADMIN)'}</span>
+                </button>
               </div>
               
               {!materialesConfirmados && (
