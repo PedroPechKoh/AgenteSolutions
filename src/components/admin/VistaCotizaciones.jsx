@@ -37,6 +37,7 @@ const VistaCotizaciones = () => {
   const [filtroTipo, setFiltroTipo] = useState('todos'); // 'todos' | 'manual' | 'archivo'
   const [filtroOrigen, setFiltroOrigen] = useState('todos'); // 'todos' | 'admin' | 'tecnicos' | 'proveedores'
   const [cotizacionesFiltradas, setCotizacionesFiltradas] = useState([]);
+  const [esTecnico, setEsTecnico] = useState(false);
 
   useEffect(() => {
     try {
@@ -45,6 +46,9 @@ const VistaCotizaciones = () => {
         setUsuarioId(session.userData.id || null);
         if (session.userData.role_id === 3) {
           setEsCliente(true);
+        }
+        if (session.userData.role_id === 2) {
+          setEsTecnico(true);
         }
       }
     } catch(e) {}
@@ -55,8 +59,22 @@ const VistaCotizaciones = () => {
 
   const cargarCotizaciones = async () => {
     try {
+      const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+      const userId = session?.userData?.id;
+      const roleId = session?.userData?.role_id;
+
       const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
-      setCotizaciones(respuesta.data);
+      let data = respuesta.data;
+
+      // FILTRO PARA TÉCNICOS: Solo ver sus propias propuestas al Admin
+      if (roleId === 2) {
+        data = data.filter(c => 
+          c.created_by_role === 'Técnico' && 
+          (c.tecnico_id === userId || c.user_id === userId)
+        );
+      }
+
+      setCotizaciones(data);
     } catch (error) {
       console.error("Error al cargar cotizaciones:", error);
     } finally {
@@ -250,7 +268,7 @@ const VistaCotizaciones = () => {
             </button>
           </div>
 
-          {!esCliente && (
+          {!esCliente && !esTecnico && (
             <div className="cotiz-tabs-pills origin-pills">
               <button className={`cotiz-pill mini ${filtroOrigen === 'todos' ? 'active' : ''}`} onClick={() => setFiltroOrigen('todos')}>TODOS</button>
               <button className={`cotiz-pill mini ${filtroOrigen === 'admin' ? 'active' : ''}`} onClick={() => setFiltroOrigen('admin')}>
@@ -365,21 +383,8 @@ const VistaCotizaciones = () => {
                 ✏️ RE-EDITAR
               </button>
             )}
-            {/* Si es de un técnico y está pendiente, permitir generar la del cliente */}
-            {!esCliente && c.created_by_role === 'Técnico' && c.status === 'Pendiente de Admin' && (
-              <button 
-                className="btn-view-detail" 
-                style={{ background: '#ff8800', color: 'white', border: 'none' }}
-                onClick={() => {
-                  setCotizacionParaAsignar(c); 
-                  setShowCreateModal(true);
-                }}
-              >
-                📝 GENERAR CLIENTE
-              </button>
-            )}
             {/* Solo mostrar acciones de asignación si es admin y está aprobada */}
-            {!esCliente && filtro === 'Aprobado' && (
+            {!esCliente && !esTecnico && filtro === 'Aprobado' && (
               c.tecnico ? (
                 // Mostrar cuando YA está asignado
                 <>
