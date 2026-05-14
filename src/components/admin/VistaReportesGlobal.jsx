@@ -118,11 +118,11 @@ const VistaReportesGlobal = () => {
                           const isService = !!firstReport.service?.property;
                           const serviceData = isService ? firstReport.service : (firstReport.work_order || firstReport.service);
                           const prop = serviceData?.property;
-                          const prefijo = isService ? 'servicio' : (firstReport.work_order ? 'work_order' : 'servicio');
+                          const realId = isService ? firstReport.service_id : (firstReport.work_order_id || firstReport.service_id);
                           
-                          navigate(`/reporte-trabajo-admin/${prefijo}-${firstReport.service_id}`, { 
+                          navigate(`/reporte-trabajo-admin/${prefijo}-${realId}`, { 
                             state: { 
-                              trabajoId: `${prefijo}-${firstReport.service_id}`, 
+                              trabajoId: `${prefijo}-${realId}`, 
                               servicio: {
                                 cliente_nombre: dueno,
                                 cliente_email: prop?.client?.email || '',
@@ -192,7 +192,7 @@ const VistaReportesGlobal = () => {
                           </div>
 
                           <p className="gr-detail"><FileText size={14} style={{marginRight:'8px', color: '#F26522'}}/> 
-                            <strong>Trabajo ID:</strong> &nbsp;{r.service_id}
+                            <strong>Trabajo ID:</strong> &nbsp;{r.work_order_id || r.service_id}
                           </p>
                           <p className="gr-detail"><Calendar size={14} style={{marginRight:'8px', color: '#F26522'}}/> 
                             <strong>Subido:</strong> &nbsp;{new Date(r.created_at).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}
