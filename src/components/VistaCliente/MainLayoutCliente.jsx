@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, Outlet, useLocation } from 'react-router-dom';
+import { useNavigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
 import { User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -13,17 +13,28 @@ const MainLayoutCliente = ({ children }) => {
   const [menuAbierto, setMenuAbierto] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
-  
-  // Safe user name retrieval
   const userName = user?.first_name || user?.name || "Cliente";
-
-  // Recuperamos los IDs guardados para mantener el contexto de la propiedad
-  const savedPropertyId = localStorage.getItem('current_property_id');
-  const savedLevantamientoId = localStorage.getItem('current_levantamiento_id');
   
-  // Rutas dinámicas basadas en el contexto guardado
-  const detailPath = savedLevantamientoId ? `/detalle-reporte/${savedLevantamientoId}` : '/propiedades';
-  const tableroPath = savedPropertyId ? `/DetallePropiedad/${savedPropertyId}` : '/propiedades';
+  const { id: urlPropertyId } = useParams();
+  
+  // Estados para mantener los IDs sincronizados
+  const [currentPropertyId, setCurrentPropertyId] = React.useState(localStorage.getItem('current_property_id'));
+  const [currentLevantamientoId, setCurrentLevantamientoId] = React.useState(localStorage.getItem('current_levantamiento_id'));
+
+  // Sincronizar cada vez que cambia la ruta
+  React.useEffect(() => {
+    const pId = localStorage.getItem('current_property_id');
+    const lId = localStorage.getItem('current_levantamiento_id');
+    setCurrentPropertyId(pId);
+    setCurrentLevantamientoId(lId);
+  }, [location.pathname]);
+  
+  // Priorizar el ID de la URL si estamos en un detalle
+  const effectivePropertyId = urlPropertyId || currentPropertyId;
+
+  // Rutas dinámicas basadas en el contexto sincronizado
+  const detailPath = currentLevantamientoId ? `/detalle-reporte/${currentLevantamientoId}` : '/propiedades';
+  const tableroPath = effectivePropertyId ? `/DetallePropiedad/${effectivePropertyId}` : '/propiedades';
 
   // Check if we are in a global route
   const globalRoutes = ['/propiedades', '/levantamientos', '/vista-cotizaciones', '/registro-propiedades'];
