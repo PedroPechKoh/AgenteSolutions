@@ -155,11 +155,21 @@ const ReporteTrabajo = () => {
   };
 
   const handleSave = async () => {
+    if (!trabajoId || trabajoId === "null" || trabajoId === "undefined") {
+      alert("Error: No se pudo identificar el trabajo. Por favor, regrese e intente de nuevo.");
+      return;
+    }
+
     setSaving(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${rawTrabajoId || trabajoId}/final-report`, {
+      // Re-construir el ID con prefijo correcto para el backend
+      const isWorkOrder = rawTrabajoId?.toString().includes('work_order');
+      const apiId = isWorkOrder ? `work_order-${trabajoId}` : (rawTrabajoId?.toString().includes('servicio') ? `servicio-${trabajoId}` : trabajoId);
+
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${apiId}/final-report`, {
         ...reportData,
-        service_id: trabajoId
+        service_id: isWorkOrder ? null : trabajoId,
+        work_order_id: isWorkOrder ? trabajoId : null
       });
       alert("¡Reporte guardado con éxito!");
     } catch (error) {
