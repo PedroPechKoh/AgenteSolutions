@@ -567,43 +567,7 @@ const DetalleReporte = () => {
                         const zonas = Object.values(zonasAgrupadas);
 
                         const renderZonas = zonas.map((zona, idx) => (
-                            <div key={`zona-${idx}`} className="seccion-bloque" style={{ padding: '25px', backgroundColor: '#fff', borderLeft: '6px solid #ff7f00' }}>
-                                <h3 className="coti-section-title" style={{ fontSize: '1.4rem', borderBottom: 'none', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    {editandoZonaId === zona.titulo ? (
-                                        <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                                            <input 
-                                                type="text" 
-                                                value={nuevoNombreZona} 
-                                                onChange={(e) => setNuevoNombreZona(e.target.value.toUpperCase())}
-                                                style={{ padding: '5px 10px', fontSize: '1.2rem', borderRadius: '6px', border: '1px solid #ccc', outline: 'none' }}
-                                                autoFocus
-                                            />
-                                            <button onClick={() => handleGuardarEdicionZona(zona.id, zona.titulo)} style={{ padding: '6px 12px', background: '#f26624', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
-                                            <button onClick={() => setEditandoZonaId(null)} style={{ padding: '6px 12px', background: '#666', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <span style={{ textTransform: 'uppercase' }}>{zona.titulo}</span>
-                                            <div style={{ display: 'flex', gap: '10px' }}>
-                                                <button 
-                                                    onClick={() => { setEditandoZonaId(zona.titulo); setNuevoNombreZona(zona.titulo); }}
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#666', padding: '0 5px' }}
-                                                    title="Editar nombre de zona"
-                                                >
-                                                    ✏️
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleEliminarZona(zona.id, zona.titulo)}
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#e63946', padding: '0 5px' }}
-                                                    title="Eliminar zona completa"
-                                                >
-                                                    🗑️
-                                                </button>
-                                            </div>
-                                        </>
-                                    )}
-                                </h3>
-                                
+                            <div key={`zona-${idx}`} className="seccion-bloque" style={{ padding: '15px 25px', backgroundColor: '#fff', borderLeft: 'none' }}>
                                 <div className="properties-grid" style={{ justifyContent: 'flex-start' }}>
                                     {zona.cuartos && zona.cuartos.length > 0 ? (
                                         zona.cuartos.map((cuarto, cIdx) => {
