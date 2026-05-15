@@ -67,6 +67,18 @@ const VistaDetallePropiedad = () => {
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/dashboard`, { headers });
+      
+      // Mapeamos el historial para que coincida con el componente visual
+      if (response.data.historial) {
+        response.data.historial = response.data.historial.map(h => ({
+          id: h.id,
+          producto: h.title || h.labor || "Trabajo Finalizado",
+          tecnico: h.tecnico_nombre || "Técnico",
+          fecha: new Date(h.updated_at || h.fecha).toLocaleDateString(),
+          evidencias: h.fotos || []
+        }));
+      }
+
       setData(response.data);
       
       // Sincronizamos el contexto del sidebar por si acaso
@@ -252,14 +264,14 @@ const VistaDetallePropiedad = () => {
                   historial.map((trabajo) => (
                     <div key={trabajo.id} className="historial-card-item" onClick={() => fetchDetalleTrabajo(trabajo)}>
                       <div className="h-card-left">
-                        <span className="h-card-date">{new Date(trabajo.updated_at).toLocaleDateString()}</span>
-                        <h4 className="h-card-title">{trabajo.title || 'Trabajo Finalizado'}</h4>
-                        <span className="h-card-tech">Por: <strong>{trabajo.tecnico_nombre || 'Técnico'}</strong></span>
+                        <span className="h-card-date">{trabajo.fecha}</span>
+                        <h4 className="h-card-title">{trabajo.producto}</h4>
+                        <span className="h-card-tech">Por: <strong>{trabajo.tecnico}</strong></span>
                       </div>
                       <div className="h-card-right">
                         <div className="h-card-photos-stack">
-                          {trabajo.fotos && trabajo.fotos.length > 0 ? (
-                            <img src={trabajo.fotos[0]} alt="evidencia" className="stack-img img-0" />
+                          {trabajo.evidencias && trabajo.evidencias.length > 0 ? (
+                            <img src={trabajo.evidencias[0]} alt="evidencia" className="stack-img img-0" />
                           ) : (
                             <div style={{width: '40px', height: '40px', background: '#ccc', borderRadius: '8px'}}></div>
                           )}
@@ -351,9 +363,9 @@ const VistaDetallePropiedad = () => {
             <button className="close-modal" onClick={() => setReporteSeleccionado(null)}><X /></button>
             <div className="modal-header" style={{ borderBottom: '2px solid #f26624', paddingBottom: '15px' }}>
               <div className="modal-tag" style={{ background: '#f26624' }}>BITÁCORA DE TRABAJO</div>
-              <h2>{reporteSeleccionado.title || reporteSeleccionado.labor}</h2>
+              <h2>{reporteSeleccionado.producto}</h2>
               <p className="modal-subtitle">
-                Finalizado el {new Date(reporteSeleccionado.updated_at || reporteSeleccionado.fecha).toLocaleDateString()} | Técnico: {reporteSeleccionado.tecnico_nombre || reporteSeleccionado.tecnico}
+                Finalizado el {reporteSeleccionado.fecha} | Técnico: {reporteSeleccionado.tecnico}
               </p>
             </div>
             <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto', padding: '20px 0' }}>
