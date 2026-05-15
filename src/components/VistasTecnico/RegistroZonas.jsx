@@ -33,9 +33,7 @@ const RegistroZonas = () => {
   const [zonasSeleccionadas, setZonasSeleccionadas] = useState([]); // Selección múltiple
 
   const OPCIONES_PREDEFINIDAS = [
-    "HABITACIÓN", "BAÑO", "BAÑO PRINCIPAL", "MEDIO BAÑO", "COCINA", 
-    "SALA DE ESTAR", "COMEDOR", "PATIO", "PASILLO", "GARAJE", 
-    "JARDÍN", "LAVADERO", "AZOTEA"
+    "BAÑOS", "HABITACIONES", "ÁREAS SOCIALES", "COCINA", "ZONAS EXTERIORES"
   ];
 
   const [idPropiedadReal, setIdPropiedadReal] = useState(propertyId);
