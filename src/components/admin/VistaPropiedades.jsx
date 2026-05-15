@@ -224,16 +224,6 @@ const VistaPropiedades = () => {
 
       <section className="content-area">
         
-        {/* BOTÓN REGRESAR */}
-        <div style={{ padding: '0 20px', marginBottom: '15px' }}>
-          <button 
-            onClick={() => navigate(-1)} 
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
-          >
-            <ChevronLeft size={18} />
-            <span>REGRESAR</span>
-          </button>
-        </div>
         
         {/* --- NUEVO TABLERO COMPACTO PARA PC (Solo Clientes) --- */}
         {isClient && (
