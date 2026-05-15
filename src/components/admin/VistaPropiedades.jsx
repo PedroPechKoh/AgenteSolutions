@@ -43,29 +43,34 @@ const VistaPropiedades = () => {
   const isClient = user?.role_id === 3;
 
   useEffect(() => {
-    const obtenerPropiedades = async () => {
-      try {
-        const token = localStorage.getItem('agente_token'); 
-
-        const [propsRes, statsRes] = await Promise.all([
-          axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          }),
-          axios.get(`${import.meta.env.VITE_API_BASE_URL}/work-orders/global-stats`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          })
-        ]);
-
-        setListaPropiedades(propsRes.data);
-        setGlobalStats(statsRes.data);
-      } catch (error) {
-        console.error("Error al cargar datos:", error);
-      } finally {
-        setCargando(false);
-      }
-    };
     obtenerPropiedades();
+    
+    // Escuchar cuando el usuario regrese a esta pestaña para actualizar datos
+    window.addEventListener('focus', obtenerPropiedades);
+    return () => window.removeEventListener('focus', obtenerPropiedades);
   }, []);
+
+  const obtenerPropiedades = async () => {
+    try {
+      const token = localStorage.getItem('agente_token'); 
+
+      const [propsRes, statsRes] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }),
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/work-orders/global-stats`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+      ]);
+
+      setListaPropiedades(propsRes.data);
+      setGlobalStats(statsRes.data);
+    } catch (error) {
+      console.error("Error al cargar datos:", error);
+    } finally {
+      setCargando(false);
+    }
+  };
 
   // Lógica de filtrado manual combinando categoría y búsqueda del sidebar
   useEffect(() => {
