@@ -532,39 +532,51 @@ const DetalleReporte = () => {
                     {Array.isArray(datosBD.secciones) && datosBD.secciones.length > 0 ? (() => {
                         // Agrupar los cuartos por Zona
                         const zonasAgrupadas = {};
+                        
                         datosBD.secciones.forEach(sec => {
-                            // Intentar encontrar el nombre de la zona padre en varias posibles propiedades
-                            const nombreZona = 
-                                (sec.parent && sec.parent.name) || 
-                                (sec.parent && sec.parent.titulo) || 
-                                (sec.zona && sec.zona.name) || 
-                                sec.zona_nombre || 
-                                sec.parent_name || 
-                                sec.zona || 
-                                sec.parent_area || 
-                                sec.parent_area_name || 
-                                'ZONAS DE LA PROPIEDAD';
+                            const tituloUpper = (sec.titulo || "").toUpperCase();
+                            let categoriaFinal = "OTRAS ÁREAS";
 
-                            const idZona = 
-                                (sec.parent && sec.parent.id) || 
-                                (sec.zona && sec.zona.id) || 
-                                sec.parent_area_id || 
-                                sec.zona_id || null;
+                            // Lógica de clasificación por palabras clave
+                            if (tituloUpper.includes("HABITACIÓN") || tituloUpper.includes("RECÁMARA") || tituloUpper.includes("RECAMARA") || tituloUpper.includes("CUARTO")) {
+                                categoriaFinal = "HABITACIONES";
+                            } else if (tituloUpper.includes("BAÑO") || tituloUpper.includes("SANITARIO") || tituloUpper.includes("WC")) {
+                                categoriaFinal = "BAÑOS";
+                            } else if (tituloUpper.includes("COCINA")) {
+                                categoriaFinal = "COCINA";
+                            } else if (tituloUpper.includes("SALA") || tituloUpper.includes("COMEDOR") || tituloUpper.includes("ESTANCIA")) {
+                                categoriaFinal = "ÁREAS SOCIALES";
+                            } else if (tituloUpper.includes("PATIO") || tituloUpper.includes("JARDÍN") || tituloUpper.includes("ALBERCA") || tituloUpper.includes("EXTERIOR")) {
+                                categoriaFinal = "EXTERIORES / PATIOS";
+                            } else if (tituloUpper.includes("PASILLO") || tituloUpper.includes("ESCALERA")) {
+                                categoriaFinal = "CONECTIVIDAD / PASILLOS";
+                            } else if (tituloUpper.includes("COCHERA") || tituloUpper.includes("GARAJE") || tituloUpper.includes("ESTACIONAMIENTO")) {
+                                categoriaFinal = "COCHERA / ACCESOS";
+                            }
 
-                            if (!zonasAgrupadas[nombreZona]) {
-                                zonasAgrupadas[nombreZona] = {
-                                    titulo: nombreZona,
-                                    id: idZona,
+                            if (!zonasAgrupadas[categoriaFinal]) {
+                                zonasAgrupadas[categoriaFinal] = {
+                                    titulo: categoriaFinal,
                                     cuartos: []
                                 };
                             }
-                            zonasAgrupadas[nombreZona].cuartos.push({
+                            
+                            zonasAgrupadas[categoriaFinal].cuartos.push({
                                 ...sec,
                                 nombre: sec.titulo,
                                 categorias: sec.subSecciones
                             });
                         });
-                        const zonas = Object.values(zonasAgrupadas);
+
+                        // Ordenar las categorías para que Habitaciones y Baños salgan primero
+                        const ordenDeseado = ["HABITACIONES", "BAÑOS", "COCINA", "ÁREAS SOCIALES", "EXTERIORES / PATIOS", "COCHERA / ACCESOS", "CONECTIVIDAD / PASILLOS", "OTRAS ÁREAS"];
+                        const zonas = Object.keys(zonasAgrupadas)
+                            .sort((a, b) => {
+                                const idxA = ordenDeseado.indexOf(a);
+                                const idxB = ordenDeseado.indexOf(b);
+                                return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+                            })
+                            .map(key => zonasAgrupadas[key]);
 
                         const renderZonas = zonas.map((zona, idx) => (
                             <div key={`zona-${idx}`} className="zona-section-wrapper" style={{ marginBottom: '40px' }}>
