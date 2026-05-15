@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import { 
   MapPin, User, AlertTriangle, Settings, CheckCircle, 
   X, LayoutDashboard, FileText, Send, Trash2, Clock, Briefcase, MessageSquare,
-  CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye  
+  CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon
 } from 'lucide-react';
 
 const DetallePropiedad = () => {
@@ -27,6 +27,7 @@ const DetallePropiedad = () => {
   const [chatCotizacion, setChatCotizacion] = useState(null);
   const [isModalCotizacionDetailOpen, setIsModalCotizacionDetailOpen] = useState(false);
   const [cotizacionDetail, setCotizacionDetail] = useState(null);
+  const [imagenAmpliada, setImagenAmpliada] = useState(null);
 
   // DATOS DE LA PROPIEDAD
   const [datosPropiedad, setDatosPropiedad] = useState({
@@ -223,7 +224,27 @@ const DetallePropiedad = () => {
   };
 
   const [historialFinalizados, setHistorialFinalizados] = useState([]);
+  const [reportesDetallados, setReportesDetallados] = useState([]);
+  const [cargandoReportes, setCargandoReportes] = useState(false);
 
+  const fetchDetalleTrabajo = async (item) => {
+    setTrabajoSeleccionado(item);
+    setIsModalHistorialOpen(true);
+    setReportesDetallados([]);
+    setCargandoReportes(true);
+
+    try {
+      const token = localStorage.getItem('agente_token');
+      // Consultamos los reportes de avance (bitácora) del servicio
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${item.id}/reportes`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setReportesDetallados(res.data || []);
+    } catch (error) {
+      console.error("Error al cargar la bitácora del trabajo:", error);
+    } finally {
+      setCargandoReportes(false);
+  };
 
   if (loading) {
     return (
@@ -504,10 +525,7 @@ const DetallePropiedad = () => {
               <div 
                 key={item.id} 
                 className="history-log-card clickable-card"
-                onClick={() => {
-                  setTrabajoSeleccionado(item);
-                  setIsModalHistorialOpen(true);
-                }}
+                onClick={() => fetchDetalleTrabajo(item)}
               >
                 <div className="log-status"><CheckCircle size={12}/> FINALIZADO</div>
                 <div className="log-content">
@@ -604,40 +622,103 @@ const DetallePropiedad = () => {
         </div>
       )}
 
-      {/* MODAL DETALLE HISTORIAL */}
+      {/* MODAL DETALLE HISTORIAL (BITÁCORA) */}
       {isModalHistorialOpen && trabajoSeleccionado && (
         <div className="modal-overlay-ui" onClick={() => setIsModalHistorialOpen(false)}>
-          <div className="modal-card-ui report-modal animate-fade-in" onClick={e => e.stopPropagation()}>
-            <div className="modal-header-premium">
+          <div className="modal-card-ui report-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ width: '850px', maxWidth: '95vw' }}>
+            <div className="modal-header-premium" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' }}>
               <div className="header-content">
-                <div className="icon-badge-white"><CheckCircle size={22} /></div>
-                <div><h3>Detalle del Trabajo</h3><span>{trabajoSeleccionado.producto}</span></div>
+                <div className="icon-badge-white"><Briefcase size={22} /></div>
+                <div>
+                  <h3 style={{ color: 'white' }}>Bitácora de Servicio</h3>
+                  <span style={{ color: '#cbd5e1' }}>{trabajoSeleccionado.producto} • Finalizado el {trabajoSeleccionado.fecha}</span>
+                </div>
               </div>
-              <button className="btn-close-light" onClick={() => setIsModalHistorialOpen(false)}><X size={20}/></button>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                {/* BOTÓN SOLO PARA ADMINS */}
+                {(JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData?.role_id !== 3) && (
+                  <button 
+                    className="btn-primary-ui" 
+                    onClick={() => navigate(`/reporte-detallado/${trabajoSeleccionado.id}`)}
+                    style={{ background: '#3b82f6', boxShadow: '0 4px 0 #2563eb', padding: '8px 20px', fontSize: '12px' }}
+                  >
+                    <FileText size={16} /> GENERAR REPORTE OFICIAL
+                  </button>
+                )}
+                <button className="btn-close-light" onClick={() => setIsModalHistorialOpen(false)}><X size={20}/></button>
+              </div>
             </div>
-            <div className="modal-body modern-body">
-              <div className="info-grid">
+
+            <div className="modal-body modern-body" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
+              
+              {/* Resumen Superior */}
+              <div className="info-grid" style={{ marginBottom: '30px' }}>
                 <div className="info-item-card">
                   <div className="item-icon"><User size={18} /></div>
-                  <div className="item-details"><label>Técnico</label><p>{trabajoSeleccionado.tecnico}</p></div>
+                  <div className="item-details"><label>Técnico Responsable</label><p>{trabajoSeleccionado.tecnico}</p></div>
                 </div>
                 <div className="info-item-card">
                   <div className="item-icon"><Clock size={18} /></div>
-                  <div className="item-details"><label>Fecha</label><p>{trabajoSeleccionado.fecha}</p></div>
+                  <div className="item-details"><label>ID de Servicio</label><p>#{trabajoSeleccionado.id}</p></div>
                 </div>
-                <div className="info-item-card full-width">
-                  <div className="item-icon"><Briefcase size={18} /></div>
-                  <div className="item-details"><label>Servicio</label><p>{trabajoSeleccionado.producto}</p></div>
+                <div className="info-item-card">
+                  <div className="item-icon"><MapPin size={18} /></div>
+                  <div className="item-details"><label>Propiedad</label><p>{datosPropiedad.nombre_propiedad}</p></div>
                 </div>
               </div>
-              <div style={{ marginTop: "20px" }}>
-                <h4 style={{ marginBottom: "10px" }}>Evidencias</h4>
-                <div className="photo-grid-report">
-                  {trabajoSeleccionado.evidencias.map((img, index) => (
-                    <div key={index} className="photo-item"><img src={img} alt="evidencia" /></div>
+
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#1e293b' }}>
+                <ImageIcon size={20} /> PASOS REALIZADOS EN EL TRABAJO
+              </h4>
+
+              {cargandoReportes ? (
+                <div style={{ padding: '40px', textAlign: 'center' }}>
+                  <Loader2 className="animate-spin" size={40} color="#f26624" />
+                  <p style={{ marginTop: '10px', fontWeight: 'bold' }}>Cargando bitácora...</p>
+                </div>
+              ) : reportesDetallados.length > 0 ? (
+                <div className="work-timeline" style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+                  {reportesDetallados.map((rep, idx) => (
+                    <div key={rep.id} className="timeline-step" style={{ display: 'flex', gap: '20px', padding: '20px', backgroundColor: '#f8fafc', borderRadius: '15px', borderLeft: '5px solid #f26624' }}>
+                      <div className="step-number" style={{ background: '#1e293b', color: 'white', minWidth: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '18px' }}>
+                         <span style={{ margin: 'auto' }}>{idx + 1}</span>
+                      </div>
+                      <div className="step-content" style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                          <h5 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>{rep.title || `Avance ${idx + 1}`}</h5>
+                          <span style={{ fontSize: '12px', color: '#64748b' }}><Clock size={12}/> {new Date(rep.created_at).toLocaleString()}</span>
+                        </div>
+                        <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.5, marginBottom: '15px' }}>{rep.description}</p>
+                        
+                        {/* Galería del Paso */}
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                          {rep.image_path && (
+                            <img 
+                              src={rep.image_path} 
+                              alt="evidencia" 
+                              onClick={() => setImagenAmpliada(rep.image_path)}
+                              style={{ width: '150px', height: '110px', objectFit: 'cover', borderRadius: '10px', cursor: 'pointer', border: '2px solid #e2e8f0' }} 
+                            />
+                          )}
+                          {rep.galleries && rep.galleries.map((gal, gIdx) => (
+                            <img 
+                              key={gIdx}
+                              src={gal.image_path} 
+                              alt="extra" 
+                              onClick={() => setImagenAmpliada(gal.image_path)}
+                              style={{ width: '150px', height: '110px', objectFit: 'cover', borderRadius: '10px', cursor: 'pointer', border: '2px solid #e2e8f0' }} 
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </div>
+              ) : (
+                <div style={{ padding: '40px', textAlign: 'center', background: '#f1f5f9', borderRadius: '15px' }}>
+                  <p style={{ margin: 0, color: '#64748b', fontStyle: 'italic' }}>El técnico no registró pasos detallados para este servicio.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -752,6 +833,29 @@ const DetallePropiedad = () => {
               )}
             </div>
           </div>
+        </div>
+      )}
+      {/* LIGHTBOX PARA IMAGEN AMPLIADA */}
+      {imagenAmpliada && (
+        <div 
+          onClick={() => setImagenAmpliada(null)}
+          style={{ 
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
+            backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 9999, 
+            display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' 
+          }}
+        >
+          <img 
+            src={imagenAmpliada} 
+            alt="Zoom" 
+            style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain', borderRadius: '10px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }} 
+          />
+          <button 
+             onClick={() => setImagenAmpliada(null)} 
+             style={{ position: 'absolute', top: '20px', right: '30px', background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}
+          >
+             <X size={40} />
+          </button>
         </div>
       )}
     </div>
