@@ -567,38 +567,102 @@ const DetalleReporte = () => {
                         const zonas = Object.values(zonasAgrupadas);
 
                         const renderZonas = zonas.map((zona, idx) => (
-                            <div key={`zona-${idx}`} className="seccion-bloque" style={{ padding: '15px 25px', backgroundColor: '#fff', borderLeft: 'none' }}>
-                                <div className="properties-grid" style={{ justifyContent: 'flex-start' }}>
-                                    {zona.cuartos && zona.cuartos.length > 0 ? (
-                                        zona.cuartos.map((cuarto, cIdx) => {
-                                            const areaFoto = cuarto.foto || cuarto.image_path || cuarto.image || cuarto.foto_url || casaImg;
-                                            
-                                            // Calcular cantidad total de items en el cuarto
-                                            let totalItems = 0;
-                                            if (Array.isArray(cuarto.categorias)) {
-                                                cuarto.categorias.forEach(cat => {
-                                                    totalItems += cat.inventario?.length || 0;
-                                                });
-                                            }
-
-                                            return (
-                                                <div key={`cuarto-${idx}-${cIdx}`} className="property-card" onClick={() => setSelectedSubseccion(cuarto)}>
-                                                    <img src={areaFoto} alt={cuarto.nombre} className="property-image" />
-                                                    <div className="property-overlay">
-                                                        <h3 className="property-title-overlay">{cuarto.nombre}</h3>
-                                                        <button className="btn-overlay">
-                                                            VER INVENTARIO ({totalItems})
+                            <div key={`zona-${idx}`} className="zona-section-wrapper" style={{ marginBottom: '40px' }}>
+                                {/* BARRA DE SECCIÓN PREMIUM */}
+                                <div className="section-divider-bar" style={{ 
+                                    background: 'linear-gradient(90deg, #f26624 0%, #ff8c52 100%)', 
+                                    padding: '12px 25px', 
+                                    borderRadius: '12px 12px 0 0',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    boxShadow: '0 4px 12px rgba(242, 102, 36, 0.2)'
+                                }}>
+                                    <h3 style={{ margin: 0, color: 'white', textTransform: 'uppercase', fontSize: '1.1rem', letterSpacing: '1px', fontWeight: '800' }}>
+                                        {editandoZonaId === zona.titulo ? (
+                                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                <input 
+                                                    type="text" 
+                                                    value={nuevoNombreZona} 
+                                                    onChange={(e) => setNuevoNombreZona(e.target.value.toUpperCase())}
+                                                    style={{ padding: '4px 10px', fontSize: '1rem', borderRadius: '4px', border: 'none', outline: 'none', color: '#333' }}
+                                                    autoFocus
+                                                />
+                                                <button onClick={() => handleGuardarEdicionZona(zona.id, zona.titulo)} style={{ padding: '4px 10px', background: 'white', color: '#f26624', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>✓</button>
+                                                <button onClick={() => setEditandoZonaId(null)} style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.3)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+                                            </div>
+                                        ) : (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                                <span>{zona.titulo === 'ZONAS DE LA PROPIEDAD' ? 'ÁREAS REGISTRADAS' : zona.titulo}</span>
+                                                {!isClient && (
+                                                    <div style={{ display: 'flex', gap: '5px' }}>
+                                                        <button 
+                                                            onClick={() => { setEditandoZonaId(zona.titulo); setNuevoNombreZona(zona.titulo); }}
+                                                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', color: 'white', opacity: 0.8 }}
+                                                        >
+                                                            <Edit3 size={16} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleEliminarZona(zona.id, zona.titulo)}
+                                                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1rem', color: 'white', opacity: 0.8 }}
+                                                        >
+                                                            <Trash2 size={16} />
                                                         </button>
                                                     </div>
-                                                </div>
-                                            );
-                                        })
-                                    ) : (
-                                        <div className="empty-zone-message" style={{ width: '100%', textAlign: 'center', padding: '30px', color: '#666', fontStyle: 'italic', border: '1px dashed #ccc', borderRadius: '8px' }}>
-                                            <div style={{ fontSize: '2rem', marginBottom: '10px', color: '#ccc' }}>📦</div>
-                                            <p style={{ margin: 0 }}>No hay cuartos registrados en esta zona.</p>
-                                        </div>
-                                    )}
+                                                )}
+                                            </div>
+                                        )}
+                                    </h3>
+                                    <span style={{ color: 'white', opacity: 0.8, fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                        {zona.cuartos.length} {zona.cuartos.length === 1 ? 'ÁREA' : 'ÁREAS'}
+                                    </span>
+                                </div>
+
+                                {/* CONTENEDOR DE TARJETAS */}
+                                <div className="seccion-bloque" style={{ 
+                                    padding: '30px', 
+                                    backgroundColor: '#fff', 
+                                    borderRadius: '0 0 12px 12px',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                                    border: '1px solid #eee',
+                                    borderTop: 'none'
+                                }}>
+                                    <div className="properties-grid" style={{ 
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                                        gap: '25px',
+                                        justifyContent: 'start'
+                                    }}>
+                                        {zona.cuartos && zona.cuartos.length > 0 ? (
+                                            zona.cuartos.map((cuarto, cIdx) => {
+                                                const areaFoto = cuarto.foto || cuarto.image_path || cuarto.image || cuarto.foto_url || casaImg;
+                                                
+                                                // Calcular cantidad total de items en el cuarto
+                                                let totalItems = 0;
+                                                if (Array.isArray(cuarto.categorias)) {
+                                                    cuarto.categorias.forEach(cat => {
+                                                        totalItems += cat.inventario?.length || 0;
+                                                    });
+                                                }
+
+                                                return (
+                                                    <div key={`cuarto-${idx}-${cIdx}`} className="property-card" onClick={() => setSelectedSubseccion(cuarto)} style={{ width: '100%', margin: 0 }}>
+                                                        <img src={areaFoto} alt={cuarto.nombre} className="property-image" />
+                                                        <div className="property-overlay">
+                                                            <h3 className="property-title-overlay" style={{ fontSize: '1rem' }}>{cuarto.nombre}</h3>
+                                                            <button className="btn-overlay" style={{ fontSize: '0.8rem', padding: '8px 15px' }}>
+                                                                VER INVENTARIO ({totalItems})
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <div className="empty-zone-message" style={{ width: '100%', gridColumn: '1 / -1', textAlign: 'center', padding: '30px', color: '#666', fontStyle: 'italic' }}>
+                                                <p>No hay cuartos registrados en esta zona.</p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ));
