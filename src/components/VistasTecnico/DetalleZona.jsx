@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "../../styles/TecnicoStyles/DetalleZona.css";
-import { Plus, Edit3, Trash2, ArrowLeft, Settings, Send, Home, Loader2, DoorOpen, LayoutGrid, Camera, Save as SaveIcon } from 'lucide-react';
+import { Plus, Edit3, Trash2, ArrowLeft, Settings, Send, Home, Loader2, DoorOpen, LayoutGrid, Camera, CheckCircle, Save as SaveIcon } from 'lucide-react';
 import DetalleHabitacion from './DetalleHabitacion';
 import Header from '../Shared/Header';
 import logoAgente from '../../assets/Logo3.png';
@@ -222,9 +222,9 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
                 <button 
                   onClick={guardarNuevaFoto} 
                   disabled={subiendoFoto}
-                  style={{ position: 'absolute', top: '5px', right: '5px', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+                  style={{ position: 'absolute', top: '5px', right: '5px', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.3)', zIndex: 10 }}
                 >
-                  {subiendoFoto ? <Loader2 size={14} className="animate-spin" /> : <SaveIcon size={14} />}
+                  {subiendoFoto ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle size={20} strokeWidth={3} />}
                 </button>
               )}
             </div>
