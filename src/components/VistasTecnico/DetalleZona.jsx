@@ -19,8 +19,11 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
   const [esOtraHabitacion, setEsOtraHabitacion] = useState(false);
 
   const OPCIONES_SUB_PREDEFINIDAS = [
-    "BAÑO", "BAÑO COMPLETO", "MEDIO BAÑO", "VESTIDOR", "CLOSET", 
-    "TERRAZA", "BALCÓN", "PASILLO", "ÁREA DE LAVADO", "BODEGA"
+    "BAÑO PRINCIPAL", "MEDIO BAÑO", 
+    "HABITACIÓN PRINCIPAL", "HABITACIÓN DE HUÉSPEDES", 
+    "SALA DE ESTAR", "COMEDOR", "SALA DE TV", "CUARTO DE JUEGOS", "BAR", 
+    "COCINA PRINCIPAL", "ALACENA / DESPENSA", 
+    "COCHERA / GARAJE", "PATIO", "JARDÍN", "TERRAZA", "PISCINA"
   ];
 
   // Opciones de Zona (Editar/Eliminar)
