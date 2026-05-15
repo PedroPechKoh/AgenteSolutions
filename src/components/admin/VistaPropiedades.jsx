@@ -375,8 +375,8 @@ const VistaPropiedades = () => {
                               localStorage.setItem('current_levantamiento_id', p.id_levantamiento);
                               navigate(`/detalle-reporte/${p.id_levantamiento}`);
                             } else {
-                              // Si no hay servicio pero hay zonas, vamos a ver las zonas
-                              navigate(`/RegistroZonas/${encodeURIComponent(p.curp)}`);
+                              // Si no hay servicio pero hay zonas, vamos al reporte usando el ID de propiedad
+                              navigate(`/detalle-reporte/prop_${p.id}`);
                             }
                           }}
                         >

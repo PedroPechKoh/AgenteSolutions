@@ -110,11 +110,19 @@ const DetalleReporte = () => {
     const cargarReporte = async () => {
         try {
             const token = localStorage.getItem('agente_token');
-            const respuesta = await axios.get(
-                `${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`,
-                { headers: { 'Authorization': `Bearer ${token}` } }
-            );
-             setDatosBD(respuesta.data);
+            
+            // ✅ DETECTAMOS SI EL ID ES DE PROPIEDAD O DE SERVICIO
+            let url = `${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`;
+            if (id && id.toString().startsWith('prop_')) {
+                const realPropId = id.replace('prop_', '');
+                url = `${import.meta.env.VITE_API_BASE_URL}/properties/${realPropId}/inventory-report`;
+            }
+
+            const respuesta = await axios.get(url, { 
+                headers: { 'Authorization': `Bearer ${token}` } 
+            });
+            
+            setDatosBD(respuesta.data);
             
             // Sincronizamos el contexto para que el sidebar funcione correctamente
             localStorage.setItem('current_levantamiento_id', id);
