@@ -69,7 +69,6 @@ const RegistroZonas = () => {
 
   const fetchZonas = async () => {
     try {
-      // ✅ INYECTAMOS EL TOKEN PARA LEER LAS ZONAS
       const token = localStorage.getItem('agente_token');
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/properties/${idPropiedadReal}/areas`, {
         headers: {
@@ -77,6 +76,11 @@ const RegistroZonas = () => {
         }
       });
       setZonas(res.data);
+      
+      // ✅ SI NO HAY ZONAS, FORZAMOS QUE NO ESTÉ FINALIZADO PARA QUE SALGAN LOS BOTONES
+      if (res.data.length === 0) {
+        setIsFinalizado(false);
+      }
     } catch (error) {
       console.error("Error al cargar zonas:", error);
     }
