@@ -6,7 +6,7 @@ import {
   FileText, History, ChevronDown, ChevronUp, X, 
   User, Eye, MapPin, Tag, PlusCircle, 
   Home, Wrench, MessageSquare, Camera, ImageIcon,
-  ChevronLeft
+  ChevronLeft, ArrowLeft
 } from 'lucide-react';
 import '../../styles/Cliente/DetallePropiedad.css';
 
@@ -197,36 +197,32 @@ const VistaDetallePropiedad = () => {
 
   return (
     <div className="view-container">
-      {/* BOTÓN REGRESAR - TOPE ABSOLUTO */}
-      <div style={{ width: '100%', maxWidth: '1200px', marginBottom: '20px', display: 'flex', justifyContent: 'flex-start' }}>
-        <button 
-          onClick={() => navigate('/propiedades')} 
-          style={{
-            backgroundColor: '#F26522',
-            color: 'white',
-            border: 'none',
-            padding: '12px 24px',
-            borderRadius: '50px',
-            fontWeight: 'bold',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(242, 101, 34, 0.3)',
-            fontSize: '0.9rem',
-            textTransform: 'uppercase'
-          }}
-        >
-          <ChevronLeft size={20} />
-          REGRESAR
-        </button>
-      </div>
       <div className="main-layout-detail">
         {/* ==========================================
             COLUMNA IZQUIERDA (Info + Historial)
             ========================================== */}
         <div className="left-column">
-          <div className="property-id-header">
+          <div className="property-id-header" style={{ flexDirection: 'column', gap: '10px' }}>
+            <button 
+              onClick={() => navigate('/propiedades')} 
+              style={{
+                backgroundColor: '#F26522',
+                color: 'white',
+                border: 'none',
+                padding: '6px 15px',
+                borderRadius: '15px',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                width: 'fit-content'
+              }}
+            >
+              <ArrowLeft size={14} /> REGRESAR
+            </button>
+
             <button className="btn-id-profile" onClick={() => setMostrarPerfilPropiedad(true)}>
               <Tag size={16} /> ID REGISTRO: <strong>{propiedad.custom_curp || propiedad.id}</strong>
             </button>
