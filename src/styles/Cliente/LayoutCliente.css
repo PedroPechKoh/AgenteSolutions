@@ -193,7 +193,8 @@
     cursor: pointer;
   }
   .header-arrow {
-    display: none !important;
+    display: block !important;
+    color: #f26624;
   }
   .tt-header {
     padding: 10px 15px;

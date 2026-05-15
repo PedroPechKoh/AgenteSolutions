@@ -121,10 +121,31 @@ const MainLayoutCliente = ({ children }) => {
             <button className="btn-menu-mobile" onClick={() => setIsMobileMenuOpen(true)} style={{ display: 'none' }}>
               <Menu size={28} />
             </button>
-            <div onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <ArrowLeft size={28} strokeWidth={3} className="header-arrow" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
               {!isGlobalRoute && (
-                <span className="header-username-text">
+                <button 
+                  onClick={() => navigate('/propiedades')} 
+                  className="btn-regresar-header-naranja"
+                  style={{
+                    backgroundColor: '#f26624',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 10px rgba(242, 102, 36, 0.2)'
+                  }}
+                >
+                  <ArrowLeft size={16} /> REGRESAR
+                </button>
+              )}
+              {!isGlobalRoute && (
+                <span className="header-username-text" style={{ cursor: 'default' }}>
                   {userName}
                 </span>
               )}

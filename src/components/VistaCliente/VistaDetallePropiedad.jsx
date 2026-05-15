@@ -202,27 +202,7 @@ const VistaDetallePropiedad = () => {
             COLUMNA IZQUIERDA (Info + Historial)
             ========================================== */}
         <div className="left-column">
-          <div className="property-id-header" style={{ flexDirection: 'column', gap: '10px' }}>
-            <button 
-              onClick={() => navigate('/propiedades')} 
-              style={{
-                backgroundColor: '#F26522',
-                color: 'white',
-                border: 'none',
-                padding: '6px 15px',
-                borderRadius: '15px',
-                fontSize: '0.75rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                width: 'fit-content'
-              }}
-            >
-              <ArrowLeft size={14} /> REGRESAR
-            </button>
-
+          <div className="property-id-header">
             <button className="btn-id-profile" onClick={() => setMostrarPerfilPropiedad(true)}>
               <Tag size={16} /> ID REGISTRO: <strong>{propiedad.custom_curp || propiedad.id}</strong>
             </button>
