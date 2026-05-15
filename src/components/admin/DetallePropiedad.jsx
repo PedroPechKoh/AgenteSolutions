@@ -235,7 +235,6 @@ const DetallePropiedad = () => {
 
     try {
       const token = localStorage.getItem('agente_token');
-      // Consultamos los reportes de avance (bitácora) del servicio
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${item.id}/reportes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -244,6 +243,7 @@ const DetallePropiedad = () => {
       console.error("Error al cargar la bitácora del trabajo:", error);
     } finally {
       setCargandoReportes(false);
+    }
   };
 
   if (loading) {
