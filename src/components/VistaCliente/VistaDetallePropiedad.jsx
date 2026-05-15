@@ -197,38 +197,35 @@ const VistaDetallePropiedad = () => {
 
   return (
     <div className="view-container">
-
+      {/* BOTÓN REGRESAR - TOPE ABSOLUTO */}
+      <div style={{ width: '100%', maxWidth: '1200px', marginBottom: '20px', display: 'flex', justifyContent: 'flex-start' }}>
+        <button 
+          onClick={() => navigate('/propiedades')} 
+          style={{
+            backgroundColor: '#F26522',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '50px',
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 15px rgba(242, 101, 34, 0.3)',
+            fontSize: '0.9rem',
+            textTransform: 'uppercase'
+          }}
+        >
+          <ChevronLeft size={20} />
+          REGRESAR
+        </button>
+      </div>
       <div className="main-layout-detail">
-        
         {/* ==========================================
             COLUMNA IZQUIERDA (Info + Historial)
             ========================================== */}
         <div className="left-column">
-          {/* BOTÓN REGRESAR */}
-          <div className="dp-back-button-container" style={{ marginBottom: '15px' }}>
-            <button 
-              onClick={() => navigate('/propiedades')} 
-              className="btn-regresar-naranja"
-              style={{
-                backgroundColor: '#F26522',
-                color: 'white',
-                border: 'none',
-                padding: '8px 20px',
-                borderRadius: '25px',
-                fontWeight: 'bold',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(242, 101, 34, 0.2)',
-                fontSize: '0.85rem'
-              }}
-            >
-              <ChevronLeft size={18} />
-              REGRESAR
-            </button>
-          </div>
-
           <div className="property-id-header">
             <button className="btn-id-profile" onClick={() => setMostrarPerfilPropiedad(true)}>
               <Tag size={16} /> ID REGISTRO: <strong>{propiedad.custom_curp || propiedad.id}</strong>
