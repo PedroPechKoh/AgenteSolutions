@@ -196,12 +196,38 @@ const VistaDetallePropiedad = () => {
 
   return (
     <div className="view-container">
+
       <div className="main-layout-detail">
         
         {/* ==========================================
             COLUMNA IZQUIERDA (Info + Historial)
             ========================================== */}
         <div className="left-column">
+          {/* BOTÓN REGRESAR */}
+          <div className="dp-back-button-container" style={{ marginBottom: '15px' }}>
+            <button 
+              onClick={() => navigate('/propiedades')} 
+              className="btn-regresar-naranja"
+              style={{
+                backgroundColor: '#F26522',
+                color: 'white',
+                border: 'none',
+                padding: '8px 20px',
+                borderRadius: '25px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(242, 101, 34, 0.2)',
+                fontSize: '0.85rem'
+              }}
+            >
+              <ChevronLeft size={18} />
+              REGRESAR
+            </button>
+          </div>
+
           <div className="property-id-header">
             <button className="btn-id-profile" onClick={() => setMostrarPerfilPropiedad(true)}>
               <Tag size={16} /> ID REGISTRO: <strong>{propiedad.custom_curp || propiedad.id}</strong>

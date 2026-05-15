@@ -99,12 +99,6 @@ const MainLayoutCliente = ({ children }) => {
             </div>
           </div>
   
-          {/* Botón Volver - Solo visible en detalles de propiedad */}
-          {!isGlobalRoute && (
-            <button className="tt-nav-btn btn-volver-sidebar" onClick={() => navigate(-1)} style={{ marginBottom: '20px', backgroundColor: '#444', color: 'white' }}>
-               <ChevronLeft size={18} /> <span>VOLVER</span>
-            </button>
-          )}
           
           <div className="tt-nav">
             {currentNavButtons.map((btn) => (
