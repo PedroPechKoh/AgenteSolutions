@@ -357,16 +357,22 @@ const VistaPropiedades = () => {
                         DETALLES DE PROPIEDAD
                       </button>
 
-                      {/* BOTÓN 2: SOLICITAR LEVANTAMIENTO (Simplificado) */}
-                      {p.id_levantamiento ? (
+                      {/* BOTÓN 2: VER O SOLICITAR LEVANTAMIENTO */}
+                      {p.levantamiento_realizado ? (
                         <button 
                           className="btn-overlay primary" 
                           style={{ backgroundColor: '#4CAF50', color: 'white', border: 'none' }}
                           onClick={() => {
                             localStorage.setItem('current_property_id', p.id);
-                            localStorage.setItem('current_levantamiento_id', p.id_levantamiento);
                             window.dispatchEvent(new Event('sync-agente-ids'));
-                            navigate(`/detalle-reporte/${p.id_levantamiento}`);
+                            
+                            if (p.id_levantamiento) {
+                              localStorage.setItem('current_levantamiento_id', p.id_levantamiento);
+                              navigate(`/detalle-reporte/${p.id_levantamiento}`);
+                            } else {
+                              // Si no hay servicio pero hay zonas, vamos a ver las zonas
+                              navigate(`/RegistroZonas/${encodeURIComponent(p.curp)}`);
+                            }
                           }}
                         >
                           VER LEVANTAMIENTO
