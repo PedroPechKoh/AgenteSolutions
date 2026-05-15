@@ -111,6 +111,52 @@
 
 .dz-date-tag { color: black; font-size: 12px; font-weight: 800; }
 
+/* Contenedor de Foto Principal */
+.dz-main-photo-container {
+  position: relative;
+  width: 220px;
+  height: 140px;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: rgba(255,255,255,0.1);
+  border: 2px solid rgba(242, 101, 34, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  flex-shrink: 0; /* Evita que se encoja en flex */
+}
+
+.dz-main-photo-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.dz-main-photo-container:hover img {
+  transform: scale(1.05);
+}
+
+.dz-change-photo-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  color: white;
+  font-size: 11px;
+  text-align: center;
+  padding: 15px 5px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
 /* Filas de la lista */
 .dz-item-row {
   background-color: white;
@@ -353,6 +399,18 @@
     flex-direction: column;
     align-items: stretch !important;
     gap: 15px;
+  }
+  
+  .dz-main-photo-container {
+    width: 100% !important;
+    height: 200px !important;
+    margin-bottom: 10px;
+    border-radius: 15px !important;
+  }
+  
+  .dz-change-photo-label {
+    font-size: 13px !important;
+    padding: 20px 5px 10px !important;
   }
   .dz-category-tag {
     justify-content: center;

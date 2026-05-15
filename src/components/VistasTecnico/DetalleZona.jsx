@@ -207,13 +207,12 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
         <div className="dz-main-card">
           <div className="dz-controls-row" style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
             {/* VISTA PREVIA DE LA FOTO DE LA ZONA */}
-            <div className="dz-main-photo-container" style={{ position: 'relative', width: '180px', height: '120px', borderRadius: '15px', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.1)', border: '2px solid rgba(242, 101, 34, 0.3)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div className="dz-main-photo-container">
               <img 
                 src={previewImg || logoAgente} 
                 alt="Foto zona" 
-                style={{ width: '100%', height: '100%', objectFit: previewImg ? 'cover' : 'contain', padding: previewImg ? '0' : '10px' }} 
               />
-              <label className="dz-change-photo-label" style={{ position: 'absolute', bottom: '0', left: '0', right: '0', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', fontSize: '10px', textAlign: 'center', padding: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+              <label className="dz-change-photo-label">
                 <Camera size={12} /> {selectedFile ? 'FOTO SELECCIONADA' : 'CAMBIAR FOTO'}
                 <input type="file" accept="image/*" onChange={manejarCambioFoto} style={{ display: 'none' }} />
               </label>
