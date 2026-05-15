@@ -357,13 +357,12 @@ const VistaPropiedades = () => {
                         DETALLES DE PROPIEDAD
                       </button>
 
-                      {/* BOTÓN 2: SOLICITAR LEVANTAMIENTO (Dinámico) */}
-                      {p.levantamiento_realizado && p.id_levantamiento ? (
+                      {/* BOTÓN 2: SOLICITAR LEVANTAMIENTO (Simplificado) */}
+                      {p.id_levantamiento ? (
                         <button 
                           className="btn-overlay primary" 
                           style={{ backgroundColor: '#4CAF50', color: 'white', border: 'none' }}
                           onClick={() => {
-                            if (!p.id_levantamiento) return alert("El reporte aún se está procesando. Intenta en unos minutos.");
                             localStorage.setItem('current_property_id', p.id);
                             localStorage.setItem('current_levantamiento_id', p.id_levantamiento);
                             window.dispatchEvent(new Event('sync-agente-ids'));
@@ -372,16 +371,12 @@ const VistaPropiedades = () => {
                         >
                           VER LEVANTAMIENTO
                         </button>
-                      ) : (p.levantamiento_realizado || p.has_pending_service) ? (
-                        <button className="btn-overlay outline" disabled>
-                          {p.levantamiento_realizado ? "PROCESANDO REPORTE..." : "LEVANTAMIENTO SOLICITADO"}
-                        </button>
                       ) : (
                         <button
                           className="btn-overlay primary"
                           onClick={() => abrirModalParaPropiedad(p)}
                         >
-                          SOLICITAR LEVANTAMIENTO
+                          {p.has_pending_service ? "LEVANTAMIENTO SOLICITADO" : "SOLICITAR LEVANTAMIENTO"}
                         </button>
                       )}
 
