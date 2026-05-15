@@ -22,8 +22,8 @@
 .rdh-content-layout { display: flex; gap: 20px; flex-wrap: wrap; }
 .rdh-table-container { background-color: #d1d1d1; border-radius: 35px; padding: 25px; flex: 1; overflow-x: auto; }
 
-.rdh-table-header { display: grid; grid-template-columns: 1fr 1fr 0.5fr 1fr 120px; font-weight: 900; font-style: italic; font-size: 12px; margin-bottom: 15px; padding: 0 20px; text-align: center; color: #333; min-width: 600px; }
-.rdh-table-row { background-color: #999; border-radius: 15px; display: grid; grid-template-columns: 1fr 1fr 0.5fr 1fr 120px; padding: 12px 20px; margin-bottom: 10px; align-items: center; font-weight: 800; color: #333; text-align: center; min-width: 600px; }
+.rdh-table-header { display: grid; grid-template-columns: 1fr 1fr 0.5fr 1fr 120px; font-weight: 900; font-style: italic; font-size: 12px; margin-bottom: 15px; padding: 0 20px; text-align: center; color: #333; }
+.rdh-table-row { background-color: #999; border-radius: 15px; display: grid; grid-template-columns: 1fr 1fr 0.5fr 1fr 120px; padding: 12px 20px; margin-bottom: 10px; align-items: center; font-weight: 800; color: #333; text-align: center; transition: all 0.2s ease; }
 
 /* Botones laterales */
 .rdh-side-controls { display: flex; flex-direction: column; gap: 15px; }
@@ -273,5 +273,72 @@
     padding: 15px !important;
     height: auto !important;
     font-size: 16px !important;
+  }
+
+  /* --- VISTA NIVEL 5 (REGISTRO DETALLE) --- */
+  .rdh-body-wrapper { padding: 15px !important; }
+  
+  .rdh-info-row {
+    flex-direction: column-reverse;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .rdh-info-row button { width: 100% !important; justify-content: center; height: 45px; }
+  .rdh-info-row .rdh-date-box { margin-left: 0; width: 100%; }
+
+  .rdh-header-grid { flex-direction: column !important; }
+  .rdh-category-indicator { justify-content: center; }
+
+  .rdh-content-layout { flex-direction: column !important; }
+  .rdh-table-container { padding: 15px !important; border-radius: 25px !important; }
+  .rdh-table-header { display: none !important; }
+
+  .rdh-table-row {
+    display: flex !important;
+    flex-direction: column !important;
+    text-align: left !important;
+    gap: 8px;
+    padding: 20px !important;
+    position: relative;
+    border: 2px solid rgba(255,255,255,0.1);
+    min-width: unset !important; /* Forzamos reset de ancho */
+  }
+
+  .rdh-table-row span:nth-child(1)::before { content: "MARCA: "; color: #333; opacity: 0.6; font-size: 10px; display: block; }
+  .rdh-table-row span:nth-child(2)::before { content: "MODELO: "; color: #333; opacity: 0.6; font-size: 10px; display: block; }
+  .rdh-table-row span:nth-child(3)::before { content: "CANTIDAD: "; color: #333; opacity: 0.6; font-size: 10px; display: block; }
+  .rdh-table-row span:nth-child(4)::before { content: "TIPO: "; color: #333; opacity: 0.6; font-size: 10px; display: block; }
+
+  .rdh-table-row div:last-child {
+    justify-content: center !important;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    width: 100%;
+  }
+
+  .rdh-side-controls {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    z-index: 100;
+  }
+  .rdh-btn-plus-sq {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+  }
+
+  .rdh-btn-save-3d { width: 100% !important; height: 50px !important; font-size: 16px !important; }
+  
+  .rdh-modal-content {
+    width: 95% !important;
+    padding: 25px !important;
+    border-radius: 25px !important;
+  }
+  .rdh-modal-field {
+    grid-template-columns: 1fr !important;
+    gap: 5px !important;
   }
 }
