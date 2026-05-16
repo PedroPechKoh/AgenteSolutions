@@ -141,7 +141,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
         <div className="modal-header-dark">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Calculator size={24} color="#ff8800" />
-            <h2 style={{ margin: 0, fontSize: '1.2rem' }}>NUEVA COTIZACIÓN - ADMIN</h2>
+            <h2 className="cotiz-modal-title" style={{ margin: 0, fontSize: '1.2rem' }}>NUEVA COTIZACIÓN - ADMIN</h2>
           </div>
           <button className="modal-close-icon" onClick={onClose}><X size={28} /></button>
         </div>
@@ -223,7 +223,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
                 <div className="manual-form">
                   <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px', marginBottom: '15px' }}>1. CONCEPTOS DE SERVICIO</h4>
                   {filasConceptos.map(f => (
-                    <div key={f.id} style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                    <div key={f.id} className="concepto-row" style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
                       <input 
                         placeholder="Descripción del servicio..." 
                         style={{ flex: 3, padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
@@ -253,7 +253,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
 
                   <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px', marginBottom: '15px' }}>2. MATERIALES</h4>
                   {filasMateriales.map(f => (
-                    <div key={f.id} style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                    <div key={f.id} className="concepto-row" style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
                       <input 
                         placeholder="Nombre del material..." 
                         style={{ flex: 3, padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
@@ -321,7 +321,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
                   <span style={{ fontSize: '0.9rem', color: '#666' }}>TOTAL ESTIMADO:</span>
                   <h3 style={{ margin: 0, color: '#ff8800', fontSize: '1.5rem' }}>${calcularTotal().toLocaleString('es-MX')}</h3>
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="footer-btns-container" style={{ display: 'flex', gap: '10px' }}>
                   <button onClick={() => setStep(1)} style={{ padding: '12px 20px', background: '#eee', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>VOLVER</button>
                   <button 
                     onClick={handleGuardar} 

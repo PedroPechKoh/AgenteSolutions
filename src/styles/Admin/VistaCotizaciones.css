@@ -785,3 +785,63 @@
     }
 }
 
+/* --- CreateQuotationModal Responsiveness --- */
+@media (max-width: 768px) {
+    .concepto-row {
+        flex-wrap: wrap;
+        background: #f8fafc;
+        padding: 15px 10px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .concepto-row input:nth-child(1) {
+        width: 100% !important;
+        flex: 100% !important;
+        margin-bottom: 10px;
+    }
+    
+    .concepto-row input:nth-child(2) {
+        flex: 1 !important;
+    }
+    
+    .concepto-row input:nth-child(3) {
+        flex: 2 !important;
+    }
+    
+    .concepto-row button {
+        flex: 0.5 !important;
+        text-align: right;
+        display: flex;
+        justify-content: flex-end;
+    }
+    
+    .modal-summary-footer {
+        flex-direction: column !important;
+        gap: 15px;
+        align-items: stretch !important;
+    }
+    
+    .modal-summary-footer .total-badge {
+        text-align: center;
+        margin-bottom: 5px;
+    }
+    
+    .footer-btns-container {
+        display: flex;
+        flex-direction: column !important;
+        gap: 10px;
+        width: 100%;
+    }
+    
+    .footer-btns-container button {
+        width: 100% !important;
+        padding: 15px !important;
+    }
+
+    .cotiz-modal-title {
+        font-size: 1.1rem !important;
+        line-height: 1.3;
+        white-space: normal !important;
+    }
+}
