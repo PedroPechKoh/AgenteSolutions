@@ -292,9 +292,20 @@ const VistaDetallePropiedad = () => {
             COLUMNA DERECHA (Tablero + Acciones)
             ========================================== */}
         <div className="right-column">
-          <div className="action-header-right">
-            <button className="btn-add-service-full" onClick={() => setMostrarModalServicio(true)}>
+          <div className="action-header-right" style={{ display: 'flex', gap: '10px', flexDirection: window.innerWidth <= 768 ? 'column' : 'row' }}>
+            <button className="btn-add-service-full" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => setMostrarModalServicio(true)}>
               <PlusCircle size={20} /> AGREGAR SERVICIO
+            </button>
+            <button 
+              className="btn-add-service-full" 
+              style={{ flex: 1, backgroundColor: '#444', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.2)' }} 
+              onClick={() => {
+                const levantamientoId = localStorage.getItem('current_levantamiento_id');
+                const path = levantamientoId ? `/detalle-reporte/${levantamientoId}` : `/detalle-reporte/prop_${id}`;
+                navigate(path);
+              }}
+            >
+              <FileText size={20} /> VER LEVANTAMIENTO
             </button>
           </div>
 

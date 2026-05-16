@@ -48,7 +48,7 @@ const MainLayoutCliente = ({ children }) => {
   const effectivePropertyId = urlPropertyId || currentPropertyId;
 
   // Rutas dinámicas basadas en el contexto sincronizado
-  const detailPath = currentLevantamientoId ? `/detalle-reporte/${currentLevantamientoId}` : '/propiedades';
+  const detailPath = currentLevantamientoId ? `/detalle-reporte/${currentLevantamientoId}` : (effectivePropertyId ? `/detalle-reporte/prop_${effectivePropertyId}` : '/propiedades');
   const tableroPath = effectivePropertyId ? `/DetallePropiedad/${effectivePropertyId}` : '/propiedades';
 
   // Check if we are in a global route
