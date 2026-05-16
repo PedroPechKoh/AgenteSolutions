@@ -584,7 +584,7 @@ const VistaCotizaciones = () => {
                     </button>
                   )}
 
-                  {esCliente && cotizacionSeleccionada.status === 'Pendiente' && !rechazando && (
+                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status === 'Pendiente' && !rechazando && (
                     <>
                       <button 
                         className="btn-modal-print" 
@@ -603,7 +603,7 @@ const VistaCotizaciones = () => {
                       </button>
                     </>
                   )}
-                  {esCliente && rechazando && (
+                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && rechazando && (
                     <>
                       <button 
                         className="btn-modal-print" 
