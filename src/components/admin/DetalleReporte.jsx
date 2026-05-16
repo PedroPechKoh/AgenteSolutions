@@ -18,6 +18,31 @@ const DetalleReporte = () => {
     const [editandoZonaId, setEditandoZonaId] = useState(null);
     const [nuevoNombreZona, setNuevoNombreZona] = useState('');
     
+    // --- ESTADOS PARA MODALES DE ZONAS Y ESPACIOS ---
+    const [mostrarModalAddZona, setMostrarModalAddZona] = useState(false);
+    const [mostrarModalAddEspacio, setMostrarModalAddEspacio] = useState(false);
+    const [zonaParaNuevoEspacio, setZonaParaNuevoEspacio] = useState(null); // ID de la zona padre
+    
+    const [nuevaZonaOpcion, setNuevaZonaOpcion] = useState('');
+    const [nuevaZonaTexto, setNuevaZonaTexto] = useState('');
+    
+    const [nuevoEspacioOpcion, setNuevoEspacioOpcion] = useState('');
+    const [nuevoEspacioTexto, setNuevoEspacioTexto] = useState('');
+    
+    const [guardandoArea, setGuardandoArea] = useState(false);
+
+    const OPCIONES_ZONAS = [
+        "HABITACIONES", "BAÑOS", "ÁREAS SOCIALES", "COCINA", "ZONAS EXTERIORES", "OTRAS ÁREAS"
+    ];
+
+    const OPCIONES_ESPACIOS = [
+        "BAÑO PRINCIPAL", "MEDIO BAÑO", 
+        "HABITACIÓN PRINCIPAL", "HABITACIÓN DE HUÉSPEDES", 
+        "SALA DE ESTAR", "COMEDOR", "SALA DE TV", "CUARTO DE JUEGOS", "BAR", 
+        "COCINA PRINCIPAL", "ALACENA / DESPENSA", 
+        "COCHERA / GARAJE", "PATIO", "JARDÍN", "TERRAZA", "PISCINA"
+    ];
+    
     // --- ESTADOS PARA ELEMENTOS ---
     const [modalElementoVisible, setModalElementoVisible] = useState(false);
     const [elementoActual, setElementoActual] = useState({ id: null, sub_category: '', brand: '', model_or_color: '', quantity: 1, category: '', serial_number: '', observations: '', status: 'Bueno' });
@@ -147,6 +172,64 @@ const DetalleReporte = () => {
             console.error("Error al cargar el reporte:", error);
         } finally {
             setCargando(false);
+        }
+    };
+
+    const handleCrearZona = async () => {
+        const nombreZona = nuevaZonaOpcion === 'OTRA...' ? nuevaZonaTexto : nuevaZonaOpcion;
+        if (!nombreZona.trim()) return alert("Por favor, selecciona o escribe un nombre para la zona.");
+        
+        setGuardandoArea(true);
+        try {
+            const token = localStorage.getItem('agente_token');
+            const formData = new FormData();
+            formData.append('property_id', datosBD.property_id);
+            formData.append('name', nombreZona.toUpperCase());
+            formData.append('description', '');
+            
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, formData, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            setMostrarModalAddZona(false);
+            setNuevaZonaOpcion('');
+            setNuevaZonaTexto('');
+            cargarReporte(); // Recargar datos
+        } catch (error) {
+            console.error("Error al crear zona:", error);
+            alert("Error al crear la zona.");
+        } finally {
+            setGuardandoArea(false);
+        }
+    };
+
+    const handleCrearEspacio = async () => {
+        const nombreEspacio = nuevoEspacioOpcion === 'OTRA...' ? nuevoEspacioTexto : nuevoEspacioOpcion;
+        if (!nombreEspacio.trim() || !zonaParaNuevoEspacio) return alert("Por favor, selecciona o escribe un nombre para el espacio.");
+        
+        setGuardandoArea(true);
+        try {
+            const token = localStorage.getItem('agente_token');
+            const formData = new FormData();
+            formData.append('property_id', datosBD.property_id);
+            formData.append('parent_id', zonaParaNuevoEspacio);
+            formData.append('name', nombreEspacio.toUpperCase());
+            formData.append('description', '');
+            
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/property-areas`, formData, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            setMostrarModalAddEspacio(false);
+            setNuevoEspacioOpcion('');
+            setNuevoEspacioTexto('');
+            setZonaParaNuevoEspacio(null);
+            cargarReporte(); // Recargar datos
+        } catch (error) {
+            console.error("Error al crear espacio:", error);
+            alert("Error al crear el espacio.");
+        } finally {
+            setGuardandoArea(false);
         }
     };
 
@@ -653,8 +736,7 @@ const DetalleReporte = () => {
                                         gap: '25px',
                                         justifyContent: 'start'
                                     }}>
-                                        {zona.cuartos && zona.cuartos.length > 0 ? (
-                                            zona.cuartos.map((cuarto, cIdx) => {
+                                        {zona.cuartos && zona.cuartos.length > 0 && zona.cuartos.map((cuarto, cIdx) => {
                                                 const areaFoto = cuarto.foto || cuarto.image_path || cuarto.image || cuarto.foto_url || casaImg;
                                                 
                                                 // Calcular cantidad total de items en el cuarto
@@ -676,12 +758,35 @@ const DetalleReporte = () => {
                                                         </div>
                                                     </div>
                                                 );
-                                            })
-                                        ) : (
-                                            <div className="empty-zone-message" style={{ width: '100%', gridColumn: '1 / -1', textAlign: 'center', padding: '30px', color: '#666', fontStyle: 'italic' }}>
-                                                <p>No hay cuartos registrados en esta zona.</p>
-                                            </div>
-                                        )}
+                                        })}
+                                        
+                                        {/* TARJETA PARA AGREGAR NUEVO ESPACIO DENTRO DE LA ZONA */}
+                                        <div 
+                                            className="property-card add-space-card" 
+                                            onClick={() => {
+                                                setZonaParaNuevoEspacio(zona.id);
+                                                setMostrarModalAddEspacio(true);
+                                            }}
+                                            style={{ 
+                                                width: '100%', 
+                                                margin: 0, 
+                                                border: '2px dashed #ccc', 
+                                                backgroundColor: '#fafafa', 
+                                                display: 'flex', 
+                                                flexDirection: 'column', 
+                                                alignItems: 'center', 
+                                                justifyContent: 'center', 
+                                                minHeight: '180px', 
+                                                cursor: 'pointer',
+                                                transition: 'all 0.3s ease',
+                                                borderRadius: '8px'
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#f26624'; e.currentTarget.style.backgroundColor = '#fff5f0'; e.currentTarget.style.color = '#f26624'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#ccc'; e.currentTarget.style.backgroundColor = '#fafafa'; e.currentTarget.style.color = 'inherit'; }}
+                                        >
+                                            <div style={{ fontSize: '2rem', color: 'inherit', marginBottom: '10px' }}>+</div>
+                                            <h3 style={{ fontSize: '1rem', color: 'inherit', margin: 0, fontWeight: 'bold' }}>AÑADIR ESPACIO</h3>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -692,7 +797,7 @@ const DetalleReporte = () => {
                                 {renderZonas}
                                 <div 
                                     className="seccion-bloque add-zone-block" 
-                                    onClick={() => navigate(`/RegistroZonas/${datosBD.identificador_curp}`)}
+                                    onClick={() => setMostrarModalAddZona(true)}
                                     style={{ 
                                         padding: '30px', 
                                         backgroundColor: '#f9f9f9', 
@@ -718,7 +823,7 @@ const DetalleReporte = () => {
                             <h3 style={{ color: '#444' }}>No hay áreas registradas</h3>
                             <p style={{ color: '#888', marginBottom: '25px' }}>Esta propiedad no tiene zonas ni inventario registrado aún.</p>
                             <button 
-                                onClick={() => navigate(`/RegistroZonas/${datosBD.identificador_curp}`)}
+                                onClick={() => setMostrarModalAddZona(true)}
                                 style={{ padding: '12px 25px', backgroundColor: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
                             >
                                 + AGREGAR NUEVA ZONA
@@ -736,6 +841,109 @@ const DetalleReporte = () => {
                 )}
 
             </main>
+
+            {/* --- MODALES DE ZONAS Y ESPACIOS --- */}
+            {mostrarModalAddZona && createPortal(
+                <div className="lev-modal-overlay" style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <div className="cot-modal-card" style={{ maxWidth: '500px', width: '90%' }}>
+                        <div className="cot-modal-header">
+                            <h3>AGREGAR NUEVA ZONA</h3>
+                            <button className="cot-close-btn" onClick={() => setMostrarModalAddZona(false)}>×</button>
+                        </div>
+                        <div className="cot-modal-body dinamico" style={{ padding: '20px' }}>
+                            <div className="form-group" style={{ marginBottom: '15px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Selecciona el tipo de zona</label>
+                                <select 
+                                    className="custom-input" 
+                                    value={nuevaZonaOpcion} 
+                                    onChange={(e) => setNuevaZonaOpcion(e.target.value)}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                                >
+                                    <option value="">-- Seleccionar --</option>
+                                    {OPCIONES_ZONAS.map(opc => <option key={opc} value={opc}>{opc}</option>)}
+                                    <option value="OTRA...">OTRA...</option>
+                                </select>
+                            </div>
+                            
+                            {nuevaZonaOpcion === 'OTRA...' && (
+                                <div className="form-group" style={{ marginBottom: '15px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Nombre de la Zona</label>
+                                    <input 
+                                        type="text" 
+                                        className="custom-input" 
+                                        value={nuevaZonaTexto} 
+                                        onChange={(e) => setNuevaZonaTexto(e.target.value.toUpperCase())}
+                                        placeholder="Ej. SÓTANO, GIMNASIO..."
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
+
+                            <button 
+                                onClick={handleCrearZona} 
+                                disabled={guardandoArea || !nuevaZonaOpcion}
+                                style={{ width: '100%', padding: '12px', backgroundColor: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', opacity: (guardandoArea || !nuevaZonaOpcion) ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
+                            >
+                                {guardandoArea ? <Loader2 className="spinner" size={20} /> : <Plus size={20} />}
+                                {guardandoArea ? 'GUARDANDO...' : 'AGREGAR ZONA'}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {mostrarModalAddEspacio && createPortal(
+                <div className="lev-modal-overlay" style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <div className="cot-modal-card" style={{ maxWidth: '500px', width: '90%' }}>
+                        <div className="cot-modal-header">
+                            <h3>AÑADIR ESPACIO</h3>
+                            <button className="cot-close-btn" onClick={() => { setMostrarModalAddEspacio(false); setZonaParaNuevoEspacio(null); }}>×</button>
+                        </div>
+                        <div className="cot-modal-body dinamico" style={{ padding: '20px' }}>
+                            <div className="form-group" style={{ marginBottom: '15px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Selecciona el tipo de espacio/habitación</label>
+                                <select 
+                                    className="custom-input" 
+                                    value={nuevoEspacioOpcion} 
+                                    onChange={(e) => setNuevoEspacioOpcion(e.target.value)}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                                >
+                                    <option value="">-- Seleccionar --</option>
+                                    {OPCIONES_ESPACIOS.map(opc => <option key={opc} value={opc}>{opc}</option>)}
+                                    <option value="OTRA...">OTRA...</option>
+                                </select>
+                            </div>
+                            
+                            {nuevoEspacioOpcion === 'OTRA...' && (
+                                <div className="form-group" style={{ marginBottom: '15px' }}>
+                                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Nombre del Espacio</label>
+                                    <input 
+                                        type="text" 
+                                        className="custom-input" 
+                                        value={nuevoEspacioTexto} 
+                                        onChange={(e) => setNuevoEspacioTexto(e.target.value.toUpperCase())}
+                                        placeholder="Ej. CUARTO DE SERVICIO, ESTUDIO..."
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                                        autoFocus
+                                    />
+                                </div>
+                            )}
+
+                            <button 
+                                onClick={handleCrearEspacio} 
+                                disabled={guardandoArea || !nuevoEspacioOpcion}
+                                style={{ width: '100%', padding: '12px', backgroundColor: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', opacity: (guardandoArea || !nuevoEspacioOpcion) ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
+                            >
+                                {guardandoArea ? <Loader2 className="spinner" size={20} /> : <Plus size={20} />}
+                                {guardandoArea ? 'GUARDANDO...' : 'AGREGAR ESPACIO'}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
 
             {/* --- MODAL DEL COTIZADOR --- */}
             {mostrarCotizacion && createPortal(
