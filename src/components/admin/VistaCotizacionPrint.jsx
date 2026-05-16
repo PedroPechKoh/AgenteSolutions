@@ -14,7 +14,23 @@ const VistaCotizacionPrint = () => {
   const [pdfUrl, setPdfUrl] = useState("");
 
   // --- ESTADOS PARA LAS ESPECIFICACIONES ---
+  const [escala, setEscala] = useState(1);
   const [notas, setNotas] = useState("");
+
+  useEffect(() => {
+    const handleResize = () => {
+      const screenWidth = window.innerWidth;
+      // 794px es el ancho aproximado de 21cm
+      if (screenWidth < 840) {
+        setEscala(Math.max(0.3, (screenWidth - 40) / 794));
+      } else {
+        setEscala(1);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const datosGuardados = localStorage.getItem('cotizacion_para_imprimir');
@@ -205,10 +221,11 @@ const VistaCotizacionPrint = () => {
          </div>
       </div>
 
-      <div style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'flex-start', paddingBottom: '20px' }}>
-        <div id="cotizacion-pdf" className="cotizacion-container printable-page-container" style={{ minWidth: '21cm', margin: '0 auto' }}>
+      <div style={{ width: '100%', overflow: 'hidden', display: 'flex', justifyContent: 'center', paddingBottom: '20px' }}>
+        <div style={{ transform: `scale(${escala})`, transformOrigin: 'top center', transition: 'transform 0.2s ease', width: '21cm' }}>
+          <div id="cotizacion-pdf" className="cotizacion-container printable-page-container" style={{ minWidth: '21cm', margin: '0 auto' }}>
 
-        <div className="header">
+          <div className="header">
           <div className="header-left">
             <img src={logo} alt="logo" className="logo" />
             <div className="info-cliente">
@@ -310,6 +327,7 @@ const VistaCotizacionPrint = () => {
           <p><strong>TELÉFONO:</strong> 9992426030</p>
           <p>Vallofacturas@gmail.com</p>
           <p><strong>RÉGIMEN:</strong> PERSONAS FISICAS CON ACTIVIDADES EMPRESARIALES Y COMERCIALES</p>
+        </div>
         </div>
         </div>
       </div>
