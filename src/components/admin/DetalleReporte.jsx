@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Plus, ArrowLeft, ImageIcon, Loader2, Edit3, Eye, X, Trash2 } from 'lucide-react';
 import '../../styles/Admin/DetalleReporte.css';
 import '../../styles/TecnicoStyles/RegistroDetalleHabitacion.css';
-import logo from "../../assets/Logo4.png";
+import logo from "../../assets/Logo3.png";
 import casaImg from '../../assets/propiedad_ejemplo.jpg';
 
 const DetalleReporte = () => {
