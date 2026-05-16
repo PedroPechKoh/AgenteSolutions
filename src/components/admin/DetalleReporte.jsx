@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom'; // IMPORTANTE
 import axios from 'axios';
-import { Plus, ArrowLeft, ImageIcon, Loader2, Edit3, Eye, X } from 'lucide-react';
+import { Plus, ArrowLeft, ImageIcon, Loader2, Edit3, Eye, X, Trash2 } from 'lucide-react';
 import '../../styles/Admin/DetalleReporte.css';
 import '../../styles/TecnicoStyles/RegistroDetalleHabitacion.css';
 import logo from "../../assets/Logo4.png";
@@ -854,49 +854,80 @@ const DetalleReporte = () => {
             {/* --- MODALES DE ZONAS Y ESPACIOS --- */}
             {mostrarModalAddZona && createPortal(
                 <div className="lev-modal-overlay" style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <div className="cot-modal-card" style={{ maxWidth: '500px', width: '90%' }}>
-                        <div className="cot-modal-header">
-                            <h3>AGREGAR NUEVA ZONA</h3>
-                            <button className="cot-close-btn" onClick={() => setMostrarModalAddZona(false)}>×</button>
+                    <div className="cot-modal-card" style={{ maxWidth: '500px', width: '90%', borderRadius: '16px', overflow: 'hidden' }}>
+                        <div className="cot-modal-header" style={{ backgroundColor: '#333', padding: '20px', textAlign: 'center', color: 'white' }}>
+                            <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🏠</div>
+                            <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase' }}>NUEVA ZONA</h3>
+                            <button className="cot-close-btn" onClick={() => setMostrarModalAddZona(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
                         </div>
-                        <div className="cot-modal-body dinamico" style={{ padding: '20px' }}>
-                            <div className="form-group" style={{ marginBottom: '15px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Selecciona el tipo de zona</label>
-                                <select 
-                                    className="custom-input" 
-                                    value={nuevaZonaOpcion} 
-                                    onChange={(e) => setNuevaZonaOpcion(e.target.value)}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff' }}
+                        <div className="cot-modal-body dinamico" style={{ padding: '30px', backgroundColor: '#f5f5f5' }}>
+                            <h4 style={{ textAlign: 'center', fontSize: '0.9rem', color: '#555', marginBottom: '20px', textTransform: 'uppercase' }}>Selecciona el área a agregar</h4>
+                            
+                            <div className="options-grid" style={{
+                                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', 
+                                maxHeight: '300px', overflowY: 'auto', paddingRight: '5px', marginBottom: '20px'
+                            }}>
+                                {OPCIONES_ZONAS.map(opc => (
+                                    <button 
+                                        key={opc}
+                                        onClick={() => setNuevaZonaOpcion(opc)}
+                                        style={{
+                                            padding: '12px 10px', borderRadius: '8px', border: '1px solid #ddd',
+                                            backgroundColor: nuevaZonaOpcion === opc ? '#fff1e6' : 'white',
+                                            color: nuevaZonaOpcion === opc ? '#f26624' : '#555',
+                                            fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s',
+                                            borderColor: nuevaZonaOpcion === opc ? '#f26624' : '#ddd',
+                                            boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
+                                        }}
+                                    >
+                                        {opc}
+                                    </button>
+                                ))}
+                                <button 
+                                    onClick={() => setNuevaZonaOpcion('OTRA...')}
+                                    style={{
+                                        padding: '12px 10px', borderRadius: '8px', border: '1px solid #ddd',
+                                        backgroundColor: nuevaZonaOpcion === 'OTRA...' ? '#fff1e6' : 'white',
+                                        color: nuevaZonaOpcion === 'OTRA...' ? '#f26624' : '#555',
+                                        fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s',
+                                        borderColor: nuevaZonaOpcion === 'OTRA...' ? '#f26624' : '#ddd',
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
+                                    }}
                                 >
-                                    <option value="">-- Seleccionar --</option>
-                                    {OPCIONES_ZONAS.map(opc => <option key={opc} value={opc}>{opc}</option>)}
-                                    <option value="OTRA...">OTRA...</option>
-                                </select>
+                                    OTRA...
+                                </button>
                             </div>
                             
                             {nuevaZonaOpcion === 'OTRA...' && (
-                                <div className="form-group" style={{ marginBottom: '15px' }}>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Nombre de la Zona</label>
+                                <div className="form-group" style={{ marginBottom: '20px' }}>
                                     <input 
                                         type="text" 
                                         className="custom-input" 
                                         value={nuevaZonaTexto} 
                                         onChange={(e) => setNuevaZonaTexto(e.target.value.toUpperCase())}
-                                        placeholder="Ej. SÓTANO, GIMNASIO..."
-                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff' }}
+                                        placeholder="Escribe el nombre de la zona..."
+                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff', textAlign: 'center', fontWeight: 'bold' }}
                                         autoFocus
                                     />
                                 </div>
                             )}
 
-                            <button 
-                                onClick={handleCrearZona} 
-                                disabled={guardandoArea || !nuevaZonaOpcion}
-                                style={{ width: '100%', padding: '12px', backgroundColor: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', opacity: (guardandoArea || !nuevaZonaOpcion) ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
-                            >
-                                {guardandoArea ? <Loader2 className="spinner" size={20} /> : <Plus size={20} />}
-                                {guardandoArea ? 'GUARDANDO...' : 'AGREGAR ZONA'}
-                            </button>
+                            <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                                <button 
+                                    onClick={() => setMostrarModalAddZona(false)}
+                                    style={{ flex: 1, padding: '12px', backgroundColor: 'white', color: '#555', border: '1px solid #ccc', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' }}
+                                >
+                                    CANCELAR
+                                </button>
+                                <button 
+                                    onClick={handleCrearZona} 
+                                    disabled={guardandoArea || !nuevaZonaOpcion}
+                                    style={{ flex: 1, padding: '12px', backgroundColor: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', opacity: (guardandoArea || !nuevaZonaOpcion) ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
+                                >
+                                    {guardandoArea ? <Loader2 className="spinner" size={20} /> : null}
+                                    {guardandoArea ? 'GUARDANDO...' : 'AGREGAR'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>,
@@ -905,49 +936,80 @@ const DetalleReporte = () => {
 
             {mostrarModalAddEspacio && createPortal(
                 <div className="lev-modal-overlay" style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <div className="cot-modal-card" style={{ maxWidth: '500px', width: '90%' }}>
-                        <div className="cot-modal-header">
-                            <h3>AÑADIR ESPACIO</h3>
-                            <button className="cot-close-btn" onClick={() => { setMostrarModalAddEspacio(false); setZonaParaNuevoEspacio(null); }}>×</button>
+                    <div className="cot-modal-card" style={{ maxWidth: '500px', width: '90%', borderRadius: '16px', overflow: 'hidden' }}>
+                        <div className="cot-modal-header" style={{ backgroundColor: '#333', padding: '20px', textAlign: 'center', color: 'white' }}>
+                            <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🏠</div>
+                            <h3 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase' }}>NUEVA HABITACIÓN</h3>
+                            <button className="cot-close-btn" onClick={() => { setMostrarModalAddEspacio(false); setZonaParaNuevoEspacio(null); }} style={{ position: 'absolute', top: '15px', right: '15px', background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
                         </div>
-                        <div className="cot-modal-body dinamico" style={{ padding: '20px' }}>
-                            <div className="form-group" style={{ marginBottom: '15px' }}>
-                                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Selecciona el tipo de espacio/habitación</label>
-                                <select 
-                                    className="custom-input" 
-                                    value={nuevoEspacioOpcion} 
-                                    onChange={(e) => setNuevoEspacioOpcion(e.target.value)}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff' }}
+                        <div className="cot-modal-body dinamico" style={{ padding: '30px', backgroundColor: '#f5f5f5' }}>
+                            <h4 style={{ textAlign: 'center', fontSize: '0.9rem', color: '#555', marginBottom: '20px', textTransform: 'uppercase' }}>Selecciona las áreas a agregar</h4>
+                            
+                            <div className="options-grid" style={{
+                                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', 
+                                maxHeight: '300px', overflowY: 'auto', paddingRight: '5px', marginBottom: '20px'
+                            }}>
+                                {OPCIONES_ESPACIOS.map(opc => (
+                                    <button 
+                                        key={opc}
+                                        onClick={() => setNuevoEspacioOpcion(opc)}
+                                        style={{
+                                            padding: '12px 10px', borderRadius: '8px', border: '1px solid #ddd',
+                                            backgroundColor: nuevoEspacioOpcion === opc ? '#fff1e6' : 'white',
+                                            color: nuevoEspacioOpcion === opc ? '#f26624' : '#555',
+                                            fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s',
+                                            borderColor: nuevoEspacioOpcion === opc ? '#f26624' : '#ddd',
+                                            boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
+                                        }}
+                                    >
+                                        {opc}
+                                    </button>
+                                ))}
+                                <button 
+                                    onClick={() => setNuevoEspacioOpcion('OTRA...')}
+                                    style={{
+                                        padding: '12px 10px', borderRadius: '8px', border: '1px solid #ddd',
+                                        backgroundColor: nuevoEspacioOpcion === 'OTRA...' ? '#fff1e6' : 'white',
+                                        color: nuevoEspacioOpcion === 'OTRA...' ? '#f26624' : '#555',
+                                        fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s',
+                                        borderColor: nuevoEspacioOpcion === 'OTRA...' ? '#f26624' : '#ddd',
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.02)'
+                                    }}
                                 >
-                                    <option value="">-- Seleccionar --</option>
-                                    {OPCIONES_ESPACIOS.map(opc => <option key={opc} value={opc}>{opc}</option>)}
-                                    <option value="OTRA...">OTRA...</option>
-                                </select>
+                                    OTRA...
+                                </button>
                             </div>
                             
                             {nuevoEspacioOpcion === 'OTRA...' && (
-                                <div className="form-group" style={{ marginBottom: '15px' }}>
-                                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Nombre del Espacio</label>
+                                <div className="form-group" style={{ marginBottom: '20px' }}>
                                     <input 
                                         type="text" 
                                         className="custom-input" 
                                         value={nuevoEspacioTexto} 
                                         onChange={(e) => setNuevoEspacioTexto(e.target.value.toUpperCase())}
-                                        placeholder="Ej. CUARTO DE SERVICIO, ESTUDIO..."
-                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff' }}
+                                        placeholder="Escribe el nombre de la habitación..."
+                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff', textAlign: 'center', fontWeight: 'bold' }}
                                         autoFocus
                                     />
                                 </div>
                             )}
 
-                            <button 
-                                onClick={handleCrearEspacio} 
-                                disabled={guardandoArea || !nuevoEspacioOpcion}
-                                style={{ width: '100%', padding: '12px', backgroundColor: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', opacity: (guardandoArea || !nuevoEspacioOpcion) ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
-                            >
-                                {guardandoArea ? <Loader2 className="spinner" size={20} /> : <Plus size={20} />}
-                                {guardandoArea ? 'GUARDANDO...' : 'AGREGAR ESPACIO'}
-                            </button>
+                            <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                                <button 
+                                    onClick={() => { setMostrarModalAddEspacio(false); setZonaParaNuevoEspacio(null); }}
+                                    style={{ flex: 1, padding: '12px', backgroundColor: 'white', color: '#555', border: '1px solid #ccc', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' }}
+                                >
+                                    CANCELAR
+                                </button>
+                                <button 
+                                    onClick={handleCrearEspacio} 
+                                    disabled={guardandoArea || !nuevoEspacioOpcion}
+                                    style={{ flex: 1, padding: '12px', backgroundColor: '#f26624', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', opacity: (guardandoArea || !nuevoEspacioOpcion) ? 0.7 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
+                                >
+                                    {guardandoArea ? <Loader2 className="spinner" size={20} /> : null}
+                                    {guardandoArea ? 'GUARDANDO...' : 'AGREGAR'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>,
