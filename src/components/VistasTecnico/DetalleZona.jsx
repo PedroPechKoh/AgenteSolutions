@@ -167,6 +167,38 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
     }
   };
 
+  const eliminarSubHabitacion = async (id, name) => {
+    if (window.confirm(`¿Estás seguro de eliminar el área "${name}" y todos sus equipos?`)) {
+      try {
+        const token = localStorage.getItem('agente_token');
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        fetchHabitaciones();
+      } catch (error) {
+        console.error("Error al eliminar área:", error);
+        alert("No se pudo eliminar el área.");
+      }
+    }
+  };
+
+  const editarSubHabitacion = async (id, oldName) => {
+    const nuevoNombre = window.prompt("Ingresa el nuevo nombre para el área:", oldName);
+    if (nuevoNombre && nuevoNombre.trim() !== "" && nuevoNombre !== oldName) {
+      try {
+        const token = localStorage.getItem('agente_token');
+        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/property-areas/${id}`, 
+          { name: nuevoNombre.trim().toUpperCase() },
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+        fetchHabitaciones();
+      } catch (error) {
+        console.error("Error al editar área:", error);
+        alert("No se pudo editar el nombre del área.");
+      }
+    }
+  };
+
   const toggleSubSelection = (nombre) => {
     setSubHabitacionesSeleccionadas(prev => 
       prev.includes(nombre) 
@@ -275,7 +307,10 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
               </div>
               
               <div className="dz-actions-group" style={{ marginBottom: '10px' }}>
-                <button className="dz-btn-save">GUARDAR</button>
+                <button className="dz-btn-save" onClick={() => {
+                  alert("✅ Datos de la zona guardados correctamente.");
+                  if (alVolver) alVolver();
+                }}>GUARDAR</button>
                 <button className="dz-btn-save" onClick={() => setIsModalOpen(true)}>+</button>
               </div>
 
@@ -307,8 +342,8 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
                     >
                       <LayoutGrid size={16} /> VER ACTIVOS
                     </button>
-                    <Edit3 size={20} className="dz-icon-edit" style={{ cursor: 'pointer' }} />
-                    <Trash2 size={20} className="dz-icon-delete" style={{ cursor: 'pointer' }} />
+                    <Edit3 size={20} className="dz-icon-edit" style={{ cursor: 'pointer' }} onClick={() => editarSubHabitacion(item.id, item.name)} />
+                    <Trash2 size={20} className="dz-icon-delete" style={{ cursor: 'pointer' }} onClick={() => eliminarSubHabitacion(item.id, item.name)} />
                   </div>
                 </div>
               ))
