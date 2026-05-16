@@ -182,7 +182,7 @@ const VistaCotizacionPrint = () => {
              <button 
                 onClick={handleGenerarPDF} 
                 disabled={guardando}
-                style={{ padding: '12px 24px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
+                style={{ padding: '12px 24px', backgroundColor: '#F26522', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
              >
                {guardando ? 'Procesando...' : '💾 GENERAR Y GUARDAR PDF'}
              </button>
@@ -205,8 +205,8 @@ const VistaCotizacionPrint = () => {
          </div>
       </div>
 
-      <div style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center', paddingBottom: '20px' }}>
-        <div id="cotizacion-pdf" className="cotizacion-container printable-page-container" style={{ minWidth: '21cm' }}>
+      <div style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'flex-start', paddingBottom: '20px' }}>
+        <div id="cotizacion-pdf" className="cotizacion-container printable-page-container" style={{ minWidth: '21cm', margin: '0 auto' }}>
 
         <div className="header">
           <div className="header-left">
