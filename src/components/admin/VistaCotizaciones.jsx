@@ -584,7 +584,7 @@ const VistaCotizaciones = () => {
                     </button>
                   )}
 
-                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status === 'Pendiente' && !rechazando && (
+                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && ['Pendiente', 'En proceso', 'Enviada al Administrador'].some(s => cotizacionSeleccionada.status?.includes(s)) && !rechazando && (
                     <>
                       <button 
                         className="btn-modal-print" 
