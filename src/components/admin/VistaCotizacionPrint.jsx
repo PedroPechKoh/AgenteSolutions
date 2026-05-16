@@ -166,23 +166,23 @@ const VistaCotizacionPrint = () => {
   };
 
   return (
-    <div style={{ backgroundColor: '#f4f4f4', minHeight: '100vh', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ backgroundColor: '#f4f4f4', minHeight: '100vh', padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
       
       {/* Panel de control superior */}
-      <div className="no-print" style={{ marginBottom: '20px', width: '21cm', display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+      <div className="no-print" style={{ marginBottom: '20px', width: '100%', maxWidth: '21cm', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '10px' }}>
          <button 
             onClick={() => navigate('/vista-cotizaciones')}
-            style={{ padding: '12px 24px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+            style={{ padding: '12px 24px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
          >
            ⬅️ REGRESAR
          </button>
 
-         <div style={{ display: 'flex', gap: '10px' }}>
+         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', flexGrow: 2, justifyContent: 'flex-end' }}>
            {!pdfGenerado ? (
              <button 
                 onClick={handleGenerarPDF} 
                 disabled={guardando}
-                style={{ padding: '12px 24px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+                style={{ padding: '12px 24px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
              >
                {guardando ? 'Procesando...' : '💾 GENERAR Y GUARDAR PDF'}
              </button>
@@ -190,13 +190,13 @@ const VistaCotizacionPrint = () => {
              <>
                <button 
                   onClick={handleDescargar} 
-                  style={{ padding: '12px 24px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+                  style={{ padding: '12px 24px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
                >
                  📥 GUARDAR (DESCARGAR PC)
                </button>
                <button 
                   onClick={handleImprimir} 
-                  style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}
+                  style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
                >
                  🖨️ IMPRIMIR
                </button>
@@ -205,7 +205,8 @@ const VistaCotizacionPrint = () => {
          </div>
       </div>
 
-      <div id="cotizacion-pdf" className="cotizacion-container printable-page-container">
+      <div style={{ width: '100%', overflowX: 'auto', display: 'flex', justifyContent: 'center', paddingBottom: '20px' }}>
+        <div id="cotizacion-pdf" className="cotizacion-container printable-page-container" style={{ minWidth: '21cm' }}>
 
         <div className="header">
           <div className="header-left">
@@ -311,6 +312,9 @@ const VistaCotizacionPrint = () => {
           <p><strong>RÉGIMEN:</strong> PERSONAS FISICAS CON ACTIVIDADES EMPRESARIALES Y COMERCIALES</p>
         </div>
 
+        </div>
+
+      </div>
       </div>
     </div>
   );

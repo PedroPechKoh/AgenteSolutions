@@ -567,8 +567,8 @@ const VistaCotizaciones = () => {
 
             </div>
 
-            <div className="modal-footer-btns" style={{ flexShrink: 0, justifyContent: 'space-between', display: 'flex' }}>
-                <div style={{ display: 'flex', gap: '10px' }}>
+            <div className="modal-footer-btns" style={{ flexShrink: 0, display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', width: '100%' }}>
                   {/* BOTÓN PARA QUE EL ADMIN GENERE COTIZACIÓN A CLIENTE BASADA EN LA DEL TÉCNICO */}
                   {!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico' && (
                     <button 
