@@ -502,17 +502,24 @@ const VistaDetallePropiedad = () => {
                   disabled={loadingZonas}
                 >
                   <option value="">{loadingZonas ? "Cargando zonas..." : "Seleccionar zona..."}</option>
-                  {zonasDisponibles.map(zona => (
-                    <React.Fragment key={`zona-${zona.id}`}>
-                      <option value={zona.id}>{zona.name}</option>
-                      {(zona.sub_areas || zona.subAreas || []).map(sub => (
-                        <option key={`sub-${sub.id}`} value={sub.id}>
-                          {'\u00A0\u00A0\u00A0'}↳ {zona.name} - {sub.name}
-                        </option>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                  <option value="otro">Otro (No está en la lista)</option>
+                  {zonasDisponibles.map(zona => {
+                    const subAreas = zona.sub_areas || zona.subAreas || [];
+                    if (subAreas.length > 0) {
+                      return (
+                        <optgroup key={`opt-${zona.id}`} label={zona.name.toUpperCase()}>
+                          <option value={zona.id}>{zona.name} (Área General)</option>
+                          {subAreas.map(sub => (
+                            <option key={`sub-${sub.id}`} value={sub.id}>
+                              {sub.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      );
+                    } else {
+                      return <option key={`zona-${zona.id}`} value={zona.id}>{zona.name}</option>;
+                    }
+                  })}
+                  <option value="otro" style={{ fontWeight: 'bold' }}>Otro (No está en la lista)</option>
                 </select>
               </div>
               <div className="form-group">
