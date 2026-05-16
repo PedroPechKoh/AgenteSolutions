@@ -847,6 +847,7 @@ const VistaServiciosAdmin = () => {
           justify-content: center;
           cursor: pointer;
           transition: all 0.2s;
+          color: #333;
         }
         .close-survey-btn:hover { background: #e0e0e0; transform: rotate(90deg); }
         
@@ -1059,6 +1060,16 @@ const VistaServiciosAdmin = () => {
           .scrum-column { width: 100% !important; margin: 0 !important; }
           .column-header { display: none; } /* Ocultamos el header original porque ya está en el tab */
           .scrum-header h2 { font-size: 1.2rem; }
+
+          /* Responsive para el Modal de Inventario */
+          .survey-content-layout { flex-direction: column; }
+          .survey-sidebar-areas { width: 100%; border-right: none; border-bottom: 1px solid #eee; padding: 15px; display: flex; flex-wrap: wrap; gap: 10px; }
+          .area-nav-item { width: auto; margin-bottom: 0; padding: 8px 12px; }
+          .survey-main-view { padding: 15px; }
+          .modal-survey-card { height: 95vh; border-radius: 16px; }
+          .items-grid-detailed { grid-template-columns: 1fr; }
+          .survey-header { padding: 15px; }
+          .survey-header-info h3 { font-size: 1.1rem; }
         }
 
         @keyframes fadeIn {
