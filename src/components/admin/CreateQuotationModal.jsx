@@ -223,28 +223,37 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
                 <div className="manual-form">
                   <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px', marginBottom: '15px' }}>1. CONCEPTOS DE SERVICIO</h4>
                   {filasConceptos.map(f => (
-                    <div key={f.id} className="concepto-row" style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
-                      <input 
-                        placeholder="Descripción del servicio..." 
-                        style={{ flex: 3, padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
-                        value={f.desc}
-                        onChange={(e) => updateFila(setFilasConceptos, f.id, 'desc', e.target.value)}
-                      />
-                      <input 
-                        type="number" 
-                        placeholder="Cant." 
-                        style={{ flex: 0.5, padding: '10px', borderRadius: '8px', border: '1px solid #ddd', textAlign: 'center' }}
-                        value={f.cant}
-                        onChange={(e) => updateFila(setFilasConceptos, f.id, 'cant', e.target.value)}
-                      />
-                      <input 
-                        type="number" 
-                        placeholder="$" 
-                        style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ddd', textAlign: 'right' }}
-                        value={f.precio}
-                        onChange={(e) => updateFila(setFilasConceptos, f.id, 'precio', e.target.value)}
-                      />
-                      <button onClick={() => removeFila(setFilasConceptos, f.id)} style={{ background: 'none', border: 'none', color: '#ff5252', cursor: 'pointer' }}><Trash2 size={18} /></button>
+                    <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
+                      <div style={{ width: '100%', marginBottom: '10px' }}>
+                         <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Descripción del Servicio</label>
+                         <input 
+                           placeholder="Ej. Cambio de carbones a máquina..." 
+                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', color: '#333' }}
+                           value={f.desc}
+                           onChange={(e) => updateFila(setFilasConceptos, f.id, 'desc', e.target.value)}
+                         />
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
+                         <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Cant.</label>
+                            <input 
+                              type="number" 
+                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center', background: '#fff', color: '#333' }}
+                              value={f.cant}
+                              onChange={(e) => updateFila(setFilasConceptos, f.id, 'cant', e.target.value)}
+                            />
+                         </div>
+                         <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Precio U. ($)</label>
+                            <input 
+                              type="number" 
+                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'right', background: '#fff', color: '#333' }}
+                              value={f.precio}
+                              onChange={(e) => updateFila(setFilasConceptos, f.id, 'precio', e.target.value)}
+                            />
+                         </div>
+                         <button onClick={() => removeFila(setFilasConceptos, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '39px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
+                      </div>
                     </div>
                   ))}
                   <button onClick={() => addFila(setFilasConceptos)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666' }}>
@@ -253,28 +262,37 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
 
                   <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px', marginBottom: '15px' }}>2. MATERIALES</h4>
                   {filasMateriales.map(f => (
-                    <div key={f.id} className="concepto-row" style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
-                      <input 
-                        placeholder="Nombre del material..." 
-                        style={{ flex: 3, padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
-                        value={f.desc}
-                        onChange={(e) => updateFila(setFilasMateriales, f.id, 'desc', e.target.value)}
-                      />
-                      <input 
-                        type="number" 
-                        placeholder="Cant." 
-                        style={{ flex: 0.5, padding: '10px', borderRadius: '8px', border: '1px solid #ddd', textAlign: 'center' }}
-                        value={f.cant}
-                        onChange={(e) => updateFila(setFilasMateriales, f.id, 'cant', e.target.value)}
-                      />
-                      <input 
-                        type="number" 
-                        placeholder="$" 
-                        style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ddd', textAlign: 'right' }}
-                        value={f.precio}
-                        onChange={(e) => updateFila(setFilasMateriales, f.id, 'precio', e.target.value)}
-                      />
-                      <button onClick={() => removeFila(setFilasMateriales, f.id)} style={{ background: 'none', border: 'none', color: '#ff5252', cursor: 'pointer' }}><Trash2 size={18} /></button>
+                    <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
+                      <div style={{ width: '100%', marginBottom: '10px' }}>
+                         <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Nombre del Material</label>
+                         <input 
+                           placeholder="Ej. Carbones..." 
+                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', color: '#333' }}
+                           value={f.desc}
+                           onChange={(e) => updateFila(setFilasMateriales, f.id, 'desc', e.target.value)}
+                         />
+                      </div>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
+                         <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Cant.</label>
+                            <input 
+                              type="number" 
+                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center', background: '#fff', color: '#333' }}
+                              value={f.cant}
+                              onChange={(e) => updateFila(setFilasMateriales, f.id, 'cant', e.target.value)}
+                            />
+                         </div>
+                         <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Costo U. ($)</label>
+                            <input 
+                              type="number" 
+                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'right', background: '#fff', color: '#333' }}
+                              value={f.precio}
+                              onChange={(e) => updateFila(setFilasMateriales, f.id, 'precio', e.target.value)}
+                            />
+                         </div>
+                         <button onClick={() => removeFila(setFilasMateriales, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '39px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
+                      </div>
                     </div>
                   ))}
                   <button onClick={() => addFila(setFilasMateriales)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666' }}>
@@ -283,7 +301,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
 
                   <textarea 
                     placeholder="Observaciones para el CLIENTE..."
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', minHeight: '80px', marginBottom: '15px' }}
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', minHeight: '80px', marginBottom: '15px', background: '#fff', color: '#333' }}
                     value={observaciones}
                     onChange={(e) => setObservaciones(e.target.value)}
                   />
@@ -294,7 +312,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
                     </label>
                     <textarea 
                       placeholder="Notas que el cliente NO verá..."
-                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ffcc80', minHeight: '80px', background: '#fffde7' }}
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ffcc80', minHeight: '80px', background: '#fffde7', color: '#333' }}
                       value={observacionesInternas}
                       onChange={(e) => setObservacionesInternas(e.target.value)}
                     />
