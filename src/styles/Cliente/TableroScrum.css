@@ -64,6 +64,9 @@
   -webkit-overflow-scrolling: touch;
   padding-bottom: 20px;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  justify-content: center;
 }
 
 .scrum-column { 

@@ -277,7 +277,7 @@ const VistaServiciosAdmin = () => {
     <div className="scrum-container admin-theme">
       <Header titulo="SERVICIOS" />
       
-      <header className="scrum-header" style={{ marginTop: '20px' }}>
+      <header className="scrum-header" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '20px', marginBottom: '30px' }}>
         <button 
           className="btn-back-dashboard" 
           onClick={() => navigate(-1)}
@@ -285,7 +285,7 @@ const VistaServiciosAdmin = () => {
         >
           <ChevronLeft size={20} /> REGRESAR
         </button>
-        <h2 style={{ fontStyle: 'italic', fontWeight: '900' }}>GESTIÓN GLOBAL DE SERVICIOS</h2>
+        <h2 style={{ fontStyle: 'italic', fontWeight: '900', margin: 0 }}>GESTIÓN GLOBAL DE SERVICIOS</h2>
       </header>
 
       {/* Tabs para Móvil */}
