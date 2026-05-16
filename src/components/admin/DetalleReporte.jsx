@@ -737,7 +737,7 @@ const DetalleReporte = () => {
                                         justifyContent: 'start'
                                     }}>
                                         {zona.cuartos && zona.cuartos.length > 0 && zona.cuartos.map((cuarto, cIdx) => {
-                                                const areaFoto = cuarto.foto || cuarto.image_path || cuarto.image || cuarto.foto_url || casaImg;
+                                                const areaFoto = cuarto.foto || cuarto.image_path || cuarto.image || cuarto.foto_url || logo;
                                                 
                                                 // Calcular cantidad total de items en el cuarto
                                                 let totalItems = 0;
@@ -749,7 +749,16 @@ const DetalleReporte = () => {
 
                                                 return (
                                                     <div key={`cuarto-${idx}-${cIdx}`} className="property-card" onClick={() => setSelectedSubseccion(cuarto)} style={{ width: '100%', margin: 0 }}>
-                                                        <img src={areaFoto} alt={cuarto.nombre} className="property-image" />
+                                                        <img 
+                                                            src={areaFoto} 
+                                                            alt={cuarto.nombre} 
+                                                            className="property-image" 
+                                                            style={{ 
+                                                                objectFit: areaFoto === logo ? 'contain' : 'cover', 
+                                                                padding: areaFoto === logo ? '20px' : '0',
+                                                                backgroundColor: areaFoto === logo ? '#f9f9f9' : 'transparent'
+                                                            }} 
+                                                        />
                                                         <div className="property-overlay">
                                                             <h3 className="property-title-overlay" style={{ fontSize: '1rem' }}>{cuarto.nombre}</h3>
                                                             <button className="btn-overlay" style={{ fontSize: '0.8rem', padding: '8px 15px' }}>
@@ -857,7 +866,7 @@ const DetalleReporte = () => {
                                     className="custom-input" 
                                     value={nuevaZonaOpcion} 
                                     onChange={(e) => setNuevaZonaOpcion(e.target.value)}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff' }}
                                 >
                                     <option value="">-- Seleccionar --</option>
                                     {OPCIONES_ZONAS.map(opc => <option key={opc} value={opc}>{opc}</option>)}
@@ -874,7 +883,7 @@ const DetalleReporte = () => {
                                         value={nuevaZonaTexto} 
                                         onChange={(e) => setNuevaZonaTexto(e.target.value.toUpperCase())}
                                         placeholder="Ej. SÓTANO, GIMNASIO..."
-                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff' }}
                                         autoFocus
                                     />
                                 </div>
@@ -908,7 +917,7 @@ const DetalleReporte = () => {
                                     className="custom-input" 
                                     value={nuevoEspacioOpcion} 
                                     onChange={(e) => setNuevoEspacioOpcion(e.target.value)}
-                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff' }}
                                 >
                                     <option value="">-- Seleccionar --</option>
                                     {OPCIONES_ESPACIOS.map(opc => <option key={opc} value={opc}>{opc}</option>)}
@@ -925,7 +934,7 @@ const DetalleReporte = () => {
                                         value={nuevoEspacioTexto} 
                                         onChange={(e) => setNuevoEspacioTexto(e.target.value.toUpperCase())}
                                         placeholder="Ej. CUARTO DE SERVICIO, ESTUDIO..."
-                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }}
+                                        style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', color: '#333', backgroundColor: '#fff' }}
                                         autoFocus
                                     />
                                 </div>
