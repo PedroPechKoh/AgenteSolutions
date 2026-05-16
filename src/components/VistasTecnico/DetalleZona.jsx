@@ -275,7 +275,6 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
               </div>
               
               <div className="dz-actions-group" style={{ marginBottom: '10px' }}>
-                <button className="dz-btn-plus"><Send size={20} /> ENVIAR</button>
                 <button className="dz-btn-save">GUARDAR</button>
                 <button className="dz-btn-save" onClick={() => setIsModalOpen(true)}>+</button>
               </div>
