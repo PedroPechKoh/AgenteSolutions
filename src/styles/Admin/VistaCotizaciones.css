@@ -237,6 +237,7 @@
 
 .bold-folio { font-weight: bold; color: #000000; }
 .cliente-name { font-weight: bold; color: #000; text-align: left !important; padding-left: 50px !important; }
+.cliente-info-wrapper { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .monto-final { color: #1a7e32; font-weight: bold; font-size: 1.1rem; }
 
 .btn-view-detail {
@@ -660,11 +661,12 @@
     }
 
     .cotiz-data-table tr {
-        margin-bottom: 15px;
+        margin-bottom: 20px;
         border: 1px solid #e2e8f0;
         border-radius: 15px;
         background: #fff;
-        padding: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
 
     .cotiz-data-table td {
@@ -685,9 +687,9 @@
         text-align: left;
     }
 
-    .cliente-name {
-        padding-left: 0 !important;
-        text-align: right !important;
+    .cliente-info-wrapper {
+        align-items: flex-end;
+        text-align: right;
     }
 
     .monto-final {

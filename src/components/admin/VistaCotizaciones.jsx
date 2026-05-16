@@ -361,16 +361,18 @@ const VistaCotizaciones = () => {
         </td>
         {!esCliente && (
           <td className="cliente-name" data-label="CLIENTE">
-            <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{c.cliente}</div>
-            {c.created_by_role === 'Técnico' ? (
-              <div className="origin-tag-mini">
-                <Wrench size={10} /> TÉCNICO: {c.tecnico}
-              </div>
-            ) : (
-              <div className="origin-tag-mini admin">
-                <User size={10} /> ADMINISTRATIVO
-              </div>
-            )}
+            <div className="cliente-info-wrapper">
+              <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{c.cliente}</div>
+              {c.created_by_role === 'Técnico' ? (
+                <div className="origin-tag-mini">
+                  <Wrench size={10} /> TÉCNICO: {c.tecnico}
+                </div>
+              ) : (
+                <div className="origin-tag-mini admin">
+                  <User size={10} /> ADMINISTRATIVO
+                </div>
+              )}
+            </div>
           </td>
         )}
         <td className="monto-final" data-label="TOTAL">
