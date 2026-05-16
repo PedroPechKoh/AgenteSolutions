@@ -277,7 +277,7 @@ const VistaServiciosAdmin = () => {
     <div className="scrum-container admin-theme">
       <Header titulo="SERVICIOS" />
       
-      <header className="scrum-header" style={{ display: 'flex', alignItems: 'center', gap: '20px', marginTop: '20px', marginBottom: '30px' }}>
+      <header className="scrum-header-admin">
         <button 
           className="btn-back-dashboard" 
           onClick={() => navigate(-1)}

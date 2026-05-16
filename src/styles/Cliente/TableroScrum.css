@@ -346,4 +346,18 @@
   .modal-card-container { width: 95%; } 
   .bitacora-grid-content { grid-template-columns: 1fr; } 
   .scrum-column { width: 280px; }
+  
+  .scrum-header-admin {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+
+.scrum-header-admin {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 20px;
+  margin-bottom: 30px;
 }
