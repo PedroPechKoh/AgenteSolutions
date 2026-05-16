@@ -311,10 +311,12 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
                     <div className="dz-thumb-box" style={{ width: '50px', height: '50px', backgroundColor: '#f0f0f0', borderRadius: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                       <DoorOpen size={28} color="#555" />
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       <span className="dz-item-name" style={{ fontSize: '1.1rem' }}>{item.name}</span>
-                      <Edit3 size={18} className="dz-icon-edit" style={{ cursor: 'pointer', color: '#f37021' }} onClick={() => editarSubHabitacion(item.id, item.name)} />
-                      <Trash2 size={18} className="dz-icon-delete" style={{ cursor: 'pointer', color: '#e63946' }} onClick={() => eliminarSubHabitacion(item.id, item.name)} />
+                      <div style={{ display: 'flex', gap: '15px', marginLeft: '25px' }}>
+                        <Edit3 size={18} className="dz-icon-edit" style={{ cursor: 'pointer', color: '#f37021' }} onClick={() => editarSubHabitacion(item.id, item.name)} />
+                        <Trash2 size={18} className="dz-icon-delete" style={{ cursor: 'pointer', color: '#e63946' }} onClick={() => eliminarSubHabitacion(item.id, item.name)} />
+                      </div>
                     </div>
                   </div>
                   

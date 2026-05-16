@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "../../styles/TecnicoStyles/RegistroDetalleHabitacion.css"; 
-import { Plus, ArrowLeft, ImageIcon, Loader2, Edit3, Eye, X, CheckCircle } from 'lucide-react';
+import { Plus, ArrowLeft, ImageIcon, Loader2, Edit3, Eye, X, CheckCircle, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // IMPORTAMOS LA VISTA DEL NIVEL 5
