@@ -130,13 +130,23 @@ const VistaDetallePropiedad = () => {
       return;
     }
 
-    const selectedArea = zonasDisponibles.find(z => z.id === parseInt(areaId));
+    let selectedArea = zonasDisponibles.find(z => z.id === parseInt(areaId));
+    if (!selectedArea) {
+      for (const zona of zonasDisponibles) {
+        const sub = (zona.sub_areas || zona.subAreas || []).find(s => s.id === parseInt(areaId));
+        if (sub) {
+          selectedArea = { ...sub, name: `${zona.name} - ${sub.name}` };
+          break;
+        }
+      }
+    }
+
     setNuevoServicio({ 
       ...nuevoServicio, 
       area_id: areaId, 
       zona: selectedArea ? selectedArea.name : '', 
       equipo: '' 
-    }); 
+    });
     
     if (areaId) {
       setLoadingEquipos(true);
@@ -379,7 +389,14 @@ const VistaDetallePropiedad = () => {
                 >
                   <option value="">{loadingZonas ? "Cargando zonas..." : "Seleccionar zona..."}</option>
                   {zonasDisponibles.map(zona => (
-                    <option key={zona.id} value={zona.id}>{zona.name}</option>
+                    <React.Fragment key={`zona-${zona.id}`}>
+                      <option value={zona.id}>{zona.name}</option>
+                      {(zona.sub_areas || zona.subAreas || []).map(sub => (
+                        <option key={`sub-${sub.id}`} value={sub.id}>
+                          {'\u00A0\u00A0\u00A0'}↳ {zona.name} - {sub.name}
+                        </option>
+                      ))}
+                    </React.Fragment>
                   ))}
                   <option value="otro">Otro (No está en la lista)</option>
                 </select>
