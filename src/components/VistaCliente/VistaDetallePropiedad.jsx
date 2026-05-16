@@ -507,7 +507,7 @@ const VistaDetallePropiedad = () => {
                       <option value={zona.id}>{zona.name}</option>
                       {(zona.sub_areas || zona.subAreas || []).map(sub => (
                         <option key={`sub-${sub.id}`} value={sub.id}>
-                          &nbsp;&nbsp;&nbsp;{zona.name} - {sub.name}
+                          {'\u00A0\u00A0\u00A0'}↳ {zona.name} - {sub.name}
                         </option>
                       ))}
                     </React.Fragment>
