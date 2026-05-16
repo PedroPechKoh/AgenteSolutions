@@ -311,10 +311,7 @@ const VistaCotizacionPrint = () => {
           <p>Vallofacturas@gmail.com</p>
           <p><strong>RÉGIMEN:</strong> PERSONAS FISICAS CON ACTIVIDADES EMPRESARIALES Y COMERCIALES</p>
         </div>
-
         </div>
-
-      </div>
       </div>
     </div>
   );
