@@ -69,8 +69,8 @@ const VistaCotizaciones = () => {
       // FILTRO PARA TÉCNICOS: Solo ver sus propias propuestas al Admin
       if (roleId === 2) {
         data = data.filter(c => 
-          c.created_by_role === 'Técnico' && 
-          (c.tecnico_user_id === userId || c.user_id === userId)
+          (c.created_by_role === 'Técnico' || c.tecnico) && 
+          (c.tecnico_user_id == userId || c.user_id == userId || c.tecnico === session?.userData?.name)
         );
       }
 
@@ -584,7 +584,7 @@ const VistaCotizaciones = () => {
                     </button>
                   )}
 
-                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && ['Pendiente', 'En proceso', 'Enviada al Administrador'].some(s => cotizacionSeleccionada.status?.includes(s)) && !rechazando && (
+                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status !== 'Aprobado' && cotizacionSeleccionada.status !== 'Rechazado' && !rechazando && (
                     <>
                       <button 
                         className="btn-modal-print" 
