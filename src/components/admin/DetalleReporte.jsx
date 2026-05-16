@@ -530,53 +530,61 @@ const DetalleReporte = () => {
                 <section className="reporte-flujo" style={isClient ? { maxWidth: '1000px', margin: '0 auto', width: '100%' } : {}}>
                     {/* VALIDACIÓN DE SEGURIDAD PARA EVITAR EL ERROR .MAP */}
                     {Array.isArray(datosBD.secciones) && datosBD.secciones.length > 0 ? (() => {
-                        // Agrupar los cuartos por Zona
-                        const zonasAgrupadas = {};
+                        // Agrupar los cuartos por Zona usando la relación padre-hijo de la BD
+                        const zonasMap = {};
                         
-                        datosBD.secciones.forEach(sec => {
-                            const tituloUpper = (sec.titulo || "").toUpperCase();
-                            let categoriaFinal = "OTRAS ÁREAS";
-
-                            // Lógica de clasificación por palabras clave
-                            if (tituloUpper.includes("HABITACIÓN") || tituloUpper.includes("RECÁMARA") || tituloUpper.includes("RECAMARA") || tituloUpper.includes("CUARTO")) {
-                                categoriaFinal = "HABITACIONES";
-                            } else if (tituloUpper.includes("BAÑO") || tituloUpper.includes("SANITARIO") || tituloUpper.includes("WC")) {
-                                categoriaFinal = "BAÑOS";
-                            } else if (tituloUpper.includes("COCINA")) {
-                                categoriaFinal = "COCINA";
-                            } else if (tituloUpper.includes("SALA") || tituloUpper.includes("COMEDOR") || tituloUpper.includes("ESTANCIA")) {
-                                categoriaFinal = "ÁREAS SOCIALES";
-                            } else if (tituloUpper.includes("PATIO") || tituloUpper.includes("JARDÍN") || tituloUpper.includes("ALBERCA") || tituloUpper.includes("EXTERIOR")) {
-                                categoriaFinal = "EXTERIORES / PATIOS";
-                            } else if (tituloUpper.includes("PASILLO") || tituloUpper.includes("ESCALERA")) {
-                                categoriaFinal = "CONECTIVIDAD / PASILLOS";
-                            } else if (tituloUpper.includes("COCHERA") || tituloUpper.includes("GARAJE") || tituloUpper.includes("ESTACIONAMIENTO")) {
-                                categoriaFinal = "COCHERA / ACCESOS";
-                            }
-
-                            if (!zonasAgrupadas[categoriaFinal]) {
-                                zonasAgrupadas[categoriaFinal] = {
-                                    titulo: categoriaFinal,
-                                    cuartos: []
-                                };
-                            }
-                            
-                            zonasAgrupadas[categoriaFinal].cuartos.push({
+                        // 1. Identificar Zonas principales (sin parent)
+                        datosBD.secciones.filter(s => !s.parent).forEach(sec => {
+                            zonasMap[sec.id] = {
                                 ...sec,
-                                nombre: sec.titulo,
-                                categorias: sec.subSecciones
-                            });
+                                titulo: sec.titulo || "OTRAS ÁREAS",
+                                cuartos: []
+                            };
                         });
 
-                        // Ordenar las categorías para que Habitaciones y Baños salgan primero
-                        const ordenDeseado = ["HABITACIONES", "BAÑOS", "COCINA", "ÁREAS SOCIALES", "EXTERIORES / PATIOS", "COCHERA / ACCESOS", "CONECTIVIDAD / PASILLOS", "OTRAS ÁREAS"];
-                        const zonas = Object.keys(zonasAgrupadas)
-                            .sort((a, b) => {
-                                const idxA = ordenDeseado.indexOf(a);
-                                const idxB = ordenDeseado.indexOf(b);
-                                return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
-                            })
-                            .map(key => zonasAgrupadas[key]);
+                        // 2. Asignar sub-áreas (cuartos) a su Zona padre correspondiente
+                        datosBD.secciones.filter(s => s.parent).forEach(sec => {
+                            const parentId = sec.parent.id;
+                            if (zonasMap[parentId]) {
+                                zonasMap[parentId].cuartos.push({
+                                    ...sec,
+                                    nombre: sec.titulo,
+                                    categorias: sec.subSecciones
+                                });
+                            } else {
+                                // Fallback: si el padre no está registrado como sección principal
+                                zonasMap[parentId] = {
+                                    id: parentId,
+                                    titulo: sec.parent.name || "OTRAS ÁREAS",
+                                    cuartos: [{
+                                        ...sec,
+                                        nombre: sec.titulo,
+                                        categorias: sec.subSecciones
+                                    }]
+                                };
+                            }
+                        });
+
+                        // 3. Fallback de compatibilidad: si una zona principal tiene inventario directo 
+                        // pero no tiene sub-áreas, la mostramos como su propia tarjeta 'General'
+                        Object.values(zonasMap).forEach(z => {
+                            const tieneInventarioDirecto = z.subSecciones && z.subSecciones.some(cat => cat.inventario && cat.inventario.length > 0);
+                            if (z.cuartos.length === 0 && tieneInventarioDirecto) {
+                                z.cuartos.push({
+                                    ...z,
+                                    nombre: 'GENERAL',
+                                    categorias: z.subSecciones
+                                });
+                            }
+                        });
+
+                        // Ordenar las categorías para mantener la jerarquía visual
+                        const ordenDeseado = ["HABITACIONES", "BAÑOS", "COCINA", "ÁREAS SOCIALES", "ZONAS EXTERIORES", "EXTERIORES / PATIOS", "COCHERA / ACCESOS", "CONECTIVIDAD / PASILLOS", "OTRAS ÁREAS"];
+                        const zonas = Object.values(zonasMap).sort((a, b) => {
+                            const idxA = ordenDeseado.indexOf((a.titulo || "").toUpperCase());
+                            const idxB = ordenDeseado.indexOf((b.titulo || "").toUpperCase());
+                            return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+                        });
 
                         const renderZonas = zonas.map((zona, idx) => (
                             <div key={`zona-${idx}`} className="zona-section-wrapper" style={{ marginBottom: '40px' }}>
