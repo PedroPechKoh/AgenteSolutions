@@ -687,9 +687,26 @@
         text-align: left;
     }
 
+    .cotiz-data-table td.cliente-name {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
     .cliente-info-wrapper {
-        align-items: flex-end;
-        text-align: right;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .cotiz-data-table td[data-label="ACCIONES"] {
+        display: block;
+        margin-top: 10px;
+        padding-top: 15px;
+        border-top: 1px dashed #e2e8f0;
+    }
+
+    .cotiz-data-table td[data-label="ACCIONES"]::before {
+        display: none;
     }
 
     .monto-final {
