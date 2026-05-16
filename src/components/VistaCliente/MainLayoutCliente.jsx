@@ -44,8 +44,9 @@ const MainLayoutCliente = ({ children }) => {
     return () => window.removeEventListener('sync-agente-ids', syncIds);
   }, [location.pathname, urlPropertyId]);
   
-  // Priorizar el ID de la URL si estamos en un detalle
-  const effectivePropertyId = urlPropertyId || currentPropertyId;
+  // Priorizar el ID de la URL si estamos en un detalle y limpiar el prefijo 'prop_' si existe
+  const cleanId = (id) => id ? id.toString().replace('prop_', '') : null;
+  const effectivePropertyId = cleanId(urlPropertyId) || cleanId(currentPropertyId);
 
   // Rutas dinámicas basadas en el contexto sincronizado
   const detailPath = currentLevantamientoId ? `/detalle-reporte/${currentLevantamientoId}` : (effectivePropertyId ? `/detalle-reporte/prop_${effectivePropertyId}` : '/propiedades');
