@@ -125,6 +125,38 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
     );
   };
 
+  const eliminarCategoria = async (id, name) => {
+    if (window.confirm(`¿Estás seguro de eliminar la categoría "${name}" y todos sus equipos?`)) {
+      try {
+        const token = localStorage.getItem('agente_token');
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-categories/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        fetchCategorias();
+      } catch (error) {
+        console.error("Error al eliminar categoría:", error);
+        alert("No se pudo eliminar la categoría.");
+      }
+    }
+  };
+
+  const editarCategoria = async (id, oldName) => {
+    const nuevoNombre = window.prompt("Ingresa el nuevo nombre para la categoría:", oldName);
+    if (nuevoNombre && nuevoNombre.trim() !== "" && nuevoNombre !== oldName) {
+      try {
+        const token = localStorage.getItem('agente_token');
+        await axios.put(`${import.meta.env.VITE_API_BASE_URL}/property-categories/${id}`, 
+          { name: nuevoNombre.trim().toUpperCase() },
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+        fetchCategorias();
+      } catch (error) {
+        console.error("Error al editar categoría:", error);
+        alert("No se pudo editar el nombre de la categoría.");
+      }
+    }
+  };
+
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -308,13 +340,18 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
                   <p>Cargando...</p>
                 ) : categorias.length > 0 ? (
                   categorias.map((cat) => (
-                    <button 
+                    <div 
                       key={cat.id} 
                       className="dh-category-pill active" 
-                      onClick={() => setCategoriaActiva(cat)} // <-- AQUÍ ACTIVAMOS LA NAVEGACIÓN
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', paddingRight: '15px' }}
+                      onClick={() => setCategoriaActiva(cat)}
                     >
-                      {cat.name}
-                    </button>
+                      <span>{cat.name}</span>
+                      <div style={{ display: 'flex', gap: '10px' }} onClick={(e) => e.stopPropagation()}>
+                        <Edit3 size={18} style={{ cursor: 'pointer', color: 'white' }} onClick={(e) => { e.stopPropagation(); editarCategoria(cat.id, cat.name); }} />
+                        <Trash2 size={18} style={{ cursor: 'pointer', color: 'white' }} onClick={(e) => { e.stopPropagation(); eliminarCategoria(cat.id, cat.name); }} />
+                      </div>
+                    </div>
                   ))
                 ) : (
                   <p style={{ gridColumn: '1 / -1', color: '#666', fontStyle: 'italic' }}>

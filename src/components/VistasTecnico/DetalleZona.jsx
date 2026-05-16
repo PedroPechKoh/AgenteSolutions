@@ -279,29 +279,9 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
                   </div>
                 ) : (
                   <>
-                    <strong style={{ marginLeft: '8px' }}>{zona?.name || "SIN NOMBRE"}</strong> 
-                    <Settings 
-                      size={16} 
-                      style={{ marginLeft: '8px', cursor: 'pointer', color: '#666' }} 
-                      onClick={() => setMostrarOpcionesZona(!mostrarOpcionesZona)} 
-                    />
-                    
-                    {mostrarOpcionesZona && (
-                      <div style={{ position: 'absolute', top: '100%', right: '0', background: 'white', boxShadow: '0 4px 15px rgba(0,0,0,0.15)', border: '1px solid #eee', borderRadius: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', minWidth: '120px', marginTop: '5px', overflow: 'hidden' }}>
-                        <button 
-                          onClick={() => { setEditandoZonaNombre(true); setMostrarOpcionesZona(false); }} 
-                          style={{ padding: '10px 15px', background: 'none', border: 'none', borderBottom: '1px solid #f0f0f0', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#333' }}
-                        >
-                          Editar nombre
-                        </button>
-                        <button 
-                          onClick={eliminarZona} 
-                          style={{ padding: '10px 15px', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', fontSize: '13px', fontWeight: '600', color: '#e63946' }}
-                        >
-                          Eliminar zona
-                        </button>
-                      </div>
-                    )}
+                    <strong style={{ marginLeft: '8px', marginRight: '8px' }}>{zona?.name || "SIN NOMBRE"}</strong> 
+                    <Edit3 size={16} style={{ cursor: 'pointer', color: '#f37021', marginRight: '8px' }} onClick={() => setEditandoZonaNombre(true)} />
+                    <Trash2 size={16} style={{ cursor: 'pointer', color: '#e63946' }} onClick={eliminarZona} />
                   </>
                 )}
               </div>
@@ -331,7 +311,11 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
                     <div className="dz-thumb-box" style={{ width: '50px', height: '50px', backgroundColor: '#f0f0f0', borderRadius: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                       <DoorOpen size={28} color="#555" />
                     </div>
-                    <span className="dz-item-name" style={{ fontSize: '1.1rem' }}>{item.name}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <span className="dz-item-name" style={{ fontSize: '1.1rem' }}>{item.name}</span>
+                      <Edit3 size={18} className="dz-icon-edit" style={{ cursor: 'pointer', color: '#f37021' }} onClick={() => editarSubHabitacion(item.id, item.name)} />
+                      <Trash2 size={18} className="dz-icon-delete" style={{ cursor: 'pointer', color: '#e63946' }} onClick={() => eliminarSubHabitacion(item.id, item.name)} />
+                    </div>
                   </div>
                   
                   <div className="dz-item-right" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -342,8 +326,6 @@ const DetalleZona = ({ zona, propertyCurp, alVolver, servicioId }) => {
                     >
                       <LayoutGrid size={16} /> VER ACTIVOS
                     </button>
-                    <Edit3 size={20} className="dz-icon-edit" style={{ cursor: 'pointer' }} onClick={() => editarSubHabitacion(item.id, item.name)} />
-                    <Trash2 size={20} className="dz-icon-delete" style={{ cursor: 'pointer' }} onClick={() => eliminarSubHabitacion(item.id, item.name)} />
                   </div>
                 </div>
               ))
