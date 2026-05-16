@@ -189,7 +189,8 @@ const RegistroZonas = () => {
       // No navegamos atrás para que vea el cambio a "EDITAR"
     } catch (error) {
       console.error("Error al finalizar registro:", error);
-      alert("Error al enviar la notificación al administrador.");
+      const backendError = error.response?.data?.error || "Error desconocido";
+      alert(`Error al finalizar: ${backendError}`);
     }
   };
 
