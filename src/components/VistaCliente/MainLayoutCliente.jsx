@@ -76,7 +76,15 @@ const MainLayoutCliente = ({ children }) => {
   return (
     <div className="tt-container">
       {!isHomeView && (
-        <aside className={`tt-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+        <>
+          {isMobileMenuOpen && (
+            <div 
+              className="sidebar-backdrop" 
+              onClick={() => setIsMobileMenuOpen(false)}
+              style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 999 }}
+            />
+          )}
+          <aside className={`tt-sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           {isMobileMenuOpen && (
             <button className="btn-close-mobile" onClick={() => setIsMobileMenuOpen(false)}>
               <X size={24} color="white" />
@@ -113,6 +121,7 @@ const MainLayoutCliente = ({ children }) => {
             ))}
           </div>
         </aside>
+        </>
       )}
 
 
