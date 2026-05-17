@@ -568,11 +568,12 @@
     }
 
     .lev-tabs { 
-        flex-direction: column; /* Pestañas una sobre otra si no caben */
+        flex-direction: row; flex-wrap: wrap;
     }
 
     .lev-tab {
-        width: 100%;
+        width: auto;
+        flex: 1 1 45%;
     }
     
     .lev-table th, .lev-table td { 

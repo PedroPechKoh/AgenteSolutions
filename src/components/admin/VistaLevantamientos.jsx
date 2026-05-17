@@ -181,20 +181,18 @@ const VistaLevantamientos = () => {
     <div className="lev-main-page">
       {!isClient && <Header titulo="LEVANTAMIENTOS" />}
       
-      {/* BOTÓN REGRESAR */}
-      <div style={{ padding: '0 20px', marginTop: '10px' }}>
-        <button 
-          onClick={() => navigate(-1)} 
-          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
-        >
-          <ChevronLeft size={18} />
-          <span>REGRESAR</span>
-        </button>
-      </div>
+      <main className="lev-container" style={isClient ? { padding: '20px 16px', width: '100%', maxWidth: '1000px', margin: '0 auto', boxSizing: 'border-box' } : {}}>
+        {/* BOTÓN REGRESAR */}
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', marginBottom: '15px' }}>
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+          >
+            <ChevronLeft size={18} />
+            <span>REGRESAR</span>
+          </button>
+        </div>
 
-
-
-      <main className="lev-container" style={isClient ? { padding: '20px 16px', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
         <UniversalSearch 
           data={servicios}
           setFilteredData={setServiciosFiltrados}
