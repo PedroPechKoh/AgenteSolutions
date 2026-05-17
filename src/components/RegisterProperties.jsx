@@ -243,7 +243,7 @@ const RegisterProperties = () => {
 
       <div className="form-card">
         <form onSubmit={handleRegistro}>
-          <h2 className="form-title">REGISTRO DE INMUEBLE</h2>
+          <h2 className="register-form-title">REGISTRO DE INMUEBLE</h2>
 
           <div className="form-grid">
             

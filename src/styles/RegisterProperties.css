@@ -24,13 +24,14 @@
   border-top: 5px solid #F26522;
 }
 
-.form-title {
+.register-form-title {
   font-size: 1.3rem;
   font-weight: 900;
   margin-bottom: 15px;
   text-align: center;
   color: #ffffff;
   letter-spacing: 1px;
+  white-space: normal;
 }
 
 .form-grid {
