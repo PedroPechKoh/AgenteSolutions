@@ -155,15 +155,24 @@ const VistaDetallePropiedad = () => {
         const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/areas/${areaId}/components`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        setEquiposDisponibles(res.data || []);
+        
+        const componentes = res.data || [];
+        const agrupados = componentes.reduce((acc, curr) => {
+          const cat = curr.category || 'General';
+          if (!acc[cat]) acc[cat] = [];
+          acc[cat].push(curr);
+          return acc;
+        }, {});
+        
+        setEquiposDisponibles(agrupados);
       } catch (error) {
         console.error("Error cargando equipos:", error);
-        setEquiposDisponibles([]);
+        setEquiposDisponibles({});
       } finally {
         setLoadingEquipos(false);
       }
     } else {
-      setEquiposDisponibles([]);
+      setEquiposDisponibles({});
     }
   };
 
