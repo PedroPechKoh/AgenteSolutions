@@ -559,7 +559,7 @@
         border-bottom: none;
         padding-top: 14px;
         padding-bottom: 4px;
-        justify-content: center;
+        justify-content: space-between;
     }
 
     .lev-table td::before {
