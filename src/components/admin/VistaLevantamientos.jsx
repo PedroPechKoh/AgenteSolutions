@@ -181,7 +181,7 @@ const VistaLevantamientos = () => {
     <div className="lev-main-page">
       {!isClient && <Header titulo="LEVANTAMIENTOS" />}
       
-      <main className="lev-container" style={isClient ? { padding: '20px 16px', width: '100%', maxWidth: '1000px', margin: '0 auto', boxSizing: 'border-box' } : {}}>
+      <main className="lev-container">
         {/* BOTÓN REGRESAR */}
         <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', marginBottom: '15px' }}>
           <button 

@@ -143,6 +143,7 @@
   padding: 10px 20px;
   flex: 1;
   width: 100%;
+  box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
   background-color: #fcfcfc;
@@ -201,6 +202,9 @@
     height: auto;
     flex-wrap: wrap;
     gap: 10px;
+  }
+  .tt-body {
+    padding: 10px 5px;
   }
   .header-welcome-message {
     font-size: 14px !important;
