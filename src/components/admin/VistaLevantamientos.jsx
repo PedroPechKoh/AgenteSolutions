@@ -246,8 +246,8 @@ const VistaLevantamientos = () => {
               ) : filtrados.length > 0 ? (
                 filtrados.map((s) => (
                   <tr key={s.id}>
-                    <td style={{ color: '#333', fontWeight: '900' }}>#{s.id || "0"}</td>
-                    <td className="lev-bold">
+                    <td data-label="ID" style={{ color: '#333', fontWeight: '900' }}>#{s.id || "0"}</td>
+                    <td data-label="PROPIEDAD" className="lev-bold">
                       <span 
                         onClick={() => verDetallesPropiedad(s)}
                         style={{ cursor: 'pointer', color: '#F26522', textDecoration: 'underline' }}
@@ -255,7 +255,7 @@ const VistaLevantamientos = () => {
                         {s.title === "Levantamiento Inicial" && s.cliente_nombre ? `Levantamiento de ${s.cliente_nombre}` : s.title}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="PRIORIDAD">
                       <span
                         className={`prio-${s.priority?.toLowerCase()}`}
                         style={{ color: "#333" }}
@@ -263,7 +263,7 @@ const VistaLevantamientos = () => {
                         {s.priority || "N/A"}
                       </span>
                     </td>
-                    <td>
+                    <td data-label={tabActual === 'PENDIENTES' ? "ESTADO" : "TÉCNICO"}>
                       {tabActual === 'PENDIENTES' ? (
                       <span 
                         className={s.assigned_to && s.status !== 'Reprogramación Solicitada' ? "status-assigned" : "status-pending"}
@@ -283,7 +283,7 @@ const VistaLevantamientos = () => {
                       </span>
                     ) : s.tecnico_nombre} 
                   </td>
-                    <td>
+                    <td data-label="ACCIÓN">
                       {tabActual === 'REALIZADOS' ? (
                       <button 
                         className="lev-btn-action btn-reporte"

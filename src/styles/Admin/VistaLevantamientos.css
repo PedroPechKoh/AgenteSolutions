@@ -505,32 +505,75 @@
         text-align: center;
     }
     
-    /* 2. CENTRADO Y AJUSTE DE LA TABLA */
+    /* 2. CENTRADO Y AJUSTE DE LA TABLA (CARD VIEW MÓVIL) */
     .lev-table-wrapper { 
         width: 100%;
-        max-height: 450px;
-        margin: 0 auto; /* Centra el contenedor */
+        max-height: none; /* Dejar que fluya en móvil */
+        margin: 0 auto;
         border-radius: 12px;
-        border: 1px solid #e0e0e0; /* Un borde sutil para enmarcarla */
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* Sombra para que destaque del fondo */
-        -webkit-overflow-scrolling: touch; 
-        overflow-x: auto;
+        border: none;
+        box-shadow: none;
+        overflow-x: hidden;
+        background: transparent;
     }
     
-    /* La tabla hace scroll INTERNAMENTE sin romper el margen exterior */
     .lev-table {
-        min-width: 600px; 
-        font-size: 0.85rem;
+        min-width: 0; 
+        width: 100%;
+        display: block;
+        background: transparent;
     }
-    
-    .lev-table th, .lev-table td {
-        padding: 12px 10px;
-        white-space: normal;
+
+    .lev-table thead {
+        display: none; /* Ocultar encabezados en móvil */
+    }
+
+    .lev-table tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .lev-table tr {
+        display: block;
+        width: 100%;
+        margin-bottom: 16px;
+        background: white;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        border: 1px solid #eaeaea;
+        box-sizing: border-box;
+    }
+
+    .lev-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.95rem;
+        text-align: right;
+    }
+
+    .lev-table td:last-child {
+        border-bottom: none;
+        padding-top: 14px;
+        padding-bottom: 4px;
+        justify-content: center;
+    }
+
+    .lev-table td::before {
+        content: attr(data-label);
+        font-weight: 800;
+        color: #888;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     /* MODALES */
     .lev-modal-form { 
-        width: 90%; /* Que el modal tampoco tope en las orillas */
+        width: 90%; 
         max-height: 90vh;
         overflow-y: auto;
     }
