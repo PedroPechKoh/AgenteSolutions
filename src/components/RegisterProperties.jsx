@@ -13,7 +13,8 @@ import {
   Radar,
   Image as ImageIcon,
   Type,
-  Camera
+  Camera,
+  ChevronLeft
 } from "lucide-react";
 import axios from "axios";
 import {
@@ -228,6 +229,18 @@ const RegisterProperties = () => {
 
   return (
     <div className="register-viewport">
+      {/* BOTÓN REGRESAR */}
+      <div style={{ width: '95%', maxWidth: '1200px', display: 'flex', justifyContent: 'flex-start', marginBottom: '15px' }}>
+        <button 
+          type="button"
+          onClick={() => navigate(-1)} 
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+        >
+          <ChevronLeft size={18} />
+          <span>REGRESAR</span>
+        </button>
+      </div>
+
       <div className="form-card">
         <form onSubmit={handleRegistro}>
           <h2 className="form-title">REGISTRO DE INMUEBLE</h2>

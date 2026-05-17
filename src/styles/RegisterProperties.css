@@ -7,8 +7,9 @@
   color: rgb(0, 0, 0);
   font-family: "Arial", sans-serif;
   display: flex;
-  justify-content: center;
-  align-items: flex-start; /* Permite hacer scroll si el form es muy alto */
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center; 
   padding: 20px;
   overflow-x: hidden; 
 }
