@@ -193,23 +193,30 @@ const MainLayoutCliente = ({ children }) => {
               </button>
 
               {menuAbierto && (
-                <div className="profile-dropdown-menu" style={{ position: 'absolute', right: 0, top: '50px', background: 'white', border: '1px solid #ccc', borderRadius: '8px', zIndex: 1000, minWidth: '150px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-                  <button
-                    className="dropdown-item"
-                    onClick={() => { setMenuAbierto(false); navigate("/mi-perfil"); }}
-                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    <User size={16} /> Mi Perfil
-                  </button>
-                  <div className="dropdown-divider" style={{ borderBottom: '1px solid #eee', margin: '5px 0' }}></div>
-                  <button
-                    className="dropdown-item logout"
-                    onClick={() => { logoutGlobal(); navigate("/"); }}
-                    style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', color: 'red', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
-                  >
-                    <ArrowLeft size={16} style={{ transform: 'rotate(180deg)' }} /> Cerrar Sesión
-                  </button>
-                </div>
+                <>
+                  <div 
+                    className="profile-backdrop" 
+                    onClick={() => setMenuAbierto(false)} 
+                    style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 999 }} 
+                  />
+                  <div className="profile-dropdown-menu" style={{ position: 'absolute', right: 0, top: '50px', background: 'white', border: '1px solid #ccc', borderRadius: '8px', zIndex: 1000, minWidth: '150px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+                    <button
+                      className="dropdown-item"
+                      onClick={() => { setMenuAbierto(false); navigate("/mi-perfil"); }}
+                      style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <User size={16} /> Mi Perfil
+                    </button>
+                    <div className="dropdown-divider" style={{ borderBottom: '1px solid #eee', margin: '5px 0' }}></div>
+                    <button
+                      className="dropdown-item logout"
+                      onClick={() => { logoutGlobal(); navigate("/"); }}
+                      style={{ background: 'none', border: 'none', width: '100%', textAlign: 'left', padding: '10px 15px', cursor: 'pointer', color: 'red', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <ArrowLeft size={16} style={{ transform: 'rotate(180deg)' }} /> Cerrar Sesión
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           </div>

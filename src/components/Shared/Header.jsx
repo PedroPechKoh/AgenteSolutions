@@ -86,21 +86,28 @@ const Header = ({ rolTexto = "USUARIO", titulo }) => {
           </button>
 
           {menuAbierto && (
-            <div className="profile-dropdown-menu">
-              <button
-                className="dropdown-item"
-                onClick={() => navigate("/mi-perfil")}
-              >
-                👤 Mi Perfil
-              </button>
-              <div className="dropdown-divider"></div>
-              <button
-                className="dropdown-item logout"
-                onClick={handleCerrarSesion}
-              >
-                🚪 Cerrar Sesión
-              </button>
-            </div>
+            <>
+              <div 
+                className="profile-backdrop" 
+                onClick={() => setMenuAbierto(false)} 
+                style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 90 }} 
+              />
+              <div className="profile-dropdown-menu">
+                <button
+                  className="dropdown-item"
+                  onClick={() => { setMenuAbierto(false); navigate("/mi-perfil"); }}
+                >
+                  👤 Mi Perfil
+                </button>
+                <div className="dropdown-divider"></div>
+                <button
+                  className="dropdown-item logout"
+                  onClick={handleCerrarSesion}
+                >
+                  🚪 Cerrar Sesión
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>
