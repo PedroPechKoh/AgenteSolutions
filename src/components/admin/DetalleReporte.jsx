@@ -841,7 +841,7 @@ const DetalleReporte = () => {
                     )}
                 </section>
                 
-                {/* DEBUGER OCULTO SOLO PARA DESARROLLO - BORRAR DESPUÉS */}
+               
                 {Array.isArray(datosBD.secciones) && datosBD.secciones.length > 0 && (
                     <div style={{ fontSize: '10px', color: '#ccc', textAlign: 'center', marginTop: '20px' }}>
                         DEBUG KEYS: {Object.keys(datosBD.secciones[0]).join(', ')}
