@@ -851,7 +851,7 @@ const DetalleReporte = () => {
 
             </main>
 
-            {/* --- MODALES DE ZONAS Y ESPACIOS --- */}
+            
             {mostrarModalAddZona && createPortal(
                 <div className="lev-modal-overlay" style={{ zIndex: 999999, position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div className="cot-modal-card" style={{ maxWidth: '500px', width: '90%', borderRadius: '16px', overflow: 'hidden' }}>
