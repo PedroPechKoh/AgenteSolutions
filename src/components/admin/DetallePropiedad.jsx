@@ -538,43 +538,50 @@ const DetallePropiedad = () => {
           <section className="glass-card" style={{ width: '100%' }}>
             <div className="card-header-ui"><CheckCircle size={20} className="icon-blue"/> <h2>Historial de Solicitudes y Cotizaciones</h2></div>
             <div className="table-wrapper">
-              <table className="modern-table" style={{ width: '100%' }}>
+              <table className="modern-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
                 <thead>
                   <tr>
-                    <th>Servicio / Concepto</th>
-                    <th>Estatus</th>
-                    <th>Comentario Cliente</th>
-                    <th>Acción Principal</th>
-                    <th style={{ textAlign: 'center' }}>Acciones rápidas</th>
+                    <th style={{ padding: '12px 16px' }}>Servicio / Concepto</th>
+                    <th style={{ padding: '12px 16px' }}>Estatus</th>
+                    <th style={{ padding: '12px 16px', maxWidth: '300px' }}>Comentario Cliente</th>
+                    <th style={{ padding: '12px 16px', textAlign: 'center' }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {cotizaciones.map(cot => (
-                    <tr key={cot.id} className={cot.esEmergencia ? 'row-priority-sos' : ''}>
-                      <td><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
-                      <td><span className={`status-pill pill-${cot.status.toLowerCase()}`}>{cot.status}</span></td>
-                      <td className="comment-cell">
-                        <div className="flex-comment"><MessageSquare size={14} className="icon-gray"/><span>{cot.comentario || "Sin observaciones"}</span></div>
+                    <tr key={cot.id} className={cot.esEmergencia ? 'row-priority-sos' : ''} style={{ background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                      <td style={{ padding: '16px' }}><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
+                      <td style={{ padding: '16px' }}><span className={`status-pill pill-${cot.status.toLowerCase()}`}>{cot.status}</span></td>
+                      <td className="comment-cell" style={{ padding: '16px', maxWidth: '300px' }}>
+                        <div className="flex-comment" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
+                          <MessageSquare size={16} className="icon-gray" style={{ flexShrink: 0, marginTop: '2px' }}/>
+                          <span style={{ color: '#475569', fontSize: '0.9rem' }}>{cot.comentario || "Sin observaciones"}</span>
+                        </div>
                       </td>
-                      <td>
-                        {cot.status === "ACEPTADA" || cot.status === "Aprobado" || cot.status === "Pendiente" ? (
-                          <button className="btn-planificar" onClick={() => {
-                            setCotizacionSeleccionada(cot);
-                            setFormPlanificacion({ 
-                              tecnico: "", 
-                              fecha: cot.esEmergencia ? obtenerFechaHoy() : "", 
-                              prioridad: cot.esEmergencia ? "SOS" : "ALTA",
-                              descripcionTrabajo: ""
-                            });
-                          }}><Settings size={14}/> ASIGNAR</button>
-                        ) : cot.status === "ASIGNADO" || cot.status === "Programado" ? (
-                           <span className="text-assigned"><CheckCircle size={14}/> EN TABLERO</span>
-                        ) : (
-                          <span className="text-closed">{cot.status === "ENVIADA" ? "ESPERANDO..." : "CERRADO"}</span>
-                        )}
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                      <td style={{ padding: '16px', textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+                          {cot.status === "ACEPTADA" || cot.status === "Aprobado" || cot.status === "Pendiente" ? (
+                            <button className="btn-planificar" onClick={() => {
+                              setCotizacionSeleccionada(cot);
+                              setFormPlanificacion({ 
+                                tecnico: "", 
+                                fecha: cot.esEmergencia ? obtenerFechaHoy() : "", 
+                                prioridad: cot.esEmergencia ? "SOS" : "ALTA",
+                                descripcionTrabajo: ""
+                              });
+                            }} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '20px', background: '#1e293b', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                              <Settings size={15}/> ASIGNAR
+                            </button>
+                          ) : cot.status === "ASIGNADO" || cot.status === "Programado" ? (
+                             <span className="text-assigned" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#16a34a', fontWeight: 'bold', fontSize: '0.85rem', padding: '8px 12px', background: '#f0fdf4', borderRadius: '20px', border: '1px solid #bbf7d0' }}>
+                               <CheckCircle size={15}/> EN TABLERO
+                             </span>
+                          ) : (
+                            <span className="text-closed" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748b', fontWeight: 'bold', fontSize: '0.85rem', padding: '8px 12px', background: '#f1f5f9', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
+                              {cot.status === "ENVIADA" ? "ESPERANDO..." : "CERRADO"}
+                            </span>
+                          )}
+
                           <button
                             onClick={() => {
                               setChatCotizacion(cot);
@@ -583,19 +590,20 @@ const DetallePropiedad = () => {
                             style={{
                               display: 'flex',
                               alignItems: 'center',
-                              gap: '5px',
-                              padding: '6px 12px',
+                              gap: '6px',
+                              padding: '8px 16px',
                               borderRadius: '20px',
                               border: '1px solid #cbd5e1',
                               background: 'white',
                               cursor: 'pointer',
                               fontSize: '0.85rem',
                               color: '#334155',
-                              fontWeight: '500'
+                              fontWeight: '600',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                             }}
                             title="Ver conversación con el cliente"
                           >
-                            <MessageCircle size={15} /> Chat
+                            <MessageCircle size={15} color="#3b82f6" /> Chat
                           </button>
                           <button
                             onClick={() => {
@@ -605,19 +613,20 @@ const DetallePropiedad = () => {
                             style={{
                               display: 'flex',
                               alignItems: 'center',
-                              gap: '5px',
-                              padding: '6px 12px',
+                              gap: '6px',
+                              padding: '8px 16px',
                               borderRadius: '20px',
                               border: '1px solid #cbd5e1',
                               background: 'white',
                               cursor: 'pointer',
                               fontSize: '0.85rem',
                               color: '#334155',
-                              fontWeight: '500'
+                              fontWeight: '600',
+                              box.shadow: '0 2px 4px rgba(0,0,0,0.05)'
                             }}
                             title="Ver detalle de la cotización"
                           >
-                            <Eye size={15} /> Ver cotización
+                            <Eye size={15} color="#f26624" /> Ver cotización
                           </button>
                         </div>
                       </td>
@@ -1038,72 +1047,249 @@ const DetallePropiedad = () => {
       )}
 
       {/* MODAL DETALLE COTIZACIÓN */}
-      {isModalCotizacionDetailOpen && cotizacionDetail && (
-        <div className="modal-overlay-ui" onClick={() => setIsModalCotizacionDetailOpen(false)}>
-          <div className="modal-card-ui invoice-modal animate-fade-in" onClick={e => e.stopPropagation()}>
-            <div className="modal-header-premium">
-              <div className="header-content">
-                <div className="icon-badge-white"><FileText size={22} /></div>
-                <div>
-                  <h3>Detalle de Cotización #{cotizacionDetail.id}</h3>
-                  <span>{cotizacionDetail.producto}</span>
+      {isModalCotizacionDetailOpen && cotizacionDetail && (() => {
+        const cotRaw = cotizacionDetail.raw || cotizacionDetail;
+        const renderConceptoDetalle = (conceptoStr) => {
+          try {
+            const detalle = typeof conceptoStr === 'string' ? JSON.parse(conceptoStr) : conceptoStr;
+            
+            if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.materiales || detalle.herramientas_basicas)) {
+              return (
+                <div className="detalle-parseado">
+                  {/* Conceptos / Servicios */}
+                  {(detalle.conceptos || detalle.servicios) && (detalle.conceptos || detalle.servicios).some(c => c.descripcion) && (
+                    <div className="detalle-seccion">
+                      <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px', marginBottom: '10px' }}>Servicios / Conceptos</h4>
+                      <table className="modal-items-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '15px' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid #ff8800', textAlign: 'left', backgroundColor: '#fff7ed' }}>
+                            <th style={{ padding: '10px' }}>Descripción</th>
+                            <th style={{ textAlign: 'center', padding: '10px' }}>Cant.</th>
+                            <th style={{ textAlign: 'right', padding: '10px' }}>Precio U.</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(detalle.conceptos || detalle.servicios).filter(c => c.descripcion).map((c, i) => (
+                            <tr key={i} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                              <td style={{ padding: '10px' }}>{c.descripcion}</td>
+                              <td style={{ textAlign: 'center', padding: '10px' }}>{c.cantidad || 1}</td>
+                              <td style={{ textAlign: 'right', padding: '10px' }}>${parseFloat(c.precio_u || c.precio || 0).toLocaleString('es-MX')}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Materiales */}
+                  {detalle.materiales && detalle.materiales.some(m => m.nombre || m.descripcion) && (
+                    <div className="detalle-seccion" style={{ marginTop: '15px' }}>
+                      <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px', marginBottom: '10px' }}>Materiales</h4>
+                      <table className="modal-items-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '15px' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '2px solid #ff8800', textAlign: 'left', backgroundColor: '#fff7ed' }}>
+                            <th style={{ padding: '10px' }}>Nombre</th>
+                            <th style={{ textAlign: 'center', padding: '10px' }}>Cant.</th>
+                            <th style={{ textAlign: 'right', padding: '10px' }}>Costo U.</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {detalle.materiales.filter(m => m.nombre || m.descripcion).map((m, i) => (
+                            <tr key={i} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                              <td style={{ padding: '10px' }}>{m.nombre || m.descripcion}</td>
+                              <td style={{ textAlign: 'center', padding: '10px' }}>{m.cantidad || 1}</td>
+                              <td style={{ textAlign: 'right', padding: '10px' }}>${parseFloat(m.costo_u || m.precio || 0).toLocaleString('es-MX')}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
+              );
+            }
+          } catch (e) {
+            console.log("No es un JSON de detalle, se muestra como texto.");
+          }
+
+          // Fallback si no es el JSON estructurado de técnico
+          if (cotizacionDetail.items && cotizacionDetail.items.length > 0) {
+            return (
+              <div style={{ marginTop: '20px' }}>
+                <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px', marginBottom: '10px' }}>Servicios / Conceptos</h4>
+                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '15px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #ff8800', textAlign: 'left', backgroundColor: '#fff7ed' }}>
+                      <th style={{ padding: '10px' }}>Concepto</th>
+                      <th style={{ textAlign: 'center', padding: '10px' }}>Cantidad</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>Precio</th>
+                      <th style={{ textAlign: 'right', padding: '10px' }}>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cotizacionDetail.items.map((item, idx) => (
+                      <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                        <td style={{ padding: '10px' }}>{item.concepto || item.descripcion}</td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>{item.cantidad || 1}</td>
+                        <td style={{ textAlign: 'right', padding: '10px' }}>${Number(item.precio || item.precio_u || 0).toLocaleString('es-MX')}</td>
+                        <td style={{ textAlign: 'right', padding: '10px' }}>${(Number(item.cantidad || 1) * Number(item.precio || item.precio_u || 0)).toLocaleString('es-MX')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <button className="btn-close-light" onClick={() => setIsModalCotizacionDetailOpen(false)}><X size={20}/></button>
-            </div>
-            <div className="modal-body modern-body" style={{ padding: '20px' }}>
-              <div className="info-grid">
-                <div className="info-item-card">
-                  <div className="item-icon"><Briefcase size={18} /></div>
-                  <div className="item-details"><label>Estado</label><p>{cotizacionDetail.status}</p></div>
+            );
+          }
+
+          return (
+            <table className="modal-items-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '15px' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #ff8800', textAlign: 'left', backgroundColor: '#fff7ed' }}>
+                  <th style={{ padding: '10px' }}>Descripción</th>
+                  <th style={{ textAlign: 'right', padding: '10px' }}>Total Estimado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+                  <td style={{ padding: '10px' }}>{conceptoStr || cotRaw.concept || cotizacionDetail.producto}</td>
+                  <td style={{ textAlign: 'right', fontWeight: 'bold', padding: '10px' }}>
+                    ${parseFloat(cotRaw.total || 0).toLocaleString('es-MX')}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          );
+        };
+
+        const handleImprimirPDFLocal = () => {
+          localStorage.setItem('cotizacion_para_imprimir', JSON.stringify(cotRaw));
+          window.open('/imprimir-cotizacion', '_blank'); 
+        };
+
+        return (
+          <div className="modal-overlay-ui" onClick={() => setIsModalCotizacionDetailOpen(false)}>
+            <div className="modal-card-ui invoice-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '750px', width: '90%', borderRadius: '16px', overflow: 'hidden', backgroundColor: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+              <div className="modal-header-premium" style={{ backgroundColor: '#1e293b', color: 'white', padding: '20px 25px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="header-content" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  <div className="icon-badge-white" style={{ backgroundColor: 'white', color: '#f26624', width: '45px', height: '45px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                    <FileText size={24} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold' }}>DETALLE DE COTIZACIÓN #{cotRaw.folio || cotRaw.id}</h3>
+                    <span style={{ fontSize: '0.9rem', color: '#94a3b8' }}>{cotizacionDetail.producto}</span>
+                  </div>
                 </div>
-                <div className="info-item-card">
-                  <div className="item-icon"><Clock size={18} /></div>
-                  <div className="item-details"><label>Fecha</label><p>{cotizacionDetail.fecha}</p></div>
-                </div>
-                <div className="info-item-card full-width">
-                  <div className="item-icon"><MessageSquare size={18} /></div>
-                  <div className="item-details"><label>Comentario</label><p>{cotizacionDetail.comentario || "Sin comentarios"}</p></div>
-                </div>
+                <button className="btn-close-light" onClick={() => setIsModalCotizacionDetailOpen(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}><X size={24}/></button>
               </div>
 
-              {cotizacionDetail.items && cotizacionDetail.items.length > 0 ? (
-                <div style={{ marginTop: '20px' }}>
-                  <h4 style={{ marginBottom: '10px' }}>Conceptos</h4>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid #ddd' }}>
-                        <th style={{ textAlign: 'left', padding: '8px' }}>Concepto</th>
-                        <th style={{ textAlign: 'center', padding: '8px' }}>Cantidad</th>
-                        <th style={{ textAlign: 'right', padding: '8px' }}>Precio</th>
-                        <th style={{ textAlign: 'right', padding: '8px' }}>Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cotizacionDetail.items.map((item, idx) => (
-                        <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                          <td style={{ padding: '8px' }}>{item.concepto}</td>
-                          <td style={{ textAlign: 'center', padding: '8px' }}>{item.cantidad}</td>
-                          <td style={{ textAlign: 'right', padding: '8px' }}>${Number(item.precio).toLocaleString()}</td>
-                          <td style={{ textAlign: 'right', padding: '8px' }}>${(Number(item.cantidad) * Number(item.precio)).toLocaleString()}</td>
-                        </tr>
-                      ))}
-                      <tr>
-                        <td colSpan={3} style={{ textAlign: 'right', fontWeight: 'bold', padding: '8px' }}>Total</td>
-                        <td style={{ textAlign: 'right', fontWeight: 'bold', padding: '8px' }}>
-                          ${cotizacionDetail.items.reduce((acc, item) => acc + (Number(item.cantidad) * Number(item.precio)), 0).toLocaleString()}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+              <div className="modal-body modern-body" style={{ padding: '30px', maxHeight: '75vh', overflowY: 'auto' }}>
+                
+                {cotRaw.tecnico && (
+                  <div style={{ background: '#f8fafc', padding: '16px', raw: '12px', borderLeft: '4px solid #f26624', marginBottom: '20px' }}>
+                    <p style={{ margin: 0, fontSize: '1rem', color: '#334155', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      🛠️ {cotRaw.created_by_role === 'Técnico' ? 'Propuesta técnica enviada al Administrador' : 'Cotización oficial para el Cliente'}
+                    </p>
+                    <p style={{ margin: '6px 0 0 0', fontSize: '0.9rem', color: '#64748b' }}>
+                      Propiedad: {cotRaw.propiedad_nombre || datosPropiedad.nombre_propiedad || 'Sin nombre'}
+                    </p>
+                  </div>
+                )}
+
+                <div className="modal-info-summary" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', background: '#f1f5f9', padding: '20px', borderRadius: '12px', marginBottom: '25px' }}>
+                  <div>
+                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Cliente</label>
+                    <p style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a', fontWeight: '600' }}>{cotRaw.cliente || datosPropiedad.personaCargo || 'Cliente'}</p>
+                  </div>
+                  {cotRaw.tecnico && (
+                    <div>
+                      <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Técnico</label>
+                      <p style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a', fontWeight: '600' }}>{cotRaw.tecnico}</p>
+                    </div>
+                  )}
+                  <div>
+                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Fecha</label>
+                    <p style={{ margin: 0, fontSize: '1.05rem', color: '#0f172a', fontWeight: '600' }}>{cotRaw.fecha || cotizacionDetail.fecha}</p>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>Estado</label>
+                    <p style={{ margin: 0, fontSize: '1.05rem', color: '#f26624', fontWeight: 'bold' }}>{cotRaw.status || cotizacionDetail.status}</p>
+                  </div>
                 </div>
-              ) : (
-                <p style={{ marginTop: '20px', color: '#888' }}>No se encontró desglose de conceptos para esta cotización.</p>
-              )}
+
+                {cotRaw.type === 'archivo' ? (
+                  <div style={{ position: 'relative', background: '#f8fafc', padding: '20px', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px', border: '1px solid #e2e8f0' }}>
+                    {cotRaw.archivo_url ? (
+                      cotRaw.archivo_url.endsWith('.pdf') ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '30px 0' }}>
+                          <span style={{ fontSize: '4rem', marginBottom: '15px' }}>📄</span>
+                          <p style={{ fontWeight: 'bold', color: '#334155', marginBottom: '20px', fontSize: '1.1rem' }}>Documento PDF Adjunto</p>
+                          <button 
+                            onClick={() => window.open(cotRaw.archivo_url, '_blank')}
+                            style={{ background: '#f26624', color: 'white', padding: '12px 30px', border: 'none', borderRadius: '8px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 10px rgba(242, 102, 36, 0.3)' }}
+                          >
+                            ABRIR PDF ADJUNTO
+                          </button>
+                        </div>
+                      ) : (
+                        <img 
+                          src={cotRaw.archivo_url} 
+                          alt="Cotización" 
+                          style={{ maxWidth: '100%', maxHeight: '50vh', objectFit: 'contain', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} 
+                        />
+                      )
+                    ) : (
+                      <p style={{ color: '#ef4444', padding: '30px', fontWeight: 'bold' }}>El archivo no se encuentra disponible.</p>
+                    )}
+                  </div>
+                ) : (
+                  renderConceptoDetalle(cotRaw.concept)
+                )}
+
+                <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', marginTop: '25px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#1e293b', fontWeight: 'bold' }}>TOTAL ESTIMADO:</h3>
+                  <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#f26624', fontWeight: 'bold' }}>${parseFloat(cotRaw.total || 0).toLocaleString('es-MX')}</h3>
+                </div>
+
+                {cotRaw.observations && (
+                  <div style={{ padding: '16px', background: '#fff7ed', borderRadius: '12px', marginTop: '20px', borderLeft: '4px solid #f26624' }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '1rem', color: '#9a3412', fontWeight: 'bold' }}>Mensajes al Cliente:</h4>
+                    <p style={{ margin: 0, fontSize: '0.95rem', color: '#431407', whiteSpace: 'pre-wrap' }}>
+                      {cotRaw.observations}
+                    </p>
+                  </div>
+                )}
+
+                {cotRaw.internal_observations && (
+                  <div style={{ padding: '16px', background: '#fef9c3', borderRadius: '12px', marginTop: '20px', borderLeft: '4px solid #eab308' }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '1rem', color: '#854d0e', fontWeight: 'bold' }}>Comentarios Internos:</h4>
+                    <p style={{ margin: 0, fontSize: '0.95rem', color: '#422006', whiteSpace: 'pre-wrap', fontStyle: 'italic' }}>
+                      {cotRaw.internal_observations}
+                    </p>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
+                  {cotRaw.type !== 'archivo' && (
+                    <button 
+                      onClick={handleImprimirPDFLocal}
+                      style={{ flex: 1, background: '#f26624', color: 'white', padding: '14px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(242, 102, 36, 0.25)' }}
+                    >
+                      <FileText size={20} /> VER PDF
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => setIsModalCotizacionDetailOpen(false)}
+                    style={{ flex: 1, background: '#1e293b', color: 'white', padding: '14px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    CERRAR
+                  </button>
+                </div>
+
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* LIGHTBOX PARA IMAGEN AMPLIADA */}
       {imagenAmpliada && (
