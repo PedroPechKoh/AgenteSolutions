@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import { 
   MapPin, User, AlertTriangle, Settings, CheckCircle, 
   X, LayoutDashboard, FileText, Send, Trash2, Clock, Briefcase, MessageSquare,
-  CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon
+  CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon, ArrowLeft
 } from 'lucide-react';
 
 const DetallePropiedad = () => {
@@ -50,6 +50,7 @@ const DetallePropiedad = () => {
   const [historialFinalizados, setHistorialFinalizados] = useState([]);
   const [reportesDetallados, setReportesDetallados] = useState([]);
   const [cargandoReportes, setCargandoReportes] = useState(false);
+  const [reportesPropiedad, setReportesPropiedad] = useState([]);
 
   const [itemsCotizacion, setItemsCotizacion] = useState([
     { id: 1, concepto: "Mano de Obra Emergencia", cantidad: 1, precio: "" },
@@ -215,6 +216,19 @@ const DetallePropiedad = () => {
         }));
 
         setHistorialFinalizados(finalizados.length > 0 ? finalizados : histMapeado);
+
+        // 5. Reportes de la propiedad (Work Reports en proceso/general)
+        let reps = [];
+        try {
+          const resRep = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/reportes-globales`, { headers });
+          reps = resRep.data.filter(r => {
+            const propId = r.service?.property_id || r.work_order?.property_id || r.workOrder?.property_id || r.property_id;
+            return String(propId) === String(id);
+          });
+        } catch (err) {
+          console.warn("Error cargando reportes globales:", err);
+        }
+        setReportesPropiedad(reps);
 
       } catch (error) {
         console.error("Error general al cargar datos de la propiedad:", error);
@@ -417,6 +431,29 @@ const DetallePropiedad = () => {
 
           {/* Logo + Navegación */}
           <div className="top-bar-left">
+            <button 
+              onClick={() => navigate(-1)} 
+              className="btn-back-header"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                backgroundColor: '#f1f5f9',
+                color: '#334155',
+                border: '1px solid #cbd5e1',
+                borderRadius: '25px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                fontSize: '0.9rem',
+                transition: 'all 0.2s ease',
+                marginRight: '15px'
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#e2e8f0'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; }}
+            >
+              <ArrowLeft size={16} /> Regresar
+            </button>
 
             <div className="logo-brand">
               AGENTE <span className="logo-solutions">SOLUTIONS</span>
@@ -469,12 +506,12 @@ const DetallePropiedad = () => {
           </div>
         )}
 
-        <div className="management-grid">
-          {/* Historial de Servicios (TABLA PRINCIPAL) */}
-          <section className="glass-card">
+        <div className="management-section-full" style={{ width: '100%', marginBottom: '30px' }}>
+          {/* Historial de Servicios (TABLA PRINCIPAL COMPLETA) */}
+          <section className="glass-card" style={{ width: '100%' }}>
             <div className="card-header-ui"><CheckCircle size={20} className="icon-blue"/> <h2>Historial de Solicitudes y Cotizaciones</h2></div>
             <div className="table-wrapper">
-              <table className="modern-table">
+              <table className="modern-table" style={{ width: '100%' }}>
                 <thead>
                   <tr>
                     <th>Servicio / Concepto</th>
@@ -563,66 +600,6 @@ const DetallePropiedad = () => {
               </table>
             </div>
           </section>
-
-          {/* Formulario Asignación */}
-          <div className="form-container-ui">
-            {cotizacionSeleccionada ? (
-              <section className={`glass-card planning-section ${cotizacionSeleccionada.esEmergencia ? 'border-sos' : ''}`}>
-                <div className="card-header-ui">
-                  <Briefcase size={20} className={cotizacionSeleccionada.esEmergencia ? 'icon-red' : 'icon-orange'}/>
-                  <h2>{cotizacionSeleccionada.esEmergencia ? "ASIGNAR SOS" : "Planificar Trabajo"}</h2>
-                  <button className="btn-close-form" onClick={() => setCotizacionSeleccionada(null)}><X size={16}/></button>
-                </div>
-                <form className="modern-form" onSubmit={asignarTecnicoFinal}>
-                  <div className="input-group">
-                    <label>Técnico Responsable</label>
-                    <select required value={formPlanificacion.tecnico} onChange={(e) => setFormPlanificacion({...formPlanificacion, tecnico: e.target.value})}>
-                      <option value="">Seleccionar técnico...</option>
-                      {listaTecnicos.map(t => (
-                        <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="input-row">
-                    <div className="input-group">
-                      <label>Fecha Inicio</label>
-                      <input 
-                        type="date" 
-                        value={formPlanificacion.fecha} 
-                        onChange={(e) => setFormPlanificacion({...formPlanificacion, fecha: e.target.value})} 
-                        required 
-                      />
-                    </div>
-                    <div className="input-group">
-                      <label>Prioridad</label>
-                      <select value={formPlanificacion.prioridad} onChange={(e) => setFormPlanificacion({...formPlanificacion, prioridad: e.target.value})}>
-                        <option value="SOS">SOS</option>
-                        <option value="ALTA">ALTA</option>
-                        <option value="MEDIA">MEDIA</option>
-                        <option value="BAJA">BAJA</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="input-group">
-                    <label>Descripción del trabajo (visible para el técnico)</label>
-                    <textarea
-                      rows="3"
-                      placeholder="Describe detalladamente lo que debe hacer el técnico…"
-                      value={formPlanificacion.descripcionTrabajo}
-                      onChange={(e) => setFormPlanificacion({ ...formPlanificacion, descripcionTrabajo: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <button type="submit" className={cotizacionSeleccionada.esEmergencia ? 'btn-sos-confirm' : 'btn-primary-ui'}>CONFIRMAR ASIGNACIÓN</button>
-                </form>
-              </section>
-            ) : (
-              <div className="empty-state-card">
-                <Settings size={32} className="icon-ghost"/>
-                <p>Selecciona una solicitud o cotización para asignar técnico.</p>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Tablero Kanban */}
@@ -658,6 +635,111 @@ const DetallePropiedad = () => {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* REPORTES REALIZADOS EN LA PROPIEDAD */}
+        <section className="reports-section-container" style={{ marginTop: '40px', marginBottom: '40px' }}>
+          <div className="card-header-ui" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <FileText size={20} className="icon-orange" style={{ color: '#f26624' }} />
+            <h2 style={{ fontSize: '1.3rem', color: '#1e293b', margin: 0, fontWeight: 'bold' }}>Reportes realizados en la propiedad</h2>
+          </div>
+
+          {reportesPropiedad.length > 0 ? (
+            <div className="reports-grid" style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+              gap: '25px' 
+            }}>
+              {reportesPropiedad.map((rep) => {
+                const techObj = rep.technician || {};
+                const techName = techObj.first_name ? `${techObj.first_name} ${techObj.last_name}` : "Técnico";
+                const techInitial = techObj.first_name ? techObj.first_name.charAt(0).toUpperCase() : "T";
+                const imgUrl = rep.image_url || rep.image_path || rep.foto || rep.photo || null;
+                const trabajoId = rep.service_id || rep.work_order_id || rep.id;
+                const fechaFormat = rep.created_at ? new Date(rep.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "---";
+
+                return (
+                  <div 
+                    key={rep.id} 
+                    className="report-card-modern"
+                    style={{
+                      backgroundColor: 'white',
+                      borderRadius: '16px',
+                      overflow: 'hidden',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.06)',
+                      border: '1px solid #e2e8f0',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(0,0,0,0.1)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.06)'; }}
+                  >
+                    {imgUrl ? (
+                      <div 
+                        className="report-img-wrapper" 
+                        style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden', backgroundColor: '#f8fafc', cursor: 'pointer' }}
+                        onClick={() => setImagenAmpliada(imgUrl)}
+                      >
+                        <img 
+                          src={imgUrl} 
+                          alt="Reporte evidencia" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease' }}
+                          onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                        />
+                        <div style={{ position: 'absolute', bottom: '10px', right: '10px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', backdropFilter: 'blur(4px)' }}>
+                          <Eye size={12} /> Ampliar
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ width: '100%', height: '180px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                        <ImageIcon size={40} />
+                      </div>
+                    )}
+
+                    <div className="report-card-body" style={{ padding: '22px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      {/* Técnico info */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                        <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#f1f5f9', color: '#f26624', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1rem', border: '1px solid #e2e8f0' }}>
+                          {techInitial}
+                        </div>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '1rem', color: '#f26624', fontWeight: '700' }}>{techName}</h4>
+                          <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Técnico de Campo</span>
+                        </div>
+                      </div>
+
+                      {/* Meta info */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '18px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '0.85rem' }}>
+                          <FileText size={16} style={{ color: '#f26624' }} />
+                          <span><b>Trabajo ID:</b> {trabajoId}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '0.85rem' }}>
+                          <Clock size={16} style={{ color: '#f26624' }} />
+                          <span><b>Subido:</b> {fechaFormat}</span>
+                        </div>
+                      </div>
+
+                      {/* Descripción */}
+                      <div style={{ backgroundColor: '#f8fafc', padding: '14px 16px', borderRadius: '12px', borderLeft: '4px solid #f26624', marginTop: 'auto' }}>
+                        <p style={{ margin: 0, color: '#1e293b', fontSize: '0.9rem', lineHeight: 1.5, fontStyle: 'italic' }}>
+                          "{rep.description || rep.title || 'Reporte de avance sin descripción detallada.'}"
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="empty-reports-card" style={{ padding: '40px', textAlign: 'center', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+              <FileText size={48} style={{ color: '#cbd5e1', margin: '0 auto 15px auto' }} />
+              <h3 style={{ margin: '0 0 8px 0', color: '#334155', fontSize: '1.2rem' }}>Sin reportes en proceso</h3>
+              <p style={{ margin: 0, color: '#64748b', maxWidth: '400px', margin: '0 auto' }}>Aún no se han registrado reportes de avance o de proceso para los trabajos activos en esta propiedad.</p>
+            </div>
+          )}
         </section>
 
         {/* HISTORIAL DE TRABAJOS FINALIZADOS */}
@@ -1000,6 +1082,73 @@ const DetallePropiedad = () => {
           >
              <X size={40} />
           </button>
+        </div>
+      )}
+
+      {/* MODAL PLANIFICAR TRABAJO / ASIGNAR TÉCNICO */}
+      {cotizacionSeleccionada && (
+        <div className="modal-overlay-ui" onClick={() => setCotizacionSeleccionada(null)}>
+          <div className="modal-card-ui planning-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '550px', width: '90%', padding: '25px', borderRadius: '20px', background: 'white' }}>
+            <div className="modal-header-premium" style={{ background: cotizacionSeleccionada.esEmergencia ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #f26624 0%, #ff8c52 100%)', padding: '20px', borderRadius: '15px 15px 0 0', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="header-content" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <div className="icon-badge-white" style={{ background: 'white', color: cotizacionSeleccionada.esEmergencia ? '#ef4444' : '#f26624', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Briefcase size={22} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.2rem', color: 'white' }}>{cotizacionSeleccionada.esEmergencia ? "ASIGNAR SOS" : "Planificar Trabajo"}</h3>
+                  <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)' }}>{cotizacionSeleccionada.producto}</span>
+                </div>
+              </div>
+              <button className="btn-close-light" onClick={() => setCotizacionSeleccionada(null)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20}/></button>
+            </div>
+            <form className="modern-form" onSubmit={asignarTecnicoFinal} style={{ padding: '20px 0 0 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div className="input-group">
+                <label style={{ fontWeight: 'bold', color: '#334155', marginBottom: '8px', display: 'block' }}>Técnico Responsable</label>
+                <select required value={formPlanificacion.tecnico} onChange={(e) => setFormPlanificacion({...formPlanificacion, tecnico: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none' }}>
+                  <option value="">Seleccionar técnico...</option>
+                  {listaTecnicos.map(t => (
+                    <option key={t.id} value={t.id}>{t.first_name} {t.last_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="input-row" style={{ display: 'flex', gap: '15px' }}>
+                <div className="input-group" style={{ flex: 1 }}>
+                  <label style={{ fontWeight: 'bold', color: '#334155', marginBottom: '8px', display: 'block' }}>Fecha Inicio</label>
+                  <input 
+                    type="date" 
+                    value={formPlanificacion.fecha} 
+                    onChange={(e) => setFormPlanificacion({...formPlanificacion, fecha: e.target.value})} 
+                    required 
+                    style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none' }}
+                  />
+                </div>
+                <div className="input-group" style={{ flex: 1 }}>
+                  <label style={{ fontWeight: 'bold', color: '#334155', marginBottom: '8px', display: 'block' }}>Prioridad</label>
+                  <select value={formPlanificacion.prioridad} onChange={(e) => setFormPlanificacion({...formPlanificacion, prioridad: e.target.value})} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none' }}>
+                    <option value="SOS">SOS</option>
+                    <option value="ALTA">ALTA</option>
+                    <option value="MEDIA">MEDIA</option>
+                    <option value="BAJA">BAJA</option>
+                  </select>
+                </div>
+              </div>
+              <div className="input-group">
+                <label style={{ fontWeight: 'bold', color: '#334155', marginBottom: '8px', display: 'block' }}>Descripción del trabajo (visible para el técnico)</label>
+                <textarea
+                  rows="3"
+                  placeholder="Describe detalladamente lo que debe hacer el técnico…"
+                  value={formPlanificacion.descripcionTrabajo}
+                  onChange={(e) => setFormPlanificacion({ ...formPlanificacion, descripcionTrabajo: e.target.value })}
+                  required
+                  style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none', resize: 'vertical' }}
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setCotizacionSeleccionada(null)} style={{ padding: '12px 24px', borderRadius: '25px', border: '1px solid #cbd5e1', background: 'white', color: '#64748b', fontWeight: 'bold', cursor: 'pointer' }}>Cancelar</button>
+                <button type="submit" style={{ padding: '12px 24px', borderRadius: '25px', border: 'none', background: cotizacionSeleccionada.esEmergencia ? '#ef4444' : '#f26624', color: 'white', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(242,102,36,0.3)' }}>CONFIRMAR ASIGNACIÓN</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
