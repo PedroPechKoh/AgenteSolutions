@@ -423,7 +423,10 @@ const DetallePropiedad = () => {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${prefix}${item.id}/reportes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      setReportesDetallados(res.data || []);
+      const data = res.data || [];
+      // Ordenar cronológicamente (más antiguo primero) para que el Paso 1 sea el primer avance registrado
+      const ordenados = [...data].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      setReportesDetallados(ordenados);
     } catch (error) {
       console.error("Error al cargar la bitácora del trabajo:", error);
     } finally {
