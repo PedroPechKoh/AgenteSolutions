@@ -221,10 +221,34 @@ const DetallePropiedad = () => {
         let reps = [];
         try {
           const resRep = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/reportes-globales`, { headers });
-          reps = resRep.data.filter(r => {
+          const filtrados = resRep.data.filter(r => {
             const propId = r.service?.property_id || r.work_order?.property_id || r.workOrder?.property_id || r.property_id;
             return String(propId) === String(id);
           });
+
+          // AGRUPAR POR TRABAJO (service_id o work_order_id)
+          const agrupadora = {};
+          filtrados.forEach(r => {
+            const tipo = r.work_order_id || r.workOrder ? 'work_order' : 'servicio';
+            const trabajoId = r.service_id || r.work_order_id || r.id;
+            const key = `${tipo}-${trabajoId}`;
+
+            if (!agrupadora[key]) {
+              agrupadora[key] = { 
+                ...r, 
+                avances_count: 1, 
+                todas_fotos: [r.image_url || r.image_path || r.foto || r.photo].filter(Boolean) 
+              };
+            } else {
+              agrupadora[key].avances_count += 1;
+              const img = r.image_url || r.image_path || r.foto || r.photo;
+              if (img && !agrupadora[key].todas_fotos.includes(img)) {
+                agrupadora[key].todas_fotos.push(img);
+              }
+            }
+          });
+
+          reps = Object.values(agrupadora);
         } catch (err) {
           console.warn("Error cargando reportes globales:", err);
         }
@@ -654,7 +678,7 @@ const DetallePropiedad = () => {
                 const techObj = rep.technician || {};
                 const techName = techObj.first_name ? `${techObj.first_name} ${techObj.last_name}` : "Técnico";
                 const techInitial = techObj.first_name ? techObj.first_name.charAt(0).toUpperCase() : "T";
-                const imgUrl = rep.image_url || rep.image_path || rep.foto || rep.photo || null;
+                const imgUrl = rep.todas_fotos ? rep.todas_fotos[0] : (rep.image_url || rep.image_path || rep.foto || rep.photo || null);
                 const trabajoId = rep.service_id || rep.work_order_id || rep.id;
                 const fechaFormat = rep.created_at ? new Date(rep.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "---";
 
@@ -675,7 +699,7 @@ const DetallePropiedad = () => {
                         producto: producto,
                         tecnico: tecnico,
                         fecha: fecha,
-                        evidencias: [rep.image_url || rep.image_path || rep.foto || rep.photo].filter(Boolean)
+                        evidencias: rep.todas_fotos || [rep.image_url || rep.image_path || rep.foto || rep.photo].filter(Boolean)
                       });
                     }}
                     style={{
@@ -704,6 +728,9 @@ const DetallePropiedad = () => {
                           onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
                           onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
                         />
+                        <div style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: '#f26624', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+                          <CheckCircle size={12} /> {rep.avances_count || 1} Avance{rep.avances_count > 1 ? 's' : ''}
+                        </div>
                         <div style={{ position: 'absolute', bottom: '10px', right: '10px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', backdropFilter: 'blur(4px)' }}>
                           <Briefcase size={12} /> Abrir Bitácora
                         </div>
