@@ -662,6 +662,22 @@ const DetallePropiedad = () => {
                   <div 
                     key={rep.id} 
                     className="report-card-modern"
+                    onClick={() => {
+                      const tipoRegistro = rep.work_order_id || rep.workOrder ? 'work_order' : 'servicio';
+                      const realId = rep.service_id || rep.work_order_id || rep.id;
+                      const producto = rep.service?.title || rep.workOrder?.type || rep.title || "Reporte de Trabajo";
+                      const tecnico = rep.technician ? `${rep.technician.first_name} ${rep.technician.last_name}` : "Técnico";
+                      const fecha = rep.service?.scheduled_start ? new Date(rep.service.scheduled_start).toLocaleDateString() : (rep.workOrder?.scheduled_at ? new Date(rep.workOrder.scheduled_at).toLocaleDateString() : (rep.created_at ? new Date(rep.created_at).toLocaleDateString() : "---"));
+                      fetchDetalleTrabajo({
+                        id: realId,
+                        realId: realId,
+                        tipo_registro: tipoRegistro,
+                        producto: producto,
+                        tecnico: tecnico,
+                        fecha: fecha,
+                        evidencias: [rep.image_url || rep.image_path || rep.foto || rep.photo].filter(Boolean)
+                      });
+                    }}
                     style={{
                       backgroundColor: 'white',
                       borderRadius: '16px',
@@ -670,6 +686,7 @@ const DetallePropiedad = () => {
                       border: '1px solid #e2e8f0',
                       display: 'flex',
                       flexDirection: 'column',
+                      cursor: 'pointer',
                       transition: 'transform 0.2s ease, box-shadow 0.2s ease'
                     }}
                     onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(0,0,0,0.1)'; }}
@@ -678,8 +695,7 @@ const DetallePropiedad = () => {
                     {imgUrl ? (
                       <div 
                         className="report-img-wrapper" 
-                        style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden', backgroundColor: '#f8fafc', cursor: 'pointer' }}
-                        onClick={() => setImagenAmpliada(imgUrl)}
+                        style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden', backgroundColor: '#f8fafc' }}
                       >
                         <img 
                           src={imgUrl} 
@@ -689,16 +705,16 @@ const DetallePropiedad = () => {
                           onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
                         />
                         <div style={{ position: 'absolute', bottom: '10px', right: '10px', backgroundColor: 'rgba(0,0,0,0.6)', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', backdropFilter: 'blur(4px)' }}>
-                          <Eye size={12} /> Ampliar
+                          <Briefcase size={12} /> Abrir Bitácora
                         </div>
                       </div>
                     ) : (
-                      <div style={{ width: '100%', height: '180px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                      <div style={{ width: '100%', height: '220px', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
                         <ImageIcon size={40} />
                       </div>
                     )}
 
-                    <div className="report-card-body" style={{ padding: '22px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <div className="report-card-body" style={{ padding: '20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
                       {/* Técnico info */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                         <div style={{ width: '38px', height: '38px', borderRadius: '50%', backgroundColor: '#f1f5f9', color: '#f26624', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '1rem', border: '1px solid #e2e8f0' }}>
@@ -711,7 +727,7 @@ const DetallePropiedad = () => {
                       </div>
 
                       {/* Meta info */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '18px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475569', fontSize: '0.85rem' }}>
                           <FileText size={16} style={{ color: '#f26624' }} />
                           <span><b>Trabajo ID:</b> {trabajoId}</span>
@@ -722,11 +738,9 @@ const DetallePropiedad = () => {
                         </div>
                       </div>
 
-                      {/* Descripción */}
-                      <div style={{ backgroundColor: '#f8fafc', padding: '14px 16px', borderRadius: '12px', borderLeft: '4px solid #f26624', marginTop: 'auto' }}>
-                        <p style={{ margin: 0, color: '#1e293b', fontSize: '0.9rem', lineHeight: 1.5, fontStyle: 'italic' }}>
-                          "{rep.description || rep.title || 'Reporte de avance sin descripción detallada.'}"
-                        </p>
+                      {/* Botón Ver Bitácora */}
+                      <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f8fafc', color: '#334155', borderRadius: '12px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 'bold', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.2s ease' }}>
+                        <Briefcase size={16} style={{ color: '#f26624' }} /> Ver Bitácora de Servicio
                       </div>
                     </div>
                   </div>
@@ -917,11 +931,11 @@ const DetallePropiedad = () => {
                         <p style={{ color: '#475569', fontSize: '14px', lineHeight: 1.5, marginBottom: '15px' }}>{rep.description}</p>
                         
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                          {rep.image_path && (
+                          {(rep.image_url || rep.image_path) && (
                             <img 
-                              src={rep.image_path} 
+                              src={rep.image_url || rep.image_path} 
                               alt="evidencia" 
-                              onClick={() => setImagenAmpliada(rep.image_path)}
+                              onClick={() => setImagenAmpliada(rep.image_url || rep.image_path)}
                               style={{ width: '150px', height: '110px', objectFit: 'cover', borderRadius: '10px', cursor: 'pointer', border: '2px solid #e2e8f0' }} 
                             />
                           )}
