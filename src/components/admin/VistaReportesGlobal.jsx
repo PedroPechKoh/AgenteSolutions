@@ -28,12 +28,13 @@ const VistaReportesGlobal = () => {
 
   const filteredReportes = reportes.filter(r => {
     const techName = r.technician ? `${r.technician.first_name} ${r.technician.last_name}`.toLowerCase() : '';
-    const prop = r.service?.property || r.work_order?.property;
-    const propName = prop?.custom_curp?.toLowerCase() || '';
+    const prop = r.service?.property || r.work_order?.property || r.workOrder?.property;
+    const propName = prop?.property_name?.toLowerCase() || '';
+    const curp = prop?.custom_curp?.toLowerCase() || '';
     const desc = r.description?.toLowerCase() || '';
     const search = searchTerm.toLowerCase();
     
-    return techName.includes(search) || propName.includes(search) || desc.includes(search);
+    return techName.includes(search) || propName.includes(search) || curp.includes(search) || desc.includes(search);
   });
 
   return (
@@ -74,20 +75,26 @@ const VistaReportesGlobal = () => {
           <div className="global-gallery-grouped">
             {Object.entries(
               filteredReportes.reduce((acc, r) => {
-                const prop = r.service?.property || r.work_order?.property;
+                const prop = r.service?.property || r.work_order?.property || r.workOrder?.property;
                 const propName = prop?.property_name || 'PROPIEDAD SIN NOMBRE';
                 const curp = prop?.custom_curp || 'SIN CURP';
                 const owner = prop?.client?.name || 'Usuario';
                 
-                // Llave compuesta para agrupar y pasar datos al renderizado
-                const groupKey = `${propName}|${curp}|${owner}`;
+                const isService = !!r.service?.property;
+                const serviceData = isService ? r.service : (r.work_order || r.workOrder || r.service);
+                const tituloTrabajo = serviceData?.title || serviceData?.type || r.title || 'Mantenimiento';
+                const trabajoId = r.service_id || r.work_order_id || r.id || 'general';
+                const tipo = r.work_order_id || r.workOrder ? 'work_order' : 'servicio';
+                
+                // Llave compuesta para agrupar por propiedad y por trabajo
+                const groupKey = `${propName}|${curp}|${owner}|${trabajoId}|${tipo}|${tituloTrabajo}`;
                 
                 if (!acc[groupKey]) acc[groupKey] = [];
                 acc[groupKey].push(r);
                 return acc;
               }, {})
             ).map(([groupKey, reports]) => {
-              const [nombre, curp, dueno] = groupKey.split('|');
+              const [nombre, curp, dueno, trabajoId, tipo, tituloTrabajo] = groupKey.split('|');
               
               return (
                 <div key={groupKey} className="property-group-section" style={{ marginBottom: '40px' }}>
@@ -103,23 +110,25 @@ const VistaReportesGlobal = () => {
                     borderLeft: '5px solid #F26522',
                     position: 'relative'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <MapPin size={20} color="#F26522" />
-                      <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#333', fontWeight: '900', textTransform: 'uppercase' }}>
-                        {nombre}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                      <MapPin size={20} color="#F26522" style={{ flexShrink: 0 }} />
+                      <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#1e293b', fontWeight: '900', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span>{nombre}</span>
+                        <span style={{ fontSize: '0.85rem', color: '#F26522', backgroundColor: '#fff2eb', padding: '4px 12px', borderRadius: '20px', border: '1px solid #ffd8c3', fontWeight: 'bold' }}>
+                          TRABAJO #{trabajoId} {tituloTrabajo && tituloTrabajo !== 'Mantenimiento' && `– ${tituloTrabajo}`}
+                        </span>
                       </h3>
                       <span style={{ marginLeft: '10px', background: '#F26522', color: 'white', padding: '4px 12px', borderRadius: '15px', fontSize: '0.75rem', fontWeight: 'bold' }}>
-                        {reports.length} {reports.length === 1 ? 'Reporte' : 'Reportes'}
+                        {reports.length} {reports.length === 1 ? 'Foto' : 'Fotos'}
                       </span>
                       <button 
                         onClick={() => {
                           const firstReport = reports[0];
-                          // Intentamos detectar si es servicio o work_order basándonos en cuál tiene la propiedad vinculada
-                          const isService = !!firstReport.service?.property;
-                          const serviceData = isService ? firstReport.service : (firstReport.work_order || firstReport.service);
+                          const isService = tipo === 'servicio';
+                          const serviceData = isService ? firstReport.service : (firstReport.work_order || firstReport.workOrder || firstReport.service);
                           const prop = serviceData?.property;
-                          const prefijo = isService ? 'servicio' : (firstReport.work_order_id ? 'work_order' : 'servicio');
-                          const realId = isService ? firstReport.service_id : (firstReport.work_order_id || firstReport.service_id);
+                          const prefijo = tipo;
+                          const realId = trabajoId;
                           
                           navigate(`/reporte-trabajo-admin/${prefijo}-${realId}`, { 
                             state: { 
@@ -132,10 +141,10 @@ const VistaReportesGlobal = () => {
                                 propiedad_nombre: nombre,
                                 tipoPropiedad: prop?.type || serviceData?.tipoPropiedad || 'CASA',
                                 identificador_curp: curp,
-                                titulo: serviceData?.title || serviceData?.type || 'Mantenimiento',
+                                titulo: tituloTrabajo,
                                 descripcion: serviceData?.description
                               }, 
-                              imagenes: reports.map(r => r.image_url) 
+                              imagenes: reports.map(r => r.image_url || r.image_path).filter(Boolean) 
                             } 
                           })
                         }}
@@ -148,7 +157,7 @@ const VistaReportesGlobal = () => {
                           border: 'none', 
                           cursor: 'pointer', 
                           fontWeight: 'bold', 
-                          fontSize: '0.7rem',
+                          fontSize: '0.75rem',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '5px',
@@ -173,10 +182,10 @@ const VistaReportesGlobal = () => {
                     {reports.map(r => (
                       <div key={r.id} className="global-report-card">
                         <img 
-                          src={r.image_url} 
+                          src={r.image_url || r.image_path} 
                           alt="Reporte" 
                           className="global-report-image" 
-                          onClick={() => window.open(r.image_url, '_blank')} 
+                          onClick={() => window.open(r.image_url || r.image_path, '_blank')} 
                           title="Clic para ver tamaño completo"
                         />
                         <div className="global-report-info">
