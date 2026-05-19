@@ -622,7 +622,7 @@ const DetallePropiedad = () => {
                               fontSize: '0.85rem',
                               color: '#334155',
                               fontWeight: '600',
-                              box.shadow: '0 2px 4px rgba(0,0,0,0.05)'
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                             }}
                             title="Ver detalle de la cotización"
                           >
