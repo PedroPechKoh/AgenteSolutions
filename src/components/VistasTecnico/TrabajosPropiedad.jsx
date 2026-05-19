@@ -159,8 +159,17 @@ const TrabajoPropiedad = () => {
         return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
       };
       
-      if (data?.zone && normalizeStr(data.zone) !== 'general') {
-        const targetZone = normalizeStr(data.zone);
+      // Intentar obtener la zona de data.zone; si no, extraerla del título (ej. "Eléctrico - Habitacion Principal")
+      const rawZone = data?.zone || (data?.titulo?.includes(" - ") ? data.titulo.split(" - ")[1] : null);
+      
+      console.log("=== INVENTARIO FILTRADO DEBUG ===");
+      console.log("data.zone original:", data?.zone);
+      console.log("data.titulo original:", data?.titulo);
+      console.log("Zona identificada (rawZone):", rawZone);
+      
+      if (rawZone && normalizeStr(rawZone) !== 'general') {
+        const targetZone = normalizeStr(rawZone);
+        console.log("Zona objetivo normalizada para buscar:", targetZone);
         
         // 1. Intentar coincidencia exacta
         let filteredSurvey = [];
@@ -181,6 +190,7 @@ const TrabajoPropiedad = () => {
         
         // 2. Si no hay coincidencia exacta, intentar coincidencia parcial
         if (filteredSurvey.length === 0) {
+          console.log("No se encontró coincidencia exacta, buscando coincidencia parcial...");
           for (let area of rawSurvey) {
             const areaNameNorm = normalizeStr(area.name);
             if (areaNameNorm.includes(targetZone) || targetZone.includes(areaNameNorm)) {
@@ -201,8 +211,13 @@ const TrabajoPropiedad = () => {
         }
         
         if (filteredSurvey.length > 0) {
+          console.log("Inventario filtrado con éxito. Áreas resultantes:", filteredSurvey.map(a => a.name));
           rawSurvey = filteredSurvey;
+        } else {
+          console.log("No se encontraron coincidencias para la zona. Se muestra todo por defecto.");
         }
+      } else {
+        console.log("El trabajo es General o no se especificó zona. Se muestra todo el levantamiento.");
       }
 
       setSurveyData(rawSurvey);
@@ -664,7 +679,7 @@ const TrabajoPropiedad = () => {
                 <div className="tp-survey-header-info">
                   <Layout size={24} color="#F26522" />
                   <div>
-                    <h3>INVENTARIO TÉCNICO</h3>
+                    <h3>INVENTARIO TÉCNICO {data?.zone ? ` - ZONA: ${data.zone.toUpperCase()}` : ''}</h3>
                     <p>{data.propiedad_nombre}</p>
                   </div>
                 </div>
