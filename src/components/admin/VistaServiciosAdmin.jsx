@@ -561,43 +561,92 @@ const VistaServiciosAdmin = () => {
                             </div>
 
                             <div className="categories-stack">
-                              {Object.entries(area.categories).length === 0 ? (
-                                <p className="no-items-msg">No hay elementos registrados en esta área.</p>
-                              ) : (
-                                Object.entries(area.categories).map(([catName, items]) => (
-                                  <div key={catName} className="category-group">
-                                    <h4 className="category-heading">{catName.toUpperCase()}</h4>
-                                    <div className="items-grid-detailed">
-                                      {items.map(item => (
-                                        <div key={item.id} className="tech-item-card">
-                                          <div className="item-photo-box" onClick={() => setImagenExpandida(item.image_path)}>
-                                            <img src={item.image_path || '/placeholder-item.jpg'} alt={item.sub_category} />
-                                            <div className="photo-zoom-hint"><Maximize2 size={14}/></div>
-                                          </div>
-                                          <div className="item-tech-info">
-                                            <div className="item-row-main">
-                                              <span className="item-subcat">{item.sub_category}</span>
-                                              <span className={`item-status-tag ${item.status.toLowerCase()}`}>{item.status}</span>
-                                            </div>
-                                            <div className="item-specs-grid">
-                                              <div className="spec"><label>MARCA:</label> <span>{item.brand || '---'}</span></div>
-                                              <div className="spec"><label>MODELO:</label> <span>{item.model_or_color || '---'}</span></div>
-                                              <div className="spec"><label>S/N:</label> <span className="serial-num">{item.serial_number || '---'}</span></div>
-                                            </div>
-                                            {item.observations && <p className="item-obs">"{item.observations}"</p>}
-                                            {item.galleries && item.galleries.length > 0 && (
-                                              <div className="mini-gallery">
-                                                {item.galleries.map((img, idx) => (
-                                                  <img key={idx} src={img} onClick={() => setImagenExpandida(img)} alt="Gallery" />
-                                                ))}
+                              {area.subareas && area.subareas.length > 0 ? (
+                                area.subareas.map(sub => (
+                                  <div key={sub.id} className="subarea-section-admin" style={{ marginBottom: '30px', borderBottom: '1px solid #ddd', paddingBottom: '20px' }}>
+                                    <h3 style={{ color: '#F26522', fontWeight: '800', fontSize: '1.25rem', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase' }}>
+                                      <span style={{ width: '4px', height: '20px', background: '#F26522', borderRadius: '2px', display: 'inline-block' }}></span>
+                                      {sub.name}
+                                    </h3>
+                                    {Object.entries(sub.categories || {}).length === 0 ? (
+                                      <p style={{ color: '#777', fontSize: '0.85rem', fontStyle: 'italic', paddingLeft: '12px' }}>No hay elementos registrados en esta zona.</p>
+                                    ) : (
+                                      Object.entries(sub.categories || {}).map(([catName, items]) => (
+                                        <div key={catName} className="category-group" style={{ paddingLeft: '12px', marginTop: '10px' }}>
+                                          <h4 className="category-heading" style={{ fontSize: '0.95rem', color: '#555', fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase' }}>{catName}</h4>
+                                          <div className="items-grid-detailed">
+                                            {items.map(item => (
+                                              <div key={item.id} className="tech-item-card">
+                                                <div className="item-photo-box" onClick={() => setImagenExpandida(item.image_path)}>
+                                                  <img src={item.image_path || '/placeholder-item.jpg'} alt={item.sub_category} />
+                                                  <div className="photo-zoom-hint"><Maximize2 size={14}/></div>
+                                                </div>
+                                                <div className="item-tech-info">
+                                                  <div className="item-row-main">
+                                                    <span className="item-subcat">{item.sub_category}</span>
+                                                    <span className={`item-status-tag ${item.status.toLowerCase()}`}>{item.status}</span>
+                                                  </div>
+                                                  <div className="item-specs-grid">
+                                                    <div className="spec"><label>MARCA:</label> <span>{item.brand || '---'}</span></div>
+                                                    <div className="spec"><label>MODELO:</label> <span>{item.model_or_color || '---'}</span></div>
+                                                    <div className="spec"><label>S/N:</label> <span className="serial-num">{item.serial_number || '---'}</span></div>
+                                                  </div>
+                                                  {item.observations && <p className="item-obs">"{item.observations}"</p>}
+                                                  {item.galleries && item.galleries.length > 0 && (
+                                                    <div className="mini-gallery">
+                                                      {item.galleries.map((img, idx) => (
+                                                        <img key={idx} src={img.image_path || img} onClick={() => setImagenExpandida(img.image_path || img)} alt="Gallery" />
+                                                      ))}
+                                                    </div>
+                                                  )}
+                                                </div>
                                               </div>
-                                            )}
+                                            ))}
                                           </div>
                                         </div>
-                                      ))}
-                                    </div>
+                                      ))
+                                    )}
                                   </div>
                                 ))
+                              ) : (
+                                Object.entries(area.categories).length === 0 ? (
+                                  <p className="no-items-msg">No hay elementos registrados en esta área.</p>
+                                ) : (
+                                  Object.entries(area.categories).map(([catName, items]) => (
+                                    <div key={catName} className="category-group">
+                                      <h4 className="category-heading">{catName.toUpperCase()}</h4>
+                                      <div className="items-grid-detailed">
+                                        {items.map(item => (
+                                          <div key={item.id} className="tech-item-card">
+                                            <div className="item-photo-box" onClick={() => setImagenExpandida(item.image_path)}>
+                                              <img src={item.image_path || '/placeholder-item.jpg'} alt={item.sub_category} />
+                                              <div className="photo-zoom-hint"><Maximize2 size={14}/></div>
+                                            </div>
+                                            <div className="item-tech-info">
+                                              <div className="item-row-main">
+                                                <span className="item-subcat">{item.sub_category}</span>
+                                                <span className={`item-status-tag ${item.status.toLowerCase()}`}>{item.status}</span>
+                                              </div>
+                                              <div className="item-specs-grid">
+                                                <div className="spec"><label>MARCA:</label> <span>{item.brand || '---'}</span></div>
+                                                <div className="spec"><label>MODELO:</label> <span>{item.model_or_color || '---'}</span></div>
+                                                <div className="spec"><label>S/N:</label> <span className="serial-num">{item.serial_number || '---'}</span></div>
+                                              </div>
+                                              {item.observations && <p className="item-obs">"{item.observations}"</p>}
+                                              {item.galleries && item.galleries.length > 0 && (
+                                                <div className="mini-gallery">
+                                                  {item.galleries.map((img, idx) => (
+                                                    <img key={idx} src={img.image_path || img} onClick={() => setImagenExpandida(img.image_path || img)} alt="Gallery" />
+                                                  ))}
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))
+                                )
                               )}
                             </div>
                           </div>

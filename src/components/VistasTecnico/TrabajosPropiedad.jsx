@@ -645,25 +645,59 @@ const TrabajoPropiedad = () => {
                                 <h2>{area.name || 'Sin nombre'}</h2>
                               </div>
                               <div className="tp-categories-stack">
-                                {Object.entries(area.categories || {}).map(([catName, items]) => (
-                                  <div key={catName} className="tp-category-group">
-                                    <h4>{catName.toUpperCase()}</h4>
-                                    <div className="tp-items-grid">
-                                      {items.map(item => (
-                                        <div key={item.id} className="tp-tech-item">
-                                          <img src={item.image_path || '/placeholder-item.jpg'} onClick={() => setImagenExpandida(item.image_path)} alt={item.sub_category} />
-                                          <div className="tp-tech-item-info">
-                                            <strong>{item.sub_category}</strong>
-                                            <div className="tp-specs">
-                                              <span>M: {item.brand || '---'}</span>
-                                              <span>MOD: {item.model_or_color || '---'}</span>
+                                {area.subareas && area.subareas.length > 0 ? (
+                                  area.subareas.map(sub => (
+                                    <div key={sub.id} className="tp-subarea-section" style={{ marginBottom: '25px', borderBottom: '1px solid #e2e8f0', paddingBottom: '15px' }}>
+                                      <h3 style={{ color: '#F26522', fontWeight: '800', fontSize: '1.1rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase' }}>
+                                        <span style={{ width: '4px', height: '18px', background: '#F26522', borderRadius: '2px', display: 'inline-block' }}></span>
+                                        {sub.name}
+                                      </h3>
+                                      {Object.entries(sub.categories || {}).length === 0 ? (
+                                        <p style={{ color: '#94a3b8', fontSize: '0.85rem', fontStyle: 'italic', paddingLeft: '12px' }}>No hay elementos registrados en esta zona.</p>
+                                      ) : (
+                                        Object.entries(sub.categories || {}).map(([catName, items]) => (
+                                          <div key={catName} className="tp-category-group" style={{ paddingLeft: '12px', marginTop: '10px' }}>
+                                            <h4 style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '700', marginBottom: '8px', textTransform: 'uppercase' }}>{catName}</h4>
+                                            <div className="tp-items-grid">
+                                              {items.map(item => (
+                                                <div key={item.id} className="tp-tech-item">
+                                                  <img src={item.image_path || '/placeholder-item.jpg'} onClick={() => setImagenExpandida(item.image_path)} alt={item.sub_category} />
+                                                  <div className="tp-tech-item-info">
+                                                    <strong>{item.sub_category}</strong>
+                                                    <div className="tp-specs">
+                                                      <span>M: {item.brand || '---'}</span>
+                                                      <span>MOD: {item.model_or_color || '---'}</span>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              ))}
                                             </div>
                                           </div>
-                                        </div>
-                                      ))}
+                                        ))
+                                      )}
                                     </div>
-                                  </div>
-                                ))}
+                                  ))
+                                ) : (
+                                  Object.entries(area.categories || {}).map(([catName, items]) => (
+                                    <div key={catName} className="tp-category-group">
+                                      <h4>{catName.toUpperCase()}</h4>
+                                      <div className="tp-items-grid">
+                                        {items.map(item => (
+                                          <div key={item.id} className="tp-tech-item">
+                                            <img src={item.image_path || '/placeholder-item.jpg'} onClick={() => setImagenExpandida(item.image_path)} alt={item.sub_category} />
+                                            <div className="tp-tech-item-info">
+                                              <strong>{item.sub_category}</strong>
+                                              <div className="tp-specs">
+                                                <span>M: {item.brand || '---'}</span>
+                                                <span>MOD: {item.model_or_color || '---'}</span>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
                               </div>
                             </div>
                           );
