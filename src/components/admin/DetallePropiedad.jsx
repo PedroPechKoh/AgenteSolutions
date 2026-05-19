@@ -790,7 +790,7 @@ const DetallePropiedad = () => {
             <div className="empty-reports-card" style={{ padding: '40px', textAlign: 'center', backgroundColor: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
               <FileText size={48} style={{ color: '#cbd5e1', margin: '0 auto 15px auto' }} />
               <h3 style={{ margin: '0 0 8px 0', color: '#334155', fontSize: '1.2rem' }}>Sin reportes en proceso</h3>
-              <p style={{ margin: 0, color: '#64748b', maxWidth: '400px', margin: '0 auto' }}>Aún no se han registrado reportes de avance o de proceso para los trabajos activos en esta propiedad.</p>
+              <p style={{ margin: '0 auto', color: '#64748b', maxWidth: '400px' }}>Aún no se han registrado reportes de avance o de proceso para los trabajos activos en esta propiedad.</p>
             </div>
           )}
         </section>
