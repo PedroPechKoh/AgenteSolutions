@@ -151,9 +151,63 @@ const TrabajoPropiedad = () => {
     setModalSurveyVisible(true);
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${data.property_id}/survey`);
-      setSurveyData(response.data);
-      if (response.data.length > 0) {
-        setAreaActivaSurvey(response.data[0].id);
+      
+      let rawSurvey = response.data;
+      
+      const normalizeStr = (str) => {
+        if (!str) return '';
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      };
+      
+      if (data?.zone && normalizeStr(data.zone) !== 'general') {
+        const targetZone = normalizeStr(data.zone);
+        
+        // 1. Intentar coincidencia exacta
+        let filteredSurvey = [];
+        for (let area of rawSurvey) {
+          const areaNameNorm = normalizeStr(area.name);
+          if (areaNameNorm === targetZone) {
+            filteredSurvey.push(area);
+            continue;
+          }
+          const matchingSubareas = (area.subareas || []).filter(sub => normalizeStr(sub.name) === targetZone);
+          if (matchingSubareas.length > 0) {
+            filteredSurvey.push({
+              ...area,
+              subareas: matchingSubareas
+            });
+          }
+        }
+        
+        // 2. Si no hay coincidencia exacta, intentar coincidencia parcial
+        if (filteredSurvey.length === 0) {
+          for (let area of rawSurvey) {
+            const areaNameNorm = normalizeStr(area.name);
+            if (areaNameNorm.includes(targetZone) || targetZone.includes(areaNameNorm)) {
+              filteredSurvey.push(area);
+              continue;
+            }
+            const matchingSubareas = (area.subareas || []).filter(sub => {
+              const subNameNorm = normalizeStr(sub.name);
+              return subNameNorm.includes(targetZone) || targetZone.includes(subNameNorm);
+            });
+            if (matchingSubareas.length > 0) {
+              filteredSurvey.push({
+                ...area,
+                subareas: matchingSubareas
+              });
+            }
+          }
+        }
+        
+        if (filteredSurvey.length > 0) {
+          rawSurvey = filteredSurvey;
+        }
+      }
+
+      setSurveyData(rawSurvey);
+      if (rawSurvey.length > 0) {
+        setAreaActivaSurvey(rawSurvey[0].id);
       }
     } catch (error) {
       console.error("Error cargando inventario:", error);
@@ -614,7 +668,7 @@ const TrabajoPropiedad = () => {
                     <p>{data.propiedad_nombre}</p>
                   </div>
                 </div>
-                <button className="tp-close-survey-btn" onClick={() => setModalSurveyVisible(false)}><X size={24}/></button>
+                <button className="tp-close-survey-btn" onClick={() => setModalSurveyVisible(false)}>✕</button>
               </div>
 
               <div className="tp-survey-body">

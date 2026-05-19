@@ -524,7 +524,7 @@ const VistaServiciosAdmin = () => {
                   <p>{tareaSeleccionada?.propiedad}</p>
                 </div>
               </div>
-              <button className="close-survey-btn" onClick={() => setModalSurveyVisible(false)}><X size={24}/></button>
+              <button className="close-survey-btn" onClick={() => setModalSurveyVisible(false)}>✕</button>
             </div>
 
             <div className="survey-body">
