@@ -886,7 +886,7 @@ const VistaServiciosAdmin = () => {
         .survey-header-info h3 { margin: 0; font-size: 1.3rem; font-weight: 900; color: #1a1a1a; }
         .survey-header-info p { margin: 2px 0 0 0; color: #666; font-size: 0.9rem; }
         .close-survey-btn {
-          background: #f0f0f0;
+          background: #f1f5f9;
           border: none;
           width: 40px;
           height: 40px;
@@ -896,9 +896,9 @@ const VistaServiciosAdmin = () => {
           justify-content: center;
           cursor: pointer;
           transition: all 0.2s;
-          color: #333;
+          color: #334155 !important;
         }
-        .close-survey-btn:hover { background: #e0e0e0; transform: rotate(90deg); }
+        .close-survey-btn:hover { background: #e2e8f0; color: #ef4444 !important; transform: rotate(90deg); }
         
         .survey-body { flex: 1; overflow: hidden; }
         .survey-content-layout { display: flex; height: 100%; }
@@ -930,6 +930,8 @@ const VistaServiciosAdmin = () => {
           cursor: pointer;
           transition: all 0.2s;
           text-align: left;
+          user-select: none;
+          -webkit-user-select: none;
         }
         .area-nav-item span { color: #555; font-weight: 600; }
         .area-nav-item:hover { background: #fdf2f0; color: #F26522; }

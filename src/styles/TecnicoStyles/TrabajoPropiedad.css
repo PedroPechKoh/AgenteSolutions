@@ -513,8 +513,22 @@
 .tp-survey-header-info p { margin: 0; color: #666; font-size: 0.85rem; }
 
 .tp-close-survey-btn {
-  background: #f0f0f0; border: none; width: 40px; height: 40px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  background: #f1f5f9;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #334155 !important;
+  transition: all 0.2s ease;
+}
+
+.tp-close-survey-btn:hover {
+  background: #e2e8f0;
+  color: #ef4444 !important;
 }
 
 .tp-survey-body { flex: 1; overflow: hidden; display: flex; }
@@ -540,12 +554,21 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
+  color: #334155 !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tp-area-nav-item:hover {
+  background: #f8fafc;
+  color: var(--tp-primary) !important;
+  border-color: #cbd5e1;
 }
 
 .tp-area-nav-item.active {
-  background: var(--tp-primary);
-  color: white;
-  border-color: var(--tp-primary);
+  background: var(--tp-primary) !important;
+  color: white !important;
+  border-color: var(--tp-primary) !important;
   box-shadow: 0 4px 12px rgba(242, 102, 36, 0.3);
 }
 
