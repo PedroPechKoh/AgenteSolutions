@@ -40,6 +40,7 @@ const TrabajoPropiedad = () => {
   const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
   const [observacionesCotizacion, setObservacionesCotizacion] = useState('');
   const [archivoCotizacion, setArchivoCotizacion] = useState(null);
+  const [fotoEvidencia, setFotoEvidencia] = useState(null);
   const [cotizacionExistente, setCotizacionExistente] = useState(null);
   const [modoConsulta, setModoConsulta] = useState(false);
   const [enviandoCotizacion, setEnviandoCotizacion] = useState(false);
@@ -290,6 +291,9 @@ const TrabajoPropiedad = () => {
         formData.append('concept', JSON.stringify(conceptData));
         formData.append('estimated_amount', calcularTotal());
         formData.append('observations', observacionesCotizacion);
+        if (fotoEvidencia) {
+          formData.append('evidence_photo', fotoEvidencia);
+        }
       } else {
         if (!archivoCotizacion) return alert("Por favor seleccione un archivo.");
         formData.append('file', archivoCotizacion);
@@ -307,6 +311,7 @@ const TrabajoPropiedad = () => {
           setFilasConceptos([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
           setFilasMateriales([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
           setArchivoCotizacion(null);
+          setFotoEvidencia(null);
         }, 2000);
       }
     } catch (error) {
@@ -1008,6 +1013,39 @@ const TrabajoPropiedad = () => {
                         onChange={(e) => setObservacionesCotizacion(e.target.value)}
                         readOnly={modoConsulta}
                       ></textarea>
+                    </div>
+
+                    {/* SECCIÓN 4: EVIDENCIA FOTOGRÁFICA */}
+                    <div className="tp-q-section" style={{ marginTop: '20px' }}>
+                      <div className="tp-q-section-header">
+                        <h3>4. EVIDENCIA FOTOGRÁFICA (Opcional)</h3>
+                        <div className="tp-q-line"></div>
+                      </div>
+                      <div className="tp-q-file-upload" style={{ minHeight: '120px', padding: '15px' }}>
+                        {modoConsulta ? (
+                          cotizacionExistente?.evidence_photo_path ? (
+                            <div className="tp-q-view-file" style={{ border: 'none', background: 'transparent' }}>
+                              <img src={cotizacionExistente.evidence_photo_path} alt="Evidencia" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '10px' }} />
+                            </div>
+                          ) : (
+                            <p style={{ textAlign: 'center', color: '#888' }}>No se adjuntó evidencia fotográfica.</p>
+                          )
+                        ) : (
+                          <div className="tp-upload-area" onClick={() => document.getElementById('q-evidence-input').click()} style={{ padding: '20px', border: '2px dashed #ccc', borderRadius: '10px', textAlign: 'center', cursor: 'pointer' }}>
+                            <Camera size={32} color="#f26624" style={{ margin: '0 auto 10px' }} />
+                            <p style={{ margin: 0, fontSize: '13px', color: '#555' }}>
+                              {fotoEvidencia ? fotoEvidencia.name : "Haga clic para subir una foto de evidencia"}
+                            </p>
+                            <input 
+                              id="q-evidence-input" 
+                              type="file" 
+                              accept="image/*"
+                              hidden 
+                              onChange={(e) => setFotoEvidencia(e.target.files[0])}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ) : (
