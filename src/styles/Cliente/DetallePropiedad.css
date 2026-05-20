@@ -30,8 +30,22 @@
 }
 
 @media (max-width: 950px) {
-  .main-layout-detail { grid-template-columns: 1fr; }
+  .main-layout-detail { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 20px;
+  }
+  .left-column, .right-column {
+    display: contents;
+  }
   .sticky-card { position: static !important; }
+  
+  /* Reordenamiento de las secciones para móviles */
+  .property-id-header { order: 1; width: 100%; }
+  .hero-section-compact { order: 2; width: 100%; }
+  .action-header-right { order: 3; margin-top: 5px; width: 100%; }
+  .sticky-card { order: 4; width: 100%; box-sizing: border-box; }
+  .historial-section { order: 5; width: 100%; box-sizing: border-box; }
 }
 
 @media (max-width: 600px) {
