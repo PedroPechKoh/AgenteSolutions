@@ -549,6 +549,21 @@ const VistaCotizaciones = () => {
                   </div>
                 )}
                 
+                {cotizacionSeleccionada.evidence_photo_path && (
+                  <div style={{ padding: '15px', background: '#f8fafc', borderRadius: '8px', marginTop: '15px', borderLeft: '4px solid #3b82f6' }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', color: '#1e40af' }}>📷 Evidencia Fotográfica:</h4>
+                    <div style={{ textAlign: 'center' }}>
+                      <img 
+                        src={cotizacionSeleccionada.evidence_photo_path} 
+                        alt="Evidencia" 
+                        style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px', cursor: 'pointer', objectFit: 'contain' }} 
+                        onClick={() => verPantallaCompleta(cotizacionSeleccionada.evidence_photo_path)}
+                      />
+                      <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '5px 0 0 0' }}>Click para ampliar</p>
+                    </div>
+                  </div>
+                )}
+                
                 {rechazando && (
                   <div style={{ padding: '15px', background: '#ffebee', borderRadius: '8px', marginTop: '15px' }}>
                     <label style={{ fontWeight: 'bold', color: '#b71c1c', display: 'block', marginBottom: '8px' }}>
@@ -565,74 +580,80 @@ const VistaCotizaciones = () => {
                 )}
 
             </div>
-            <div className="modal-footer-btns" style={{ flexShrink: 0, display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
-                  {/* BOTÓN PARA QUE EL ADMIN GENERE COTIZACIÓN A CLIENTE BASADA EN LA DEL TÉCNICO */}
-                  {!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico' && (
-                    <button 
-                      className="btn-modal-print" 
-                      style={{ background: '#F26522', color: 'white', fontWeight: 'bold', flexGrow: 1, textAlign: 'center' }} 
-                      onClick={() => {
-                        setCotizacionParaAsignar(cotizacionSeleccionada);
-                        setCotizacionSeleccionada(null);
-                        setShowCreateModal(true);
-                      }}
-                    >
-                      🛠️ GENERAR COTIZACIÓN A CLIENTE
-                    </button>
-                  )}
-
-                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status !== 'Aprobado' && cotizacionSeleccionada.status !== 'Rechazado' && !rechazando && (
-                    <>
+            <div className="modal-footer-btns" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  
+                  {/* ROW 1: Botones Naranjas Arriba */}
+                  <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
+                    {!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico' && (
                       <button 
                         className="btn-modal-print" 
-                        style={{ background: '#2e7d32', color: 'white', flexGrow: 1, textAlign: 'center' }} 
+                        style={{ background: '#F26522', color: 'white', fontWeight: 'bold', flex: 1, textAlign: 'center', minWidth: '200px' }} 
+                        onClick={() => {
+                          setCotizacionParaAsignar(cotizacionSeleccionada);
+                          setCotizacionSeleccionada(null);
+                          setShowCreateModal(true);
+                        }}
+                      >
+                        🛠️ GENERAR COTIZACIÓN A CLIENTE
+                      </button>
+                    )}
+
+                    {cotizacionSeleccionada.type !== 'archivo' && (
+                      <button className="btn-modal-print" style={{ background: '#F26522', color: 'white', border: 'none', flex: 1, textAlign: 'center', fontWeight: 'bold', minWidth: '150px' }} onClick={handleImprimirPDF}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '5px' }}>
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                          <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        VER PDF
+                      </button>
+                    )}
+                  </div>
+
+                  {/* ROW 2: Botones Verde y Rojo Abajo */}
+                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status !== 'Aprobado' && cotizacionSeleccionada.status !== 'Rechazado' && !rechazando && (
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#c62828', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                        onClick={() => setRechazando(true)}
+                      >
+                        ✕ RECHAZAR
+                      </button>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#2e7d32', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
                         onClick={() => procesarCotizacion('Aprobado')}
                         disabled={procesando}
                       >
                         ✓ ACEPTAR COTIZACIÓN
                       </button>
-                      <button 
-                        className="btn-modal-print" 
-                        style={{ background: '#c62828', color: 'white', flexGrow: 1, textAlign: 'center' }} 
-                        onClick={() => setRechazando(true)}
-                      >
-                        ✕ RECHAZAR
-                      </button>
-                    </>
+                    </div>
                   )}
+
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && rechazando && (
-                    <>
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
                       <button 
                         className="btn-modal-print" 
-                        style={{ background: '#c62828', color: 'white', flexGrow: 1, textAlign: 'center' }} 
+                        style={{ background: '#757575', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                        onClick={() => { setRechazando(false); setMotivoRechazo(''); }}
+                      >
+                        CANCELAR
+                      </button>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#c62828', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
                         onClick={() => procesarCotizacion('Rechazado')}
                         disabled={procesando}
                       >
                         CONFIRMAR RECHAZO
                       </button>
-                      <button 
-                        className="btn-modal-print" 
-                        style={{ background: '#757575', color: 'white', flexGrow: 1, textAlign: 'center' }} 
-                        onClick={() => { setRechazando(false); setMotivoRechazo(''); }}
-                      >
-                        CANCELAR
-                      </button>
-                    </>
+                    </div>
                   )}
 
-                  {cotizacionSeleccionada.type !== 'archivo' && (
-                    <button className="btn-modal-print" style={{ background: '#F26522', color: 'white', border: 'none', flexGrow: 1, textAlign: 'center', fontWeight: 'bold' }} onClick={handleImprimirPDF}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '5px' }}>
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                        <polyline points="10 9 9 9 8 9"></polyline>
-                      </svg>
-                      VER PDF
-                    </button>
-                  )}
-                  <button className="btn-modal-close" style={{ flexGrow: 1, textAlign: 'center' }} onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>CERRAR</button>
+                  <button className="btn-modal-close" style={{ width: '100%', textAlign: 'center', marginTop: '5px' }} onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>CERRAR</button>
             </div>
           </div>
         </div>

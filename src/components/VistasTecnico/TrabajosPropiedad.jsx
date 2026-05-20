@@ -1032,10 +1032,16 @@ const TrabajoPropiedad = () => {
                           )
                         ) : (
                           <div className="tp-upload-area" onClick={() => document.getElementById('q-evidence-input').click()} style={{ padding: '20px', border: '2px dashed #ccc', borderRadius: '10px', textAlign: 'center', cursor: 'pointer' }}>
-                            <Camera size={32} color="#f26624" style={{ margin: '0 auto 10px' }} />
-                            <p style={{ margin: 0, fontSize: '13px', color: '#555' }}>
-                              {fotoEvidencia ? fotoEvidencia.name : "Haga clic para subir una foto de evidencia"}
-                            </p>
+                            {fotoEvidencia ? (
+                              <img src={URL.createObjectURL(fotoEvidencia)} alt="Vista previa" style={{ maxWidth: '100%', maxHeight: '150px', borderRadius: '8px', objectFit: 'contain', margin: '0 auto' }} />
+                            ) : (
+                              <>
+                                <Camera size={32} color="#f26624" style={{ margin: '0 auto 10px' }} />
+                                <p style={{ margin: 0, fontSize: '13px', color: '#555' }}>
+                                  Haga clic para subir una foto de evidencia
+                                </p>
+                              </>
+                            )}
                             <input 
                               id="q-evidence-input" 
                               type="file" 
