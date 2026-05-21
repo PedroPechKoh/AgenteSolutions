@@ -24,6 +24,7 @@ const VistaServiciosAdmin = () => {
   const [tecnicos, setTecnicos] = useState([]);
   const [mostrandoSelectorTecnico, setMostrandoSelectorTecnico] = useState(false);
   const [modalChecklistVisible, setModalChecklistVisible] = useState(false);
+  const [tecnicosEquipo, setTecnicosEquipo] = useState([]);
   const [editandoCita, setEditandoCita] = useState(false);
   const [tabActiva, setTabActiva] = useState('sos'); // Estado para pestañas en móvil
   const [showModalCotizacion, setShowModalCotizacion] = useState(false);
@@ -135,6 +136,7 @@ const VistaServiciosAdmin = () => {
     setVerBitacora(false);
     setMostrandoSelectorTecnico(false);
     setEditandoCita(false);
+    setTecnicosEquipo(tarea.tecnicosIds || (tarea.tecnicoId ? [tarea.tecnicoId] : []));
     setModalVisible(true);
   };
 
@@ -166,12 +168,38 @@ const VistaServiciosAdmin = () => {
       });
       await fetchOrders();
       setMostrandoSelectorTecnico(false);
-      // Actualizamos la tarea seleccionada localmente para no cerrar el modal si no es necesario
-      const updatedTask = tareasData.find(t => t.dbId === tareaSeleccionada.dbId);
-      if (updatedTask) setTareaSeleccionada(updatedTask);
+      
+      const tec = tecnicos.find(t => t.id === tecnicoId);
+      setTareaSeleccionada(prev => ({
+        ...prev,
+        tecnicoId: tecnicoId,
+        tecnico: tec ? `${tec.first_name} ${tec.last_name}` : 'Pendiente de asignar'
+      }));
+      
       alert("Técnico asignado con éxito");
     } catch (error) {
       alert("Error al asignar técnico.");
+    } finally {
+      setProcesandoAccion(false);
+    }
+  };
+
+  const toggleTecnicoEquipo = async (id) => {
+    const isSelected = tecnicosEquipo.includes(id);
+    const newEquipo = isSelected 
+      ? tecnicosEquipo.filter(tid => tid !== id) 
+      : [...tecnicosEquipo, id];
+      
+    setTecnicosEquipo(newEquipo);
+    setProcesandoAccion(true);
+    try {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/assign`, {
+        tecnicos_ids: newEquipo
+      });
+      await fetchOrders();
+    } catch (e) {
+      alert("Error al actualizar el equipo de trabajo.");
+      setTecnicosEquipo(tecnicosEquipo); // revert
     } finally {
       setProcesandoAccion(false);
     }
@@ -404,6 +432,43 @@ const VistaServiciosAdmin = () => {
                       <div className="info-item">
                         <Calendar size={20} />
                         <div><label>Fecha Reporte</label><strong>{tareaSeleccionada.fechaInicio}</strong></div>
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '15px', background: '#fcfcfc', padding: '15px', borderRadius: '12px', border: '1px solid #f0f0f0' }}>
+                      <label style={{ fontSize: '0.65rem', fontWeight: '800', color: '#888', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                        <Settings size={14}/> EQUIPO DE TRABAJO (Selecciona uno o más)
+                      </label>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: '8px', maxHeight: '140px', overflowY: 'auto' }}>
+                        {tecnicos.map(t => {
+                          const isSelected = tecnicosEquipo.includes(t.id);
+                          return (
+                            <div 
+                              key={t.id} 
+                              onClick={() => toggleTecnicoEquipo(t.id)}
+                              style={{
+                                background: isSelected ? '#fff9f5' : 'white',
+                                border: `1px solid ${isSelected ? '#F26522' : '#eee'}`,
+                                borderRadius: '10px', padding: '6px', cursor: 'pointer',
+                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', position: 'relative'
+                              }}
+                            >
+                              {t.profile_picture_url ? (
+                                <img 
+                                  src={t.profile_picture_url} 
+                                  alt="Técnico" 
+                                  style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #eee' }}
+                                  onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                />
+                              ) : null}
+                              <div className="tech-avatar-fallback" style={{ display: t.profile_picture_url ? 'none' : 'flex', background: '#f5f5f5', color: '#999', fontSize: '0.8rem', width: '38px', height: '38px', borderRadius: '50%', alignItems: 'center', justifyContent: 'center' }}>
+                                {t.first_name?.charAt(0)}{t.last_name?.charAt(0)}
+                              </div>
+                              <span style={{ fontSize: '0.65rem', fontWeight: '700', color: '#666', textAlign: 'center' }}>{t.first_name} {t.last_name?.charAt(0)}.</span>
+                              {isSelected && <div style={{ position: 'absolute', top: '-5px', right: '-5px', color: '#F26522', background: 'white', borderRadius: '50%' }}><CheckCircle2 size={16} /></div>}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 

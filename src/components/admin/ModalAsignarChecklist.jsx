@@ -7,9 +7,6 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Form State
-  const [tecnicosIds, setTecnicosIds] = useState(workOrder.tecnicosIds || (workOrder.tecnicoId ? [workOrder.tecnicoId] : []));
-  
   // Custom Checklist State (The 3 Tabs)
   const [activeTab, setActiveTab] = useState('herramientas');
   const [checklist, setChecklist] = useState({
@@ -110,7 +107,6 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
     setLoading(true);
     try {
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${workOrder.dbId}/assign`, {
-        tecnicos_ids: tecnicosIds,
         custom_checklist: checklist
       });
       alert("Checklist asignado correctamente");
@@ -138,43 +134,8 @@ const ModalAsignarChecklist = ({ workOrder, onClose, onAssign }) => {
         </div>
 
         <div className="checklist-modal-body">
-          {/* Selección de Técnico y Plantilla */}
+          {/* Selección de Plantilla */}
           <div className="assignment-section-top">
-            <div className="form-group-cl full-width">
-              <label><Settings size={14}/> EQUIPO DE TRABAJO (Selecciona uno o más)</label>
-              <div className="tecnicos-grid">
-                {tecnicos.map(t => {
-                  const isSelected = tecnicosIds.includes(t.id);
-                  return (
-                    <div 
-                      key={t.id} 
-                      className={`tecnico-card-select ${isSelected ? 'selected' : ''}`} 
-                      onClick={() => toggleTecnico(t.id)}
-                    >
-                      {t.profile_picture_url ? (
-                        <img 
-                          src={t.profile_picture_url} 
-                          alt="Técnico" 
-                          onError={(e) => {
-                            e.target.onerror = null; 
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-                      <div className="tech-avatar-fallback" style={{ display: t.profile_picture_url ? 'none' : 'flex' }}>
-                        {t.first_name?.charAt(0)}{t.last_name?.charAt(0)}
-                      </div>
-                      <div className="tecnico-card-info">
-                        <span className="tech-name">{t.first_name} {t.last_name?.charAt(0)}.</span>
-                      </div>
-                      {isSelected && <div className="check-badge"><CheckCircle size={16} /></div>}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            
             <div className="form-group-cl full-width template-selector-box">
               <label><Package size={14}/> CARGAR PLANTILLA</label>
               <select value={selectedTemplateId} onChange={handleTemplateChange}>
