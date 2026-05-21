@@ -359,28 +359,18 @@ const VistaServiciosAdmin = () => {
                   <div className="task-details-view">
                     <div style={{ color: '#F26522', fontWeight: 'bold', marginBottom: '5px' }}>{tareaSeleccionada.propiedad}</div>
                     <span className="wkf-id">WKF-ORD-{tareaSeleccionada.dbId}</span>
+                    <h3 className="task-main-heading" style={{ marginTop: '5px' }}>{tareaSeleccionada.descripcion}</h3>
+                    <p className="task-long-desc">{tareaSeleccionada.titulo}</p>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '15px 0' }}>
                       <button className="modal-action-btn variant-orange" onClick={() => setVerBitacora(true)}>
                         <Camera size={18} /> Ver Evidencias y Proceso
                       </button>
 
-                      {(() => {
-                        const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId);
-                        return (
-                          <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white' }}>
-                            <FileText size={18} /> {cotizacionAsociada ? 'EDITAR COTIZACIÓN' : 'REALIZAR COTIZACIÓN'}
-                          </button>
-                        );
-                      })()}
-
                       <button className="modal-action-btn variant-dark" onClick={abrirSurvey}>
                         <Layout size={18} /> CONSULTAR LEVANTAMIENTO DE LA PROPIEDAD
                       </button>
                     </div>
-
-                    <h3 className="task-main-heading">{tareaSeleccionada.descripcion}</h3>
-                    <p className="task-long-desc">{tareaSeleccionada.titulo}</p>
                     
                     <div className="info-box-grid">
                       <div className="info-item clickable-info" onClick={() => setMostrandoSelectorTecnico(!mostrandoSelectorTecnico)}>
@@ -503,9 +493,20 @@ const VistaServiciosAdmin = () => {
 
                     </div>
 
-                    <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333', marginTop: '10px' }}>
-                      <CheckCircle2 size={18} /> {tareaSeleccionada.custom_checklist ? 'EDITAR CHECKLIST' : 'ASIGNAR CHECKLIST'}
-                    </button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
+                      {(() => {
+                        const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId);
+                        return (
+                          <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white' }}>
+                            <FileText size={18} /> {cotizacionAsociada ? 'EDITAR COTIZACIÓN' : 'REALIZAR COTIZACIÓN'}
+                          </button>
+                        );
+                      })()}
+
+                      <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333' }}>
+                        <CheckCircle2 size={18} /> {tareaSeleccionada.custom_checklist ? 'EDITAR CHECKLIST' : 'ASIGNAR CHECKLIST'}
+                      </button>
+                    </div>
 
                     <div className="modal-main-action-wrapper">
                       {tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'sos' ? (
