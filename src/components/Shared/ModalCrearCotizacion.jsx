@@ -110,7 +110,7 @@ const ModalCrearCotizacion = ({
       <div className="tp-modal-overlay">
         <motion.div 
           initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }}
-          className="tp-modal-content tp-modal-q-full"
+          className="tp-modal-quotation-card"
         >
           <button className="tp-modal-close-btn" onClick={onClose}><X size={24} /></button>
           <div className="tp-modal-q-header">
@@ -263,6 +263,11 @@ const ModalCrearCotizacion = ({
                     <h3>4. EVIDENCIA FOTOGRÁFICA (Opcional)</h3>
                     <div className="tp-q-line"></div>
                   </div>
+                  {!modoConsulta && (
+                    <p style={{ fontSize: '12px', color: '#666', marginBottom: '10px' }}>
+                      Opcional. Adjunte una imagen si es necesario mostrar el daño o situación al cliente junto con la cotización.
+                    </p>
+                  )}
                   <div className="tp-q-file-upload" style={{ minHeight: '120px', padding: '15px' }}>
                     {modoConsulta ? (
                       cotizacionExistente?.evidence_photo_path ? (
