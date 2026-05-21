@@ -89,7 +89,11 @@ useEffect(() => {
       }
     });
   }, []);
-  const { user } = useAuth();
+  const { user, initialized } = useAuth();
+
+  // Mientras el auth está inicializando, no renderizamos nada para evitar
+  // que el comodín (*) redirija antes de que se lea el localStorage
+  if (!initialized) return null;
 
   return (
     <Routes>

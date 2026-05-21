@@ -57,6 +57,14 @@ const TableroScrum = () => {
     if (id) fetchOrders();
   }, [id, fetchOrders]);
 
+  // Guardar el ID de la propiedad en localStorage para que MainLayoutCliente tenga contexto
+  useEffect(() => {
+    if (id) {
+      localStorage.setItem('current_property_id', id);
+      window.dispatchEvent(new Event('sync-agente-ids'));
+    }
+  }, [id]);
+
   // --- ACCIONES ---
   const abrirModal = (tarea) => {
     setTareaSeleccionada(tarea);

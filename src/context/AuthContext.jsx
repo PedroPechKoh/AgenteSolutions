@@ -5,6 +5,7 @@ import OneSignal from 'react-onesignal';
 
 const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
+  const [initialized, setInitialized] = React.useState(false);
   const [user, setUser] = useState(() => {
     const savedSession = localStorage.getItem('agente_session');
     if (savedSession) {
@@ -25,6 +26,11 @@ export const AuthProvider = ({ children }) => {
     }
     return null;
   });
+
+  // Mark as initialized after first render
+  useEffect(() => {
+    setInitialized(true);
+  }, []);
 
   const loginGlobal = (userData) => {
     const TIEMPO_EXPIRACION = 36 * 60 * 60 * 1000; // 36 Horas
@@ -94,7 +100,7 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, loginGlobal, logoutGlobal }}>
+    <AuthContext.Provider value={{ user, loginGlobal, logoutGlobal, initialized }}>
       {children}
     </AuthContext.Provider>
   );
