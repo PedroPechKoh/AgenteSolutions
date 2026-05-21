@@ -21,6 +21,7 @@ const ModalCrearCotizacion = ({
   const [modoConsulta, setModoConsulta] = useState(false);
   const [enviandoCotizacion, setEnviandoCotizacion] = useState(false);
   const [cotizacionEnviada, setCotizacionEnviada] = useState(false);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
 
   useEffect(() => {
     if (cotizacionExistente) {
@@ -87,9 +88,7 @@ const ModalCrearCotizacion = ({
 
       let res;
       if (cotizacionExistente && isAdmin) {
-        // En Laravel, para enviar archivos con PUT/PATCH por multipart/form-data usamos POST y agregamos _method=PUT
-        formData.append('_method', 'PUT');
-        res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionExistente.id}`, formData, {
+        res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionExistente.id}/update`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
@@ -302,7 +301,7 @@ const ModalCrearCotizacion = ({
                         <p style={{ textAlign: 'center', color: '#888' }}>No se adjuntó evidencia fotográfica.</p>
                       )
                     ) : (
-                      <div className="tp-upload-area" onClick={() => document.getElementById('q-evidence-input').click()} style={{ padding: '20px', border: '2px dashed #ccc', borderRadius: '10px', textAlign: 'center', cursor: 'pointer' }}>
+                      <div className="tp-upload-area" onClick={() => setIsPhotoMenuOpen(true)} style={{ padding: '20px', border: '2px dashed #ccc', borderRadius: '10px', textAlign: 'center', cursor: 'pointer' }}>
                         {fotoEvidencia ? (
                           <img src={URL.createObjectURL(fotoEvidencia)} alt="Vista previa" style={{ maxWidth: '100%', maxHeight: '150px', borderRadius: '8px', objectFit: 'contain', margin: '0 auto' }} />
                         ) : (
@@ -313,13 +312,8 @@ const ModalCrearCotizacion = ({
                             </p>
                           </>
                         )}
-                        <input 
-                          id="q-evidence-input" 
-                          type="file" 
-                          accept="image/*"
-                          hidden 
-                          onChange={(e) => setFotoEvidencia(e.target.files[0])}
-                        />
+                        <input id="q-evidence-camera" type="file" accept="image/*" capture="environment" hidden onChange={(e) => setFotoEvidencia(e.target.files[0])} />
+                        <input id="q-evidence-gallery" type="file" accept="image/*" hidden onChange={(e) => setFotoEvidencia(e.target.files[0])} />
                       </div>
                     )}
                   </div>
@@ -372,6 +366,28 @@ const ModalCrearCotizacion = ({
             </div>
           </div>
         </motion.div>
+
+        {isPhotoMenuOpen && (
+          <div className="tp-modal-overlay" onClick={() => setIsPhotoMenuOpen(false)} style={{ zIndex: 10000, background: 'rgba(0,0,0,0.8)' }}>
+            <div className="tp-modal-content" style={{ maxWidth: '400px', width: '90%', padding: '0', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '12px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+              <h3 style={{ color: '#F26522', borderBottom: '1px solid #333', margin: 0, padding: '20px', textAlign: 'center', fontSize: '1.2rem' }}>Seleccionar Foto</h3>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <button 
+                  onClick={() => { document.getElementById('q-evidence-camera').click(); setIsPhotoMenuOpen(false); }}
+                  style={{ padding: '20px', border: 'none', background: 'transparent', color: 'white', fontSize: '1.1rem', cursor: 'pointer', borderBottom: '1px solid #333' }}
+                >
+                  📷 Tomar Foto
+                </button>
+                <button 
+                  onClick={() => { document.getElementById('q-evidence-gallery').click(); setIsPhotoMenuOpen(false); }}
+                  style={{ padding: '20px', border: 'none', background: 'transparent', color: 'white', fontSize: '1.1rem', cursor: 'pointer' }}
+                >
+                  🖼️ Elegir de la Galería
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AnimatePresence>
   );
