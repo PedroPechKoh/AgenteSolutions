@@ -38,6 +38,9 @@ const VistaCotizaciones = () => {
   const [filtroOrigen, setFiltroOrigen] = useState('todos'); // 'todos' | 'admin' | 'tecnicos' | 'proveedores'
   const [cotizacionesFiltradas, setCotizacionesFiltradas] = useState([]);
   const [esTecnico, setEsTecnico] = useState(false);
+  
+  const [mensajeChat, setMensajeChat] = useState('');
+  const [enviandoMensaje, setEnviandoMensaje] = useState(false);
 
   useEffect(() => {
     try {
@@ -129,6 +132,26 @@ const VistaCotizaciones = () => {
       alert("Error al procesar la cotización.");
     } finally {
       setProcesando(false);
+    }
+  };
+
+  const enviarMensajeChat = async () => {
+    if (!mensajeChat.trim()) return;
+    setEnviandoMensaje(true);
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/chat`, {
+        message: mensajeChat
+      });
+      // Actualizamos el chat history localmente
+      setCotizacionSeleccionada(prev => ({
+        ...prev,
+        chat_history: res.data.chat_history
+      }));
+      setMensajeChat('');
+    } catch (e) {
+      alert('Error al enviar el mensaje');
+    } finally {
+      setEnviandoMensaje(false);
     }
   };
 
@@ -564,6 +587,60 @@ const VistaCotizaciones = () => {
                   </div>
                 )}
                 
+                {/* --- SECCIÓN DE CHAT DE NEGOCIACIÓN --- */}
+                <div style={{ padding: '15px', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '15px' }}>
+                  <h4 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: '#1e293b', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    💬 Conversación de la Cotización
+                  </h4>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '300px', overflowY: 'auto', marginBottom: '15px', paddingRight: '5px' }}>
+                    {cotizacionSeleccionada.chat_history && cotizacionSeleccionada.chat_history.length > 0 ? (
+                      cotizacionSeleccionada.chat_history.map((msg, index) => {
+                        const esMio = msg.sender_id === usuarioId;
+                        const bgColor = esMio ? '#e0f2fe' : '#f1f5f9';
+                        const align = esMio ? 'flex-end' : 'flex-start';
+                        const textAlign = esMio ? 'right' : 'left';
+                        const colorName = msg.sender_role === 'Cliente' ? '#0ea5e9' : (msg.sender_role === 'Admin' ? '#16a34a' : '#f59e0b');
+
+                        return (
+                          <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: align, width: '100%' }}>
+                            <span style={{ fontSize: '0.7rem', color: colorName, fontWeight: 'bold', marginBottom: '2px' }}>
+                              {msg.sender_name} ({msg.sender_role})
+                            </span>
+                            <div style={{ background: bgColor, padding: '10px 14px', borderRadius: '12px', maxWidth: '85%', color: '#334155', fontSize: '0.9rem', textAlign: textAlign, borderBottomRightRadius: esMio ? '2px' : '12px', borderBottomLeftRadius: !esMio ? '2px' : '12px' }}>
+                              {msg.message}
+                            </div>
+                            <span style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '2px' }}>
+                              {new Date(msg.created_at).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })}
+                            </span>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem', margin: '20px 0' }}>No hay mensajes en esta cotización.</p>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input 
+                      type="text" 
+                      placeholder="Escribe un mensaje para negociar o aclarar dudas..." 
+                      style={{ flex: 1, padding: '10px 15px', borderRadius: '20px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '0.9rem' }}
+                      value={mensajeChat}
+                      onChange={e => setMensajeChat(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') enviarMensajeChat(); }}
+                      disabled={enviandoMensaje}
+                    />
+                    <button 
+                      style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '0 20px', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer', opacity: enviandoMensaje || !mensajeChat.trim() ? 0.5 : 1 }}
+                      onClick={enviarMensajeChat}
+                      disabled={enviandoMensaje || !mensajeChat.trim()}
+                    >
+                      {enviandoMensaje ? '...' : 'ENVIAR'}
+                    </button>
+                  </div>
+                </div>
+
                 {rechazando && (
                   <div style={{ padding: '15px', background: '#ffebee', borderRadius: '8px', marginTop: '15px' }}>
                     <label style={{ fontWeight: 'bold', color: '#b71c1c', display: 'block', marginBottom: '8px' }}>
@@ -613,23 +690,36 @@ const VistaCotizaciones = () => {
                   </div>
 
                   {/* ROW 2: Botones Verde y Rojo Abajo */}
-                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status !== 'Aprobado' && cotizacionSeleccionada.status !== 'Rechazado' && !rechazando && (
+                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status !== 'Aprobado' && !rechazando && (
                     <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
-                      <button 
-                        className="btn-modal-print" 
-                        style={{ background: '#c62828', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
-                        onClick={() => setRechazando(true)}
-                      >
-                        ✕ RECHAZAR
-                      </button>
-                      <button 
-                        className="btn-modal-print" 
-                        style={{ background: '#2e7d32', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
-                        onClick={() => procesarCotizacion('Aprobado')}
-                        disabled={procesando}
-                      >
-                        ✓ ACEPTAR COTIZACIÓN
-                      </button>
+                      {cotizacionSeleccionada.status !== 'Rechazado' && (
+                        <button 
+                          className="btn-modal-print" 
+                          style={{ background: '#c62828', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                          onClick={() => setRechazando(true)}
+                        >
+                          ✕ RECHAZAR
+                        </button>
+                      )}
+                      
+                      {(cotizacionSeleccionada.status !== 'Rechazado' || esCliente) && (
+                        <button 
+                          className="btn-modal-print" 
+                          style={{ background: '#2e7d32', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                          onClick={() => {
+                            if (cotizacionSeleccionada.status === 'Rechazado') {
+                              if (window.confirm('¿Deseas aceptar esta cotización que habías rechazado?')) {
+                                procesarCotizacion('Aprobado');
+                              }
+                            } else {
+                              procesarCotizacion('Aprobado');
+                            }
+                          }}
+                          disabled={procesando}
+                        >
+                          ✓ ACEPTAR COTIZACIÓN
+                        </button>
+                      )}
                     </div>
                   )}
 
