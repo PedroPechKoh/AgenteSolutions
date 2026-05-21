@@ -22,7 +22,6 @@ const VistaServiciosAdmin = () => {
   const [imagenExpandida, setImagenExpandida] = useState(null);
   const [procesandoAccion, setProcesandoAccion] = useState(false);
   const [tecnicos, setTecnicos] = useState([]);
-  const [mostrandoSelectorTecnico, setMostrandoSelectorTecnico] = useState(false);
   const [modalChecklistVisible, setModalChecklistVisible] = useState(false);
   const [tecnicosEquipo, setTecnicosEquipo] = useState([]);
   const [editandoCita, setEditandoCita] = useState(false);
@@ -134,7 +133,6 @@ const VistaServiciosAdmin = () => {
   const abrirModal = (tarea) => {
     setTareaSeleccionada(tarea);
     setVerBitacora(false);
-    setMostrandoSelectorTecnico(false);
     setEditandoCita(false);
     setTecnicosEquipo(tarea.tecnicosIds || (tarea.tecnicoId ? [tarea.tecnicoId] : []));
     setModalVisible(true);
@@ -155,30 +153,6 @@ const VistaServiciosAdmin = () => {
       cerrarModal();
     } catch (error) {
       alert("No se pudo actualizar el estado del servicio.");
-    } finally {
-      setProcesandoAccion(false);
-    }
-  };
-
-  const handleAssignTecnico = async (tecnicoId) => {
-    setProcesandoAccion(true);
-    try {
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/assign`, {
-        tecnico_id: tecnicoId
-      });
-      await fetchOrders();
-      setMostrandoSelectorTecnico(false);
-      
-      const tec = tecnicos.find(t => t.id === tecnicoId);
-      setTareaSeleccionada(prev => ({
-        ...prev,
-        tecnicoId: tecnicoId,
-        tecnico: tec ? `${tec.first_name} ${tec.last_name}` : 'Pendiente de asignar'
-      }));
-      
-      alert("Técnico asignado con éxito");
-    } catch (error) {
-      alert("Error al asignar técnico.");
     } finally {
       setProcesandoAccion(false);
     }
@@ -401,34 +375,6 @@ const VistaServiciosAdmin = () => {
                     </div>
                     
                     <div className="info-box-grid">
-                      <div className="info-item clickable-info" onClick={() => setMostrandoSelectorTecnico(!mostrandoSelectorTecnico)}>
-                        <UserCircle size={20} />
-                        <div>
-                          <label>Técnico Asignado</label>
-                          <strong className={tareaSeleccionada.tecnico === 'Pendiente de asignar' ? 'pending-text' : ''}>
-                            {tareaSeleccionada.tecnico}
-                          </strong>
-                          {tareaSeleccionada.tecnico === 'Pendiente de asignar' && <span className="assign-hint">(Click para asignar)</span>}
-                        </div>
-                      </div>
-
-                      {mostrandoSelectorTecnico && (
-                        <div className="tecnico-selector-dropdown">
-                          <h6>Seleccionar Técnico:</h6>
-                          <div className="tecnicos-list-mini">
-                            {tecnicos.map(tec => (
-                              <button 
-                                key={tec.id} 
-                                className={`tec-option-btn ${tareaSeleccionada.tecnicoId === tec.id ? 'selected' : ''}`}
-                                onClick={() => handleAssignTecnico(tec.id)}
-                                disabled={procesandoAccion}
-                              >
-                                {tec.first_name} {tec.last_name}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                       <div className="info-item">
                         <Calendar size={20} />
                         <div><label>Fecha Reporte</label><strong>{tareaSeleccionada.fechaInicio}</strong></div>
