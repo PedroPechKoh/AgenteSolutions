@@ -933,6 +933,7 @@
 }
 
 .tp-modal-quotation-card {
+  position: relative;
   background: #ffffff;
   width: 95%;
   max-width: 900px;

@@ -58,8 +58,11 @@ const VistaServiciosAdmin = () => {
         dbId: item.id,
         titulo: `${item.zone} - ${item.equipment || 'General'}`,
         propiedad: item.property ? (item.property.nombre_propiedad || item.property.address) : 'Sin Propiedad',
+        cliente: item.property?.client?.name || 'Desconocido',
         prioridad: item.priority === 'Urgente' ? 'SOS' : 'Normal',
         fechaFin: new Date(item.updated_at).toLocaleDateString(),
+        fechaSolicitud: new Date(item.created_at).toLocaleDateString(),
+        fechaSolucion: ['Listo', 'Finalizado'].includes(item.status) ? new Date(item.updated_at).toLocaleDateString() : 'Pendiente',
         tecnico: item.tecnico ? `${item.tecnico.first_name} ${item.tecnico.last_name}` : 'Pendiente de asignar',
         tecnicoId: item.tecnico_id,
         propertyId: item.property_id,
@@ -243,11 +246,18 @@ const VistaServiciosAdmin = () => {
                   }`}
                   onClick={() => abrirModal(tarea)}
                 >
-                  <div className="prop-badge-card">{tarea.propiedad}</div>
-                  <h5 className="task-title-card">
+                  <div className="prop-badge-card" style={{ whiteSpace: 'normal', marginBottom: '5px', lineHeight: '1.4' }}>
+                    <div style={{ color: '#F26522', fontWeight: 'bold' }}>{tarea.cliente}</div>
+                    <div style={{ color: '#555', fontSize: '0.75rem' }}>{tarea.propiedad}</div>
+                  </div>
+                  <h5 className="task-title-card" style={{ whiteSpace: 'normal', lineHeight: '1.3' }}>
                     {(tarea.estado === 'sos' || (tarea.estado === 'progress' && tarea.prioridad === 'SOS')) && <AlertTriangle size={14} className="sos-icon-inline" />}
                     {tarea.titulo}
                   </h5>
+                  <div style={{ fontSize: '0.7rem', color: '#777', textAlign: 'left', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <div><strong>Solicitado:</strong> {tarea.fechaSolicitud}</div>
+                    <div><strong>Solucionado:</strong> {tarea.fechaSolucion}</div>
+                  </div>
                   <div className="card-status-row">
                     {tarea.estado === 'done' ? (
                       <div className="status-pill-done">
@@ -378,7 +388,30 @@ const VistaServiciosAdmin = () => {
                         <Calendar size={20} />
                         <div><label>Fecha Reporte</label><strong>{tareaSeleccionada.fechaInicio}</strong></div>
                       </div>
+                    </div>
 
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
+                      <button className="modal-action-btn variant-orange" onClick={() => setVerBitacora(true)}>
+                        <Camera size={18} /> Ver Evidencias y Proceso
+                      </button>
+
+                      {(() => {
+                        const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId);
+                        return (
+                          <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white' }}>
+                            <FileText size={18} /> {cotizacionAsociada ? 'EDITAR COTIZACIÓN' : 'REALIZAR COTIZACIÓN'}
+                          </button>
+                        );
+                      })()}
+
+                      <button className="modal-action-btn variant-dark" onClick={abrirSurvey}>
+                        <Layout size={18} /> CONSULTAR LEVANTAMIENTO DE LA PROPIEDAD
+                      </button>
+                    </div>
+
+                    <div className="ts-schedule-block" style={{ marginTop: '15px' }}>
+
+                      {/* PROGRAMAR VISITA Y BOTONES INFERIORES */}
                       <div className="info-item" style={{ 
                         gridColumn: 'span 2', 
                         background: '#fff9f0', 
@@ -459,26 +492,10 @@ const VistaServiciosAdmin = () => {
                           )}
                         </div>
                       </div>
+
                     </div>
 
-                    <button className="modal-action-btn variant-orange" onClick={() => setVerBitacora(true)}>
-                      <Camera size={18} /> Ver Evidencias y Proceso
-                    </button>
-
-                    {(() => {
-                      const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId);
-                      return (
-                        <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white' }}>
-                          <FileText size={18} /> {cotizacionAsociada ? 'EDITAR COTIZACIÓN' : 'REALIZAR COTIZACIÓN'}
-                        </button>
-                      );
-                    })()}
-
-                    <button className="modal-action-btn variant-dark" onClick={abrirSurvey}>
-                      <Layout size={18} /> CONSULTAR LEVANTAMIENTO DE LA PROPIEDAD
-                    </button>
-
-                    <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333' }}>
+                    <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333', marginTop: '10px' }}>
                       <CheckCircle2 size={18} /> {tareaSeleccionada.custom_checklist ? 'EDITAR CHECKLIST' : 'ASIGNAR CHECKLIST'}
                     </button>
 
