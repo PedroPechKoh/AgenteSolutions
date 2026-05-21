@@ -160,7 +160,27 @@ const TableroScrum = () => {
                   <span className="dot-blink"></span>
                   {verBitacora ? 'BITÁCORA TÉCNICA' : 'VISTA DE TAREA'}
                </div>
-               <button className="close-modal-btn" onClick={cerrarModal}><X size={18}/></button>
+               <button 
+                 onClick={cerrarModal}
+                 style={{
+                   background: 'rgba(255,255,255,0.25)',
+                   border: '2px solid rgba(255,255,255,0.6)',
+                   color: 'white',
+                   cursor: 'pointer',
+                   borderRadius: '50%',
+                   width: '36px',
+                   height: '36px',
+                   display: 'flex',
+                   alignItems: 'center',
+                   justifyContent: 'center',
+                   flexShrink: 0,
+                   fontSize: '18px',
+                   fontWeight: 'bold',
+                   lineHeight: 1
+                 }}
+               >
+                 ×
+               </button>
             </div>
 
             <div className="modal-inner-scroll">
@@ -181,27 +201,7 @@ const TableroScrum = () => {
                       </div>
                     </div>
 
-                    {/* BOTONES DE ACCIÓN DINÁMICOS */}
-                    <div className="modal-action-buttons">
-                      {tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'sos' ? (
-                        <button 
-                          className="btn-start-task" 
-                          disabled={procesandoAccion}
-                          onClick={() => cambiarEstadoTarea('En Proceso')}
-                        >
-                          <Timer size={18} /> {procesandoAccion ? 'Actualizando...' : 'INICIAR TRABAJO'}
-                        </button>
-                      ) : tareaSeleccionada.estado === 'progress' ? (
-                        <button 
-                          className="btn-complete-task" 
-                          disabled={procesandoAccion}
-                          onClick={() => cambiarEstadoTarea('Listo')}
-                        >
-                          <CheckCircle2 size={18} /> {procesandoAccion ? 'Finalizando...' : 'MARCAR COMO LISTO'}
-                        </button>
-                      ) : null}
-                    </div>
-
+                    {/* El cliente solo puede VER el estado, no cambiarlo */}
                     <button className="view-bitacora-btn" onClick={() => setVerBitacora(true)}>
                       Ver Bitácora Técnica
                     </button>
