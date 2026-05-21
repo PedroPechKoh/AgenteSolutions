@@ -494,6 +494,10 @@ const VistaServiciosAdmin = () => {
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
+                      <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333' }}>
+                        <CheckCircle2 size={18} /> {tareaSeleccionada.custom_checklist ? 'EDITAR CHECKLIST' : 'ASIGNAR CHECKLIST'}
+                      </button>
+
                       {(() => {
                         const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId);
                         return (
@@ -502,10 +506,6 @@ const VistaServiciosAdmin = () => {
                           </button>
                         );
                       })()}
-
-                      <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333' }}>
-                        <CheckCircle2 size={18} /> {tareaSeleccionada.custom_checklist ? 'EDITAR CHECKLIST' : 'ASIGNAR CHECKLIST'}
-                      </button>
                     </div>
 
                     <div className="modal-main-action-wrapper">
