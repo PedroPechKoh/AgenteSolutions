@@ -45,6 +45,7 @@ const TableroScrum = () => {
         fechaInicio: new Date(item.created_at).toLocaleDateString(),
         estado: estado,
         descripcion: item.description,
+        scheduledAt: item.scheduled_at,
         evidencias: item.evidence_path ? [`http://127.0.0.1:8000/storage/${item.evidence_path}`] : []
       };
     });
@@ -215,7 +216,7 @@ const TableroScrum = () => {
                     <h3 className="task-main-heading">{tareaSeleccionada.titulo}</h3>
                     <p className="task-long-desc">{tareaSeleccionada.descripcion}</p>
                     
-                    <div className="info-box-grid">
+                    <div className="info-box-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
                       <div className="info-item">
                         <UserCircle size={20} />
                         <div><label>Técnico</label><strong>{tareaSeleccionada.tecnico}</strong></div>
@@ -223,6 +224,20 @@ const TableroScrum = () => {
                       <div className="info-item">
                         <Calendar size={20} />
                         <div><label>Fecha Reporte</label><strong>{tareaSeleccionada.fechaInicio}</strong></div>
+                      </div>
+                      <div className="info-item">
+                        <Timer size={20} />
+                        <div>
+                          <label>Visita Programada</label>
+                          <strong>{tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }) : 'Por programar'}</strong>
+                        </div>
+                      </div>
+                      <div className="info-item">
+                        <CheckCircle2 size={20} />
+                        <div>
+                          <label>Trabajo Finalizado</label>
+                          <strong>{tareaSeleccionada.estado === 'done' ? tareaSeleccionada.fechaFin : 'Pendiente'}</strong>
+                        </div>
                       </div>
                     </div>
 
