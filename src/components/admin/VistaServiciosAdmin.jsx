@@ -359,6 +359,11 @@ const VistaServiciosAdmin = () => {
             <div className="modal-inner-scroll">
                 {!verBitacora ? (
                   <div className="task-details-view">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#666', fontSize: '0.75rem', fontWeight: 'bold', marginBottom: '12px', background: '#f5f5f5', padding: '6px 12px', borderRadius: '8px', width: 'fit-content', border: '1px solid #eee' }}>
+                      <Calendar size={14} />
+                      <span>FECHA REPORTE: {tareaSeleccionada.fechaInicio}</span>
+                    </div>
+                    
                     <div style={{ color: '#F26522', fontWeight: 'bold', marginBottom: '5px' }}>{tareaSeleccionada.propiedad}</div>
                     <span className="wkf-id">WKF-ORD-{tareaSeleccionada.dbId}</span>
                     <h3 className="task-main-heading" style={{ marginTop: '5px' }}>{tareaSeleccionada.descripcion}</h3>
@@ -374,12 +379,7 @@ const VistaServiciosAdmin = () => {
                       </button>
                     </div>
                     
-                    <div className="info-box-grid">
-                      <div className="info-item">
-                        <Calendar size={20} />
-                        <div><label>Fecha Reporte</label><strong>{tareaSeleccionada.fechaInicio}</strong></div>
-                      </div>
-                    </div>
+
 
                     <div style={{ marginTop: '15px', background: '#fcfcfc', padding: '15px', borderRadius: '12px', border: '1px solid #f0f0f0' }}>
                       <label style={{ fontSize: '0.65rem', fontWeight: '800', color: '#888', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
