@@ -11,8 +11,11 @@ import {
 import '../../styles/Cliente/DetallePropiedad.css';
 
 const VistaDetallePropiedad = () => {
-  const { id } = useParams();
+  const { id: idParam } = useParams();
   const navigate = useNavigate();
+  
+  // Usar el id de la URL o bien el guardado en localStorage como respaldo
+  const id = idParam || localStorage.getItem('current_property_id');
   
   // --- ESTADOS DE DATOS (Backend) ---
   const [data, setData] = useState(null);
