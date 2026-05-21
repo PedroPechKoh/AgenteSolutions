@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Header from '../Shared/Header';
 import ModalAsignarChecklist from './ModalAsignarChecklist';
+import ModalCrearCotizacion from '../Shared/ModalCrearCotizacion';
 import '../../styles/Cliente/TableroScrum.css'; // Reutilizamos estilos
 
 const VistaServiciosAdmin = () => {
@@ -25,6 +26,7 @@ const VistaServiciosAdmin = () => {
   const [modalChecklistVisible, setModalChecklistVisible] = useState(false);
   const [editandoCita, setEditandoCita] = useState(false);
   const [tabActiva, setTabActiva] = useState('sos'); // Estado para pestañas en móvil
+  const [showModalCotizacion, setShowModalCotizacion] = useState(false);
   
   const columnasConfig = [
     { id: 'sos', titulo: 'SOS', color: '#e63946', icon: <AlertTriangle size={20} /> },
@@ -450,6 +452,10 @@ const VistaServiciosAdmin = () => {
 
                     <button className="modal-action-btn variant-orange" onClick={() => setVerBitacora(true)}>
                       <Camera size={18} /> Ver Evidencias y Proceso
+                    </button>
+
+                    <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white' }}>
+                      <FileText size={18} /> REALIZAR COTIZACIÓN
                     </button>
 
                     <button className="modal-action-btn variant-dark" onClick={abrirSurvey}>
@@ -1128,6 +1134,17 @@ const VistaServiciosAdmin = () => {
           to { opacity: 1; transform: translateX(0); }
         }
       `}</style>
+      
+      {showModalCotizacion && tareaSeleccionada && (
+        <ModalCrearCotizacion
+          workOrderId={tareaSeleccionada.dbId}
+          cotizacionExistente={null} // El admin puede tener opción de ver cotizaciones después, por ahora creará nuevas o sobreescribirá
+          onClose={() => setShowModalCotizacion(false)}
+          onSuccess={(data) => {
+            alert("Cotización generada con éxito");
+          }}
+        />
+      )}
     </div>
   );
 };
