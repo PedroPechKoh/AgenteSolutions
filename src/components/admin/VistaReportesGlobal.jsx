@@ -7,20 +7,25 @@ import '../../styles/Admin/VistaReportesGlobal.css';
 
 const VistaReportesGlobal = () => {
   const [reportes, setReportes] = useState([]);
+  const [cotizaciones, setCotizaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchReportes();
+    fetchReportesYCotizaciones();
   }, []);
 
-  const fetchReportes = async () => {
+  const fetchReportesYCotizaciones = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/reportes-globales`);
-      setReportes(res.data);
+      const [resReportes, resCoti] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/reportes-globales`),
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`)
+      ]);
+      setReportes(resReportes.data);
+      setCotizaciones(resCoti.data);
     } catch (error) {
-      console.error("Error fetching global reports", error);
+      console.error("Error fetching data", error);
     } finally {
       setLoading(false);
     }
@@ -121,8 +126,45 @@ const VistaReportesGlobal = () => {
                       <span style={{ marginLeft: '10px', background: '#F26522', color: 'white', padding: '4px 12px', borderRadius: '15px', fontSize: '0.75rem', fontWeight: 'bold' }}>
                         {reports.length} {reports.length === 1 ? 'Foto' : 'Fotos'}
                       </span>
-                      <button 
-                        onClick={() => {
+                      
+                      <div style={{ marginLeft: 'auto', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                        {(() => {
+                          const cotizacionAsociada = cotizaciones.find(c => 
+                            (tipo === 'work_order' && c.work_order_id === parseInt(trabajoId)) || 
+                            (tipo === 'servicio' && c.service_id === parseInt(trabajoId))
+                          );
+                          
+                          if (cotizacionAsociada) {
+                            return (
+                              <button 
+                                onClick={() => {
+                                  localStorage.setItem('cotizacion_para_imprimir', JSON.stringify(cotizacionAsociada));
+                                  navigate('/imprimir-cotizacion');
+                                }}
+                                style={{ 
+                                  background: '#1b8a5a', 
+                                  color: 'white', 
+                                  padding: '8px 15px', 
+                                  borderRadius: '20px', 
+                                  border: 'none', 
+                                  cursor: 'pointer', 
+                                  fontWeight: 'bold', 
+                                  fontSize: '0.75rem',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '5px',
+                                  boxShadow: '0 4px 10px rgba(27,138,90,0.2)'
+                                }}
+                              >
+                                <FileText size={14} /> VER COTIZACIÓN
+                              </button>
+                            );
+                          }
+                          return null;
+                        })()}
+
+                        <button 
+                          onClick={() => {
                           const firstReport = reports[0];
                           const isService = tipo === 'servicio';
                           const serviceData = isService ? firstReport.service : (firstReport.work_order || firstReport.workOrder || firstReport.service);
@@ -164,8 +206,9 @@ const VistaReportesGlobal = () => {
                           boxShadow: '0 4px 10px rgba(0,51,102,0.2)'
                         }}
                       >
-                        <FileText size={14} /> GENERAR REPORTE OFICIAL
-                      </button>
+                            <FileText size={14} /> GENERAR REPORTE OFICIAL
+                          </button>
+                      </div>
                     </div>
                     
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginTop: '5px', paddingLeft: '30px' }}>
