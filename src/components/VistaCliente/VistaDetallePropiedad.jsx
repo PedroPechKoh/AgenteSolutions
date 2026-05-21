@@ -358,7 +358,7 @@ const VistaDetallePropiedad = () => {
             </div>
 
             <div className="tablero-actions-center">
-              <button className="btn-orange-small" onClick={() => navigate('/Tablero')}>
+              <button className="btn-orange-small" onClick={() => navigate(`/propiedad/${id}/tablero`)}>
                 Ver tablero detallado
               </button>
             </div>
