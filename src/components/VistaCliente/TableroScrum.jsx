@@ -19,6 +19,14 @@ const TableroScrum = () => {
   const [verBitacora, setVerBitacora] = useState(false);
   const [imagenExpandida, setImagenExpandida] = useState(null);
   const [procesandoAccion, setProcesandoAccion] = useState(false);
+  const [tabActiva, setTabActiva] = useState('sos'); // Estado para pestañas en móvil
+
+  const columnasConfig = [
+    { id: 'sos', titulo: 'SOS', color: '#e63946', icon: <AlertTriangle size={20} /> },
+    { id: 'todo', titulo: 'POR HACER', color: '#333', icon: <FileText size={20} /> },
+    { id: 'progress', titulo: 'EN PROCESO', color: '#f26522', icon: <Timer size={20} /> },
+    { id: 'done', titulo: 'FINALIZADOS', color: '#1b8a5a', icon: <CheckCircle2 size={20} /> }
+  ];
 
   // --- MAPEO DE DATOS (Mismo que en Laravel) ---
   const transformarTareas = useCallback((data) => {
@@ -144,11 +152,28 @@ const TableroScrum = () => {
         <h2>Tablero de Gestión de Servicios</h2>
       </header>
 
+      {/* Tabs para Móvil */}
+      <div className="scrum-tabs-mobile">
+        {columnasConfig.map(col => (
+          <button 
+            key={col.id}
+            className={`tab-btn ${tabActiva === col.id ? 'active' : ''}`}
+            onClick={() => setTabActiva(col.id)}
+            style={{ color: tabActiva === col.id ? col.color : '#999' }}
+          >
+            {col.icon}
+            <span>{col.titulo}</span>
+            {tabActiva === col.id && <div className="active-line" style={{ background: col.color }}></div>}
+          </button>
+        ))}
+      </div>
+
       <div className="scrum-board-layout quad-layout">
-        {renderColumna('sos', 'SOS ACEPTADOS', 'col-sos')}
-        {renderColumna('todo', 'POR HACER', 'col-todo')}
-        {renderColumna('progress', 'EN PROCESO', 'col-progress')}
-        {renderColumna('done', 'FINALIZADO', 'col-done')}
+        {columnasConfig.map(col => (
+          <div key={col.id} className={`column-wrapper-responsive ${tabActiva === col.id ? 'show-mobile' : 'hide-mobile'}`}>
+            {renderColumna(col.id, col.titulo === 'SOS' ? 'SOS ACEPTADOS' : col.titulo, `col-${col.id}`)}
+          </div>
+        ))}
       </div>
 
       {modalVisible && tareaSeleccionada && (
@@ -244,6 +269,63 @@ const TableroScrum = () => {
           </div>
         </div>
       )}
+
+      <style>{`
+        /* --- STYLES FOR MOBILE TABS --- */
+        .scrum-tabs-mobile {
+          display: none;
+          background: white;
+          padding: 10px 5px;
+          margin: 10px 0;
+          border-radius: 15px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+          justify-content: space-around;
+          position: sticky;
+          top: 0;
+          z-index: 100;
+        }
+        .tab-btn {
+          background: none;
+          border: none;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 5px;
+          padding: 8px 5px;
+          cursor: pointer;
+          position: relative;
+          flex: 1;
+        }
+        .tab-btn span {
+          font-size: 0.65rem;
+          font-weight: 800;
+          text-transform: uppercase;
+        }
+        .active-line {
+          position: absolute;
+          bottom: -5px;
+          height: 3px;
+          width: 25px;
+          border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+          .scrum-tabs-mobile { display: flex; }
+          .scrum-board-layout { 
+            display: block !important; 
+            padding: 0 10px;
+          }
+          .column-wrapper-responsive.hide-mobile { display: none; }
+          .column-wrapper-responsive.show-mobile { display: block; animation: fadeIn 0.3s ease; }
+          .scrum-column { width: 100% !important; margin: 0 !important; }
+          .column-header { display: none; } /* Ocultamos el header original porque ya está en el tab */
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateX(10px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
 };
