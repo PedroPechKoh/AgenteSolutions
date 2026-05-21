@@ -511,10 +511,29 @@ const VistaServiciosAdmin = () => {
 
                       {(() => {
                         const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId);
+                        
                         return (
-                          <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white' }}>
-                            <FileText size={18} /> {cotizacionAsociada ? 'EDITAR COTIZACIÓN' : 'REALIZAR COTIZACIÓN'}
-                          </button>
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white', flex: 1 }}>
+                              <FileText size={18} /> {cotizacionAsociada ? 'EDITAR COTIZACIÓN' : 'REALIZAR COTIZACIÓN'}
+                            </button>
+                            
+                            {cotizacionAsociada && cotizacionAsociada.parent_id && (
+                              <button 
+                                className="modal-action-btn variant-dark" 
+                                onClick={() => {
+                                  const borrador = cotizacionesData.find(q => q.id === cotizacionAsociada.parent_id);
+                                  if (borrador) {
+                                    localStorage.setItem('cotizacion_para_imprimir', JSON.stringify(borrador));
+                                    window.open('/imprimir-cotizacion', '_blank');
+                                  }
+                                }} 
+                                style={{ background: '#6c757d', color: 'white', flex: 1 }}
+                              >
+                                <FileText size={18} /> VER BORRADOR TÉCNICO
+                              </button>
+                            )}
+                          </div>
                         );
                       })()}
                     </div>
