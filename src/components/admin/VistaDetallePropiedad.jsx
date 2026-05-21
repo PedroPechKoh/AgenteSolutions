@@ -345,22 +345,42 @@ const VistaDetallePropiedad = () => {
             <button className="close-modal" onClick={() => setReporteSeleccionado(null)}><X /></button>
             <div className="modal-header">
               <div className="modal-tag">TRABAJO FINALIZADO</div>
-              <h2>{reporteSeleccionado.title || reporteSeleccionado.labor}</h2>
-              <p className="modal-subtitle">
-                {new Date(reporteSeleccionado.updated_at || reporteSeleccionado.fecha).toLocaleDateString()} | Técnico: {reporteSeleccionado.tecnico_nombre || reporteSeleccionado.tecnico}
+              <h2 style={{ color: '#333' }}>{reporteSeleccionado.title || reporteSeleccionado.labor}</h2>
+              <p className="modal-subtitle" style={{ color: '#666' }}>
+                Técnico: {reporteSeleccionado.tecnico_nombre || reporteSeleccionado.tecnico}
               </p>
             </div>
             <div className="modal-body">
-              <p>{reporteSeleccionado.description || reporteSeleccionado.descripcion}</p>
-              <div className="evidence-container" style={{ marginTop: '15px' }}>
-                <h4>Evidencia:</h4>
-                {reporteSeleccionado.fotos && reporteSeleccionado.fotos.map((f, i) => (
-                  <img key={i} src={f} alt="foto" style={{ width: '100%', borderRadius: '8px', marginTop: '10px' }} />
-                ))}
+              <div style={{ display: 'flex', gap: '20px', marginBottom: '15px', background: '#f5f5f5', padding: '15px', borderRadius: '10px' }}>
+                <div style={{ flex: 1 }}>
+                   <strong style={{ color: '#333', display: 'block', fontSize: '0.85rem' }}>VISITA PROGRAMADA</strong>
+                   <span style={{ color: '#555' }}>{reporteSeleccionado.scheduled_at ? new Date(reporteSeleccionado.scheduled_at).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }) : 'No registrada'}</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                   <strong style={{ color: '#333', display: 'block', fontSize: '0.85rem' }}>TRABAJO FINALIZADO</strong>
+                   <span style={{ color: '#555' }}>{reporteSeleccionado.updated_at ? new Date(reporteSeleccionado.updated_at).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }) : (reporteSeleccionado.fecha || 'No registrada')}</span>
+                </div>
+              </div>
+              
+              <h4 style={{ color: '#F26522', marginBottom: '10px' }}>REPORTE DEL TÉCNICO:</h4>
+              <p style={{ color: '#444', lineHeight: 1.5, background: '#fff9f0', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #F26522' }}>
+                 {reporteSeleccionado.description || reporteSeleccionado.descripcion || 'Sin reporte detallado.'}
+              </p>
+
+              <div className="evidence-container" style={{ marginTop: '20px' }}>
+                <h4 style={{ color: '#333', marginBottom: '10px' }}>Evidencia Fotográfica:</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '10px' }}>
+                  {reporteSeleccionado.fotos && reporteSeleccionado.fotos.map((f, i) => (
+                    <img key={i} src={f} alt="foto" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '8px' }} />
+                  ))}
+                  {(!reporteSeleccionado.fotos || reporteSeleccionado.fotos.length === 0) && (
+                    <p style={{ color: '#999', fontStyle: 'italic', fontSize: '0.9rem' }}>No se adjuntaron fotos.</p>
+                  )}
+                </div>
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn-modal-close" onClick={() => setReporteSeleccionado(null)}>Cerrar Reporte</button>
+              <button className="btn-modal-close" onClick={() => setReporteSeleccionado(null)} style={{ background: '#F26522', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>CERRAR REPORTE</button>
             </div>
           </div>
         </div>
