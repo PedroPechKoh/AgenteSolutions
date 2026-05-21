@@ -118,16 +118,24 @@ const ModalCrearCotizacion = ({
             <p>{modoConsulta ? 'Consulta los detalles de la cotización actual' : 'Complete el formato para enviar la cotización al cliente'}</p>
           </div>
 
-          <div className="tp-q-tabs">
-            <button 
-              className={`tp-q-tab ${tabCotizacion === 'manual' ? 'active' : ''}`}
-              onClick={() => !modoConsulta && setTabCotizacion('manual')}
-            >Formato Manual</button>
-            <button 
-              className={`tp-q-tab ${tabCotizacion === 'archivo' ? 'active' : ''}`}
-              onClick={() => !modoConsulta && setTabCotizacion('archivo')}
-            >Subir Archivo (PDF/Img)</button>
-          </div>
+          {!modoConsulta && (
+            <div className="tp-modal-q-tabs">
+              <button 
+                className={`tp-q-tab ${tabCotizacion === 'manual' ? 'active' : ''}`}
+                onClick={() => setTabCotizacion('manual')}
+              >
+                <FileText size={18} />
+                <span>Registro Manual</span>
+              </button>
+              <button 
+                className={`tp-q-tab ${tabCotizacion === 'archivo' ? 'active' : ''}`}
+                onClick={() => setTabCotizacion('archivo')}
+              >
+                <Upload size={18} />
+                <span>Cargar Archivo</span>
+              </button>
+            </div>
+          )}
 
           <div className="tp-modal-q-body">
             {tabCotizacion === 'manual' ? (
