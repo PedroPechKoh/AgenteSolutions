@@ -258,7 +258,7 @@ const VistaServiciosAdmin = () => {
                     <div><strong>Solicitado:</strong> {tarea.fechaSolicitud}</div>
                     <div><strong>Solucionado:</strong> {tarea.fechaSolucion}</div>
                   </div>
-                  <div className="card-status-row">
+                  <div className="card-status-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     {tarea.estado === 'done' ? (
                       <div className="status-pill-done">
                         <CheckCircle2 size={12} /> <span>Finalizado</span>
@@ -268,10 +268,17 @@ const VistaServiciosAdmin = () => {
                         {tarea.prioridad.toUpperCase()}
                       </span>
                     )}
-                    <span className={`date-tag ${tarea.isOverdue ? 'is-overdue' : ''}`}>
-                      {tarea.isOverdue ? <AlertTriangle size={12} /> : <Clock size={12} />}
-                      {tarea.isOverdue ? 'ATRASADO - ' : ''} {tarea.fechaFin}
-                    </span>
+                    {(() => {
+                      const coti = cotizacionesData.find(q => q.work_order_id === tarea.dbId || q.service_id === tarea.dbId);
+                      if (!coti) return null;
+                      const badgeText = coti.created_by_role === 'Admin' ? 'CA' : 'CT';
+                      const bgColor = coti.created_by_role === 'Admin' ? '#1b8a5a' : '#333';
+                      return (
+                        <span style={{ background: bgColor, color: 'white', padding: '3px 8px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold' }} title={coti.created_by_role === 'Admin' ? 'Cotización realizada por el Admin' : 'Cotización realizada por el Técnico'}>
+                          {badgeText}
+                        </span>
+                      );
+                    })()}
                   </div>
                 </button>
               </div>
