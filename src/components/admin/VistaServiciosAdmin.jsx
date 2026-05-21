@@ -27,6 +27,7 @@ const VistaServiciosAdmin = () => {
   const [editandoCita, setEditandoCita] = useState(false);
   const [tabActiva, setTabActiva] = useState('sos'); // Estado para pestañas en móvil
   const [showModalCotizacion, setShowModalCotizacion] = useState(false);
+  const [cotizacionesData, setCotizacionesData] = useState([]);
   
   const columnasConfig = [
     { id: 'sos', titulo: 'SOS', color: '#e63946', icon: <AlertTriangle size={20} /> },
@@ -95,9 +96,19 @@ const VistaServiciosAdmin = () => {
     }
   };
 
+  const fetchCotizaciones = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
+      setCotizacionesData(response.data);
+    } catch (error) {
+      console.error("Error cargando cotizaciones:", error);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
     fetchTecnicos();
+    fetchCotizaciones();
   }, [fetchOrders]);
 
   // --- AUTO-OPEN MODAL IF jobId IN URL ---
@@ -454,9 +465,14 @@ const VistaServiciosAdmin = () => {
                       <Camera size={18} /> Ver Evidencias y Proceso
                     </button>
 
-                    <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white' }}>
-                      <FileText size={18} /> REALIZAR COTIZACIÓN
-                    </button>
+                    {(() => {
+                      const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId);
+                      return (
+                        <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white' }}>
+                          <FileText size={18} /> {cotizacionAsociada ? 'EDITAR COTIZACIÓN' : 'REALIZAR COTIZACIÓN'}
+                        </button>
+                      );
+                    })()}
 
                     <button className="modal-action-btn variant-dark" onClick={abrirSurvey}>
                       <Layout size={18} /> CONSULTAR LEVANTAMIENTO DE LA PROPIEDAD
@@ -1138,10 +1154,12 @@ const VistaServiciosAdmin = () => {
       {showModalCotizacion && tareaSeleccionada && (
         <ModalCrearCotizacion
           workOrderId={tareaSeleccionada.dbId}
-          cotizacionExistente={null} // El admin puede tener opción de ver cotizaciones después, por ahora creará nuevas o sobreescribirá
+          cotizacionExistente={cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId)}
+          isAdmin={true}
           onClose={() => setShowModalCotizacion(false)}
-          onSuccess={(data) => {
-            alert("Cotización generada con éxito");
+          onSuccess={() => {
+            fetchCotizaciones();
+            alert("Cotización gestionada con éxito");
           }}
         />
       )}

@@ -9,7 +9,8 @@ const ModalCrearCotizacion = ({
   serviceId, 
   cotizacionExistente, 
   onClose, 
-  onSuccess 
+  onSuccess,
+  isAdmin = false
 }) => {
   const [tabCotizacion, setTabCotizacion] = useState('manual');
   const [filasConceptos, setFilasConceptos] = useState([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
@@ -23,13 +24,13 @@ const ModalCrearCotizacion = ({
 
   useEffect(() => {
     if (cotizacionExistente) {
-      setModoConsulta(true);
+      setModoConsulta(!isAdmin); // Si es admin, puede editar
       if (cotizacionExistente.type === 'manual') {
         const parsed = typeof cotizacionExistente.concept === 'string' 
           ? JSON.parse(cotizacionExistente.concept) 
           : cotizacionExistente.concept;
-        setFilasConceptos(parsed.servicios?.map((s, i) => ({ id: i, desc: s.descripcion, cant: s.cantidad, precio: s.precio })) || []);
-        setFilasMateriales(parsed.materiales?.map((m, i) => ({ id: i + 1000, desc: m.descripcion, cant: m.cantidad, precio: m.precio })) || []);
+        setFilasConceptos(parsed?.servicios?.map((s, i) => ({ id: i, desc: s.descripcion, cant: s.cantidad, precio: s.precio })) || []);
+        setFilasMateriales(parsed?.materiales?.map((m, i) => ({ id: i + 1000, desc: m.descripcion, cant: m.cantidad, precio: m.precio })) || []);
         setObservacionesCotizacion(cotizacionExistente.observations || '');
         setTabCotizacion('manual');
       } else {
@@ -38,7 +39,7 @@ const ModalCrearCotizacion = ({
     } else {
       setModoConsulta(false);
     }
-  }, [cotizacionExistente]);
+  }, [cotizacionExistente, isAdmin]);
 
   const addFila = (setter) => setter(prev => [...prev, { id: Date.now(), desc: '', cant: 1, precio: 0 }]);
   const removeFila = (setter, id) => setter(prev => prev.filter(f => f.id !== id));
@@ -84,11 +85,20 @@ const ModalCrearCotizacion = ({
         formData.append('file', archivoCotizacion);
       }
 
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      let res;
+      if (cotizacionExistente && isAdmin) {
+        // En Laravel, para enviar archivos con PUT/PATCH por multipart/form-data usamos POST y agregamos _method=PUT
+        formData.append('_method', 'PUT');
+        res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionExistente.id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      } else {
+        res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      }
 
-      if (res.status === 201) {
+      if (res.status === 201 || res.status === 200) {
         setCotizacionEnviada(true);
         setTimeout(() => {
           setCotizacionEnviada(false);
@@ -112,10 +122,16 @@ const ModalCrearCotizacion = ({
           initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }}
           className="tp-modal-quotation-card"
         >
-          <button className="tp-modal-close-btn" onClick={onClose}><X size={24} /></button>
+          <button className="tp-close-modal-btn" onClick={onClose}><X size={24} /></button>
           <div className="tp-modal-q-header">
-            <h2>{modoConsulta ? 'COTIZACIÓN REGISTRADA' : 'GENERAR COTIZACIÓN'}</h2>
-            <p>{modoConsulta ? 'Consulta los detalles de la cotización actual' : 'Complete el formato para enviar la cotización al cliente'}</p>
+            <h2>
+              {cotizacionExistente && isAdmin ? 'EDITAR COTIZACIÓN' : 
+               modoConsulta ? 'COTIZACIÓN REGISTRADA' : 'GENERAR COTIZACIÓN'}
+            </h2>
+            <p>
+              {cotizacionExistente && isAdmin ? 'Modifica los detalles de la cotización' : 
+               modoConsulta ? 'Consulta los detalles de la cotización actual' : 'Complete el formato para enviar la cotización al cliente'}
+            </p>
           </div>
 
           {!modoConsulta && (
@@ -349,7 +365,7 @@ const ModalCrearCotizacion = ({
                     onClick={enviarCotizacion}
                     disabled={enviandoCotizacion || cotizacionEnviada}
                   >
-                    {enviandoCotizacion ? "ENVIANDO..." : cotizacionEnviada ? "¡ENVIADO!" : "GUARDAR COTIZACIÓN"}
+                    {enviandoCotizacion ? "ENVIANDO..." : cotizacionEnviada ? "¡ENVIADO!" : (cotizacionExistente && isAdmin ? "ACTUALIZAR COTIZACIÓN" : "GUARDAR COTIZACIÓN")}
                   </button>
                 </>
               )}
