@@ -1503,18 +1503,7 @@ const DetalleReporte = () => {
                             {previewImg ? (
                                 <>
                                     <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    {previewImg && (
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                                <span>1 foto</span>
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); if (selectedFile) { setSelectedFile(null); setPreviewImg(null); } else { setRemoveMainImage(true); setPreviewImg(null); } }}
-                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
-                                >
-                                    Limpiar
-                                </button>
-                            </div>
-                        )}
+                                
                                 </>
                             ) : (
                                 <>
@@ -1525,12 +1514,12 @@ const DetalleReporte = () => {
                         </div>
                         <input type="file" id="fotoProductoNuevo" hidden accept="image/*" onChange={handleFileSelect} />
                         <input type="file" id="cameraPrincipal" hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
-                        {previewImg && (
+                       {previewImg && (
                             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
                                 <span>1 foto</span>
                                 <button
                                     type="button"
-                                    onClick={(e) => { e.stopPropagation(); if (selectedFile) { setSelectedFile(null); setPreviewImg(null); } else { setRemoveMainImage(true); setPreviewImg(null); } }}
+                                    onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
                                     style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
                                 >
                                     Limpiar
@@ -1549,14 +1538,6 @@ const DetalleReporte = () => {
                             {previewImgSecondary ? (
                                 <>
                                     <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    <button
-                                        type="button"
-                                        onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
-                                        title="Eliminar imagen secundaria"
-                                        style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', zIndex: 99 }}
-                                    >
-                                        ×
-                                    </button>
                                 </>
                             ) : (
                                 <>
