@@ -843,6 +843,12 @@ const VistaServiciosAdmin = () => {
           margin: 15px 5px 25px;
           border-bottom: 2px solid #e2e8f0;
           padding-bottom: 10px;
+          overflow-x: auto;
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE/Edge */
+        }
+        .main-tabs-container::-webkit-scrollbar {
+          display: none; /* Chrome/Safari */
         }
         .main-tab-btn {
           background: none;
@@ -858,6 +864,13 @@ const VistaServiciosAdmin = () => {
           position: relative;
           transition: all 0.3s ease;
           border-radius: 10px;
+          flex-shrink: 0;
+          white-space: nowrap;
+          outline: none;
+        }
+        .main-tab-btn:focus-visible {
+          outline: 2px solid #F26522;
+          outline-offset: 2px;
         }
         .main-tab-btn:hover {
           color: #1e293b;
@@ -1310,6 +1323,23 @@ const VistaServiciosAdmin = () => {
         }
 
         @media (max-width: 768px) {
+          .main-tabs-container {
+            gap: 10px;
+            margin: 10px 2px 15px;
+            padding-bottom: 6px;
+          }
+          .main-tab-btn {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            gap: 6px;
+          }
+          .main-tab-btn.active::after {
+            bottom: -8px;
+          }
+          .main-tab-icon {
+            font-size: 1rem;
+          }
+          
           .scrum-tabs-mobile { display: flex; }
           .scrum-board-layout { 
             display: block !important; 
