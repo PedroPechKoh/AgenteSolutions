@@ -1511,29 +1511,19 @@ const DetalleReporte = () => {
                                 )}
                             </div>
 
-                            {/* BOTÓN X PARA ELIMINAR FOTO PRINCIPAL */}
-                            {previewImg && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => { 
-                                        e.stopPropagation(); 
-                                        if (typeof setSelectedFile === 'function') setSelectedFile(null); 
-                                        setPreviewImg(null); 
-                                    }}
-                                    title="Eliminar foto principal"
-                                    style={{ position: 'absolute', top: '5px', right: '5px', background: '#f26624', color: '#ffffff', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 10, boxShadow: '0px 2px 4px rgba(0,0,0,0.5)' }}
-                                >
-                                    ×
-                                </button>
-                            )}
                         </div>
 
                         <input type="file" id="fotoProductoNuevo" hidden accept="image/*" onChange={handleFileSelect} />
                         <input type="file" id="cameraPrincipal" hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
                         {previewImg && (
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                                <span>1 foto</span>
-                            </div>
+                            <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); if (selectedFile) { setSelectedFile(null); } else { setRemoveMainImage(true); } setPreviewImg(null); }}
+                                title="Eliminar imagen principal"
+                                style={{ marginTop: '10px', background: '#f26624', color: '#ffffff', border: 'none', borderRadius: '22px', padding: '8px 16px', cursor: 'pointer', fontWeight: 'bold' }}
+                            >
+                                Eliminar imagen
+                            </button>
                         )}
                     </div>
 
@@ -1557,33 +1547,19 @@ const DetalleReporte = () => {
                                 )}
                             </div>
 
-                            {/* BOTÓN X PARA ELIMINAR FOTO SECUNDARIA */}
-                            {previewImgSecondary && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => { 
-                                        e.stopPropagation(); 
-                                        if (selectedFileSecondary) { 
-                                            setSelectedFileSecondary(null); 
-                                            setPreviewImgSecondary(null); 
-                                        } else { 
-                                            setPreviewImgSecondary(null); 
-                                        } 
-                                    }}
-                                    title="Eliminar foto secundaria"
-                                    style={{ position: 'absolute', top: '5px', right: '5px', background: '#f26624', color: '#ffffff', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 10, boxShadow: '0px 2px 4px rgba(0,0,0,0.5)' }}
-                                >
-                                    ×
-                                </button>
-                            )}
                         </div>
 
                         <input type="file" id="fotoProductoSecundario" hidden accept="image/*" onChange={handleFileSelectSecondary} />
                         <input type="file" id="cameraSecondary" hidden accept="image/*" capture="environment" onChange={handleFileSelectSecondary} />
                         {previewImgSecondary && (
-                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                                <span>1 foto</span>
-                            </div>
+                            <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); } else { setRemoveSecondaryImage(true); } setPreviewImgSecondary(null); }}
+                                title="Eliminar imagen secundaria"
+                                style={{ marginTop: '10px', background: '#f26624', color: '#ffffff', border: 'none', borderRadius: '22px', padding: '8px 16px', cursor: 'pointer', fontWeight: 'bold' }}
+                            >
+                                Eliminar imagen
+                            </button>
                         )}
                     </div>
 
