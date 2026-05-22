@@ -87,7 +87,7 @@ const VistaCotizaciones = () => {
   const filtradas = cotizaciones.filter(c => {
     const coincideFiltro = 
       (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
-      (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada')) ||
+      (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status === 'Pago en Revisión' || c.status === 'Pagado' || c.status === 'Validado')) ||
       (filtro === 'Rechazado' && c.status?.toLowerCase().includes('rechazad'));
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
@@ -595,6 +595,37 @@ const VistaCotizaciones = () => {
                         onClick={() => verPantallaCompleta(cotizacionSeleccionada.evidence_photo_path)}
                       />
                       <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '5px 0 0 0' }}>Click para ampliar</p>
+                    </div>
+                  </div>
+                )}
+
+                {cotizacionSeleccionada.payment_receipt_path && (
+                  <div style={{ padding: '15px', background: '#fffbeb', borderRadius: '8px', marginTop: '15px', borderLeft: '4px solid #fbbf24' }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.95rem', color: '#b45309' }}>🧾 Comprobante de Pago ({cotizacionSeleccionada.payment_status || 'En Revisión'}):</h4>
+                    <div style={{ textAlign: 'center' }}>
+                      <img 
+                        src={cotizacionSeleccionada.payment_receipt_path} 
+                        alt="Comprobante de Pago" 
+                        style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px', cursor: 'pointer', objectFit: 'contain' }} 
+                        onClick={() => verPantallaCompleta(cotizacionSeleccionada.payment_receipt_path)}
+                      />
+                      <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '5px 0 10px 0' }}>Click para ampliar</p>
+                      
+                      {!esCliente && (cotizacionSeleccionada.status === 'Pago en Revisión' || cotizacionSeleccionada.payment_status === 'Pago en Revisión') && (
+                        <button 
+                          onClick={handleValidarPago}
+                          disabled={procesando}
+                          style={{ 
+                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+                            color: 'white', border: 'none', padding: '12px 25px', borderRadius: '25px', 
+                            fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', 
+                            margin: '10px auto 0', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.2)' 
+                          }}
+                        >
+                          <CheckCircle2 size={20} /> 
+                          {procesando ? 'VALIDANDO...' : 'VALIDAR PAGO'}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
