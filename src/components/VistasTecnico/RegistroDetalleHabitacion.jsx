@@ -335,7 +335,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                     </div>
                   )}
                 </div>
-                {/* FOTOS DE GALERÍA (EXTRA) */}
+              {/* FOTOS DE GALERÍA (EXTRA) */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div 
                     className="rdh-gallery-box"
@@ -369,7 +369,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                   {/* Atributo 'multiple' permite seleccionar varios archivos a la vez */}
                   <input type="file" id="fotoGaleria" hidden accept="image/*" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
                   
-                  {/* BOTÓN CONSOLIDADO DE QUITAR FOTOS NUEVAS (compacto y rojo) */}
+                  {/* BOTÓN ROJO PARA LIMPIAR (Solo aparece si hay fotos nuevas) */}
                   {galeriaArchivos.length > 0 && (
                     <div style={{ display: 'flex', marginTop: '8px', justifyContent: 'center' }}>
                       <button 
@@ -397,11 +397,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                       </button>
                     </div>
                   )}
-            
                 </div>
-
-              </div>
-
               <div className="rdh-modal-field">
                 <label>TIPO *</label>
                 <input type="text" className="rdh-modal-input" placeholder="Ej. ENCHUFE, FOCO" value={nuevoRegistro.sub_category} onChange={(e) => setNuevoRegistro({...nuevoRegistro, sub_category: e.target.value.toUpperCase()})}/>
