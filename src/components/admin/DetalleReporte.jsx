@@ -1522,7 +1522,7 @@ const DetalleReporte = () => {
                                     onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
                                     style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
                                 >
-                                    Limpiar
+                                   x
                                 </button>
                             </div>
                         )}
