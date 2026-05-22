@@ -1507,6 +1507,7 @@ const DetalleReporte = () => {
                 
                 {/* FOTOS */}
                 <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    
                     {/* FOTO PRINCIPAL */}
                     <div style={{ textAlign: 'center' }}>
                         <div 
@@ -1521,7 +1522,7 @@ const DetalleReporte = () => {
                                         type="button"
                                         onClick={(e) => { e.stopPropagation(); if (selectedFile) { setSelectedFile(null); setPreviewImg(null); } else { setRemoveMainImage(true); setPreviewImg(null); } }}
                                         title="Eliminar imagen"
-                                        style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
+                                        style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', zIndex: 99 }}
                                     >
                                         ×
                                     </button>
@@ -1551,7 +1552,7 @@ const DetalleReporte = () => {
                                         type="button"
                                         onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
                                         title="Eliminar imagen secundaria"
-                                        style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
+                                        style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', zIndex: 99 }}
                                     >
                                         ×
                                     </button>
@@ -1571,7 +1572,7 @@ const DetalleReporte = () => {
                     {galeriaExistente.map((foto, i) => (
                         <div 
                             key={`ex-${i}`} 
-                            style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', border: '1px solid #ccc' }}
+                            style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', border: '1px solid #ccc', overflow: 'visible' }}
                         >
                             <img src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
                             <button
@@ -1582,7 +1583,7 @@ const DetalleReporte = () => {
                                     setRemovedGalleryIds(prev => [...prev, foto.id || foto.gallery_id || foto.image_id || foto.image_path]); 
                                 }}
                                 title="Eliminar foto"
-                                style={{ position: 'absolute', top: -6, right: -6, background: 'rgba(0,0,0,0.7)', color: 'white', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold', zIndex: 10 }}
+                                style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#000000', color: '#ffffff', border: '2px solid #ffffff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 99999, boxShadow: '0px 2px 4px rgba(0,0,0,0.3)' }}
                             >
                                 ×
                             </button>
@@ -1593,7 +1594,7 @@ const DetalleReporte = () => {
                     {galeriaArchivos.map((file, i) => (
                         <div 
                             key={`new-${i}`} 
-                            style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', border: '1px dashed #f26624' }}
+                            style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', border: '1px dashed #f26624', overflow: 'visible' }}
                         >
                             <img src={URL.createObjectURL(file)} alt={`galeria-new-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
                             <button
@@ -1603,7 +1604,7 @@ const DetalleReporte = () => {
                                     setGaleriaArchivos(prev => prev.filter((_, idx) => idx !== i)); 
                                 }}
                                 title="Eliminar foto nueva"
-                                style={{ position: 'absolute', top: -6, right: -6, background: '#f26624', color: 'white', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold', zIndex: 10 }}
+                                style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#f26624', color: '#ffffff', border: '2px solid #ffffff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 99999, boxShadow: '0px 2px 4px rgba(0,0,0,0.3)' }}
                             >
                                 ×
                             </button>

@@ -342,3 +342,55 @@
     gap: 5px !important;
   }
 }
+
+/* Contenedor general que envuelve a todas las fotos */
+.rdh-modal-form div[style*="display: 'flex'"] {
+    display: flex !important;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+/* Forzar que las cajas de fotos de la galería permitan elementos flotantes hacia afuera */
+.rdh-modal-form div[key*="ex-"], 
+.rdh-modal-form div[key*="new-"] {
+    position: relative !important;
+    overflow: visible !important; /* CRUCIAL: Evita que se corte la X */
+}
+
+/* Estilo base para los botones de eliminar (las X circulares) */
+.rdh-modal-form button[title*="Eliminar"] {
+    position: absolute !important;
+    top: -8px !important;
+    right: -8px !important;
+    width: 24px !important;
+    height: 24px !important;
+    border-radius: 50% !important;
+    border: 2px solid #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    z-index: 99999 !important; /* Fuerza a estar por encima de la imagen */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.4) !important;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+    padding: 0 !important;
+    line-height: 1 !important;
+}
+
+/* Efecto Hover para las X de eliminar */
+.rdh-modal-form button[title*="Eliminar"]:hover {
+    transform: scale(1.1);
+}
+
+/* Estilos de las imágenes dentro de las cajas */
+.rdh-modal-form div[style*="width: '100px'"] img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
