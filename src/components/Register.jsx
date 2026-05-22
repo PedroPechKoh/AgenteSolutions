@@ -88,7 +88,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         
         .modal-content {
           background: #000;
-          padding: 30px;
+          padding: 45px 30px 30px 30px;
           border-radius: 15px;
           width: 90%;
           max-width: 650px;
@@ -120,6 +120,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           margin-bottom: 25px;
           text-align: center;
           text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+          padding: 0 40px;
         }
 
         .form-row-responsive {
@@ -135,7 +136,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
 
         .input-icon {
           position: absolute;
-          left: 15px;
+          left: 18px;
           top: 50%;
           transform: translateY(-50%);
           color: #555;
@@ -144,7 +145,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
 
         .custom-input, .custom-select {
           width: 100%;
-          padding: 12px 15px 12px 45px;
+          padding: 12px 45px 12px 55px;
           border-radius: 50px;
           border: 3px solid transparent;
           background-color: #cfd3d8;
@@ -155,6 +156,11 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           transition: 0.3s;
           color: #000;
         }
+
+        .custom-input::placeholder {
+          color: #555;
+          opacity: 1;
+        }
         
         .no-icon-input {
           padding-left: 20px;
@@ -163,12 +169,20 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         .custom-select {
           cursor: pointer;
           appearance: none; 
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+          background-repeat: no-repeat;
+          background-position: right 15px center;
+          background-size: 18px;
         }
 
         .custom-input:focus, .custom-select:focus {
           border-color: #F26522;
           background: white;
           box-shadow: 0 0 15px rgba(242, 101, 34, 0.6);
+        }
+
+        .custom-select:focus {
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23F26522' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
         }
 
         .toggle-password-btn {
@@ -219,6 +233,15 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         .error { color: #fff; background: rgba(255, 68, 68, 0.9); }
 
         @media (max-width: 600px) {
+          .modal-content {
+            padding: 45px 18px 25px 18px;
+          }
+          .form-title {
+            font-size: 1.35rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            padding: 0 25px;
+          }
           .form-row-responsive {
             flex-direction: column;
             gap: 15px;
