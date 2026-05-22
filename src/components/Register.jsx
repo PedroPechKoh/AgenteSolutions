@@ -86,7 +86,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           z-index: 1000;
         }
         
-        .modal-content {
+        .modal-overlay .modal-content {
           background: #000;
           padding: 45px 30px 30px 30px;
           border-radius: 15px;
@@ -95,9 +95,10 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           position: relative;
           box-shadow: 0 0 20px rgba(242, 101, 34, 0.5);
           font-family: "Arial Black", sans-serif;
+          box-sizing: border-box;
         }
 
-        .close-button {
+        .modal-overlay .close-button {
           position: absolute;
           top: 15px;
           right: 15px;
@@ -107,12 +108,12 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           cursor: pointer;
           transition: 0.3s;
         }
-        .close-button:hover {
+        .modal-overlay .close-button:hover {
           color: #F26522;
           transform: scale(1.1);
         }
 
-        .form-title {
+        .modal-overlay .form-title {
           color: white;
           font-style: italic;
           font-size: 1.8rem;
@@ -123,27 +124,29 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           padding: 0 40px;
         }
 
-        .form-row-responsive {
+        .modal-overlay .form-row-responsive {
           display: flex;
           gap: 15px;
           margin-bottom: 15px;
         }
 
-        .input-group {
+        .modal-overlay .input-group {
           position: relative;
           flex: 1;
         }
 
-        .input-icon {
+        .modal-overlay .input-icon {
           position: absolute;
           left: 18px;
           top: 50%;
           transform: translateY(-50%);
           color: #555;
           z-index: 2;
+          pointer-events: none;
         }
 
-        .custom-input, .custom-select {
+        .modal-overlay .custom-input, 
+        .modal-overlay .custom-select {
           width: 100%;
           padding: 12px 45px 12px 55px;
           border-radius: 50px;
@@ -155,18 +158,19 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           outline: none;
           transition: 0.3s;
           color: #000;
+          box-sizing: border-box;
         }
 
-        .custom-input::placeholder {
+        .modal-overlay .custom-input::placeholder {
           color: #555;
           opacity: 1;
         }
         
-        .no-icon-input {
+        .modal-overlay .no-icon-input {
           padding-left: 20px;
         }
 
-        .custom-select {
+        .modal-overlay .custom-select {
           cursor: pointer;
           appearance: none; 
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
@@ -175,17 +179,18 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           background-size: 18px;
         }
 
-        .custom-input:focus, .custom-select:focus {
+        .modal-overlay .custom-input:focus, 
+        .modal-overlay .custom-select:focus {
           border-color: #F26522;
           background: white;
           box-shadow: 0 0 15px rgba(242, 101, 34, 0.6);
         }
 
-        .custom-select:focus {
+        .modal-overlay .custom-select:focus {
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23F26522' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
         }
 
-        .toggle-password-btn {
+        .modal-overlay .toggle-password-btn {
           position: absolute;
           right: 15px;
           top: 50%;
@@ -197,7 +202,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           z-index: 2;
         }
 
-        .btn-registrar {
+        .modal-overlay .btn-registrar {
           width: 100%;
           padding: 15px;
           border-radius: 50px;
@@ -213,15 +218,15 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           margin-top: 10px;
         }
         
-        .btn-registrar:hover:not(:disabled) {
+        .modal-overlay .btn-registrar:hover:not(:disabled) {
           transform: scale(1.05);
         }
-        .btn-registrar:disabled {
+        .modal-overlay .btn-registrar:disabled {
           opacity: 0.7;
           cursor: not-allowed;
         }
 
-        .msg-box {
+        .modal-overlay .msg-box {
           text-align: center;
           width: 100%;
           font-weight: bold;
@@ -229,22 +234,33 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           border-radius: 4px;
           margin-top: 15px;
         }
-        .success { color: #fff; background: rgba(34, 197, 94, 0.9); }
-        .error { color: #fff; background: rgba(255, 68, 68, 0.9); }
+        .modal-overlay .success { color: #fff; background: rgba(34, 197, 94, 0.9); }
+        .modal-overlay .error { color: #fff; background: rgba(255, 68, 68, 0.9); }
 
         @media (max-width: 600px) {
-          .modal-content {
+          .modal-overlay .modal-content {
             padding: 45px 18px 25px 18px;
           }
-          .form-title {
+          .modal-overlay .form-title {
             font-size: 1.35rem;
             letter-spacing: 1px;
             margin-bottom: 20px;
             padding: 0 25px;
           }
-          .form-row-responsive {
+          .modal-overlay .form-row-responsive {
             flex-direction: column;
             gap: 15px;
+          }
+          .modal-overlay .custom-input, 
+          .modal-overlay .custom-select {
+            padding: 10px 40px 10px 48px;
+            font-size: 0.85rem;
+          }
+          .modal-overlay .no-icon-input {
+            padding-left: 15px;
+          }
+          .modal-overlay .input-icon {
+            left: 14px;
           }
         }
       `}</style>
@@ -264,6 +280,10 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
                 type="text" name="first_name" placeholder="NOMBRE(S)" 
                 className="custom-input"
                 value={formData.first_name} onChange={handleChange} required
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bitwarden-ignore="true"
               />
             </div>
             <div className="input-group">
@@ -271,6 +291,10 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
                 type="text" name="last_name" placeholder="APELLIDOS" 
                 className="custom-input no-icon-input"
                 value={formData.last_name} onChange={handleChange} required
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bitwarden-ignore="true"
               />
             </div>
           </div>
@@ -282,6 +306,10 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
                 type="email" name="email" placeholder="CORREO ELECTRÓNICO" 
                 className="custom-input"
                 value={formData.email} onChange={handleChange} required
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bitwarden-ignore="true"
               />
             </div>
             <div className="input-group">
@@ -290,6 +318,10 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
                 type="tel" name="phone_number" placeholder="TELÉFONO" 
                 className="custom-input"
                 value={formData.phone_number} onChange={handleChange} required
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bitwarden-ignore="true"
               />
             </div>
           </div>
@@ -301,6 +333,10 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
                 type={showPassword ? "text" : "password"} name="password" placeholder="CONTRASEÑA (Min. 6)" 
                 className="custom-input"
                 value={formData.password} onChange={handleChange} required minLength="6"
+                autoComplete="new-password"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bitwarden-ignore="true"
               />
               <button type="button" className="toggle-password-btn" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -312,6 +348,10 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
                 type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="CONFIRMAR CONTRASEÑA" 
                 className="custom-input"
                 value={formData.confirmPassword} onChange={handleChange} required minLength="6"
+                autoComplete="new-password"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bitwarden-ignore="true"
               />
               <button type="button" className="toggle-password-btn" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -324,6 +364,9 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
             <select 
               name="role_id" className="custom-select"
               value={formData.role_id} onChange={handleChange} required
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-bitwarden-ignore="true"
             >
               <option value={1}>ADMINISTRADOR (Nivel 1)</option>
               <option value={2}>TÉCNICO / VENDEDOR (Nivel 2)</option>
