@@ -397,7 +397,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                       </button>
                     </div>
                   )}
-                </div>
+            
                 </div>
 
               </div>
