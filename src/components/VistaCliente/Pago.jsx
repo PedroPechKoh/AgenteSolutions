@@ -8,6 +8,7 @@ const Pago = ({ cotizacion, onClose }) => {
   const [dragActive, setDragActive] = useState(false);
   const [subiendo, setSubiendo] = useState(false);
   const [pagoCompletado, setPagoCompletado] = useState(false);
+  const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -144,16 +145,26 @@ const Pago = ({ cotizacion, onClose }) => {
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
+            onClick={() => setIsPhotoMenuOpen(true)}
+            style={{ cursor: 'pointer' }}
           >
             <input 
               type="file" 
-              id="file-upload" 
-              className="hidden-input" 
+              id="pago-evidence-camera" 
+              hidden 
+              onChange={handleFileChange}
+              accept=".pdf,image/*"
+              capture="environment"
+            />
+            <input 
+              type="file" 
+              id="pago-evidence-gallery" 
+              hidden 
               onChange={handleFileChange}
               accept=".pdf,image/*"
             />
             
-            <label htmlFor="file-upload" className="upload-label-content">
+            <div className="upload-label-content">
               {file ? (
                 <div className="file-ready">
                   <CheckCircle2 size={48} className="success-icon" />
@@ -170,7 +181,7 @@ const Pago = ({ cotizacion, onClose }) => {
                   <span className="file-types">Formatos: PDF, JPG, PNG</span>
                 </>
               )}
-            </label>
+            </div>
           </div>
 
           <div className="security-tag">
@@ -192,6 +203,28 @@ const Pago = ({ cotizacion, onClose }) => {
         </div>
 
       </div>
+
+      {isPhotoMenuOpen && (
+        <div className="tp-modal-overlay" onClick={() => setIsPhotoMenuOpen(false)} style={{ zIndex: 1000000, background: 'rgba(0,0,0,0.8)' }}>
+          <div className="tp-modal-content" style={{ maxWidth: '400px', width: '90%', padding: '0', backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '12px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ color: '#F26522', borderBottom: '1px solid #333', margin: 0, padding: '20px', textAlign: 'center', fontSize: '1.2rem' }}>Seleccionar Comprobante</h3>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <button 
+                onClick={() => { document.getElementById('pago-evidence-camera').click(); setIsPhotoMenuOpen(false); }}
+                style={{ padding: '20px', border: 'none', background: 'transparent', color: 'white', fontSize: '1.1rem', cursor: 'pointer', borderBottom: '1px solid #333' }}
+              >
+                📷 Tomar Foto
+              </button>
+              <button 
+                onClick={() => { document.getElementById('pago-evidence-gallery').click(); setIsPhotoMenuOpen(false); }}
+                style={{ padding: '20px', border: 'none', background: 'transparent', color: 'white', fontSize: '1.1rem', cursor: 'pointer' }}
+              >
+                🖼️ Elegir Archivo / Galería
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
