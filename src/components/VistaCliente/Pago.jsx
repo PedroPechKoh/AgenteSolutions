@@ -52,8 +52,12 @@ const Pago = ({ cotizacion, onClose }) => {
       const res = await axios.post(cloudinaryUrl, formData);
       const fileUrl = res.data.secure_url;
 
-      // Aquí conectaremos con el backend una vez definamos la ruta
-      console.log("Comprobante subido:", fileUrl);
+      // Conectar con el backend para guardar el recibo y cambiar estado
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/pago`, {
+        payment_receipt_path: fileUrl
+      });
+      
+      console.log("Comprobante subido y notificado:", fileUrl);
       
       setPagoCompletado(true);
       setTimeout(() => {

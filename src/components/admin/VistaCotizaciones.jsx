@@ -113,25 +113,35 @@ const VistaCotizaciones = () => {
     window.open(url, '_blank');
   };
 
-  const procesarCotizacion = async (status) => {
-    if (status === 'Rechazado' && !motivoRechazo.trim()) {
-      alert("Por favor, ingresa el motivo del rechazo.");
-      return;
-    }
-
-    setProcesando(true);
+  const procesarCotizacion = async (nuevoEstado) => {
     try {
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/status`, {
-        status,
-        rejection_reason: motivoRechazo
-      });
-      alert(`Cotización ${status.toLowerCase()} exitosamente.`);
+      setProcesando(true);
+      const payload = { status: nuevoEstado };
+      if (nuevoEstado === 'Rechazado') {
+        payload.rejection_reason = motivoRechazo;
+      }
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/status`, payload);
       setCotizacionSeleccionada(null);
       setRechazando(false);
       setMotivoRechazo('');
       cargarCotizaciones();
     } catch (error) {
-      alert("Error al procesar la cotización.");
+      console.error('Error actualizando cotización:', error);
+    } finally {
+      setProcesando(false);
+    }
+  };
+
+  const handleValidarPago = async () => {
+    try {
+      setProcesando(true);
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/validar-pago`);
+      setCotizacionSeleccionada(prev => ({ ...prev, status: 'Pagado' }));
+      cargarCotizaciones();
+      alert("¡Pago validado y servicio programado!");
+    } catch (error) {
+      console.error('Error validando pago:', error);
+      alert('Hubo un error al validar el pago.');
     } finally {
       setProcesando(false);
     }
@@ -700,6 +710,29 @@ const VistaCotizaciones = () => {
                         onClick={() => setShowPagoModal(true)}
                       >
                         💳 PAGAR
+                      </button>
+                    </div>
+                  )}
+
+                  {/* ROW: Validación de Pago (Solo Admin) */}
+                  {!esCliente && !esTecnico && cotizacionSeleccionada.status === 'Pago en Revisión' && (
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
+                      {cotizacionSeleccionada.payment_receipt_path && (
+                        <button 
+                          className="btn-modal-print" 
+                          style={{ background: '#334155', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                          onClick={() => window.open(cotizacionSeleccionada.payment_receipt_path, '_blank')}
+                        >
+                          👁️ VER COMPROBANTE
+                        </button>
+                      )}
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#1b8a5a', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold' }} 
+                        onClick={handleValidarPago}
+                        disabled={procesando}
+                      >
+                        ✅ VALIDAR PAGO
                       </button>
                     </div>
                   )}
