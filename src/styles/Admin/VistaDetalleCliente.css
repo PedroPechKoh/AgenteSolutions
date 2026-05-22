@@ -25,11 +25,93 @@
     min-height: 100vh;
 }
 
-.detalle-header {
+.detalle-cliente-container .detalle-header {
+    background: #111827; /* Azul muy oscuro/negro */
+    padding: 20px 35px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    justify-content: flex-start;
+    gap: 25px;
+    border-bottom: 5px solid #ff8800; /* Naranja de marca */
+    color: white;
+    margin-bottom: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.detalle-cliente-container .btn-back {
+    background: #ff8800;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.detalle-cliente-container .btn-back:hover {
+    background: white;
+    color: #ff8800;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 136, 0, 0.4);
+}
+
+.detalle-cliente-container .header-title {
+    flex: 1;
+    min-width: 0;
+}
+
+.detalle-cliente-container .header-title h1 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 0.5px;
+    color: white;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.2;
+}
+
+/* Responsive design for the header */
+@media (max-width: 768px) {
+    .detalle-cliente-container .detalle-header {
+        padding: 15px 20px;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .detalle-cliente-container .btn-back {
+        padding: 8px 15px;
+        font-size: 0.8rem;
+    }
+    
+    .detalle-cliente-container .header-title h1 {
+        font-size: 1.4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .detalle-cliente-container .detalle-header {
+        padding: 12px 15px;
+        gap: 10px;
+    }
+    
+    .detalle-cliente-container .btn-back {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+    }
+    
+    .detalle-cliente-container .header-title h1 {
+        font-size: 1.1rem;
+        letter-spacing: 0;
+    }
 }
 
 .detalle-main-wrapper {
