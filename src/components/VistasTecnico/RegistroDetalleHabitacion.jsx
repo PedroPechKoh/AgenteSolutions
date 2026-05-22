@@ -335,7 +335,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                     </div>
                   )}
                 </div>
-                {/* FOTOS DE GALERÍA (EXTRA) */}
+              {/* FOTOS DE GALERÍA (EXTRA) */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div 
                     className="rdh-gallery-box"
@@ -369,6 +369,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                   {/* Atributo 'multiple' permite seleccionar varios archivos a la vez */}
                   <input type="file" id="fotoGaleria" hidden accept="image/*" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
                   
+
+
                   {/* TEXTO INDICADOR DE CUÁNTAS FOTOS HAY EN TOTAL */}
                   {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) && (
                     <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center', justifyContent: 'center' }}>
@@ -379,6 +381,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                   )}
 
                   {/* BOTÓN CONSOLIDADO DE QUITAR FOTOS NUEVAS (compacto y rojo) */}
+
                   {galeriaArchivos.length > 0 && (
                     <div style={{ display: 'flex', marginTop: '8px', justifyContent: 'center' }}>
                       <button 
@@ -407,7 +410,10 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                     </div>
                   )}
                 </div>
+
+
               </div>
+
 
               <div className="rdh-modal-field">
                 <label>TIPO *</label>
