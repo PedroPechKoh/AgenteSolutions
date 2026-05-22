@@ -1493,17 +1493,31 @@ const DetalleReporte = () => {
                 {/* FOTOS */}
                 <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                     
-                    {/* FOTO PRINCIPAL */}
+                   {/* FOTO PRINCIPAL */}
                     <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <div 
                             className="rdh-foto-box"
                             onClick={() => handlePhotoBoxClick('principal')}
-                            style={{ width: '100px', height: '100px', position: 'relative' }}
+                            style={{ width: '100px', height: '100px', position: 'relative', overflow: 'visible' }}
                         >
                             {previewImg ? (
                                 <>
                                     <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                
+                                    {/* BOTÓN X PARA ELIMINAR FOTO PRINCIPAL */}
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            // Asegúrate de que estos sean los nombres correctos de tus estados para la foto principal
+                                            if (typeof setSelectedFile === 'function') setSelectedFile(null); 
+                                            setPreviewImg(null); 
+                                            // Si tienes un estado para marcar eliminación en BD, agrégalo aquí, ej: setRemovePrincipalImage(true);
+                                        }}
+                                        title="Eliminar foto principal"
+                                        style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#f26624', color: '#ffffff', border: '2px solid #ffffff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 99999, boxShadow: '0px 2px 4px rgba(0,0,0,0.3)' }}
+                                    >
+                                        ×
+                                    </button>
                                 </>
                             ) : (
                                 <>
@@ -1514,16 +1528,10 @@ const DetalleReporte = () => {
                         </div>
                         <input type="file" id="fotoProductoNuevo" hidden accept="image/*" onChange={handleFileSelect} />
                         <input type="file" id="cameraPrincipal" hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
-                       {previewImg && (
+                        {previewImg && (
                             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
                                 <span>1 foto</span>
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
-                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
-                                >
-                                    Limpiar
-                                </button>
+                                {/* Si ya tienes la X, puedes eliminar este botón de "Limpiar" si lo deseas */}
                             </div>
                         )}
                     </div>
@@ -1533,11 +1541,29 @@ const DetalleReporte = () => {
                         <div 
                             className="rdh-foto-box"
                             onClick={() => handlePhotoBoxClick('secondary')}
-                            style={{ width: '100px', height: '100px', borderStyle: 'dashed', borderColor: '#f26624', position: 'relative' }}
+                            style={{ width: '100px', height: '100px', borderStyle: 'dashed', borderColor: '#f26624', position: 'relative', overflow: 'visible' }}
                         >
                             {previewImgSecondary ? (
                                 <>
                                     <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    {/* BOTÓN X PARA ELIMINAR FOTO SECUNDARIA */}
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); 
+                                            if (selectedFileSecondary) { 
+                                                setSelectedFileSecondary(null); 
+                                                setPreviewImgSecondary(null); 
+                                            } else { 
+                                                setRemoveSecondaryImage(true); 
+                                                setPreviewImgSecondary(null); 
+                                            } 
+                                        }}
+                                        title="Eliminar foto secundaria"
+                                        style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#f26624', color: '#ffffff', border: '2px solid #ffffff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 99999, boxShadow: '0px 2px 4px rgba(0,0,0,0.3)' }}
+                                    >
+                                        ×
+                                    </button>
                                 </>
                             ) : (
                                 <>
@@ -1551,13 +1577,7 @@ const DetalleReporte = () => {
                         {previewImgSecondary && (
                             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
                                 <span>1 foto</span>
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
-                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
-                                >
-                                    Limpiar
-                                </button>
+                                {/* Si ya tienes la X, puedes eliminar este botón de "Limpiar" si lo deseas */}
                             </div>
                         )}
                     </div>
