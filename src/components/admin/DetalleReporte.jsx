@@ -1491,30 +1491,29 @@ const DetalleReporte = () => {
             <div className="rdh-modal-form" style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: '10px' }}>
                 
                 {/* FOTOS */}
-                <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                    
+<div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>                    
                   {/* FOTO PRINCIPAL */}
                     <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         
-                        {/* NUEVO CONTENEDOR RELATIVO */}
+                       {/* NUEVO CONTENEDOR RELATIVO */}
                         <div style={{ position: 'relative', width: '100px', height: '100px' }}>
                             <div 
                                 className="rdh-foto-box"
                                 onClick={() => handlePhotoBoxClick('principal')}
-                                style={{ width: '100%', height: '100%', cursor: 'pointer' }}
+                                style={{ width: '100%', height: '100%', cursor: 'pointer', overflow: 'hidden', borderRadius: '8px' }}
                             >
                                 {previewImg ? (
                                     <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
-                                    <>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', backgroundColor: '#f0f0f0' }}>
                                         <ImageIcon size={30} color="#ccc" />
                                         <span style={{ fontSize: '9px', color: '#ccc', marginTop: '5px', fontWeight: 'bold' }}>PRINCIPAL</span>
-                                    </>
+                                    </div>
                                 )}
                             </div>
 
                             {/* BOTÓN X PARA ELIMINAR FOTO PRINCIPAL (Fuera de rdh-foto-box) */}
-                            {previewImg && (
+                           {previewImg && (
                                 <button
                                     type="button"
                                     onClick={(e) => { 
@@ -1523,7 +1522,7 @@ const DetalleReporte = () => {
                                         setPreviewImg(null); 
                                     }}
                                     title="Eliminar foto principal"
-                                    style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#f26624', color: '#ffffff', border: '2px solid #ffffff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 99999, boxShadow: '0px 2px 4px rgba(0,0,0,0.3)' }}
+                                    style={{ position: 'absolute', top: '5px', right: '5px', background: '#f26624', color: '#ffffff', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 10, boxShadow: '0px 2px 4px rgba(0,0,0,0.5)' }}
                                 >
                                     ×
                                 </button>
@@ -1547,20 +1546,20 @@ const DetalleReporte = () => {
                             <div 
                                 className="rdh-foto-box"
                                 onClick={() => handlePhotoBoxClick('secondary')}
-                                style={{ width: '100%', height: '100%', borderStyle: 'dashed', borderColor: '#f26624', cursor: 'pointer' }}
+                                style={{ width: '100%', height: '100%', border: '2px dashed #f26624', cursor: 'pointer', overflow: 'hidden', borderRadius: '8px', boxSizing: 'border-box' }}
                             >
                                 {previewImgSecondary ? (
                                     <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
-                                    <>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                                         <Plus size={30} color="#f26624" />
                                         <span style={{ fontSize: '9px', color: '#f26624', marginTop: '5px', fontWeight: 'bold' }}>SECUNDARIA</span>
-                                    </>
+                                    </div>
                                 )}
                             </div>
 
                             {/* BOTÓN X PARA ELIMINAR FOTO SECUNDARIA (Fuera de rdh-foto-box) */}
-                            {previewImgSecondary && (
+                           {previewImgSecondary && (
                                 <button
                                     type="button"
                                     onClick={(e) => { 
@@ -1569,12 +1568,13 @@ const DetalleReporte = () => {
                                             setSelectedFileSecondary(null); 
                                             setPreviewImgSecondary(null); 
                                         } else { 
-                                            setRemoveSecondaryImage(true); 
+                                            // Asumiendo que tienes una función similar para la imagen secundaria si es de la BD
+                                            // setRemoveSecondaryImage(true); 
                                             setPreviewImgSecondary(null); 
                                         } 
                                     }}
                                     title="Eliminar foto secundaria"
-                                    style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#f26624', color: '#ffffff', border: '2px solid #ffffff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 99999, boxShadow: '0px 2px 4px rgba(0,0,0,0.3)' }}
+                                    style={{ position: 'absolute', top: '5px', right: '5px', background: '#f26624', color: '#ffffff', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 10, boxShadow: '0px 2px 4px rgba(0,0,0,0.5)' }}
                                 >
                                     ×
                                 </button>
