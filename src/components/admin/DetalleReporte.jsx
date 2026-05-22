@@ -1609,6 +1609,17 @@ const DetalleReporte = () => {
                                     </div>
                                     <input type="file" id="fotoGaleriaNueva" hidden accept="image/*" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
                                     <input type="file" id="cameraGallery" hidden accept="image/*" capture="environment" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
+                                    {(galeriaArchivos.length > 0) && (
+                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                                            <span>{galeriaArchivos.length} fotos extra</span>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setGaleriaArchivos([]); }}
+                                                style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
+                                            >
+                                                Limpiar nuevas
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
