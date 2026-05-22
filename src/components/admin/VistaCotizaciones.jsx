@@ -109,6 +109,13 @@ const VistaCotizaciones = () => {
       }
 
       setCotizaciones(data);
+
+      // Sincronizar cotizacionSeleccionada si está abierta
+      setCotizacionSeleccionada(prev => {
+        if (!prev) return null;
+        const updated = data.find(c => c.id === prev.id);
+        return updated || prev;
+      });
     } catch (error) {
       console.error("Error al cargar cotizaciones:", error);
     } finally {
@@ -777,6 +784,30 @@ const VistaCotizaciones = () => {
                     </div>
                   )}
 
+                  {esCliente && cotizacionSeleccionada.status === 'Pago en Revisión' && (
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#fb8c00', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold', cursor: 'not-allowed', opacity: 0.9 }} 
+                        disabled
+                      >
+                        ⏳ PAGO EN REVISIÓN
+                      </button>
+                    </div>
+                  )}
+
+                  {esCliente && cotizacionSeleccionada.status === 'Pagado' && (
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#2e7d32', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold', cursor: 'not-allowed', opacity: 0.9 }} 
+                        disabled
+                      >
+                        ✅ PAGADO
+                      </button>
+                    </div>
+                  )}
+
                   {/* ROW: Validación de Pago (Solo Admin) */}
                   {!esCliente && !esTecnico && cotizacionSeleccionada.status === 'Pago en Revisión' && (
                     <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
@@ -801,7 +832,11 @@ const VistaCotizaciones = () => {
                   )}
 
                   {/* ROW 2: Botones Verde y Rojo Abajo */}
-                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status !== 'Aprobado' && !rechazando && (
+                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && 
+                    cotizacionSeleccionada.status !== 'Aprobado' && 
+                    cotizacionSeleccionada.status !== 'Pago en Revisión' && 
+                    cotizacionSeleccionada.status !== 'Pagado' && 
+                    !rechazando && (
                     <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
                       {cotizacionSeleccionada.status !== 'Rechazado' && (
                         <button 
@@ -894,7 +929,10 @@ const VistaCotizaciones = () => {
       {showPagoModal && cotizacionSeleccionada && (
         <Pago 
           cotizacion={cotizacionSeleccionada} 
-          onClose={() => setShowPagoModal(false)} 
+          onClose={() => {
+            setShowPagoModal(false);
+            cargarCotizaciones();
+          }} 
         />
       )}
     </div>
