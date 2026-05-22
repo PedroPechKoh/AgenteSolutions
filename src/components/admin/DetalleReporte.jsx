@@ -1476,7 +1476,6 @@ const DetalleReporte = () => {
                 document.body
             )}
 
-            {/* --- MODAL PARA AGREGAR/EDITAR ELEMENTO (INVENTARIO) --- */}
            {/* --- MODAL PARA AGREGAR/EDITAR ELEMENTO (INVENTARIO) --- */}
 {modalElementoVisible && createPortal(
     <div className="rdh-modal-overlay" style={{ zIndex: 9999999 }}>
