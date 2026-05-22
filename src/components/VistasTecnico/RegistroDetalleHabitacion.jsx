@@ -283,6 +283,14 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                         <span style={{ fontSize: '10px', color: '#ccc', marginTop: '5px', fontWeight: 'bold', textAlign: 'center' }}>
                           {modoEdicion ? 'CAMBIAR FOTO' : 'FOTO PRINCIPAL'}
                         </span>
+                         {galeriaArchivos.length > 0 && ( /* Solo limpia las recién agregadas, las de BD requerirían su endpoint de borrado individual si quisieras */
+                        <button 
+                           onClick={() => setGaleriaArchivos([])} 
+                           style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', padding: 0 }}
+                        >
+                           Limpiar nuevas
+                        </button>
+                      )}
                       </>
                     )}
                   </div>
