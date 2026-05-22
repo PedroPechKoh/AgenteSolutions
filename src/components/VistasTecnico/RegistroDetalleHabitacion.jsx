@@ -375,7 +375,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                       <span style={{ fontSize: '11px', color: '#f26624', fontWeight: 'bold' }}>
                         {(galeriaArchivos.length + galeriaExistente.length)} fotos extra
                       </span>
-                      {galeriaArchivos.length > 0 && ( /* Solo limpia las recién agregadas, las de BD requerirían su endpoint de borrado individual si quisieras */
+                      {/* Solo limpia las recién agregadas, las de BD requerirían su endpoint de borrado individual si quisieras */}
+                      {galeriaArchivos.length > 0 && (
                         <button 
                            onClick={() => setGaleriaArchivos([])} 
                            style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', padding: 0 }}
