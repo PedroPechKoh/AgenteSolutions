@@ -346,7 +346,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                     {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? (
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', width: '100%', height: '100%', justifyContent: 'center', alignContent: 'center' }}>
                         
-                        {/* ✅ CORRECCIÓN: Mostrar fotos limpias de la BD */}
+                        {/* Mostrar fotos limpias de la BD */}
                         {galeriaExistente.map((foto, i) => (
                            <img key={`ex-${i}`} src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
                         ))}
@@ -369,22 +369,35 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                   {/* Atributo 'multiple' permite seleccionar varios archivos a la vez */}
                   <input type="file" id="fotoGaleria" hidden accept="image/*" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
                   
-                  {/* TEXTO INDICADOR DE CUÁNTAS FOTOS HAY EN TOTAL */}
-                  {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) && (
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '11px', color: '#f26624', fontWeight: 'bold' }}>
-                        {(galeriaArchivos.length + galeriaExistente.length)} fotos extra
-                      </span>
-                      {galeriaArchivos.length > 0 && ( /* Solo limpia las recién agregadas, las de BD requerirían su endpoint de borrado individual si quisieras */
-                        <button 
-                           onClick={() => setGaleriaArchivos([])} 
-                           style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', padding: 0 }}
-                        >
-                           Limpiar nuevas
-                        </button>
-                      )}
+                  {/* BOTÓN CONSOLIDADO DE QUITAR FOTOS NUEVAS (compacto y rojo) */}
+                  {galeriaArchivos.length > 0 && (
+                    <div style={{ display: 'flex', marginTop: '8px', justifyContent: 'center' }}>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setGaleriaArchivos([]); // Limpia solo las fotos nuevas en memoria
+                        }} 
+                        title="Quitar fotos nuevas"
+                        style={{ 
+                          background: '#e02424', 
+                          border: 'none', 
+                          color: 'white', 
+                          cursor: 'pointer', 
+                          borderRadius: '50%', 
+                          width: '32px', 
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: 0,
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)' 
+                        }}
+                      >
+                        <X size={18} strokeWidth={3} />
+                      </button>
                     </div>
                   )}
+                </div>
                 </div>
 
               </div>
