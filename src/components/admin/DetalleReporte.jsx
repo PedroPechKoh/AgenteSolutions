@@ -1520,6 +1520,18 @@ const DetalleReporte = () => {
                         </div>
                         <input type="file" id="fotoProductoNuevo" hidden accept="image/*" onChange={handleFileSelect} />
                         <input type="file" id="cameraPrincipal" hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
+                        {previewImg && (
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                                <span>1 foto</span>
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); if (selectedFile) { setSelectedFile(null); setPreviewImg(null); } else { setRemoveMainImage(true); setPreviewImg(null); } }}
+                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
+                                >
+                                    Limpiar
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* FOTO SECUNDARIA */}
@@ -1550,6 +1562,18 @@ const DetalleReporte = () => {
                         </div>
                         <input type="file" id="fotoProductoSecundario" hidden accept="image/*" onChange={handleFileSelectSecondary} />
                         <input type="file" id="cameraSecondary" hidden accept="image/*" capture="environment" onChange={handleFileSelectSecondary} />
+                        {previewImgSecondary && (
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                                <span>1 foto</span>
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
+                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
+                                >
+                                    Limpiar
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* FOTOS DE GALERÍA EXISTENTES (BASE DE DATOS) */}
@@ -1592,6 +1616,7 @@ const DetalleReporte = () => {
                             >
                                 ×
                             </button>
+                            
                         </div>
                     ))}
 
