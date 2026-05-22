@@ -629,7 +629,7 @@ const VistaServiciosAdmin = () => {
                         </button>
                       ) : null}
 
-                      {(tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'sos' || tareaSeleccionada.estado === 'progress') && (
+                      {tareaSeleccionada.estado !== 'rejected' && (
                         <button 
                           className="modal-action-btn" 
                           disabled={procesandoAccion} 
