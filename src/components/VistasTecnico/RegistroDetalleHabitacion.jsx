@@ -22,6 +22,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
   const [previewImg, setPreviewImg] = useState(null);
   const [galeriaArchivos, setGaleriaArchivos] = useState([]); // Nuevas fotos extra
   const [galeriaExistente, setGaleriaExistente] = useState([]); // Fotos extra que ya vienen de BD
+  const [removeMainImage, setRemoveMainImage] = useState(false);
+  const [removedGalleryIds, setRemovedGalleryIds] = useState([]);
 
   const [nuevoRegistro, setNuevoRegistro] = useState({
     brand: '', model_or_color: '', quantity: 1, sub_category: '', serial_number: '', observations: ''
@@ -55,6 +57,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
     if (file) {
       setSelectedFile(file);
       setPreviewImg(URL.createObjectURL(file));
+      setRemoveMainImage(false);
     }
   };
 
@@ -88,6 +91,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
     // Asignamos ambas galerías (limpiamos las temporales seleccionadas)
     setGaleriaArchivos([]);
     setGaleriaExistente(item.galleries || []);
+    setRemoveMainImage(false);
+    setRemovedGalleryIds([]);
     setIsModalOpen(true);
   };
 
@@ -100,6 +105,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
     setSelectedFile(null);
     setGaleriaArchivos([]);
     setGaleriaExistente([]);
+    setRemoveMainImage(false);
+    setRemovedGalleryIds([]);
     setIsModalOpen(true);
   };
 
@@ -269,8 +276,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
               {/* === NUEVA SECCIÓN DE FOTOS (PRINCIPAL + GALERÍA) === */}
               <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '20px' }}>
                 
-                {/* FOTO PRINCIPAL */}
-                <div>
+              {/* FOTO PRINCIPAL */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div 
                     className="rdh-foto-box"
                     onClick={() => document.getElementById('fotoProducto').click()}
@@ -283,20 +290,40 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                         <span style={{ fontSize: '10px', color: '#ccc', marginTop: '5px', fontWeight: 'bold', textAlign: 'center' }}>
                           {modoEdicion ? 'CAMBIAR FOTO' : 'FOTO PRINCIPAL'}
                         </span>
-                         {galeriaArchivos.length > 0 && ( /* Solo limpia las recién agregadas, las de BD requerirían su endpoint de borrado individual si quisieras */
-                        <button 
-                           onClick={() => setGaleriaArchivos([])} 
-                           style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', padding: 0 }}
-                        >
-                           Limpiar nuevas
-                        </button>
-                      )}
                       </>
                     )}
                   </div>
                   <input type="file" id="fotoProducto" hidden accept="image/*" onChange={handleFileSelect} />
+                  
+                  {/* TEXTO INDICADOR Y BOTÓN DE LIMPIAR PARA FOTO PRINCIPAL */}
+                  {selectedFile && (
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '11px', color: '#f26624', fontWeight: 'bold' }}>
+                        1 foto nueva
+                      </span>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedFile(null); // Limpiamos el archivo seleccionado
+                          
+                          // Si estamos editando, regresamos a la imagen original de la BD. Si no, limpiamos la preview.
+                          if (modoEdicion) {
+                            const itemOriginal = componentes.find(c => c.id === idEditando);
+                            setPreviewImg(itemOriginal?.image_path || null);
+                          } else {
+                            setPreviewImg(null);
+                          }
+                          
+                          // Reseteamos el input file para permitir volver a subir el mismo archivo si el usuario se arrepiente
+                          document.getElementById('fotoProducto').value = "";
+                        }} 
+                        style={{ background: 'none', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold', padding: 0 }}
+                      >
+                        Limpiar nueva
+                      </button>
+                    </div>
+                  )}
                 </div>
-
                 {/* FOTOS DE GALERÍA (EXTRA) */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div 
