@@ -87,7 +87,7 @@ const VistaCotizaciones = () => {
   const filtradas = cotizaciones.filter(c => {
     const coincideFiltro = 
       (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
-      (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status === 'Pago en Revisión' || c.status === 'Pagado' || c.status === 'Validado')) ||
+      (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status?.toLowerCase().includes('pago') || c.status === 'Validado')) ||
       (filtro === 'Rechazado' && c.status?.toLowerCase().includes('rechazad'));
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
