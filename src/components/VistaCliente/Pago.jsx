@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Copy, Upload, ShieldCheck, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { Copy, Upload, ShieldCheck, X, CheckCircle2 } from 'lucide-react';
 import '../../styles/Cliente/Pagos.css';
 
-const Pago = () => {
+const Pago = ({ cotizacion, onClose }) => {
   const [file, setFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
 
@@ -32,8 +32,9 @@ const Pago = () => {
   };
 
   return (
-    <div className="page-payment-full">
-      <div className="payment-content-card">
+    <div className="tp-modal-overlay" style={{ zIndex: 100000 }}>
+      <div className="payment-content-card" style={{ position: 'relative', maxWidth: '900px', width: '90%', margin: '0 auto', maxHeight: '90vh', overflowY: 'auto' }}>
+        <button className="tp-close-modal-btn" style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer' }} onClick={onClose}><X size={24} color="#333" /></button>
         
         {/* Lado Izquierdo: Datos Fiscales */}
         <div className="payment-side-info">
@@ -62,13 +63,13 @@ const Pago = () => {
             </div>
             <div className="fiscal-item">
               <label>Referencia</label>
-              <p>COT-204 / Residencial</p>
+              <p>{cotizacion?.folio ? `COT-${cotizacion.folio}` : 'Pago de Servicio'}</p>
             </div>
           </div>
 
           <div className="payment-total-pill">
             <span>Monto a depositar:</span>
-            <strong>$4,500.00</strong>
+            <strong>${Number(cotizacion?.total || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</strong>
           </div>
         </div>
 

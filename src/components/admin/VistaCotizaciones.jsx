@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import CreateQuotationModal from "./CreateQuotationModal";
 import UniversalSearch from "../Shared/UniversalSearch";
-import ModalPago from "../Shared/ModalPago";
+import Pago from "../VistaCliente/Pago";
 
 const VistaCotizaciones = () => {
   const navigate = useNavigate();
@@ -796,7 +796,7 @@ const VistaCotizaciones = () => {
       )}
 
       {showPagoModal && cotizacionSeleccionada && (
-        <ModalPago 
+        <Pago 
           cotizacion={cotizacionSeleccionada} 
           onClose={() => setShowPagoModal(false)} 
         />
