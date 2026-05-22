@@ -167,7 +167,15 @@ const Pago = ({ cotizacion, onClose }) => {
             <div className="upload-label-content">
               {file ? (
                 <div className="file-ready">
-                  <CheckCircle2 size={48} className="success-icon" />
+                  {file.type && file.type.startsWith('image/') ? (
+                    <img 
+                      src={URL.createObjectURL(file)} 
+                      alt="Preview" 
+                      style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '8px', objectFit: 'contain', marginBottom: '10px' }} 
+                    />
+                  ) : (
+                    <CheckCircle2 size={48} className="success-icon" />
+                  )}
                   <p>{file.name}</p>
                   <span>Archivo seleccionado correctamente</span>
                 </div>
