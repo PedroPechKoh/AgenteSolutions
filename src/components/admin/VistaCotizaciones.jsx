@@ -32,6 +32,7 @@ const VistaCotizaciones = () => {
   const [motivoRechazo, setMotivoRechazo] = useState('');
   const [showPagoModal, setShowPagoModal] = useState(false);
   const [procesando, setProcesando] = useState(false);
+  const [imagenModal, setImagenModal] = useState(null);
 
   // --- NUEVOS ESTADOS ---
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -109,6 +110,13 @@ const VistaCotizaciones = () => {
       }
 
       setCotizaciones(data);
+
+      // Sincronizar cotizacionSeleccionada si está abierta
+      setCotizacionSeleccionada(prev => {
+        if (!prev) return null;
+        const updated = data.find(c => c.id === prev.id);
+        return updated || prev;
+      });
     } catch (error) {
       console.error("Error al cargar cotizaciones:", error);
     } finally {
@@ -142,7 +150,12 @@ const VistaCotizaciones = () => {
 
 
   const verPantallaCompleta = (url) => {
-    window.open(url, '_blank');
+    if (!url) return;
+    if (url.toLowerCase().endsWith('.pdf')) {
+      window.open(url, '_blank');
+    } else {
+      setImagenModal(url);
+    }
   };
 
   const procesarCotizacion = async (nuevoEstado) => {
@@ -570,7 +583,8 @@ const VistaCotizaciones = () => {
                         <img 
                           src={cotizacionSeleccionada.archivo_url} 
                           alt="Cotización" 
-                          style={{ maxWidth: '100%', maxHeight: '50vh', objectFit: 'contain', borderRadius: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} 
+                          style={{ maxWidth: '100%', maxHeight: '50vh', objectFit: 'contain', borderRadius: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', cursor: 'pointer' }} 
+                          onClick={() => verPantallaCompleta(cotizacionSeleccionada.archivo_url)}
                         />
                       )
                     ) : (
@@ -654,7 +668,7 @@ const VistaCotizaciones = () => {
                             margin: '10px auto 0', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.2)' 
                           }}
                         >
-                          <CheckCircle2 size={20} /> 
+                          <CheckCircle size={20} /> 
                           {procesando ? 'VALIDANDO...' : 'VALIDAR PAGO'}
                         </button>
                       )}
@@ -777,6 +791,30 @@ const VistaCotizaciones = () => {
                     </div>
                   )}
 
+                  {esCliente && cotizacionSeleccionada.status === 'Pago en Revisión' && (
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#fb8c00', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold', cursor: 'not-allowed', opacity: 0.9 }} 
+                        disabled
+                      >
+                        ⏳ PAGO EN REVISIÓN
+                      </button>
+                    </div>
+                  )}
+
+                  {esCliente && cotizacionSeleccionada.status === 'Pagado' && (
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#2e7d32', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold', cursor: 'not-allowed', opacity: 0.9 }} 
+                        disabled
+                      >
+                        ✅ PAGADO
+                      </button>
+                    </div>
+                  )}
+
                   {/* ROW: Validación de Pago (Solo Admin) */}
                   {!esCliente && !esTecnico && cotizacionSeleccionada.status === 'Pago en Revisión' && (
                     <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
@@ -784,7 +822,7 @@ const VistaCotizaciones = () => {
                         <button 
                           className="btn-modal-print" 
                           style={{ background: '#334155', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
-                          onClick={() => window.open(cotizacionSeleccionada.payment_receipt_path, '_blank')}
+                          onClick={() => verPantallaCompleta(cotizacionSeleccionada.payment_receipt_path)}
                         >
                           👁️ VER COMPROBANTE
                         </button>
@@ -801,7 +839,11 @@ const VistaCotizaciones = () => {
                   )}
 
                   {/* ROW 2: Botones Verde y Rojo Abajo */}
-                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status !== 'Aprobado' && !rechazando && (
+                  {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && 
+                    cotizacionSeleccionada.status !== 'Aprobado' && 
+                    cotizacionSeleccionada.status !== 'Pago en Revisión' && 
+                    cotizacionSeleccionada.status !== 'Pagado' && 
+                    !rechazando && (
                     <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
                       {cotizacionSeleccionada.status !== 'Rechazado' && (
                         <button 
@@ -894,8 +936,54 @@ const VistaCotizaciones = () => {
       {showPagoModal && cotizacionSeleccionada && (
         <Pago 
           cotizacion={cotizacionSeleccionada} 
-          onClose={() => setShowPagoModal(false)} 
+          onClose={() => {
+            setShowPagoModal(false);
+            cargarCotizaciones();
+          }} 
         />
+      )}
+
+      {imagenModal && (
+        <div 
+          className="modal-fixed-overlay" 
+          onClick={() => setImagenModal(null)}
+          style={{ zIndex: 200000, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.95)' }}
+        >
+          <div 
+            style={{ position: 'relative', maxWidth: '90%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }} 
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setImagenModal(null)}
+              style={{
+                position: 'absolute', top: '-40px', right: '0px',
+                background: 'transparent', color: 'white', border: 'none',
+                fontSize: '2.5rem', cursor: 'pointer', outline: 'none'
+              }}
+            >
+              &times;
+            </button>
+            <img 
+              src={imagenModal} 
+              alt="Ampliada" 
+              style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: '12px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)' }} 
+            />
+            <button 
+              onClick={() => window.open(imagenModal, '_blank')}
+              style={{
+                marginTop: '15px',
+                background: 'rgba(255, 255, 255, 0.1)', color: 'white', border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '25px', padding: '8px 25px', cursor: 'pointer',
+                fontWeight: 'bold', fontSize: '0.85rem', transition: 'background 0.3s',
+                backdropFilter: 'blur(10px)'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+            >
+              Abrir en pestaña nueva ↗
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
