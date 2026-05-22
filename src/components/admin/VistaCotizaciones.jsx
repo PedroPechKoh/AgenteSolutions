@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import CreateQuotationModal from "./CreateQuotationModal";
 import UniversalSearch from "../Shared/UniversalSearch";
+import ModalPago from "../Shared/ModalPago";
 
 const VistaCotizaciones = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const VistaCotizaciones = () => {
   const [usuarioId, setUsuarioId] = useState(null);
   const [rechazando, setRechazando] = useState(false);
   const [motivoRechazo, setMotivoRechazo] = useState('');
+  const [showPagoModal, setShowPagoModal] = useState(false);
   const [procesando, setProcesando] = useState(false);
 
   // --- NUEVOS ESTADOS ---
@@ -687,7 +689,20 @@ const VistaCotizaciones = () => {
                         VER PDF
                       </button>
                     )}
-                  </div>
+                    </div>
+
+                  {/* ROW: Botón de Pago si está Aprobado (Solo Cliente) */}
+                  {esCliente && cotizacionSeleccionada.status === 'Aprobado' && (
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#1b8a5a', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold' }} 
+                        onClick={() => setShowPagoModal(true)}
+                      >
+                        💳 PAGAR
+                      </button>
+                    </div>
+                  )}
 
                   {/* ROW 2: Botones Verde y Rojo Abajo */}
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && cotizacionSeleccionada.status !== 'Aprobado' && !rechazando && (
@@ -777,6 +792,13 @@ const VistaCotizaciones = () => {
             setCotizacionParaAsignar(null);
             cargarCotizaciones();
           }}
+        />
+      )}
+
+      {showPagoModal && cotizacionSeleccionada && (
+        <ModalPago 
+          cotizacion={cotizacionSeleccionada} 
+          onClose={() => setShowPagoModal(false)} 
         />
       )}
     </div>
