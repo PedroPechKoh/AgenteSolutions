@@ -60,7 +60,7 @@ const NotificationBell = () => {
       // Normalización de URLs y Tipos
       if (type === 'work_order_finished' || type === 'new_report') {
         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
-      } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected') {
+      } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received') {
         url = isTecnico ? '/trabajos-tecnico' : '/vista-cotizaciones';
       } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned' || type === 'work_order_assigned' || type === 'work_order_rescheduled') {
         url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
