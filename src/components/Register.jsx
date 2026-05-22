@@ -182,7 +182,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         .modal-overlay .custom-input:focus, 
         .modal-overlay .custom-select:focus {
           border-color: #F26522;
-          background: white;
+          background-color: white;
           box-shadow: 0 0 15px rgba(242, 101, 34, 0.6);
         }
 
