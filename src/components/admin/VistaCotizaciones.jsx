@@ -654,7 +654,7 @@ const VistaCotizaciones = () => {
                             margin: '10px auto 0', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.2)' 
                           }}
                         >
-                          <CheckCircle2 size={20} /> 
+                          <CheckCircle size={20} /> 
                           {procesando ? 'VALIDANDO...' : 'VALIDAR PAGO'}
                         </button>
                       )}
