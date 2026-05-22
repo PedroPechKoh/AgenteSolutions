@@ -52,9 +52,6 @@ const DetalleReporte = () => {
     const [selectedFileSecondary, setSelectedFileSecondary] = useState(null);
     const [galeriaArchivos, setGaleriaArchivos] = useState([]);
     const [galeriaExistente, setGaleriaExistente] = useState([]);
-    const [removeMainImage, setRemoveMainImage] = useState(false);
-    const [removeSecondaryImage, setRemoveSecondaryImage] = useState(false);
-    const [removedGalleryIds, setRemovedGalleryIds] = useState([]);
 
     // --- ESTADOS PARA CATEGORÍAS ---
     const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
@@ -338,7 +335,6 @@ const DetalleReporte = () => {
         if (file) {
             setSelectedFile(file);
             setPreviewImg(URL.createObjectURL(file));
-            setRemoveMainImage(false);
         }
     };
 
@@ -347,7 +343,6 @@ const DetalleReporte = () => {
         if (file) {
             setSelectedFileSecondary(file);
             setPreviewImgSecondary(URL.createObjectURL(file));
-            setRemoveSecondaryImage(false);
         }
     };
 
@@ -366,9 +361,6 @@ const DetalleReporte = () => {
         setSelectedFileSecondary(null);
         setGaleriaArchivos([]);
         setGaleriaExistente([]);
-        setRemoveMainImage(false);
-        setRemoveSecondaryImage(false);
-        setRemovedGalleryIds([]);
         setModalElementoVisible(true);
     };
 
@@ -391,9 +383,6 @@ const DetalleReporte = () => {
         setSelectedFileSecondary(null);
         setGaleriaArchivos([]);
         setGaleriaExistente(inv.galleries || []);
-        setRemoveMainImage(false);
-        setRemoveSecondaryImage(false);
-        setRemovedGalleryIds([]);
         setModalElementoVisible(true);
     };
 
@@ -450,12 +439,6 @@ const DetalleReporte = () => {
             if (selectedFile) formData.append('image', selectedFile);
             if (selectedFileSecondary) formData.append('image_secondary', selectedFileSecondary);
             galeriaArchivos.forEach((file) => formData.append('gallery[]', file));
-            // Marcas para eliminar imágenes ya existentes (si el usuario borró desde la UI)
-            if (removeMainImage) formData.append('remove_image', '1');
-            if (removeSecondaryImage) formData.append('remove_image_secondary', '1');
-            if (removedGalleryIds && removedGalleryIds.length > 0) {
-                removedGalleryIds.forEach(id => formData.append('remove_gallery_ids[]', id));
-            }
 
             if (elementoActual.id) {
                 formData.append('_method', 'PUT');
@@ -1493,7 +1476,8 @@ const DetalleReporte = () => {
                 document.body
             )}
 
-          {/* --- MODAL PARA AGREGAR/EDITAR ELEMENTO (INVENTARIO) --- */}
+            {/* --- MODAL PARA AGREGAR/EDITAR ELEMENTO (INVENTARIO) --- */}
+           {/* --- MODAL PARA AGREGAR/EDITAR ELEMENTO (INVENTARIO) --- */}
 {modalElementoVisible && createPortal(
     <div className="rdh-modal-overlay" style={{ zIndex: 9999999 }}>
         <div className="rdh-modal-content" style={{ width: '500px' }}>
@@ -1519,10 +1503,11 @@ const DetalleReporte = () => {
                                 <>
                                     <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     <button
-                                   type="button"
-                                    onClick={(e) => { e.stopPropagation(); setGaleriaArchivos([]); }}
-                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
-                                   >
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); if (selectedFile) { setSelectedFile(null); setPreviewImg(null); } else { setRemoveMainImage(true); setPreviewImg(null); } }}
+                                        title="Eliminar imagen"
+                                        style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', zIndex: 99 }}
+                                    >
                                         ×
                                     </button>
                                 </>
@@ -1548,10 +1533,11 @@ const DetalleReporte = () => {
                                 <>
                                     <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     <button
-                                     type="button"
-                                    onClick={(e) => { e.stopPropagation(); setGaleriaArchivos([]); }}
-                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
-                                 >
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
+                                        title="Eliminar imagen secundaria"
+                                        style={{ position: 'absolute', top: '6px', right: '6px', background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', zIndex: 99 }}
+                                    >
                                         ×
                                     </button>
                                 </>
@@ -1575,9 +1561,14 @@ const DetalleReporte = () => {
                             <img src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
                             <button
                                 type="button"
-                                    onClick={(e) => { e.stopPropagation(); setGaleriaArchivos([]); }}
-                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
-                                >
+                                onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    setGaleriaExistente(prev => prev.filter((_, idx) => idx !== i)); 
+                                    setRemovedGalleryIds(prev => [...prev, foto.id || foto.gallery_id || foto.image_id || foto.image_path]); 
+                                }}
+                                title="Eliminar foto"
+                                style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#000000', color: '#ffffff', border: '2px solid #ffffff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 99999, boxShadow: '0px 2px 4px rgba(0,0,0,0.3)' }}
+                            >
                                 ×
                             </button>
                         </div>
@@ -1592,9 +1583,13 @@ const DetalleReporte = () => {
                             <img src={URL.createObjectURL(file)} alt={`galeria-new-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
                             <button
                                 type="button"
-                                    onClick={(e) => { e.stopPropagation(); setGaleriaArchivos([]); }}
-                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
-                                 >
+                                onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    setGaleriaArchivos(prev => prev.filter((_, idx) => idx !== i)); 
+                                }}
+                                title="Eliminar foto nueva"
+                                style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#f26624', color: '#ffffff', border: '2px solid #ffffff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: 'bold', zIndex: 99999, boxShadow: '0px 2px 4px rgba(0,0,0,0.3)' }}
+                            >
                                 ×
                             </button>
                         </div>
