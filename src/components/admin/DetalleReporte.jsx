@@ -52,6 +52,9 @@ const DetalleReporte = () => {
     const [selectedFileSecondary, setSelectedFileSecondary] = useState(null);
     const [galeriaArchivos, setGaleriaArchivos] = useState([]);
     const [galeriaExistente, setGaleriaExistente] = useState([]);
+    const [removeMainImage, setRemoveMainImage] = useState(false);
+    const [removeSecondaryImage, setRemoveSecondaryImage] = useState(false);
+    const [removedGalleryIds, setRemovedGalleryIds] = useState([]);
 
     // --- ESTADOS PARA CATEGORÍAS ---
     const [modalCategoriaVisible, setModalCategoriaVisible] = useState(false);
@@ -335,6 +338,7 @@ const DetalleReporte = () => {
         if (file) {
             setSelectedFile(file);
             setPreviewImg(URL.createObjectURL(file));
+            setRemoveMainImage(false);
         }
     };
 
@@ -343,6 +347,7 @@ const DetalleReporte = () => {
         if (file) {
             setSelectedFileSecondary(file);
             setPreviewImgSecondary(URL.createObjectURL(file));
+            setRemoveSecondaryImage(false);
         }
     };
 
@@ -361,6 +366,9 @@ const DetalleReporte = () => {
         setSelectedFileSecondary(null);
         setGaleriaArchivos([]);
         setGaleriaExistente([]);
+        setRemoveMainImage(false);
+        setRemoveSecondaryImage(false);
+        setRemovedGalleryIds([]);
         setModalElementoVisible(true);
     };
 
@@ -383,6 +391,9 @@ const DetalleReporte = () => {
         setSelectedFileSecondary(null);
         setGaleriaArchivos([]);
         setGaleriaExistente(inv.galleries || []);
+        setRemoveMainImage(false);
+        setRemoveSecondaryImage(false);
+        setRemovedGalleryIds([]);
         setModalElementoVisible(true);
     };
 
@@ -439,6 +450,12 @@ const DetalleReporte = () => {
             if (selectedFile) formData.append('image', selectedFile);
             if (selectedFileSecondary) formData.append('image_secondary', selectedFileSecondary);
             galeriaArchivos.forEach((file) => formData.append('gallery[]', file));
+            // Marcas para eliminar imágenes ya existentes (si el usuario borró desde la UI)
+            if (removeMainImage) formData.append('remove_image', '1');
+            if (removeSecondaryImage) formData.append('remove_image_secondary', '1');
+            if (removedGalleryIds && removedGalleryIds.length > 0) {
+                removedGalleryIds.forEach(id => formData.append('remove_gallery_ids[]', id));
+            }
 
             if (elementoActual.id) {
                 formData.append('_method', 'PUT');
@@ -1495,10 +1512,19 @@ const DetalleReporte = () => {
                                     <div 
                                         className="rdh-foto-box"
                                         onClick={() => handlePhotoBoxClick('principal')}
-                                        style={{ width: '100px', height: '100px' }}
+                                        style={{ width: '100px', height: '100px', position: 'relative' }}
                                     >
                                         {previewImg ? (
-                                            <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <>
+                                                <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); if (selectedFile) { setSelectedFile(null); setPreviewImg(null); } else { setRemoveMainImage(true); setPreviewImg(null); } }}
+                                                    title="Eliminar imagen"
+                                                    style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
+                                                >
+                                                    ×
+                                                </button>
+                                            </>
                                         ) : (
                                             <>
                                                 <ImageIcon size={30} color="#ccc" />
@@ -1515,10 +1541,19 @@ const DetalleReporte = () => {
                                     <div 
                                         className="rdh-foto-box"
                                         onClick={() => handlePhotoBoxClick('secondary')}
-                                        style={{ width: '100px', height: '100px', borderStyle: 'dashed', borderColor: '#f26624' }}
+                                        style={{ width: '100px', height: '100px', borderStyle: 'dashed', borderColor: '#f26624', position: 'relative' }}
                                     >
                                         {previewImgSecondary ? (
-                                            <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <>
+                                                <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
+                                                    title="Eliminar imagen secundaria"
+                                                    style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
+                                                >
+                                                    ×
+                                                </button>
+                                            </>
                                         ) : (
                                             <>
                                                 <Plus size={30} color="#f26624" />
@@ -1541,10 +1576,28 @@ const DetalleReporte = () => {
                                         {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? (
                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', width: '100%', height: '100%', justifyContent: 'center', alignContent: 'center' }}>
                                                 {galeriaExistente.map((foto, i) => (
-                                                    <img key={`ex-${i}`} src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '50px' }} />
+                                                    <div key={`ex-${i}`} style={{ position: 'relative', width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%' }}>
+                                                        <img src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px' }} />
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setGaleriaExistente(prev => prev.filter((_, idx) => idx !== i)); setRemovedGalleryIds(prev => [...prev, foto.id || foto.gallery_id || foto.image_id || foto.image_path]); }}
+                                                            title="Eliminar foto"
+                                                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
                                                 ))}
                                                 {galeriaArchivos.slice(0, 4 - galeriaExistente.length).map((file, i) => (
-                                                    <img key={`new-${i}`} src={URL.createObjectURL(file)} alt={`galeria-new-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
+                                                    <div key={`new-${i}`} style={{ position: 'relative', width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%' }}>
+                                                        <img src={URL.createObjectURL(file)} alt={`galeria-new-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px' }} />
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); setGaleriaArchivos(prev => prev.filter((_, idx) => idx !== i)); }}
+                                                            title="Eliminar foto nueva"
+                                                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
                                                 ))}
                                             </div>
                                         ) : (
