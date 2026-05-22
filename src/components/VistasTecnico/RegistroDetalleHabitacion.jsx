@@ -22,6 +22,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
   const [previewImg, setPreviewImg] = useState(null);
   const [galeriaArchivos, setGaleriaArchivos] = useState([]); // Nuevas fotos extra
   const [galeriaExistente, setGaleriaExistente] = useState([]); // Fotos extra que ya vienen de BD
+  const [removeMainImage, setRemoveMainImage] = useState(false);
+  const [removedGalleryIds, setRemovedGalleryIds] = useState([]);
 
   const [nuevoRegistro, setNuevoRegistro] = useState({
     brand: '', model_or_color: '', quantity: 1, sub_category: '', serial_number: '', observations: ''
@@ -55,6 +57,7 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
     if (file) {
       setSelectedFile(file);
       setPreviewImg(URL.createObjectURL(file));
+      setRemoveMainImage(false);
     }
   };
 
@@ -88,6 +91,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
     // Asignamos ambas galerías (limpiamos las temporales seleccionadas)
     setGaleriaArchivos([]);
     setGaleriaExistente(item.galleries || []);
+    setRemoveMainImage(false);
+    setRemovedGalleryIds([]);
     setIsModalOpen(true);
   };
 
@@ -100,6 +105,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
     setSelectedFile(null);
     setGaleriaArchivos([]);
     setGaleriaExistente([]);
+    setRemoveMainImage(false);
+    setRemovedGalleryIds([]);
     setIsModalOpen(true);
   };
 
@@ -269,8 +276,8 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
               {/* === NUEVA SECCIÓN DE FOTOS (PRINCIPAL + GALERÍA) === */}
               <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginBottom: '20px' }}>
                 
-                {/* FOTO PRINCIPAL */}
-                <div>
+              {/* FOTO PRINCIPAL (ACTUALIZADA CON BOTÓN DE ICONO) */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div 
                     className="rdh-foto-box"
                     onClick={() => document.getElementById('fotoProducto').click()}
@@ -287,8 +294,47 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                     )}
                   </div>
                   <input type="file" id="fotoProducto" hidden accept="image/*" onChange={handleFileSelect} />
+                  
+                  {/* BOTÓN CONSOLIDADO DE QUITAR FOTO NUEVA (compacto y rojo) */}
+                  {selectedFile && (
+                    <div style={{ display: 'flex', marginTop: '8px', justifyContent: 'center' }}>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedFile(null); // Limpiamos el archivo seleccionado
+                          
+                          // Lógica de reseteo inteligente
+                          if (modoEdicion) {
+                            const itemOriginal = componentes.find(c => c.id === idEditando);
+                            setPreviewImg(itemOriginal?.image_path || null);
+                          } else {
+                            setPreviewImg(null);
+                          }
+                          
+                          // Reseteamos el input file
+                          document.getElementById('fotoProducto').value = "";
+                        }} 
+                        title="Quitar foto nueva" // Texto para accesibilidad
+                        style={{ 
+                          background: '#e02424', // Un rojo más intenso para el botón
+                          border: 'none', 
+                          color: 'white', 
+                          cursor: 'pointer', 
+                          borderRadius: '50%', // Lo hace un círculo perfecto
+                          width: '32px', // Tamaño compacto
+                          height: '32px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: 0,
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)' // Pequeña sombra para realzarlo
+                        }}
+                      >
+                        <X size={18} strokeWidth={3} /> {/* La 'X' blanca centradita */}
+                      </button>
+                    </div>
+                  )}
                 </div>
-
                 {/* FOTOS DE GALERÍA (EXTRA) */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                   <div 
