@@ -464,20 +464,36 @@ const TrabajoPropiedad = () => {
                   disabled={!materialesConfirmados}
                   style={hasReports ? { background: '#3b82f6', borderColor: '#3b82f6' } : {}}
                 >
+                  
                   {!materialesConfirmados && <Lock size={18} />}
                   <span>{hasReports ? 'CONTINUAR REPORTE' : 'INICIAR REPORTE'}</span>
                   <ArrowRight size={18} />
                 </button>
 
                 {data.estado !== 'Listo' && data.estado !== 'Finalizado' && (
-                  <button 
-                    className="tp-btn-secondary"
-                    onClick={handleFinalizar}
-                    style={{ background: '#22c55e', marginTop: '10px' }}
-                  >
-                    <CheckCircle2 size={18} />
-                    <span>{user?.role_id === 2 ? 'FINALIZAR TRABAJO' : 'MARCAR COMO LISTO (ADMIN)'}</span>
-                  </button>
+                  <div style={{ display: 'flex', flexDirection: 'column', width: '100%', marginTop: '10px' }}>
+                    <button 
+                      className={`tp-btn-secondary ${!hasReports ? 'locked' : ''}`}
+                      onClick={handleFinalizar}
+                      disabled={!hasReports}
+                      style={{ 
+                        background: hasReports ? '#22c55e' : '#374151', 
+                        borderColor: hasReports ? '#22c55e' : '#374151',
+                        color: hasReports ? '#ffffff' : '#9ca3af',
+                        cursor: hasReports ? 'pointer' : 'not-allowed',
+                        width: '100%'
+                      }}
+                    >
+                      {!hasReports ? <Lock size={18} /> : <CheckCircle2 size={18} />}
+                      <span>{user?.role_id === 2 ? 'FINALIZAR TRABAJO' : 'MARCAR COMO LISTO (ADMIN)'}</span>
+                    </button>
+                    
+                    {!hasReports && (
+                      <p className="tp-lock-msg" style={{ marginTop: '8px', textAlign: 'center', fontSize: '0.85rem' }}>
+                        Debe levantar al menos un reporte para finalizar
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
               
