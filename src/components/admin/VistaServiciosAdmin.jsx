@@ -8,6 +8,7 @@ import {
 import Header from '../Shared/Header';
 import ModalAsignarChecklist from './ModalAsignarChecklist';
 import ModalCrearCotizacion from '../Shared/ModalCrearCotizacion';
+import UniversalSearch from '../Shared/UniversalSearch';
 import '../../styles/Cliente/TableroScrum.css'; // Reutilizamos estilos
 
 const VistaServiciosAdmin = () => {
@@ -16,6 +17,8 @@ const VistaServiciosAdmin = () => {
   // --- ESTADOS ---
   const [loading, setLoading] = useState(true);
   const [tareasData, setTareasData] = useState([]);
+  const [tareasFiltradas, setTareasFiltradas] = useState([]); // Buscador reactivo
+  const [seccionTab, setSeccionTab] = useState('activos'); // 'activos' o 'finalizados'
   const [modalVisible, setModalVisible] = useState(false);
   const [tareaSeleccionada, setTareaSeleccionada] = useState(null);
   const [verBitacora, setVerBitacora] = useState(false);
@@ -33,7 +36,8 @@ const VistaServiciosAdmin = () => {
     { id: 'sos', titulo: 'SOS', color: '#e63946', icon: <AlertTriangle size={20} /> },
     { id: 'todo', titulo: 'POR HACER', color: '#333', icon: <FileText size={20} /> },
     { id: 'progress', titulo: 'EN PROCESO', color: '#f26522', icon: <Timer size={20} /> },
-    { id: 'done', titulo: 'FINALIZADOS', color: '#1b8a5a', icon: <CheckCircle2 size={20} /> }
+    { id: 'done', titulo: 'FINALIZADOS', color: '#1b8a5a', icon: <CheckCircle2 size={20} /> },
+    { id: 'rejected', titulo: 'RECHAZADOS', color: '#dc2626', icon: <X size={20} /> }
   ];
   
   // --- ESTADOS PARA INVENTARIO ---
@@ -48,6 +52,8 @@ const VistaServiciosAdmin = () => {
       let estado = 'todo';
       if (item.status === 'Listo' || item.status === 'Finalizado') {
         estado = 'done';
+      } else if (item.status === 'Rechazado') {
+        estado = 'rejected';
       } else if (item.status === 'En Proceso') {
         estado = 'progress';
       } else if (item.priority === 'Urgente') {
@@ -121,6 +127,8 @@ const VistaServiciosAdmin = () => {
     if (jobId && tareasData.length > 0) {
       const tarea = tareasData.find(t => t.dbId === parseInt(jobId));
       if (tarea) {
+        const esActivo = ['sos', 'todo', 'progress'].includes(tarea.estado);
+        setSeccionTab(esActivo ? 'activos' : 'finalizados');
         setTabActiva(tarea.estado); // Cambiamos a la pestaña correcta (SOS, Todo, etc.)
         abrirModal(tarea);
         // Limpiamos la URL para no re-abrir al recargar
@@ -225,18 +233,27 @@ const VistaServiciosAdmin = () => {
 
   if (loading) return <div className="loading-screen">Cargando Tablero de Servicios...</div>;
 
+  const cambiarSeccionTab = (nuevaSeccion) => {
+    setSeccionTab(nuevaSeccion);
+    if (nuevaSeccion === 'activos') {
+      setTabActiva('sos');
+    } else {
+      setTabActiva('done');
+    }
+  };
+
   const renderColumna = (colId, titulo, clase) => {
-    const tareasFiltradas = tareasData.filter(t => t.estado === colId);
+    const tareasFiltradasCol = tareasFiltradas.filter(t => t.estado === colId);
     
     return (
       <div className={`scrum-column ${clase}`}>
         <div className="column-header">
           <span className="column-title-text">{titulo}</span>
-          <span className="column-badge">{tareasFiltradas.length}</span>
+          <span className="column-badge">{tareasFiltradasCol.length}</span>
         </div>
         <div className="cards-container">
-          {tareasFiltradas.length > 0 ? (
-            tareasFiltradas.map(tarea => (
+          {tareasFiltradasCol.length > 0 ? (
+            tareasFiltradasCol.map(tarea => (
               <div key={tarea.dbId} className="card-wrapper">
                 <button 
                   className={`task-card-premium ${
@@ -320,29 +337,82 @@ const VistaServiciosAdmin = () => {
         <h2 style={{ fontStyle: 'italic', fontWeight: '900', margin: 0 }}>GESTIÓN GLOBAL DE SERVICIOS</h2>
       </header>
 
-      {/* Tabs para Móvil */}
-      <div className="scrum-tabs-mobile">
-        {columnasConfig.map(col => (
-          <button 
-            key={col.id}
-            className={`tab-btn ${tabActiva === col.id ? 'active' : ''}`}
-            onClick={() => setTabActiva(col.id)}
-            style={{ color: tabActiva === col.id ? col.color : '#999' }}
-          >
-            {col.icon}
-            <span>{col.titulo}</span>
-            {tabActiva === col.id && <div className="active-line" style={{ background: col.color }}></div>}
-          </button>
-        ))}
+      {/* Buscador Universal */}
+      <div className="search-bar-admin-wrapper" style={{ marginBottom: '20px', padding: '0 5px' }}>
+        <UniversalSearch 
+          data={tareasData}
+          setFilteredData={setTareasFiltradas}
+          placeholder="BUSCAR POR FOLIO, CLIENTE, PROPIEDAD O DESCRIPCIÓN DE SERVICIO..."
+          type="TECNICO_TABLERO"
+        />
       </div>
 
-      <div className="scrum-board-layout quad-layout">
-        {columnasConfig.map(col => (
-          <div key={col.id} className={`column-wrapper-responsive ${tabActiva === col.id ? 'show-mobile' : 'hide-mobile'}`}>
-            {renderColumna(col.id, col.titulo === 'SOS' ? 'SOS / PRIORITARIOS' : col.titulo, `col-${col.id}`)}
-          </div>
-        ))}
+      {/* Pestañas Principales (Activos vs Finalizados/Rechazados) */}
+      <div className="main-tabs-container">
+        <button 
+          className={`main-tab-btn ${seccionTab === 'activos' ? 'active' : ''}`}
+          onClick={() => cambiarSeccionTab('activos')}
+        >
+          <span className="main-tab-icon">⚡</span>
+          <span className="main-tab-text">Servicios Activos</span>
+          <span className="main-tab-count">
+            {tareasFiltradas.filter(t => ['sos', 'todo', 'progress'].includes(t.estado)).length}
+          </span>
+        </button>
+        <button 
+          className={`main-tab-btn ${seccionTab === 'finalizados' ? 'active' : ''}`}
+          onClick={() => cambiarSeccionTab('finalizados')}
+        >
+          <span className="main-tab-icon">📋</span>
+          <span className="main-tab-text">Finalizados y Rechazados</span>
+          <span className="main-tab-count">
+            {tareasFiltradas.filter(t => ['done', 'rejected'].includes(t.estado)).length}
+          </span>
+        </button>
       </div>
+
+      {(() => {
+        const columnasMostrar = seccionTab === 'activos'
+          ? columnasConfig.filter(col => ['sos', 'todo', 'progress'].includes(col.id))
+          : columnasConfig.filter(col => ['done', 'rejected'].includes(col.id));
+
+        return (
+          <>
+            {/* Tabs para Móvil */}
+            <div className="scrum-tabs-mobile">
+              {columnasMostrar.map(col => (
+                <button 
+                  key={col.id}
+                  className={`tab-btn ${tabActiva === col.id ? 'active' : ''}`}
+                  onClick={() => setTabActiva(col.id)}
+                  style={{ color: tabActiva === col.id ? col.color : '#999' }}
+                >
+                  {col.icon}
+                  <span>{col.titulo}</span>
+                  {tabActiva === col.id && <div className="active-line" style={{ background: col.color }}></div>}
+                </button>
+              ))}
+            </div>
+
+            <div 
+              className="scrum-board-layout" 
+              style={{ 
+                display: 'grid',
+                gridTemplateColumns: seccionTab === 'activos' ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
+                gap: '14px',
+                width: '100%',
+                alignItems: 'start'
+              }}
+            >
+              {columnasMostrar.map(col => (
+                <div key={col.id} className={`column-wrapper-responsive ${tabActiva === col.id ? 'show-mobile' : 'hide-mobile'}`}>
+                  {renderColumna(col.id, col.titulo === 'SOS' ? 'SOS / PRIORITARIOS' : col.titulo, `col-${col.id}`)}
+                </div>
+              ))}
+            </div>
+          </>
+        );
+      })()}
 
       {modalVisible && tareaSeleccionada && (
         <div className="modal-view-overlay" onClick={cerrarModal}>
@@ -767,6 +837,67 @@ const VistaServiciosAdmin = () => {
       )}
       
       <style>{`
+        .main-tabs-container {
+          display: flex;
+          gap: 15px;
+          margin: 15px 5px 25px;
+          border-bottom: 2px solid #e2e8f0;
+          padding-bottom: 10px;
+        }
+        .main-tab-btn {
+          background: none;
+          border: none;
+          padding: 10px 20px;
+          font-size: 1rem;
+          font-weight: 700;
+          color: #64748b;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          position: relative;
+          transition: all 0.3s ease;
+          border-radius: 10px;
+        }
+        .main-tab-btn:hover {
+          color: #1e293b;
+          background: rgba(0, 0, 0, 0.02);
+        }
+        .main-tab-btn.active {
+          color: #F26522;
+          background: rgba(242, 101, 34, 0.05);
+        }
+        .main-tab-btn.active::after {
+          content: '';
+          position: absolute;
+          bottom: -12px;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: #F26522;
+          border-radius: 3px;
+        }
+        .main-tab-icon {
+          font-size: 1.1rem;
+        }
+        .main-tab-text {
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        .main-tab-count {
+          background: #e2e8f0;
+          color: #475569;
+          font-size: 0.75rem;
+          padding: 2px 8px;
+          border-radius: 20px;
+          font-weight: 800;
+          transition: all 0.3s ease;
+        }
+        .main-tab-btn.active .main-tab-count {
+          background: #F26522;
+          color: white;
+        }
+
         .zoom-overlay {
           position: fixed;
           top: 0; left: 0;
