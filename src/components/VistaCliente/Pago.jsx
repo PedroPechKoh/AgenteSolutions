@@ -50,10 +50,21 @@ const Pago = ({ cotizacion, onClose }) => {
       formData.append('upload_preset', 'bienes_raices'); 
       formData.append('folder', 'comprobantes_pago');
 
-      const res = await axios.post(cloudinaryUrl, formData);
-      const fileUrl = res.data.secure_url;
+      // Usar fetch en lugar de axios para evitar que envíe el header de Authorization global y cause error de CORS
+      const uploadRes = await fetch(cloudinaryUrl, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const uploadData = await uploadRes.json();
+      
+      if (!uploadRes.ok) {
+        throw new Error(uploadData.error?.message || "Error al subir a Cloudinary");
+      }
 
-      // Conectar con el backend para guardar el recibo y cambiar estado
+      const fileUrl = uploadData.secure_url;
+
+      // Conectar con el backend para guardar el recibo y cambiar estado (Aquí sí usamos axios normal)
       await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/pago`, {
         payment_receipt_path: fileUrl
       });
@@ -167,7 +178,15 @@ const Pago = ({ cotizacion, onClose }) => {
             <div className="upload-label-content">
               {file ? (
                 <div className="file-ready">
-                  <CheckCircle2 size={48} className="success-icon" />
+                  {file.type && file.type.startsWith('image/') ? (
+                    <img 
+                      src={URL.createObjectURL(file)} 
+                      alt="Preview" 
+                      style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '8px', objectFit: 'contain', marginBottom: '10px' }} 
+                    />
+                  ) : (
+                    <CheckCircle2 size={48} className="success-icon" />
+                  )}
                   <p>{file.name}</p>
                   <span>Archivo seleccionado correctamente</span>
                 </div>
