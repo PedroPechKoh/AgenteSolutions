@@ -335,6 +335,7 @@ const DetalleReporte = () => {
         if (file) {
             setSelectedFile(file);
             setPreviewImg(URL.createObjectURL(file));
+            setRemoveMainImage(false);
         }
     };
 
@@ -343,6 +344,7 @@ const DetalleReporte = () => {
         if (file) {
             setSelectedFileSecondary(file);
             setPreviewImgSecondary(URL.createObjectURL(file));
+            setRemoveSecondaryImage(false);
         }
     };
 
@@ -1492,7 +1494,7 @@ const DetalleReporte = () => {
                 <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                     
                     {/* FOTO PRINCIPAL */}
-                    <div style={{ textAlign: 'center' }}>
+                    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <div 
                             className="rdh-foto-box"
                             onClick={() => handlePhotoBoxClick('principal')}
@@ -1534,7 +1536,7 @@ const DetalleReporte = () => {
                     </div>
 
                     {/* FOTO SECUNDARIA */}
-                    <div style={{ textAlign: 'center' }}>
+                    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         <div 
                             className="rdh-foto-box"
                             onClick={() => handlePhotoBoxClick('secondary')}
