@@ -28,6 +28,7 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
                            estadoActual.includes('procesada') || 
                            estadoActual.includes('aceptad') || 
                            estadoActual.includes('pago') || 
+                           estadoActual.includes('pagad') || 
                            estadoActual.includes('validado');
         } else if (filtroActual === 'Rechazado') {
           coincideFiltro = estadoActual.includes('rechazad'); // Captura rechazado y rechazada

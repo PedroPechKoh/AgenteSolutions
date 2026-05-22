@@ -77,6 +77,7 @@ const VistaCotizaciones = () => {
             statusLower.includes('procesada') || 
             statusLower.includes('aceptad') || 
             statusLower.includes('pago') || 
+            statusLower.includes('pagad') || 
             statusLower.includes('validado')
           ) {
             setFiltro('Aprobado');
@@ -127,7 +128,7 @@ const VistaCotizaciones = () => {
   const filtradas = cotizaciones.filter(c => {
     const coincideFiltro = 
       (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
-      (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status?.toLowerCase().includes('pago') || c.status === 'Validado')) ||
+      (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad') || c.status === 'Validado')) ||
       (filtro === 'Rechazado' && c.status?.toLowerCase().includes('rechazad'));
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
