@@ -60,7 +60,39 @@ const VistaCotizaciones = () => {
     cargarCotizaciones();
   }, []);
 
- 
+  useEffect(() => {
+    if (cotizaciones && cotizaciones.length > 0) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const quoteIdParam = searchParams.get('quoteId');
+      if (quoteIdParam) {
+        const found = cotizaciones.find(c => String(c.id) === String(quoteIdParam));
+        if (found) {
+          // Determinar el filtro de pestaña adecuado
+          const statusLower = String(found.status || '').toLowerCase();
+          if (statusLower.includes('rechazad')) {
+            setFiltro('Rechazado');
+          } else if (
+            statusLower.includes('aprobad') || 
+            statusLower.includes('procesada') || 
+            statusLower.includes('aceptad') || 
+            statusLower.includes('pago') || 
+            statusLower.includes('validado')
+          ) {
+            setFiltro('Aprobado');
+          } else {
+            setFiltro('Pendiente');
+          }
+          
+          // Seleccionar la cotización para abrir el modal
+          setCotizacionSeleccionada(found);
+          
+          // Limpiar la URL para evitar reabrir al recargar
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
+        }
+      }
+    }
+  }, [cotizaciones]);
 
   const cargarCotizaciones = async () => {
     try {

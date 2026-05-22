@@ -24,7 +24,11 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
         if (filtroActual === 'Pendiente') {
           coincideFiltro = estadoActual === 'pendiente' || estadoActual === 'en proceso' || estadoActual.includes('admin') || estadoActual.includes('enviada');
         } else if (filtroActual === 'Aprobado') {
-          coincideFiltro = estadoActual.includes('aprobad') || estadoActual.includes('procesada'); // Captura aprobado y procesada
+          coincideFiltro = estadoActual.includes('aprobad') || 
+                           estadoActual.includes('procesada') || 
+                           estadoActual.includes('aceptad') || 
+                           estadoActual.includes('pago') || 
+                           estadoActual.includes('validado');
         } else if (filtroActual === 'Rechazado') {
           coincideFiltro = estadoActual.includes('rechazad'); // Captura rechazado y rechazada
         }
