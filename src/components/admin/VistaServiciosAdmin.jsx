@@ -583,10 +583,20 @@ const VistaServiciosAdmin = () => {
                         const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId);
                         
                         return (
-                          <div style={{ display: 'flex', gap: '10px' }}>
-                            <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white', flex: 1 }}>
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <button className="modal-action-btn variant-dark" onClick={() => setShowModalCotizacion(true)} style={{ background: '#1b8a5a', color: 'white', flex: 1, minWidth: '160px' }}>
                               <FileText size={18} /> {cotizacionAsociada ? 'EDITAR COTIZACIÓN' : 'REALIZAR COTIZACIÓN'}
                             </button>
+                            
+                            {cotizacionAsociada && (
+                              <button 
+                                className="modal-action-btn variant-orange" 
+                                onClick={() => navigate(`/vista-cotizaciones?quoteId=${cotizacionAsociada.id}`)}
+                                style={{ background: '#F26522', color: 'white', flex: 1, minWidth: '160px' }}
+                              >
+                                <FileText size={18} /> VER COTIZACIÓN
+                              </button>
+                            )}
                             
                             {cotizacionAsociada && cotizacionAsociada.parent_id && (
                               <button 
@@ -598,7 +608,7 @@ const VistaServiciosAdmin = () => {
                                     window.open('/imprimir-cotizacion', '_blank');
                                   }
                                 }} 
-                                style={{ background: '#6c757d', color: 'white', flex: 1 }}
+                                style={{ background: '#6c757d', color: 'white', flex: 1, minWidth: '160px' }}
                               >
                                 <FileText size={18} /> VER BORRADOR TÉCNICO
                               </button>
@@ -608,7 +618,7 @@ const VistaServiciosAdmin = () => {
                       })()}
                     </div>
 
-                    <div className="modal-main-action-wrapper">
+                    <div className="modal-main-action-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'sos' ? (
                         <button className="modal-action-btn variant-black" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('En Proceso')}>
                           <Timer size={18} /> {procesandoAccion ? 'Actualizando...' : 'INICIAR TRABAJO'}
@@ -619,11 +629,26 @@ const VistaServiciosAdmin = () => {
                         </button>
                       ) : null}
 
+                      {(tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'sos' || tareaSeleccionada.estado === 'progress') && (
+                        <button 
+                          className="modal-action-btn" 
+                          disabled={procesandoAccion} 
+                          onClick={() => {
+                            if (window.confirm('¿Estás seguro de que deseas cancelar este servicio? Se moverá al apartado de rechazados.')) {
+                              cambiarEstadoTarea('Rechazado');
+                            }
+                          }}
+                          style={{ background: '#dc2626', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', border: 'none', padding: '12px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
+                        >
+                          <X size={18} /> {procesandoAccion ? 'Cancelando...' : 'CANCELAR SERVICIO'}
+                        </button>
+                      )}
+
                       {tareaSeleccionada.estado === 'done' && (
                         <button 
                           className="modal-action-btn variant-orange" 
                           onClick={() => navigate(`/galeria-reportes/${tareaSeleccionada.dbId}`, { state: { trabajoId: tareaSeleccionada.dbId, servicio: tareaSeleccionada } })}
-                          style={{ background: '#f26624', marginTop: '20px' }}
+                          style={{ background: '#f26624', marginTop: '10px' }}
                         >
                           <Camera size={18} /> CONSULTAR REPORTE DE TRABAJO
                         </button>

@@ -609,6 +609,18 @@ const VistaCotizaciones = () => {
                     </div>
                   )}
 
+                {cotizacionSeleccionada.status === 'Rechazado' && !esCliente && (
+                    <div style={{ marginTop: '20px', padding: '15px', background: '#fef2f2', borderRadius: '12px', border: '1px solid #ef4444', textAlign: 'center' }}>
+                      <p style={{ margin: '0 0 10px 0', color: '#ef4444', fontWeight: 'bold' }}>❌ ESTA COTIZACIÓN HA SIDO RECHAZADA / CANCELADA</p>
+                      <button 
+                        onClick={() => navigate(`/tablero-servicios?jobId=${cotizacionSeleccionada.work_order_id || cotizacionSeleccionada.service_id}`)}
+                        style={{ background: '#ef4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto' }}
+                      >
+                        <Layout size={18} /> IR AL TABLERO PARA CANCELAR TRABAJO
+                      </button>
+                    </div>
+                  )}
+
                 <div className="modal-total-section">
                   <h3>TOTAL: ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}</h3>
                 </div>
