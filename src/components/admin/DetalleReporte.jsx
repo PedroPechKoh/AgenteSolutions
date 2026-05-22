@@ -1493,195 +1493,211 @@ const DetalleReporte = () => {
                 document.body
             )}
 
-            {/* --- MODAL PARA AGREGAR/EDITAR ELEMENTO (INVENTARIO) --- */}
-            {modalElementoVisible && createPortal(
-                <div className="rdh-modal-overlay" style={{ zIndex: 9999999 }}>
-                    <div className="rdh-modal-content" style={{ width: '500px' }}>
-                        <button className="rdh-modal-close" onClick={() => setModalElementoVisible(false)}>
-                            <X size={24} strokeWidth={3} />
-                        </button>
+          {/* --- MODAL PARA AGREGAR/EDITAR ELEMENTO (INVENTARIO) --- */}
+{modalElementoVisible && createPortal(
+    <div className="rdh-modal-overlay" style={{ zIndex: 9999999 }}>
+        <div className="rdh-modal-content" style={{ width: '500px' }}>
+            <button className="rdh-modal-close" onClick={() => setModalElementoVisible(false)}>
+                <X size={24} strokeWidth={3} />
+            </button>
+            
+            <h2 className="rdh-modal-title">{elementoActual.id ? 'EDITAR PRODUCTO' : 'NUEVO PRODUCTO'}</h2>
+            
+            <div className="rdh-modal-form" style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: '10px' }}>
+                
+                {/* FOTOS */}
+                <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    {/* FOTO PRINCIPAL */}
+                    <div style={{ textAlign: 'center' }}>
+                        <div 
+                            className="rdh-foto-box"
+                            onClick={() => handlePhotoBoxClick('principal')}
+                            style={{ width: '100px', height: '100px', position: 'relative' }}
+                        >
+                            {previewImg ? (
+                                <>
+                                    <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); if (selectedFile) { setSelectedFile(null); setPreviewImg(null); } else { setRemoveMainImage(true); setPreviewImg(null); } }}
+                                        title="Eliminar imagen"
+                                        style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
+                                    >
+                                        ×
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <ImageIcon size={30} color="#ccc" />
+                                    <span style={{ fontSize: '9px', color: '#ccc', marginTop: '5px', fontWeight: 'bold' }}>PRINCIPAL</span>
+                                </>
+                            )}
+                        </div>
+                        <input type="file" id="fotoProductoNuevo" hidden accept="image/*" onChange={handleFileSelect} />
+                        <input type="file" id="cameraPrincipal" hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
+                    </div>
+
+                    {/* FOTO SECUNDARIA */}
+                    <div style={{ textAlign: 'center' }}>
+                        <div 
+                            className="rdh-foto-box"
+                            onClick={() => handlePhotoBoxClick('secondary')}
+                            style={{ width: '100px', height: '100px', borderStyle: 'dashed', borderColor: '#f26624', position: 'relative' }}
+                        >
+                            {previewImgSecondary ? (
+                                <>
+                                    <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
+                                        title="Eliminar imagen secundaria"
+                                        style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
+                                    >
+                                        ×
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Plus size={30} color="#f26624" />
+                                    <span style={{ fontSize: '9px', color: '#f26624', marginTop: '5px', fontWeight: 'bold' }}>SECUNDARIA</span>
+                                </>
+                            )}
+                        </div>
+                        <input type="file" id="fotoProductoSecundario" hidden accept="image/*" onChange={handleFileSelectSecondary} />
+                        <input type="file" id="cameraSecondary" hidden accept="image/*" capture="environment" onChange={handleFileSelectSecondary} />
+                    </div>
+
+                    {/* FOTOS DE GALERÍA EXISTENTES (BASE DE DATOS) */}
+                    {galeriaExistente.map((foto, i) => (
+                        <div 
+                            key={`ex-${i}`} 
+                            style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', border: '1px solid #ccc' }}
+                        >
+                            <img src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                            <button
+                                type="button"
+                                onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    setGaleriaExistente(prev => prev.filter((_, idx) => idx !== i)); 
+                                    setRemovedGalleryIds(prev => [...prev, foto.id || foto.gallery_id || foto.image_id || foto.image_path]); 
+                                }}
+                                title="Eliminar foto"
+                                style={{ position: 'absolute', top: -6, right: -6, background: 'rgba(0,0,0,0.7)', color: 'white', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold', zIndex: 10 }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                    ))}
+
+                    {/* FOTOS DE GALERÍA NUEVAS (LOCALES) */}
+                    {galeriaArchivos.map((file, i) => (
+                        <div 
+                            key={`new-${i}`} 
+                            style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', border: '1px dashed #f26624' }}
+                        >
+                            <img src={URL.createObjectURL(file)} alt={`galeria-new-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                            <button
+                                type="button"
+                                onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    setGaleriaArchivos(prev => prev.filter((_, idx) => idx !== i)); 
+                                }}
+                                title="Eliminar foto nueva"
+                                style={{ position: 'absolute', top: -6, right: -6, background: '#f26624', color: 'white', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 'bold', zIndex: 10 }}
+                            >
+                                ×
+                            </button>
+                        </div>
+                    ))}
+
+                    {/* BOTÓN DISPARADOR PARA AGREGAR MÁS FOTOS GALERÍA */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div 
+                            className="rdh-gallery-box"
+                            title="Agregar fotos extra"
+                            onClick={() => handlePhotoBoxClick('gallery')}
+                            style={{ width: '100px', height: '100px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}
+                        >
+                            <ImageIcon size={30} color="#ccc" className="gallery-icon" />
+                            <span className="gallery-text" style={{ fontSize: '9px', color: '#ccc', marginTop: '5px', fontWeight: 'bold' }}>EXTRAS</span>
+                        </div>
+                        <input type="file" id="fotoGaleriaNueva" hidden accept="image/*" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
+                        <input type="file" id="cameraGallery" hidden accept="image/*" capture="environment" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
                         
-                        <h2 className="rdh-modal-title">{elementoActual.id ? 'EDITAR PRODUCTO' : 'NUEVO PRODUCTO'}</h2>
-                        
-                        <div className="rdh-modal-form" style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: '10px' }}>
-                            
-                            {/* FOTOS */}
-                            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
-                                {/* FOTO PRINCIPAL */}
-                                <div style={{ textAlign: 'center' }}>
-                                    <div 
-                                        className="rdh-foto-box"
-                                        onClick={() => handlePhotoBoxClick('principal')}
-                                        style={{ width: '100px', height: '100px', position: 'relative' }}
-                                    >
-                                        {previewImg ? (
-                                            <>
-                                                <img src={previewImg} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); if (selectedFile) { setSelectedFile(null); setPreviewImg(null); } else { setRemoveMainImage(true); setPreviewImg(null); } }}
-                                                    title="Eliminar imagen"
-                                                    style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
-                                                >
-                                                    ×
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <ImageIcon size={30} color="#ccc" />
-                                                <span style={{ fontSize: '9px', color: '#ccc', marginTop: '5px', fontWeight: 'bold' }}>PRINCIPAL</span>
-                                            </>
-                                        )}
-                                    </div>
-                                    <input type="file" id="fotoProductoNuevo" hidden accept="image/*" onChange={handleFileSelect} />
-                                    <input type="file" id="cameraPrincipal" hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
-                                </div>
-
-                                {/* FOTO SECUNDARIA */}
-                                <div style={{ textAlign: 'center' }}>
-                                    <div 
-                                        className="rdh-foto-box"
-                                        onClick={() => handlePhotoBoxClick('secondary')}
-                                        style={{ width: '100px', height: '100px', borderStyle: 'dashed', borderColor: '#f26624', position: 'relative' }}
-                                    >
-                                        {previewImgSecondary ? (
-                                            <>
-                                                <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); setPreviewImgSecondary(null); } else { setRemoveSecondaryImage(true); setPreviewImgSecondary(null); } }}
-                                                    title="Eliminar imagen secundaria"
-                                                    style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 24, height: 24, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
-                                                >
-                                                    ×
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Plus size={30} color="#f26624" />
-                                                <span style={{ fontSize: '9px', color: '#f26624', marginTop: '5px', fontWeight: 'bold' }}>SECUNDARIA</span>
-                                            </>
-                                        )}
-                                    </div>
-                                    <input type="file" id="fotoProductoSecundario" hidden accept="image/*" onChange={handleFileSelectSecondary} />
-                                    <input type="file" id="cameraSecondary" hidden accept="image/*" capture="environment" onChange={handleFileSelectSecondary} />
-                                </div>
-
-                                {/* GALERÍA / MÁS FOTOS */}
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                    <div 
-                                        className="rdh-gallery-box"
-                                        title="Agregar fotos extra"
-                                        onClick={() => handlePhotoBoxClick('gallery')}
-                                        style={{ position: 'relative', overflow: 'hidden', width: '100px', height: '100px', padding: (galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? '5px' : '0' }}
-                                    >
-                                        {(galeriaArchivos.length > 0 || galeriaExistente.length > 0) ? (
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', width: '100%', height: '100%', justifyContent: 'center', alignContent: 'center' }}>
-                                                {galeriaExistente.map((foto, i) => (
-                                                    <div key={`ex-${i}`} style={{ position: 'relative', width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%' }}>
-                                                        <img src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px' }} />
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); setGaleriaExistente(prev => prev.filter((_, idx) => idx !== i)); setRemovedGalleryIds(prev => [...prev, foto.id || foto.gallery_id || foto.image_id || foto.image_path]); }}
-                                                            title="Eliminar foto"
-                                                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
-                                                        >
-                                                            ×
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                                {galeriaArchivos.slice(0, 4 - galeriaExistente.length).map((file, i) => (
-                                                    <div key={`new-${i}`} style={{ position: 'relative', width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%' }}>
-                                                        <img src={URL.createObjectURL(file)} alt={`galeria-new-${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px' }} />
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); setGaleriaArchivos(prev => prev.filter((_, idx) => idx !== i)); }}
-                                                            title="Eliminar foto nueva"
-                                                            style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.6)', color: 'white', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}
-                                                        >
-                                                            ×
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <ImageIcon size={30} color="#ccc" className="gallery-icon" />
-                                                <span className="gallery-text" style={{ fontSize: '9px', color: '#ccc', marginTop: '5px', fontWeight: 'bold' }}>EXTRAS</span>
-                                            </>
-                                        )}
-                                    </div>
-                                    <input type="file" id="fotoGaleriaNueva" hidden accept="image/*" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
-                                    <input type="file" id="cameraGallery" hidden accept="image/*" capture="environment" multiple onChange={(e) => { handleGallerySelect(e); e.target.value = null; }} />
-                                    {(galeriaArchivos.length > 0) && (
-                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                                            <span>{galeriaArchivos.length} fotos extra</span>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); setGaleriaArchivos([]); }}
-                                                style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
-                                            >
-                                                Limpiar nuevas
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="rdh-modal-field">
-                                <label>TIPO *</label>
-                                <input type="text" className="rdh-modal-input" placeholder="Ej. ENCHUFE, FOCO" value={elementoActual.sub_category} onChange={(e) => setElementoActual({...elementoActual, sub_category: e.target.value.toUpperCase()})}/>
-                            </div>
-                            <div className="rdh-modal-field">
-                                <label>MARCA</label>
-                                <input type="text" className="rdh-modal-input" value={elementoActual.brand} onChange={(e) => setElementoActual({...elementoActual, brand: e.target.value.toUpperCase()})}/>
-                            </div>
-                            <div className="rdh-modal-field">
-                                <label>MODELO</label>
-                                <input type="text" className="rdh-modal-input" value={elementoActual.model_or_color} onChange={(e) => setElementoActual({...elementoActual, model_or_color: e.target.value.toUpperCase()})}/>
-                            </div>
-                            
-                            <div className="rdh-modal-field">
-                                <label>NO. SERIE</label>
-                                <input type="text" className="rdh-modal-input" placeholder="S/N" value={elementoActual.serial_number} onChange={(e) => setElementoActual({...elementoActual, serial_number: e.target.value.toUpperCase()})}/>
-                            </div>
-
-                            <div className="rdh-modal-field">
-                                <label>CANTIDAD *</label>
-                                <input type="number" min="0.1" step="0.1" className="rdh-modal-input" value={elementoActual.quantity} onChange={(e) => setElementoActual({...elementoActual, quantity: e.target.value})}/>
-                            </div>
-
-                            <div className="rdh-modal-field">
-                                <label>ESTADO *</label>
-                                <select 
-                                    className="rdh-modal-input" 
-                                    value={elementoActual.status} 
-                                    onChange={(e) => setElementoActual({...elementoActual, status: e.target.value})}
+                        {galeriaArchivos.length > 0 && (
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', justifyContent: 'center', marginTop: '6px', color: '#f26624', fontWeight: 'bold', fontSize: '0.9rem' }}>
+                                <span>{galeriaArchivos.length} extras</span>
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); setGaleriaArchivos([]); }}
+                                    style={{ background: 'transparent', border: 'none', color: '#f26624', cursor: 'pointer', textDecoration: 'underline', fontWeight: '800' }}
                                 >
-                                    <option value="Bueno">Bueno</option>
-                                    <option value="Regular">Regular</option>
-                                    <option value="Malo">Malo</option>
-                                    <option value="Requiere Cambio">Requiere Cambio</option>
-                                </select>
-                            </div>
-
-                            <div className="rdh-modal-field" style={{ alignItems: 'flex-start' }}>
-                                <label style={{ marginTop: '15px' }}>COMENTARIOS</label>
-                                <textarea 
-                                    className="rdh-modal-input" 
-                                    style={{ height: 'auto', paddingTop: '10px', resize: 'vertical', minHeight: '60px' }}
-                                    rows="3" 
-                                    placeholder="Detalla daños o notas especiales..."
-                                    value={elementoActual.observations} 
-                                    onChange={(e) => setElementoActual({...elementoActual, observations: e.target.value})}
-                                />
-                            </div>
-
-                            <div className="rdh-modal-btn-container" style={{ marginTop: '20px' }}>
-                                <button className="rdh-btn-save-3d modal-btn" onClick={guardarElemento}>
-                                    {elementoActual.id ? 'ACTUALIZAR' : 'GUARDAR'}
+                                    Limpiar
                                 </button>
                             </div>
-                        </div>
+                        )}
                     </div>
-                </div>,
-                document.body
-            )}
+                </div>
+
+                <div className="rdh-modal-field">
+                    <label>TIPO *</label>
+                    <input type="text" className="rdh-modal-input" placeholder="Ej. ENCHUFE, FOCO" value={elementoActual.sub_category} onChange={(e) => setElementoActual({...elementoActual, sub_category: e.target.value.toUpperCase()})}/>
+                </div>
+                <div className="rdh-modal-field">
+                    <label>MARCA</label>
+                    <input type="text" className="rdh-modal-input" value={elementoActual.brand} onChange={(e) => setElementoActual({...elementoActual, brand: e.target.value.toUpperCase()})}/>
+                </div>
+                <div className="rdh-modal-field">
+                    <label>MODELO</label>
+                    <input type="text" className="rdh-modal-input" value={elementoActual.model_or_color} onChange={(e) => setElementoActual({...elementoActual, model_or_color: e.target.value.toUpperCase()})}/>
+                </div>
+                
+                <div className="rdh-modal-field">
+                    <label>NO. SERIE</label>
+                    <input type="text" className="rdh-modal-input" placeholder="S/N" value={elementoActual.serial_number} onChange={(e) => setElementoActual({...elementoActual, serial_number: e.target.value.toUpperCase()})}/>
+                </div>
+
+                <div className="rdh-modal-field">
+                    <label>CANTIDAD *</label>
+                    <input type="number" min="0.1" step="0.1" className="rdh-modal-input" value={elementoActual.quantity} onChange={(e) => setElementoActual({...elementoActual, quantity: e.target.value})}/>
+                </div>
+
+                <div className="rdh-modal-field">
+                    <label>ESTADO *</label>
+                    <select 
+                        className="rdh-modal-input" 
+                        value={elementoActual.status} 
+                        onChange={(e) => setElementoActual({...elementoActual, status: e.target.value})}
+                    >
+                        <option value="Bueno">Bueno</option>
+                        <option value="Regular">Regular</option>
+                        <option value="Malo">Malo</option>
+                        <option value="Requiere Cambio">Requiere Cambio</option>
+                    </select>
+                </div>
+
+                <div className="rdh-modal-field" style={{ alignItems: 'flex-start' }}>
+                    <label style={{ marginTop: '15px' }}>COMENTARIOS</label>
+                    <textarea 
+                        className="rdh-modal-input" 
+                        style={{ height: 'auto', paddingTop: '10px', resize: 'vertical', minHeight: '60px' }}
+                        rows="3" 
+                        placeholder="Detalla daños o notas especiales..."
+                        value={elementoActual.observations} 
+                        onChange={(e) => setElementoActual({...elementoActual, observations: e.target.value})}
+                    />
+                </div>
+
+                <div className="rdh-modal-btn-container" style={{ marginTop: '20px' }}>
+                    <button className="rdh-btn-save-3d modal-btn" onClick={guardarElemento}>
+                        {elementoActual.id ? 'ACTUALIZAR' : 'GUARDAR'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>,
+    document.body
+)}
         </div>
     );
 };
