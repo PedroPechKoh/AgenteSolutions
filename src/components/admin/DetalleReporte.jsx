@@ -335,7 +335,6 @@ const DetalleReporte = () => {
         if (file) {
             setSelectedFile(file);
             setPreviewImg(URL.createObjectURL(file));
-            setRemoveMainImage(false);
         }
     };
 
@@ -344,7 +343,6 @@ const DetalleReporte = () => {
         if (file) {
             setSelectedFileSecondary(file);
             setPreviewImgSecondary(URL.createObjectURL(file));
-            setRemoveSecondaryImage(false);
         }
     };
 
@@ -1491,11 +1489,12 @@ const DetalleReporte = () => {
             <div className="rdh-modal-form" style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: '10px' }}>
                 
                 {/* FOTOS */}
-<div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>                    
+                <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    
                   {/* FOTO PRINCIPAL */}
                     <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         
-                       {/* NUEVO CONTENEDOR RELATIVO */}
+                        {/* NUEVO CONTENEDOR RELATIVO */}
                         <div style={{ position: 'relative', width: '100px', height: '100px' }}>
                             <div 
                                 className="rdh-foto-box"
@@ -1512,8 +1511,8 @@ const DetalleReporte = () => {
                                 )}
                             </div>
 
-                            {/* BOTÓN X PARA ELIMINAR FOTO PRINCIPAL (Fuera de rdh-foto-box) */}
-                           {previewImg && (
+                            {/* BOTÓN X PARA ELIMINAR FOTO PRINCIPAL */}
+                            {previewImg && (
                                 <button
                                     type="button"
                                     onClick={(e) => { 
@@ -1558,8 +1557,8 @@ const DetalleReporte = () => {
                                 )}
                             </div>
 
-                            {/* BOTÓN X PARA ELIMINAR FOTO SECUNDARIA (Fuera de rdh-foto-box) */}
-                           {previewImgSecondary && (
+                            {/* BOTÓN X PARA ELIMINAR FOTO SECUNDARIA */}
+                            {previewImgSecondary && (
                                 <button
                                     type="button"
                                     onClick={(e) => { 
@@ -1568,8 +1567,6 @@ const DetalleReporte = () => {
                                             setSelectedFileSecondary(null); 
                                             setPreviewImgSecondary(null); 
                                         } else { 
-                                            // Asumiendo que tienes una función similar para la imagen secundaria si es de la BD
-                                            // setRemoveSecondaryImage(true); 
                                             setPreviewImgSecondary(null); 
                                         } 
                                     }}
