@@ -41,35 +41,20 @@ const Pago = ({ cotizacion, onClose }) => {
     try {
       setSubiendo(true);
 
-      // Subir a Cloudinary (la misma cuenta que usas para fotos de propiedades)
-      const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dcj5rcpi8/upload"; 
-      const cloudinaryPreset = "bienes_raices"; // Asumiendo que es el que usas, o podemos mandar formData crudo
-
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', 'bienes_raices'); 
-      formData.append('folder', 'comprobantes_pago');
-
-      // Usar fetch en lugar de axios para evitar que envíe el header de Authorization global y cause error de CORS
-      const uploadRes = await fetch(cloudinaryUrl, {
-        method: 'POST',
-        body: formData
+      formData.append('receipt_file', file);
+      
+      const token = localStorage.getItem('agente_token');
+      
+      // Conectar con el backend para guardar el recibo y cambiar estado
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/pago`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
+        }
       });
       
-      const uploadData = await uploadRes.json();
-      
-      if (!uploadRes.ok) {
-        throw new Error(uploadData.error?.message || "Error al subir a Cloudinary");
-      }
-
-      const fileUrl = uploadData.secure_url;
-
-      // Conectar con el backend para guardar el recibo y cambiar estado (Aquí sí usamos axios normal)
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/pago`, {
-        payment_receipt_path: fileUrl
-      });
-      
-      console.log("Comprobante subido y notificado:", fileUrl);
+      console.log("Comprobante subido y notificado");
       
       setPagoCompletado(true);
       setTimeout(() => {
