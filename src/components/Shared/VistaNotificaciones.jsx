@@ -110,7 +110,7 @@ const VistaNotificaciones = () => {
                         url = '/Cotizaciones';
                       } else if (type?.includes('service') || type?.includes('work_order') || type === 'new_work_order' || type === 'work_order_scheduled' || type === 'work_order_cancelled_client' || type === 'visit_rescheduled') {
                         const propId = n.data.property_id;
-                        url = propId ? `/propiedad/${propId}/tablero` : '/propiedades';
+                        url = propId ? `/DetallePropiedad/${propId}` : '/propiedades';
                       } else {
                         url = '/propiedades';
                       }
