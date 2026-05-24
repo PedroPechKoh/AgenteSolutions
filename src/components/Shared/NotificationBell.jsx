@@ -69,7 +69,7 @@ const NotificationBell = () => {
         }
       } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned' || type === 'work_order_assigned' || type === 'work_order_rescheduled') {
         url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
-      } else if (type === 'work_order_cancelled_client') { url = `/DetallePropiedad/${notification.data.property_id}`; } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
+      } else if (type === 'work_order_cancelled_client') { const propId = notification.data.property_id; url = propId ? `/propiedad/${propId}/tablero` : '/propiedades'; } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
         url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
       }
 
