@@ -1,0 +1,1 @@
+const fs = require("fs"); let content = fs.readFileSync("src/components/Shared/NotificationBell.jsx", "utf8"); content = content.replace("url = /DetallePropiedad/;", "url = `/DetallePropiedad/${notification.data.property_id}`;"); fs.writeFileSync("src/components/Shared/NotificationBell.jsx", content);
