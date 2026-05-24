@@ -102,7 +102,7 @@
    ============================================ */
 .scrum-board-layout { 
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 14px;
   width: 100%;
   align-items: start;
@@ -110,7 +110,7 @@
 
 /* Versión quad solo para referencia */
 .quad-layout {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
 }
 
 /* --- COLUMNAS --- */
@@ -157,6 +157,8 @@
 .col-todo .column-header { border-bottom-color: #fbbf24; }
 .col-progress .column-header { border-bottom-color: #3b82f6; }
 .col-done .column-header { border-bottom-color: #22c55e; }
+.col-rejected .column-header { border-bottom-color: #dc2626; }
+.col-rejected .column-title-text { color: #dc2626; }
 
 /* --- TARJETAS PREMIUM --- */
 .task-card-premium {
@@ -200,6 +202,7 @@
 .is-sos { border-left-color: #ff4d4f; background: #fffafa; }
 .is-active { border-left-color: #3b82f6; }
 .is-done { border-left-color: #22c55e; }
+.is-rejected { border-left-color: #dc2626; background: #fef2f2; }
 
 /* Icono SOS animado */
 .sos-icon-inline { color: #ff4d4f; animation: blink 1.5s infinite; flex-shrink: 0; margin-top: 2px; }

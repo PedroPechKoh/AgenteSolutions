@@ -131,7 +131,8 @@ const TrabajosTecnico = () => {
   const fetchServicios = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/tecnico/${user.id}/servicios`);
-      setServicios(res.data);
+      const filtrados = res.data.filter(s => s.status !== 'Rechazado' && s.status !== 'Cancelado');
+      setServicios(filtrados);
     } catch (error) {
       console.error("Error al obtener trabajos:", error);
     }

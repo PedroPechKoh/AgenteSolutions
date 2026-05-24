@@ -25,14 +25,16 @@ const TableroScrum = () => {
     { id: 'sos', titulo: 'SOS', color: '#e63946', icon: <AlertTriangle size={20} /> },
     { id: 'todo', titulo: 'POR HACER', color: '#333', icon: <FileText size={20} /> },
     { id: 'progress', titulo: 'EN PROCESO', color: '#f26522', icon: <Timer size={20} /> },
-    { id: 'done', titulo: 'FINALIZADOS', color: '#1b8a5a', icon: <CheckCircle2 size={20} /> }
+    { id: 'done', titulo: 'FINALIZADOS', color: '#1b8a5a', icon: <CheckCircle2 size={20} /> },
+    { id: 'rejected', titulo: 'CANCELADOS', color: '#dc2626', icon: <X size={20} /> }
   ];
 
   // --- MAPEO DE DATOS (Mismo que en Laravel) ---
   const transformarTareas = useCallback((data) => {
     return data.map(item => {
       let estado = 'todo';
-      if (item.status === 'Listo') estado = 'done';
+      if (item.status === 'Listo' || item.status === 'Finalizado') estado = 'done';
+      else if (item.status === 'Rechazado' || item.status === 'Cancelado') estado = 'rejected';
       else if (item.priority === 'Urgente' && item.status !== 'Listo') estado = 'sos';
       else if (item.status === 'En Proceso') estado = 'progress';
       
@@ -116,7 +118,8 @@ const TableroScrum = () => {
               className={`task-card-premium ${
                 tarea.estado === 'sos' ? 'is-sos' : 
                 tarea.estado === 'progress' ? 'is-active' : 
-                tarea.estado === 'done' ? 'is-done' : ''
+                tarea.estado === 'done' ? 'is-done' : 
+                tarea.estado === 'rejected' ? 'is-rejected' : ''
               }`}
               onClick={() => abrirModal(tarea)}
             >
@@ -128,6 +131,10 @@ const TableroScrum = () => {
                 {tarea.estado === 'done' ? (
                   <div className="status-pill-done">
                     <CheckCircle2 size={12} /> <span>Finalizado</span>
+                  </div>
+                ) : tarea.estado === 'rejected' ? (
+                  <div className="status-pill-rejected" style={{ background: '#fee2e2', color: '#b91c1c', padding: '4px 10px', borderRadius: '6px', fontSize: '0.68rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                    <X size={12} /> <span>Cancelado</span>
                   </div>
                 ) : (
                   <span className={`priority-tag ${tarea.prioridad.toLowerCase()}`}>
