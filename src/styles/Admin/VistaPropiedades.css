@@ -19,12 +19,16 @@
 }
 
 /* --- BUSCADOR Y CABECERA --- */
+.content-area {
+    margin-top: -20px; /* Reduce espacio en blanco extra bajo el header */
+}
+
 .search-header-flex {
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 20px;
-    margin: 25px 0;
+    margin: 5px 0 25px 0;
     width: 100%;
 }
 
