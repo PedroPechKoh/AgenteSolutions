@@ -1,6 +1,6 @@
 /* --- ESTILOS GENERALES DE LA VISTA DE PROPIEDADES --- */
 .main-container-users {
-    background-color: #ffffff;
+    background-color: #F5F5F5; /* Color del Figma */
     min-height: 100vh;
     position: relative;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -110,23 +110,26 @@
 
 /* Tarjeta Individual Compacta */
 .property-card {
-    background-color: #333333;
-    border-radius: 20px;
+    background-color: #ffffff;
+    border-radius: 25px;
     overflow: hidden;
     position: relative;
-    height: 250px; /* Altura compacta */
+    height: 250px;
     width: calc(25% - 15px);
     min-width: 260px;
     max-width: 320px;
     flex: 0 0 auto;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
+    /* Estilo Figma: Sombra sólida desplazada */
+    box-shadow: 12px 12px 0px 0px #f26624, 0 4px 10px rgba(0,0,0,0.05);
+    border: 1px solid #eaeaea; /* Sutil borde para separar del fondo claro */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    margin-bottom: 15px; /* Margen extra para que la sombra no se corte con otras filas */
 }
 
 .property-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+    transform: translate(-3px, -3px);
+    box-shadow: 15px 15px 0px 0px #f26624, 0 10px 25px rgba(0,0,0,0.15);
 }
 
 .property-image {
@@ -137,8 +140,8 @@
 }
 
 .property-card:hover .property-image {
-    transform: scale(1.1);
-    filter: blur(2px) brightness(0.7);
+    /* Eliminamos el scale(1.1) para que no haya un rebote feo en el hover, solo oscurecemos */
+    filter: blur(1px) brightness(0.5);
 }
 
 /* Overlay que aparece al hacer Hover */
