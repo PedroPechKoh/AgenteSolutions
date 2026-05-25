@@ -423,7 +423,7 @@ const VistaServiciosAdmin = () => {
                   <span className="dot-blink"></span>
                   {verBitacora ? 'DETALLES TÉCNICOS' : 'ORDEN DE TRABAJO'}
                </div>
-               <button className="close-modal-btn" onClick={cerrarModal}><X size={18}/></button>
+               <button className="close-modal-btn" onClick={cerrarModal}><span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>✕</span></button>
             </div>
 
             <div className="modal-inner-scroll">
