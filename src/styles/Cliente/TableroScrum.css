@@ -376,9 +376,9 @@
 
 /* Close button modal */
 .close-modal-btn {
-  background: rgba(255,255,255,0.2);
+  background: rgba(0, 0, 0, 0.25);
   border: none;
-  color: white;
+  color: #ffffff;
   cursor: pointer;
   border-radius: 50%;
   width: 32px;
@@ -386,9 +386,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s;
+  transition: all 0.2s;
 }
-.close-modal-btn:hover { background: rgba(255,255,255,0.4); }
+.close-modal-btn:hover { 
+  background: rgba(0, 0, 0, 0.4); 
+  transform: scale(1.1);
+}
+.close-modal-btn svg {
+  stroke: #ffffff !important;
+  stroke-width: 2.5px;
+}
 
 .nav-back-icon { cursor: pointer; }
 
