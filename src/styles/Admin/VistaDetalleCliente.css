@@ -546,3 +546,13 @@
   max-height: 1000px; /* Suficiente para el contenido */
   padding: 10px 20px 20px 20px;
 }
+/* Estilos extraidos de DetallePr.css para history-log-card */
+.history-log-card { background: #ffffff; padding: 1.2rem; border-radius: 12px; border: 1px solid #e0e4e8; display: flex; flex-direction: column; gap: 0.8rem; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 1rem; }
+.history-log-card:hover { box-shadow: 0 8px 16px rgba(0,0,0,0.05); transform: translateY(-2px); }
+.log-status { font-size: 0.7rem; font-weight: 700; color: #059669; background: #ecfdf5; padding: 0.2rem 0.6rem; border-radius: 4px; align-self: flex-start; display: flex; align-items: center; gap: 4px; }
+.log-content h4 { margin: 0; font-size: 1rem; color: #1f2937; }
+.log-meta { display: flex; gap: 1rem; font-size: 0.8rem; color: #6b7280; margin-top: 0.4rem; }
+.photo-grid-report { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 1rem; }
+.photo-item img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; }
+.history-grid-layout { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+

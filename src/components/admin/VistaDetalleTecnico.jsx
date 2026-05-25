@@ -5,7 +5,6 @@ import {
   ChevronLeft, User, Mail, MapPin, ArrowRight, ShieldCheck, X, Save, Phone, Lock, CheckCircle, Briefcase, Clipboard, FileText, Clock
 } from 'lucide-react';
 import '../../styles/Admin/VistaDetalleCliente.css';
-import '../../styles/Cliente/DetallePr.css'; // Para history-log-card
 
 const VistaDetalleTecnico = () => {
   const navigate = useNavigate();
