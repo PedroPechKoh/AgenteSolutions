@@ -1529,44 +1529,6 @@ const DetalleReporte = () => {
                         <input type="file" id="cameraPrincipal" hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
                     </div>
 
-                    {/* FOTO SECUNDARIA */}
-                    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        
-                        {/* NUEVO CONTENEDOR RELATIVO */}
-                        <div style={{ position: 'relative', width: '100px', height: '100px', overflow: 'visible' }}>
-                            <div 
-                                className="rdh-foto-box"
-                                onClick={() => handlePhotoBoxClick('secondary')}
-                                style={{ width: '100%', height: '100%', border: '2px dashed #f26624', cursor: 'pointer', overflow: 'hidden', borderRadius: '8px', boxSizing: 'border-box' }}
-                            >
-                                {previewImgSecondary ? (
-                                    <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                ) : (
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                                        <Plus size={30} color="#f26624" />
-                                        <span style={{ fontSize: '9px', color: '#f26624', marginTop: '5px', fontWeight: 'bold' }}>SECUNDARIA</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {previewImgSecondary && (
-                                <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); } else { setRemoveSecondaryImage(true); } setPreviewImgSecondary(null); }}
-                                    title="Eliminar secundaria"
-                                    style={{
-                                        position: 'absolute', top: '-8px', right: '-8px', background: '#000', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, zIndex: 10
-                                    }}
-                                >
-                                    <X size={12} />
-                                </button>
-                            )}
-                        </div>
-
-                        <input type="file" id="fotoProductoSecundario" hidden accept="image/*" onChange={handleFileSelectSecondary} />
-                        <input type="file" id="cameraSecondary" hidden accept="image/*" capture="environment" onChange={handleFileSelectSecondary} />
-                    </div>
-
                     {/* FOTOS DE GALERÍA EXISTENTES (BASE DE DATOS) */}
                     {galeriaExistente.map((foto, i) => (
                         <div 
@@ -1610,6 +1572,44 @@ const DetalleReporte = () => {
                             
                         </div>
                     ))}
+
+                    {/* FOTO SECUNDARIA */}
+                    <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        
+                        {/* NUEVO CONTENEDOR RELATIVO */}
+                        <div style={{ position: 'relative', width: '100px', height: '100px', overflow: 'visible' }}>
+                            <div 
+                                className="rdh-foto-box"
+                                onClick={() => handlePhotoBoxClick('secondary')}
+                                style={{ width: '100%', height: '100%', border: '2px dashed #f26624', cursor: 'pointer', overflow: 'hidden', borderRadius: '8px', boxSizing: 'border-box' }}
+                            >
+                                {previewImgSecondary ? (
+                                    <img src={previewImgSecondary} alt="Preview Sec" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                        <Plus size={30} color="#f26624" />
+                                        <span style={{ fontSize: '9px', color: '#f26624', marginTop: '5px', fontWeight: 'bold' }}>SECUNDARIA</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {previewImgSecondary && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); if (selectedFileSecondary) { setSelectedFileSecondary(null); } else { setRemoveSecondaryImage(true); } setPreviewImgSecondary(null); }}
+                                    title="Eliminar secundaria"
+                                    style={{
+                                        position: 'absolute', top: '-8px', right: '-8px', background: '#000', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, zIndex: 10
+                                    }}
+                                >
+                                    <X size={12} />
+                                </button>
+                            )}
+                        </div>
+
+                        <input type="file" id="fotoProductoSecundario" hidden accept="image/*" onChange={handleFileSelectSecondary} />
+                        <input type="file" id="cameraSecondary" hidden accept="image/*" capture="environment" onChange={handleFileSelectSecondary} />
+                    </div>
 
                     {/* BOTÓN DISPARADOR PARA AGREGAR MÁS FOTOS GALERÍA */}
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
