@@ -85,7 +85,7 @@ const VistaDetallePropiedad = () => {
   };
 
   const handleRevocar = async (clientId) => {
-    if (!window.confirm("¿Seguro que deseas revocar el acceso a este usuario?")) return;
+    if (!window.confirm("¿Estás seguro que deseas Desheredar esta propiedad? El usuario ya no podrá verla ni levantar reportes.")) return;
     try {
       const token = localStorage.getItem('agente_token');
       await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}/share/${clientId}`, {
@@ -373,7 +373,7 @@ const VistaDetallePropiedad = () => {
           <div className="action-header-right" style={{ display: 'flex', gap: '10px', flexDirection: window.innerWidth <= 768 ? 'column' : 'row' }}>
             {data && !data.is_shared_with_me && (
               <button className="btn-add-service-full" style={{ flex: 1, backgroundColor: '#007bff', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => setMostrarModalCompartir(true)}>
-                <User size={20} /> COMPARTIR
+                <User size={20} /> {usuariosCompartidos.length > 0 ? "COMPARTIENDO" : "COMPARTIR"}
               </button>
             )}
             <button className="btn-add-service-full" style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => setMostrarModalServicio(true)}>
@@ -442,32 +442,7 @@ const VistaDetallePropiedad = () => {
                 <FileText size={20} />
                 <span>Ver Cotizaciones Pendientes</span>
               </div>
-              <div className="quote-badge-large">{cotizaciones_pendientes || 0}</div>
-            </div>
           </div>
-
-          {/* LISTA DE USUARIOS COMPARTIDOS */}
-          {data && !data.is_shared_with_me && usuariosCompartidos.length > 0 && (
-            <div className="info-card-premium" style={{ marginTop: '20px' }}>
-              <div className="card-header-clean">
-                <User size={20} className="icon-orange" />
-                <h3>Compartida con:</h3>
-              </div>
-              <div style={{ padding: '15px' }}>
-                {usuariosCompartidos.map(u => (
-                  <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #eee' }}>
-                    <div>
-                      <p style={{ margin: 0, fontWeight: 'bold' }}>{u.name}</p>
-                      <small style={{ color: '#666' }}>{u.email}</small>
-                    </div>
-                    <button onClick={() => handleRevocar(u.id)} style={{ background: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem' }}>
-                      Revocar
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -708,28 +683,54 @@ const VistaDetallePropiedad = () => {
               <div className="modal-tag" style={{ background: '#007bff' }}>HERENCIA</div>
               <h2>Compartir Propiedad</h2>
             </div>
-            <form className="modal-body" onSubmit={handleCompartir}>
-              <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '15px' }}>
-                Ingresa el correo electrónico del cliente con el que deseas compartir esta propiedad.
-                (Ambos podrán ver el historial y levantar reportes).
-              </p>
-              <div className="form-group">
-                <label>Correo Electrónico *</label>
-                <input 
-                  type="email" 
-                  required 
-                  placeholder="ejemplo@correo.com"
-                  value={emailCompartir}
-                  onChange={(e) => setEmailCompartir(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}
-                />
+            {usuariosCompartidos.length > 0 ? (
+              <div className="modal-body">
+                <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '15px' }}>
+                  Esta propiedad está siendo compartida con el siguiente usuario:
+                </p>
+                <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '20px' }}>
+                  {usuariosCompartidos.map(u => (
+                    <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee' }}>
+                      <div>
+                        <p style={{ margin: 0, fontWeight: 'bold', color: '#333' }}>{u.name}</p>
+                        <small style={{ color: '#666' }}>{u.email}</small>
+                      </div>
+                      <button onClick={() => handleRevocar(u.id)} style={{ background: '#dc3545', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem' }}>
+                        Desheredar
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="modal-footer">
+                   <button className="btn-modal-close" onClick={() => setMostrarModalCompartir(false)} style={{ background: '#333' }}>
+                     Cerrar
+                   </button>
+                </div>
               </div>
-              <div className="modal-footer" style={{ marginTop: '20px' }}>
-                <button type="submit" className="btn-modal-close" style={{ background: '#007bff' }} disabled={loadingCompartir}>
-                  {loadingCompartir ? "Compartiendo..." : "Compartir Propiedad"}
-                </button>
-              </div>
-            </form>
+            ) : (
+              <form className="modal-body" onSubmit={handleCompartir}>
+                <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '15px' }}>
+                  Ingresa el correo electrónico del cliente con el que deseas compartir esta propiedad.
+                  (Ambos podrán ver el historial y levantar reportes).
+                </p>
+                <div className="form-group">
+                  <label>Correo Electrónico *</label>
+                  <input 
+                    type="email" 
+                    required 
+                    placeholder="ejemplo@correo.com"
+                    value={emailCompartir}
+                    onChange={(e) => setEmailCompartir(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}
+                  />
+                </div>
+                <div className="modal-footer" style={{ marginTop: '20px' }}>
+                  <button type="submit" className="btn-modal-close" style={{ background: '#007bff' }} disabled={loadingCompartir}>
+                    {loadingCompartir ? "Compartiendo..." : "Compartir Propiedad"}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
