@@ -413,6 +413,23 @@ const DetalleReporte = () => {
         setModalElementoVisible(true);
     };
 
+    const handleEliminarCategoria = async (idCategoria) => {
+        if (!idCategoria) return alert("Esta categoría no puede ser eliminada directamente.");
+        if (!window.confirm("¿Seguro que deseas eliminar esta categoría? Se eliminarán también todos los elementos dentro de ella.")) return;
+
+        try {
+            const token = localStorage.getItem('agente_token');
+            await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/property-categories/${idCategoria}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            alert("Categoría eliminada.");
+            await cargarReporte();
+        } catch (error) {
+            console.error("Error al eliminar categoría:", error);
+            alert("Hubo un error al eliminar la categoría.");
+        }
+    };
+
     const guardarCategoria = async () => {
         if (!nuevaCategoria) return alert("Ingresa el nombre de la categoría.");
         
@@ -1268,6 +1285,15 @@ const DetalleReporte = () => {
                                     <div key={`cat-${catIdx}`} style={{ marginBottom: '30px' }}>
                                         <h4 className="coti-section-title" style={{ width: '100%', borderBottom: '2px solid #ddd', paddingBottom: '10px', color: '#f26624', display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <span style={{ background: '#f26624', color: 'white', padding: '4px 10px', borderRadius: '6px', fontSize: '0.9rem' }}>{cat.nombre}</span>
+                                            {cat.id && (
+                                                <button 
+                                                    onClick={() => handleEliminarCategoria(cat.id)}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#e63946', padding: '0', display: 'flex', alignItems: 'center' }}
+                                                    title="Eliminar Categoría"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            )}
                                         </h4>
                                         <div className="table-responsive">
                                             <table className="tabla-inventario">
