@@ -61,6 +61,7 @@ import TableroScrum from "./components/VistaCliente/TableroScrum";
 import DetallePropiedad from "./components/VistaCliente/DetallePropiedad";
 import ReporteTrabajo from "./components/VistaCliente/ReporteTrabajo";
 import DetallePropiedadadmin from "./components/admin/DetallePropiedad";
+import VistaDetallePropiedadCliente from "./components/VistaCliente/VistaDetallePropiedad";
 
 import RegisteRoot from "./components/Register"; 
 import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
@@ -176,10 +177,10 @@ useEffect(() => {
         <Route path="/Pago" element={<MainLayoutCliente><Pago /></MainLayoutCliente>} />
         <Route path="/SOSView" element={<MainLayoutCliente><SOSView /></MainLayoutCliente>} />
         <Route path="/propiedad/:id/tablero" element={<MainLayoutCliente><TableroScrum /></MainLayoutCliente>} />
-        <Route path="/DetallePropiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedad /></MainLayoutCliente>} />
+        <Route path="/DetallePropiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
         <Route path="/ReporteTrabajo" element={<MainLayoutCliente><ReporteTrabajo /></MainLayoutCliente>} />
-        <Route path="/VistaDetallePropiedad" element={<MainLayoutCliente><VistaDetallePropiedad /></MainLayoutCliente>} />
-        <Route path="/propiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedad /></MainLayoutCliente>} />
+        <Route path="/VistaDetallePropiedad" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
+        <Route path="/propiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
 
 
       <Route path="/registro" element={<RegisteRoot />} />
