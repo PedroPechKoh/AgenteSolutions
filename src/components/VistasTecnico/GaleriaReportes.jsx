@@ -45,27 +45,27 @@ const GaleriaReportes = () => {
         {/* INFO SECTION (Compacta) */}
         <div style={{ 
           width: '100%', 
-          maxWidth: '900px', 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+          maxWidth: '1200px', 
+          display: 'flex', 
+          flexWrap: 'wrap',
           gap: '10px', 
           marginTop: '15px'
         }}>
-          <div className="id-property-tag" style={{ padding: '8px 15px' }}>
+          <div className="id-property-tag" style={{ flex: 1, minWidth: '200px', padding: '8px 15px' }}>
             <span>ID TRABAJO:</span>
             <strong>{trabajoId || 'N/A'}</strong>
           </div>
-          <div className="id-property-tag" style={{ padding: '8px 15px' }}>
+          <div className="id-property-tag" style={{ flex: 1, minWidth: '200px', padding: '8px 15px' }}>
             <span>CLIENTE:</span>
             <strong>{servicio?.propietario || 'Usuario'}</strong>
           </div>
           
-          <div className="id-property-tag" style={{ padding: '8px 15px' }}>
+          <div className="id-property-tag" style={{ flex: 1, minWidth: '200px', padding: '8px 15px' }}>
             <span>PROPIEDAD:</span>
             <strong>{servicio?.tipoPropiedad || 'N/A'} - {servicio?.identificador_curp || 'S/N'}</strong>
           </div>
 
-          <div className="id-property-tag" style={{ background: '#f0f0f0', padding: '8px 15px' }}>
+          <div className="id-property-tag" style={{ flex: 1, minWidth: '200px', background: '#f0f0f0', padding: '8px 15px' }}>
             <span>TRABAJO:</span>
             <strong style={{ fontSize: '12px', textAlign: 'center' }}>{servicio?.titulo || 'Mantenimiento'}</strong>
           </div>
