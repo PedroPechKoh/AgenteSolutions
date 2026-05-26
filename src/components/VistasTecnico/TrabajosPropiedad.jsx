@@ -108,14 +108,33 @@ const TrabajoPropiedad = () => {
   };
 
   const handleFinalizar = async () => {
+    const confirmacion = window.confirm(`¿Estás seguro que deseas finalizar este reporte en la propiedad ${data?.propiedad_nombre}?`);
+    if (!confirmacion) return;
+
     try {
       const realId = id.includes('-') ? id.split('-')[1] : id;
+      
+      // Cambiar estado a Listo
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${realId}/status`, {
         status: 'Listo'
       });
+
+      // Enviar notificación al Admin
+      try {
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/notifications/send-to-admin`, {
+          title: "Trabajo Finalizado",
+          message: `El Técnico ${user?.name || ''} finalizó el trabajo en la propiedad ${data?.propiedad_nombre || ''}.`,
+          type: "work_order_finished",
+          work_order_id: realId
+        });
+      } catch (notifError) {
+        console.warn("No se pudo enviar la notificación o el backend ya se encarga de esto:", notifError);
+      }
+
       setShowModalFinalizar(true);
     } catch (error) {
       console.error("Error finalizing job:", error);
+      alert("Hubo un error al finalizar el trabajo. Por favor intenta de nuevo.");
     }
   };
 
