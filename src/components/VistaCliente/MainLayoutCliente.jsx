@@ -46,7 +46,10 @@ const MainLayoutCliente = ({ children }) => {
   
   // Priorizar el ID de la URL si estamos en un detalle y limpiar el prefijo 'prop_' si existe
   const cleanId = (id) => id ? id.toString().replace('prop_', '') : null;
-  const effectivePropertyId = cleanId(urlPropertyId) || cleanId(currentPropertyId);
+  
+  // Si estamos en la ruta de detalle-reporte, el ID de la URL es del reporte, no de la propiedad
+  const isReportRoute = location.pathname.includes('/detalle-reporte');
+  const effectivePropertyId = isReportRoute ? cleanId(currentPropertyId) : (cleanId(urlPropertyId) || cleanId(currentPropertyId));
 
   // Rutas dinámicas basadas en el contexto sincronizado
   const detailPath = currentLevantamientoId ? `/detalle-reporte/${currentLevantamientoId}` : (effectivePropertyId ? `/detalle-reporte/prop_${effectivePropertyId}` : '/propiedades');
