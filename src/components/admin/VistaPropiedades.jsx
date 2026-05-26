@@ -311,8 +311,19 @@ const VistaPropiedades = () => {
             </div>
           ) : propiedadesFiltradas.length > 0 ? (
             propiedadesFiltradas.map((p) => (
-              <div key={p.id} className="property-card">
+              <div key={p.id} className="property-card" style={{ position: 'relative' }}>
                 
+                {p.is_shared_with_me && (
+                  <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(242, 101, 34, 0.9)', color: 'white', padding: '5px 10px', borderRadius: '5px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    🤝 COMPARTIDA CONTIGO
+                  </div>
+                )}
+                {p.is_shared_by_me && !p.is_shared_with_me && (
+                  <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(76, 175, 80, 0.9)', color: 'white', padding: '5px 10px', borderRadius: '5px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    🔗 COMPARTIENDO
+                  </div>
+                )}
+
                 {/* 👇 AQUÍ ESTÁ LA MAGIA LIMPIA 👇 */}
                 <img 
                   src={p.foto_url || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
@@ -331,13 +342,15 @@ const VistaPropiedades = () => {
                       </button>
                       
                       {/* La papelera si la dejamos solo para Admin por seguridad, o tú me dices */}
-                      <button 
-                        className="btn-icon-overlay" 
-                        title="Eliminar"
-                        onClick={(e) => { e.stopPropagation(); eliminarPropiedad(p); }}
-                      >
-                        🗑️
-                      </button>
+                      {!p.is_shared_with_me && (
+                        <button 
+                          className="btn-icon-overlay" 
+                          title="Eliminar"
+                          onClick={(e) => { e.stopPropagation(); eliminarPropiedad(p); }}
+                        >
+                          🗑️
+                        </button>
+                      )}
                     </div>
 
                     <h3 className="property-title-overlay">
