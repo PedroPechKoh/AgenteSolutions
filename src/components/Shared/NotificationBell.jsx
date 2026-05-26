@@ -5,6 +5,25 @@ import { Bell, Check, Info } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import "../../styles/NotificationBell.css";
 
+const timeAgo = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+  
+  let interval = Math.floor(seconds / 31536000);
+  if (interval >= 1) return `hace ${interval} año${interval === 1 ? '' : 's'}`;
+  interval = Math.floor(seconds / 2592000);
+  if (interval >= 1) return `hace ${interval} mes${interval === 1 ? '' : 'es'}`;
+  interval = Math.floor(seconds / 86400);
+  if (interval >= 1) return `hace ${interval} día${interval === 1 ? '' : 's'}`;
+  interval = Math.floor(seconds / 3600);
+  if (interval >= 1) return `hace ${interval} hora${interval === 1 ? '' : 's'}`;
+  interval = Math.floor(seconds / 60);
+  if (interval >= 1) return `hace ${interval} min${interval === 1 ? '' : 's'}`;
+  return "hace unos segundos";
+};
+
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -67,7 +86,9 @@ const NotificationBell = () => {
           const qId = notification.data.quote_id;
           url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
         }
-      } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned' || type === 'work_order_assigned' || type === 'work_order_rescheduled') {
+      } else if (type === 'new_service_requested' || type === 'service_assigned') {
+        url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
+      } else if (type === 'new_work_order' || type === 'work_order_assigned' || type === 'work_order_rescheduled') {
         url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
       } else if (type === 'work_order_cancelled_client') { const propId = notification.data.property_id; url = propId ? `/propiedad/${propId}/tablero` : '/propiedades'; } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
         url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
@@ -168,6 +189,11 @@ const NotificationBell = () => {
                     <p className="notification-item-message">
                       {notif.data.message}
                     </p>
+                    {notif.created_at && (
+                      <span style={{ fontSize: '11px', color: '#888', marginTop: '5px', display: 'block' }}>
+                        {timeAgo(notif.created_at)}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))
