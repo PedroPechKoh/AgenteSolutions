@@ -679,27 +679,27 @@ const VistaDetallePropiedad = () => {
           ========================================== */}
       {mostrarModalCompartir && (
         <div className="modal-overlay" onClick={() => setMostrarModalCompartir(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
-            <button className="close-modal" onClick={() => setMostrarModalCompartir(false)}><X /></button>
-            <div className="modal-header">
-              <div className="modal-tag" style={{ background: '#007bff' }}>HERENCIA</div>
-              <h2>Compartir Propiedad</h2>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px', padding: '25px', borderRadius: '15px' }}>
+            <button className="close-modal" onClick={() => setMostrarModalCompartir(false)} style={{ top: '15px', right: '15px' }}><X size={20} color="#666" /></button>
+            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '15px', marginBottom: '20px' }}>
+              <div style={{ border: '1px solid #F26522', color: '#F26522', borderRadius: '20px', padding: '4px 12px', fontSize: '0.75rem', fontWeight: 'bold' }}>HERENCIA</div>
+              <h2 style={{ margin: 0, color: '#333', fontSize: '1.2rem' }}>Compartir Propiedad</h2>
             </div>
             {usuariosCompartidos.length > 0 ? (
               <div className="modal-body">
-                <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '15px' }}>
+                <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '15px', textAlign: 'center' }}>
                   Esta propiedad está siendo compartida con el siguiente usuario:
                 </p>
                 <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '20px' }}>
                   {usuariosCompartidos.map(u => {
                     const initials = u.name ? u.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
                     return (
-                      <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 10px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee', marginBottom: '8px', gap: '10px' }}>
+                      <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 10px', background: '#fff9f0', borderRadius: '8px', borderLeft: '4px solid #F26522', marginBottom: '8px', gap: '10px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
                           {u.profile_picture ? (
                             <img src={u.profile_picture} alt={u.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                           ) : (
-                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f26624', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem', flexShrink: 0 }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#F26522', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem', flexShrink: 0 }}>
                               {initials}
                             </div>
                           )}
@@ -708,39 +708,39 @@ const VistaDetallePropiedad = () => {
                             <small style={{ color: '#666', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.email}</small>
                           </div>
                         </div>
-                        <button onClick={() => handleRevocar(u.id)} style={{ background: '#dc3545', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem', flexShrink: 0 }}>
+                        <button onClick={() => handleRevocar(u.id)} style={{ background: 'transparent', color: '#dc3545', border: '1px solid #dc3545', padding: '6px 10px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.75rem', flexShrink: 0 }}>
                           Desheredar
                         </button>
                       </div>
                     );
                   })}
                 </div>
-                <div className="modal-footer">
-                   <button className="btn-modal-close" onClick={() => setMostrarModalCompartir(false)} style={{ background: '#333' }}>
-                     Cerrar
+                <div className="modal-footer" style={{ marginTop: '20px' }}>
+                   <button onClick={() => setMostrarModalCompartir(false)} style={{ background: '#333', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
+                     CERRAR
                    </button>
                 </div>
               </div>
             ) : (
               <form className="modal-body" onSubmit={handleCompartir}>
-                <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '15px' }}>
-                  Ingresa el correo electrónico del cliente con el que deseas compartir esta propiedad.
-                  (Ambos podrán ver el historial y levantar reportes).
+                <p style={{ color: '#444', fontSize: '0.9rem', marginBottom: '15px', textAlign: 'center', lineHeight: 1.5 }}>
+                  Ingresa el correo electrónico del cliente con el que deseas compartir esta propiedad.<br/>
+                  <small style={{ color: '#888' }}>(Ambos podrán ver el historial y levantar reportes).</small>
                 </p>
-                <div className="form-group">
-                  <label>Correo Electrónico *</label>
+                <div className="form-group" style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', color: '#333', fontWeight: 'bold', fontSize: '0.85rem' }}>CORREO ELECTRÓNICO *</label>
                   <input 
                     type="email" 
                     required 
                     placeholder="ejemplo@correo.com"
                     value={emailCompartir}
                     onChange={(e) => setEmailCompartir(e.target.value)}
-                    style={{ width: '100%', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', background: '#f9f9f9' }}
                   />
                 </div>
-                <div className="modal-footer" style={{ marginTop: '20px' }}>
-                  <button type="submit" className="btn-modal-close" style={{ background: '#007bff' }} disabled={loadingCompartir}>
-                    {loadingCompartir ? "Compartiendo..." : "Compartir Propiedad"}
+                <div className="modal-footer">
+                  <button type="submit" disabled={loadingCompartir} style={{ background: '#F26522', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
+                    {loadingCompartir ? "COMPARTIENDO..." : "COMPARTIR PROPIEDAD"}
                   </button>
                 </div>
               </form>
