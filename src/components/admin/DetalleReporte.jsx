@@ -269,8 +269,15 @@ const DetalleReporte = () => {
                 // Intento fallback buscando directamente
                 actualizado = datosBD.secciones.find(s => s.id === selectedSubseccion.id || s.nombre === selectedSubseccion.nombre);
             }
-            if (actualizado && JSON.stringify(actualizado.categorias) !== JSON.stringify(selectedSubseccion.categorias)) {
-                setSelectedSubseccion(actualizado);
+            if (actualizado) {
+                const categoriasActualizadas = actualizado.subSecciones || actualizado.categorias || [];
+                if (JSON.stringify(categoriasActualizadas) !== JSON.stringify(selectedSubseccion.categorias)) {
+                    setSelectedSubseccion({
+                        ...actualizado,
+                        nombre: actualizado.titulo || actualizado.nombre,
+                        categorias: categoriasActualizadas
+                    });
+                }
             }
         }
     }, [datosBD]);
