@@ -248,6 +248,33 @@ const DetalleReporte = () => {
         cargarReporte();
     }, [id]);
 
+    useEffect(() => {
+        // Mantener seleccionada la subsección si los datos se recargan
+        if (selectedSubseccion && datosBD?.secciones) {
+            let actualizado = null;
+            for (const sec of datosBD.secciones) {
+                // Si la sección misma es la seleccionada
+                if (sec.id === selectedSubseccion.id) {
+                    actualizado = sec;
+                    break;
+                }
+                // Buscar si la seleccionada es un hijo/cuarto de esta sección
+                if (sec.parent_id === null) {
+                    const hijos = datosBD.secciones.filter(h => h.parent_id === sec.id);
+                    actualizado = hijos.find(h => h.id === selectedSubseccion.id || h.nombre === selectedSubseccion.nombre);
+                    if (actualizado) break;
+                }
+            }
+            if (!actualizado) {
+                // Intento fallback buscando directamente
+                actualizado = datosBD.secciones.find(s => s.id === selectedSubseccion.id || s.nombre === selectedSubseccion.nombre);
+            }
+            if (actualizado && JSON.stringify(actualizado.categorias) !== JSON.stringify(selectedSubseccion.categorias)) {
+                setSelectedSubseccion(actualizado);
+            }
+        }
+    }, [datosBD]);
+
     // --- FUNCIONES PARA EDITAR/ELIMINAR ZONAS ---
     const obtenerIdZona = async (nombreZona) => {
         try {
