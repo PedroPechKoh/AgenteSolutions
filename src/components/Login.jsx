@@ -190,8 +190,8 @@ const handleLogin = async (e) => {
         <div className="input-group">
           <Mail size={22} strokeWidth={2.5} className="input-icon" />
           <input
-            type="email"
-            placeholder="USUARIO"
+            type="text"
+            placeholder="CORREO O CELULAR"
             className="custom-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
