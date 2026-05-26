@@ -691,17 +691,29 @@ const VistaDetallePropiedad = () => {
                   Esta propiedad está siendo compartida con el siguiente usuario:
                 </p>
                 <div style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '20px' }}>
-                  {usuariosCompartidos.map(u => (
-                    <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee' }}>
-                      <div>
-                        <p style={{ margin: 0, fontWeight: 'bold', color: '#333' }}>{u.name}</p>
-                        <small style={{ color: '#666' }}>{u.email}</small>
+                  {usuariosCompartidos.map(u => {
+                    const initials = u.name ? u.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?';
+                    return (
+                      <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 10px', background: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee', marginBottom: '8px', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                          {u.profile_picture ? (
+                            <img src={u.profile_picture} alt={u.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                          ) : (
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f26624', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.9rem', flexShrink: 0 }}>
+                              {initials}
+                            </div>
+                          )}
+                          <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                            <p style={{ margin: 0, fontWeight: 'bold', color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</p>
+                            <small style={{ color: '#666', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.email}</small>
+                          </div>
+                        </div>
+                        <button onClick={() => handleRevocar(u.id)} style={{ background: '#dc3545', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem', flexShrink: 0 }}>
+                          Desheredar
+                        </button>
                       </div>
-                      <button onClick={() => handleRevocar(u.id)} style={{ background: '#dc3545', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.8rem' }}>
-                        Desheredar
-                      </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 <div className="modal-footer">
                    <button className="btn-modal-close" onClick={() => setMostrarModalCompartir(false)} style={{ background: '#333' }}>
