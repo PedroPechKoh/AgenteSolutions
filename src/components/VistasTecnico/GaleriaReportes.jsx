@@ -82,7 +82,7 @@ const GaleriaReportes = () => {
           marginBottom: '15px' 
         }}>
           <button 
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(`/trabajo-propiedad/${trabajoId}`, { state: { servicio, trabajoId } })}
             style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
           >
             <ChevronLeft size={20} />
