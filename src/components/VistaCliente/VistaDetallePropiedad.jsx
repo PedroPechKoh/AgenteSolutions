@@ -456,9 +456,9 @@ const VistaDetallePropiedad = () => {
           <div className="modal-content" onClick={e => e.stopPropagation()} style={{ width: '800px', maxWidth: '95vw' }}>
             <button className="close-modal" onClick={() => setReporteSeleccionado(null)}><X /></button>
             <div className="modal-header" style={{ borderBottom: '2px solid #f26624', paddingBottom: '15px' }}>
-              <div className="modal-tag" style={{ background: '#f26624' }}>BITÁCORA DE TRABAJO</div>
-              <h2>{reporteSeleccionado.producto}</h2>
-              <p className="modal-subtitle">
+              <div className="modal-tag" style={{ background: '#f26624', color: 'white' }}>BITÁCORA DE TRABAJO</div>
+              <h2 style={{ color: '#333' }}>{reporteSeleccionado.producto}</h2>
+              <p className="modal-subtitle" style={{ color: '#666' }}>
                 Finalizado el {reporteSeleccionado.fecha} | Técnico: {reporteSeleccionado.tecnico}
               </p>
             </div>
@@ -511,8 +511,10 @@ const VistaDetallePropiedad = () => {
                   ))}
                 </div>
               ) : (
-                <div style={{ padding: '30px', textAlign: 'center', background: '#eee', borderRadius: '15px' }}>
-                  <p style={{ margin: 0, color: '#666', fontStyle: 'italic' }}>No hay detalles específicos registrados para este trabajo.</p>
+                <div style={{ textAlign: 'center', padding: '40px', background: '#f5f5f5', borderRadius: '15px' }}>
+                  <p style={{ fontStyle: 'italic', color: '#555' }}>
+                    No hay detalles específicos registrados para este trabajo.
+                  </p>
                 </div>
               )}
             </div>
