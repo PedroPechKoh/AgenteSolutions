@@ -442,6 +442,8 @@ const VistaDetallePropiedad = () => {
                 <FileText size={20} />
                 <span>Ver Cotizaciones Pendientes</span>
               </div>
+              <div className="quote-badge-large">{cotizaciones_pendientes || 0}</div>
+            </div>
           </div>
         </div>
       </div>
