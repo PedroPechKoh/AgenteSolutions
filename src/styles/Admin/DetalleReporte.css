@@ -1253,6 +1253,133 @@
   .btn-primario, .btn-secundario { width: 100%; text-align: center; justify-content: center; }
 }
 
+@media (max-width: 640px) {
+  /* =============================================
+     TABLA DE COTIZACIÓN: LAYOUT TARJETA EN MÓVIL
+     Descripción arriba (ancho completo)
+     CANT. | PRECIO | SUBTOTAL | 🗑️ abajo en fila
+     ============================================= */
+
+  /* Ocultar cabeceras de tabla */
+  .coti-table thead {
+    display: none;
+  }
+
+  /* Cada fila se convierte en una tarjeta */
+  .coti-table tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  /* Quitar bordes individuales de celdas */
+  .coti-table td {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    max-width: none !important;
+    white-space: normal !important;
+  }
+
+  /* ── Fila 1: DESCRIPCIÓN ocupa 100% ── */
+  .coti-table td:nth-child(1) {
+    width: 100% !important;
+    flex: 0 0 100%;
+    overflow: visible !important;
+  }
+
+  .coti-table td:nth-child(1) input {
+    width: 100% !important;
+    font-size: 0.95rem !important;
+    padding: 10px 12px !important;
+    border-radius: 8px !important;
+    border: 2px solid #94a3b8 !important;
+  }
+
+  /* ── Fila 2: CANT. | PRECIO | SUBTOTAL comparten la fila ── */
+  .coti-table td:nth-child(2),
+  .coti-table td:nth-child(3) {
+    flex: 1;
+    min-width: 60px;
+  }
+
+  .coti-table td:nth-child(2) input,
+  .coti-table td:nth-child(3) input {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 8px 6px !important;
+    border-radius: 7px !important;
+    border: 2px solid #94a3b8 !important;
+  }
+
+  /* Label sobre cada campo pequeño (usando atributo data) */
+  .coti-table td:nth-child(2)::before {
+    content: 'CANT.';
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  .coti-table td:nth-child(3)::before {
+    content: 'PRECIO U.';
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  /* SUBTOTAL */
+  .coti-table td:nth-child(4) {
+    flex: 1;
+    min-width: 50px;
+    text-align: center !important;
+    width: auto !important;
+  }
+
+  .coti-table td:nth-child(4)::before {
+    content: 'SUBTOTAL';
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+
+  /* Botón eliminar: al final, alineado al centro */
+  .coti-table td:nth-child(5),
+  .coti-table td:last-child {
+    flex: 0 0 auto;
+    width: auto !important;
+    min-width: auto !important;
+    max-width: none !important;
+    align-self: flex-end;
+    padding: 0 !important;
+  }
+
+  /* Botón eliminar más accesible en móvil */
+  .coti-table .btn-delete {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+}
+
 @media (max-width: 480px) {
   .rep-main-content { padding: 5px; }
   .main-banner { height: 150px; }
@@ -1260,4 +1387,6 @@
   .seccion-header { padding-left: 10px; margin-bottom: 15px; }
   .cot-modal-card, .cot-modal-card.wide { width: 100%; border-radius: 0; max-width: none; }
 }
+
+
 
