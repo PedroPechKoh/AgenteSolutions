@@ -333,98 +333,98 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
 
               {tab === 'manual' ? (
                 <div className="manual-form">
-                  <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px', marginBottom: '15px' }}>1. CONCEPTOS DE SERVICIO</h4>
+                  <h4 style={{ color: '#f26624', borderBottom: '1px solid #f26624', paddingBottom: '5px', marginBottom: '15px', fontWeight: '800' }}>1. CONCEPTOS DE SERVICIO</h4>
                   {filasConceptos.map(f => (
                     <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
                       <div style={{ width: '100%', marginBottom: '10px' }}>
-                         <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Descripción del Servicio</label>
+                         <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Descripción del Servicio</label>
                          <input 
                            placeholder="Ej. Cambio de carbones a máquina..." 
-                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', color: '#333' }}
+                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', background: '#fff', color: '#0f172a', fontWeight: '600' }}
                            value={f.desc}
                            onChange={(e) => updateFila(setFilasConceptos, f.id, 'desc', e.target.value)}
                          />
                       </div>
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
                          <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Cant.</label>
+                            <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Cant.</label>
                             <input 
                               type="number" 
-                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center', background: '#fff', color: '#333' }}
+                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'center', background: '#fff', color: '#0f172a', fontWeight: '600' }}
                               value={f.cant}
                               onChange={(e) => updateFila(setFilasConceptos, f.id, 'cant', e.target.value)}
                             />
                          </div>
                          <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Precio U. ($)</label>
+                            <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Precio U. ($)</label>
                             <input 
                               type="number" 
-                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'right', background: '#fff', color: '#333' }}
+                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'right', background: '#fff', color: '#0f172a', fontWeight: '600' }}
                               value={f.precio}
                               onChange={(e) => updateFila(setFilasConceptos, f.id, 'precio', e.target.value)}
                             />
                          </div>
-                         <button onClick={() => removeFila(setFilasConceptos, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '39px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
+                         <button onClick={() => removeFila(setFilasConceptos, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '42px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
                       </div>
                     </div>
                   ))}
-                  <button onClick={() => addFila(setFilasConceptos)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666' }}>
+                  <button onClick={() => addFila(setFilasConceptos)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666', fontWeight: 'bold' }}>
                     <Plus size={16} /> AGREGAR CONCEPTO
                   </button>
 
-                  <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px', marginBottom: '15px' }}>2. MATERIALES</h4>
+                  <h4 style={{ color: '#f26624', borderBottom: '1px solid #f26624', paddingBottom: '5px', marginBottom: '15px', fontWeight: '800' }}>2. MATERIALES</h4>
                   {filasMateriales.map(f => (
                     <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
                       <div style={{ width: '100%', marginBottom: '10px' }}>
-                         <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Nombre del Material</label>
+                         <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Nombre del Material</label>
                          <input 
                            placeholder="Ej. Carbones..." 
-                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff', color: '#333' }}
+                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', background: '#fff', color: '#0f172a', fontWeight: '600' }}
                            value={f.desc}
                            onChange={(e) => updateFila(setFilasMateriales, f.id, 'desc', e.target.value)}
                          />
                       </div>
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
                          <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Cant.</label>
+                            <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Cant.</label>
                             <input 
                               type="number" 
-                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'center', background: '#fff', color: '#333' }}
+                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'center', background: '#fff', color: '#0f172a', fontWeight: '600' }}
                               value={f.cant}
                               onChange={(e) => updateFila(setFilasMateriales, f.id, 'cant', e.target.value)}
                             />
                          </div>
                          <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', display: 'block', marginBottom: '5px' }}>Costo U. ($)</label>
+                            <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Costo U. ($)</label>
                             <input 
                               type="number" 
-                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', textAlign: 'right', background: '#fff', color: '#333' }}
+                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'right', background: '#fff', color: '#0f172a', fontWeight: '600' }}
                               value={f.precio}
                               onChange={(e) => updateFila(setFilasMateriales, f.id, 'precio', e.target.value)}
                             />
                          </div>
-                         <button onClick={() => removeFila(setFilasMateriales, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '39px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
+                         <button onClick={() => removeFila(setFilasMateriales, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '42px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
                       </div>
                     </div>
                   ))}
-                  <button onClick={() => addFila(setFilasMateriales)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666' }}>
+                  <button onClick={() => addFila(setFilasMateriales)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666', fontWeight: 'bold' }}>
                     <Plus size={16} /> AGREGAR MATERIAL
                   </button>
 
                   <textarea 
                     placeholder="Observaciones para el CLIENTE..."
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', minHeight: '80px', marginBottom: '15px', background: '#fff', color: '#333' }}
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #94a3b8', minHeight: '80px', marginBottom: '15px', background: '#fff', color: '#0f172a', fontWeight: '600' }}
                     value={observaciones}
                     onChange={(e) => setObservaciones(e.target.value)}
                   />
 
                   <div style={{ background: '#fff8e1', padding: '12px', borderRadius: '8px', border: '1px solid #ffe082' }}>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#f57c00', display: 'block', marginBottom: '5px' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#d97706', display: 'block', marginBottom: '5px' }}>
                       COMENTARIOS INTERNOS (Solo Admin/Técnico):
                     </label>
                     <textarea 
                       placeholder="Notas que el cliente NO verá..."
-                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ffcc80', minHeight: '80px', background: '#fffde7', color: '#333' }}
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #d97706', minHeight: '80px', background: '#fffde7', color: '#0f172a', fontWeight: '600' }}
                       value={observacionesInternas}
                       onChange={(e) => setObservacionesInternas(e.target.value)}
                     />
