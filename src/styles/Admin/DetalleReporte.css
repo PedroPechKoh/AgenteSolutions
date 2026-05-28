@@ -869,11 +869,12 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 6px;
+    table-layout: fixed;
 }
 
 .coti-table th {
     background: #f8fafc;
-    color: #64748b;
+    color: #1e293b;
     padding: 10px 12px;
     font-size: 0.72rem;
     font-weight: 800;
@@ -890,6 +891,19 @@
     border: 1px solid #e2e8f0;
     vertical-align: middle;
     background: #ffffff;
+    /* evitar que celdas se expandan fuera del contenedor */
+    max-width: 0;
+    overflow: hidden;
+}
+
+/* Celda del botón eliminar: ancho fijo y sin overflow */
+.coti-table td:last-child {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    padding: 6px;
+    text-align: center;
+    overflow: visible;
 }
 
 /* --- INPUTS DENTRO DE TABLA (MODO CLARO) --- */
