@@ -891,19 +891,53 @@
     border: 1px solid #e2e8f0;
     vertical-align: middle;
     background: #ffffff;
-    /* evitar que celdas se expandan fuera del contenedor */
-    max-width: 0;
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* Celda del botón eliminar: ancho fijo y sin overflow */
 .coti-table td:last-child {
-    width: 40px;
-    min-width: 40px;
-    max-width: 40px;
+    width: 42px;
+    min-width: 42px;
+    max-width: 42px;
     padding: 6px;
     text-align: center;
     overflow: visible;
+    white-space: nowrap;
+}
+
+/* Anchos proporcionales de columnas */
+.coti-table th:nth-child(1),
+.coti-table td:nth-child(1) {
+    width: 40%;
+    white-space: normal;
+    word-break: break-word;
+    overflow: visible;
+}
+
+.coti-table th:nth-child(2),
+.coti-table td:nth-child(2) {
+    width: 15%;
+    text-align: center;
+}
+
+.coti-table th:nth-child(3),
+.coti-table td:nth-child(3) {
+    width: 20%;
+    text-align: center;
+}
+
+.coti-table th:nth-child(4),
+.coti-table td:nth-child(4) {
+    width: 17%;
+    text-align: right;
+}
+
+.coti-table th:nth-child(5),
+.coti-table td:nth-child(5) {
+    width: 42px;
+    text-align: center;
 }
 
 /* --- INPUTS DENTRO DE TABLA (MODO CLARO) --- */
