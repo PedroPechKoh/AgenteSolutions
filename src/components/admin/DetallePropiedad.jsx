@@ -210,6 +210,7 @@ const DetallePropiedad = () => {
 
         const finalizados = allTrabajos.filter(t => t.estado === 'FINALIZADO').map(t => ({
           id: t.realId,
+          realId: t.realId,
           tipo_registro: t.tipo_registro,
           producto: t.producto,
           tecnico: t.tecnico,
@@ -475,8 +476,12 @@ const DetallePropiedad = () => {
 
     try {
       const token = localStorage.getItem('agente_token');
-      const prefix = item.tipo_registro === 'work_order' ? 'work_order-' : '';
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${prefix}${item.id}/reportes`, {
+      // Usar realId para evitar el doble prefijo (por ejemplo, "work_order-wo-15")
+      const paramId = item.tipo_registro === 'work_order' 
+        ? `work_order-${item.realId}` 
+        : `servicio-${item.realId}`;
+
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${paramId}/reportes`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = res.data || [];
@@ -886,7 +891,7 @@ const DetallePropiedad = () => {
                                   )}
                                 </div>
 
-                                {/* Botón Ver */}
+                                {/* Botón Ver Detalles */}
                                 <button 
                                   style={{
                                     background: '#f8fafc',
@@ -905,7 +910,7 @@ const DetallePropiedad = () => {
                                   onMouseEnter={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
                                   onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
                                 >
-                                  <Briefcase size={13} style={{ color: '#2e7d32' }} /> Ver Bitácora
+                                  <Eye size={13} style={{ color: '#f26624' }} /> Ver Detalles
                                 </button>
                               </div>
                             </div>
@@ -1024,9 +1029,9 @@ const DetallePropiedad = () => {
                         </div>
                       </div>
 
-                      {/* Botón Ver Bitácora */}
+                      {/* Botón Ver Detalles */}
                       <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f8fafc', color: '#334155', borderRadius: '12px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 'bold', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.2s ease' }}>
-                        <Briefcase size={16} style={{ color: '#f26624' }} /> Ver Bitácora de Servicio
+                        <Eye size={16} style={{ color: '#f26624' }} /> Ver Detalles de Servicio
                       </div>
                     </div>
                   </div>
@@ -1125,9 +1130,9 @@ const DetallePropiedad = () => {
           <div className="modal-card-ui report-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ width: '850px', maxWidth: '95vw' }}>
             <div className="modal-header-premium" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' }}>
               <div className="header-content">
-                <div className="icon-badge-white"><Briefcase size={22} /></div>
+                <div className="icon-badge-white"><Eye size={22} /></div>
                 <div>
-                  <h3 style={{ color: 'white' }}>Bitácora de Servicio</h3>
+                  <h3 style={{ color: 'white' }}>Detalles de Servicio</h3>
                   <span style={{ color: '#cbd5e1' }}>{trabajoSeleccionado.producto} • Finalizado el {trabajoSeleccionado.fecha}</span>
                 </div>
               </div>
@@ -1161,6 +1166,28 @@ const DetallePropiedad = () => {
                   <div className="item-details"><label>Propiedad</label><p>{datosPropiedad.nombre_propiedad}</p></div>
                 </div>
               </div>
+
+              {/* Sección de Evidencias Generales */}
+              {trabajoSeleccionado.evidencias && trabajoSeleccionado.evidencias.length > 0 && (
+                <div style={{ marginBottom: '30px' }}>
+                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', color: '#1e293b' }}>
+                    <ImageIcon size={20} /> EVIDENCIAS DEL TRABAJO
+                  </h4>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    {trabajoSeleccionado.evidencias.map((img, imgIdx) => (
+                      <img 
+                        key={imgIdx} 
+                        src={img} 
+                        alt={`Evidencia ${imgIdx + 1}`} 
+                        onClick={() => setImagenAmpliada(img)}
+                        style={{ width: '180px', height: '130px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer', border: '2px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', transition: 'all 0.2s ease' }} 
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#1e293b' }}>
                 <ImageIcon size={20} /> PASOS REALIZADOS EN EL TRABAJO
