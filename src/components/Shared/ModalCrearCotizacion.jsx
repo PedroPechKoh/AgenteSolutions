@@ -121,16 +121,25 @@ const ModalCrearCotizacion = ({
           initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 50 }}
           className="tp-modal-quotation-card"
         >
-          <button className="tp-close-modal-btn" onClick={onClose}><X size={24} /></button>
           <div className="tp-modal-q-header">
-            <h2>
-              {cotizacionExistente && isAdmin ? 'EDITAR COTIZACIÓN' : 
-               modoConsulta ? 'COTIZACIÓN REGISTRADA' : 'GENERAR COTIZACIÓN'}
-            </h2>
-            <p>
-              {cotizacionExistente && isAdmin ? 'Modifica los detalles de la cotización' : 
-               modoConsulta ? 'Consulta los detalles de la cotización actual' : 'Complete el formato para enviar la cotización al cliente'}
-            </p>
+            <div>
+              <h2>
+                {cotizacionExistente && isAdmin ? 'EDITAR COTIZACIÓN' : 
+                 modoConsulta ? 'COTIZACIÓN REGISTRADA' : 'GENERAR COTIZACIÓN'}
+              </h2>
+              <p>
+                {cotizacionExistente && isAdmin ? 'Modifica los detalles de la cotización' : 
+                 modoConsulta ? 'Consulta los detalles de la cotización actual' : 'Complete el formato para enviar la cotización al cliente'}
+              </p>
+            </div>
+            <button 
+              onClick={onClose} 
+              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#ffffff', width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, transition: 'background 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.background='rgba(255,255,255,0.25)'}
+              onMouseLeave={e => e.currentTarget.style.background='rgba(255,255,255,0.15)'}
+            >
+              <X size={18} />
+            </button>
           </div>
 
           {!modoConsulta && (
