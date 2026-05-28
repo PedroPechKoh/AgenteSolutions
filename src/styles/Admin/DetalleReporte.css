@@ -678,460 +678,536 @@
     border-radius: 5px;
     font-size: 20px;
 }
-/* --- MODAL DE COTIZACIÓN --- */
+/* =========================================
+   MODAL DE COTIZACIÓN - REDISEÑO PREMIUM
+   ========================================= */
+
+/* Overlay */
 .lev-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(10, 20, 40, 0.75);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(6px);
 }
 
+/* Card base */
 .cot-modal-card {
     background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
     overflow: hidden;
+    animation: modalSlideUp 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.cot-modal-header {
-    background: #1a1a1a;
-    padding: 18px 25px;
-    border-bottom: 1px solid #333;
+@keyframes modalSlideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
 }
 
-/* --- TABLAS DINÁMICAS --- */
-.coti-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-.coti-table th {
-    background: #ebeef0; /* Gris claro de cabecera */
-    color: #4a4a4a;
-    padding: 12px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    border: 1px solid #dee2e6;
-}
-
-.coti-table td {
-    padding: 10px;
-    border: 1px solid #dee2e6;
-    vertical-align: middle;
-}
-
-/* --- INPUTS DENTRO DE TABLAS --- */
-.coti-table input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-family: inherit;
-    transition: border 0.2s;
-}
-
-.coti-table input:focus {
-    outline: none;
-    border-color: #ff9800;
-}
-
-/* --- BOTONES DE ACCIÓN --- */
-.btn-add-row {
-    width: 100%;
-    padding: 12px;
-    background: transparent;
-    color: #ff9800; /* Color naranja institucional */
-    border: 2px dashed #ff9800;
-    font-weight: 700;
-    border-radius: 8px;
-    cursor: pointer;
-    margin: 15px 0 30px 0;
-    transition: all 0.3s;
-}
-
-.btn-add-row:hover {
-    background: #fff5e6;
-}
-
-.btn-delete {
-    background: #ffebee;
-    color: #c62828;
-    border: none;
-    padding: 8px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-/* --- SECCIÓN DE TOTAL --- */
-.total-box {
-    border: 1.5px solid #ff9800;
-    padding: 15px 25px;
-    border-radius: 10px;
-    display: inline-block;
-}
-
-.total-label {
-    color: #ff9800;
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-right: 10px;
-}
-
-.total-amount {
-    color: #ff9800;
-    font-size: 1.6rem;
-    font-weight: 800;
-}
-
-/* --- BOTONES INFERIORES --- */
-.btn-cancelar {
-    background: #232e3c; /* Azul oscuro/grisáceo */
-    color: white;
-    padding: 12px 30px;
-    border-radius: 30px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.btn-enviar {
-    background: #1a252f;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 6px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* --- TÍTULOS DE SECCIÓN --- */
-.coti-section-title {
-    color: #080808;
-    font-size: 0.95rem;
-    font-weight: 700;
-    border-bottom: 3px solid #ff9800; /* Línea naranja de tus fotos */
-    display: inline-block;
-    padding-bottom: 2px;
-    margin-bottom: 15px;
-}
-.coti-section-title h4{
-  color: #080808;
-}
-/* --- MODAL WIDE (Para las tablas dinámicas) --- */
+/* Card wide para las tablas dinámicas */
 .cot-modal-card.wide {
     width: 95%;
-    max-width: 1100px; /* Un poco más ancho para las tablas */
+    max-width: 1000px;
     background: #ffffff;
+}
+
+/* --- HEADER OSCURO --- */
+.cot-modal-header {
+    background: #1e293b;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: none;
+}
+
+.cot-modal-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.cot-modal-header p {
+    margin: 3px 0 0;
+    font-size: 0.78rem;
+    color: #94a3b8;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.header-icon {
+    font-size: 1.6rem;
+    background: #f26624;
+    padding: 10px;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    line-height: 1;
+}
+
+/* Botón cerrar */
+.cot-close-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #ffffff;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.cot-close-btn:hover {
+    background: rgba(255,255,255,0.22);
+}
+
+/* --- TABS SELECTOR --- */
+.cot-tabs-selector {
+    display: flex;
+    background: #f1f5f9;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.cot-tabs-selector button {
+    flex: 1;
+    padding: 13px 20px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: #64748b;
+    border-radius: 0;
+    transition: all 0.2s;
+}
+
+.cot-tabs-selector button:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.cot-tabs-selector button.active {
+    background: #ffffff;
+    color: #f26624;
+    border-bottom-color: #f26624;
+    box-shadow: none;
+}
+
+/* --- CUERPO DEL MODAL --- */
+.cot-modal-body {
+    padding: 24px;
+    min-height: 300px;
 }
 
 .cot-modal-body.dinamico {
-    padding: 25px;
-    max-height: 70vh; /* Scroll para que no se corte */
+    padding: 20px 24px;
+    max-height: 65vh;
     overflow-y: auto;
-    background: #f8f9fa; /* Fondo gris muy suave detrás de las secciones blancas */
+    background: #f8fafc;
 }
 
-/* --- SECCIONES BLANCAS DENTRO DEL MODAL --- */
+/* --- SECCIONES BLANCAS --- */
 .cot-section {
-    background: white;
+    background: #ffffff;
     padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-
-/* TÍTULO DE SECCIÓN CON LÍNEA NARANJA (idéntico a tu foto) */
-.coti-section-title {
-    color: #444;
-    font-size: 0.95rem;
-    font-weight: bold;
-    border-bottom: 3px solid #ff9800; /* Línea naranja gruesa */
-    display: inline-block;
-    padding-bottom: 2px;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-}
-
-/* --- TABLAS DINÁMICAS --- */
-.coti-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-/* CABECERAS GRISES (Idéntico a tu foto) */
-.coti-table th {
-    background: #ebeef0; 
-    color: #555;
-    padding: 12px 10px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    border: 1px solid #dee2e6;
-    text-align: center;
-}
-
-.coti-table td {
-    padding: 8px;
-    border: 1px solid #dee2e6;
-    vertical-align: middle;
-    text-align: center;
-}
-
-/* INPUTS DENTRO DE TABLA */
-.coti-table input {
-    width: 90%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.subtotal-cell {
-    font-weight: bold;
-    color: #333;
-}
-
-/* --- BOTONES NARANJAS CON BORDE PUNTEADO (Idéntico a tu foto) --- */
-.btn-add-row.orange-dashed {
-    width: 100%;
-    padding: 12px;
-    background: white;
-    color: #ff9800; /* Naranja institucional */
-    border: 2px dashed #ff9800; /* Borde punteado naranja */
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.btn-add-row.orange-dashed:hover {
-    background: #fff5e6;
-}
-
-/* Botones de eliminar (trash icon) */
-.btn-delete {
-    background: transparent;
-    border: none;
-    color: #d9534f; /* Rojo suave */
-    cursor: pointer;
-    font-size: 1.1rem;
-}
-
-/* --- DISEÑO GRID PARA HERRAMIENTAS --- */
-.cot-grid-tools {
-    display: flex;
-    gap: 20px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
 }
 
 .cot-section.half {
     flex: 1;
 }
 
-.coti-table.compact th,
-.coti-table.compact td {
-    padding: 8px;
-    font-size: 0.85rem;
+/* --- TÍTULO DE SECCIÓN --- */
+.coti-section-title {
+    color: #1e293b;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 0;
 }
 
-.btn-add-row.compact {
-    padding: 8px;
+.coti-section-title::after {
+    content: '';
+    flex: 0 0 32px;
+    height: 3px;
+    background: #f26624;
+    border-radius: 10px;
+}
+
+/* --- TABLA DINÁMICA --- */
+.coti-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 6px;
+}
+
+.coti-table th {
+    background: #f8fafc;
+    color: #64748b;
+    padding: 10px 12px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.coti-table th.txt-center { text-align: center; }
+
+.coti-table td {
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    vertical-align: middle;
+    background: #ffffff;
+}
+
+/* --- INPUTS DENTRO DE TABLA (MODO CLARO) --- */
+.coti-table input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1e293b;
+    background: #ffffff;
+    text-align: left;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.coti-table input[type="number"] {
+    text-align: center;
+}
+
+.coti-table input:focus {
+    outline: none;
+    border-color: #f26624;
+    box-shadow: 0 0 0 3px rgba(242, 102, 36, 0.1);
+}
+
+.subtotal-cell {
+    font-weight: 800;
+    color: #1e293b;
     font-size: 0.9rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* --- BOTÓN AGREGAR FILA --- */
+.btn-add-row {
+    width: 100%;
+    padding: 11px;
+    background: #f8fafc;
+    color: #64748b;
+    border: 1.5px dashed #cbd5e1;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 12px 0 4px;
+    transition: all 0.2s;
+}
+
+.btn-add-row:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+    color: #1e293b;
+}
+
+/* --- BOTÓN ELIMINAR FILA --- */
+.btn-delete {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-delete:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* --- HERRAMIENTAS GRID --- */
+.cot-grid-tools {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 0;
+}
+
+/* Tool row: input + botón X en línea */
+.tool-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.tool-row input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    color: #1e293b;
+    background: #ffffff;
+    transition: border-color 0.2s;
+}
+
+.tool-row input:focus {
+    outline: none;
+    border-color: #f26624;
+    box-shadow: 0 0 0 3px rgba(242,102,36,0.1);
+}
+
+.btn-delete-small {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-delete-small:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.btn-add-tool {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #1e293b;
+    color: #ffffff;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-top: 4px;
+}
+
+.btn-add-tool:hover {
+    background: #0f172a;
+    transform: scale(1.05);
 }
 
 /* --- OBSERVACIONES --- */
-.cot-section.observations textarea {
+.cot-section.observations textarea,
+.cot-section textarea {
     width: 100%;
-    height: 80px;
-    padding: 15px;
-    border: 1px solid #ddd;
+    height: 90px;
+    padding: 12px;
+    border: 1.5px solid #e2e8f0;
     border-radius: 8px;
-    background: #fdfdfd;
+    background: #ffffff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: #1e293b;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
 }
 
-/* --- FOOTER DEL MODAL DINÁMICO --- */
+.cot-section textarea:focus,
+.cot-section.observations textarea:focus {
+    outline: none;
+    border-color: #f26624;
+    box-shadow: 0 0 0 3px rgba(242,102,36,0.1);
+}
+
+/* --- FOOTER --- */
+.cot-modal-footer,
 .cot-modal-footer.dinamico {
-    padding: 20px 30px;
-    background: #f1f3f5;
+    padding: 16px 24px;
+    background: #f8fafc;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #e2e8f0;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
-/* CAJA DE TOTAL CON BORDE NARANJA (Idéntico a tu foto) */
-.total-box.orange-border {
-    border: 1.5px solid #ff9800;
-    padding: 12px 25px;
-    border-radius: 8px;
-    background: white;
+/* Caja de total */
+.total-box {
+    border: 2px solid #f26624;
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: #fff7ed;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
 }
 
 .total-label {
-    color: #ff9800;
-    font-weight: bold;
-    font-size: 1rem;
+    color: #64748b;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.total-amount {
-    color: #ff9800;
+.total-amount, strong {
+    color: #1e293b;
     font-size: 1.5rem;
-    font-weight: 800;
+    font-weight: 900;
 }
 
+.actions,
 .footer-actions {
     display: flex;
-    gap: 12px;
+    gap: 10px;
+    align-items: center;
 }
 
-/* Botón Cancelar Gris Oscuro/Redondeado */
+/* Botón cancelar */
+.btn-secundario {
+    background: #e2e8f0;
+    color: #475569;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 9px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secundario:hover,
+.btn-secundario.rounded:hover {
+    background: #cbd5e1;
+    color: #1e293b;
+}
+
 .btn-secundario.rounded {
-    background: #2c3e50;
-    color: white;
-    padding: 12px 25px;
-    border-radius: 25px;
+    background: #e2e8f0;
+    color: #475569;
+    padding: 11px 22px;
+    border-radius: 9px;
     border: none;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
 }
 
-/* Botón Enviar Naranja Sólido */
-.btn-primario.orange-solid {
-    background: #ff9800;
-    color: white;
-    padding: 12px 25px;
-    border-radius: 6px;
+/* Botón primario/guardar */
+.btn-primario {
+    background: #f26624;
+    color: #ffffff;
     border: none;
-    font-weight: bold;
+    padding: 11px 26px;
+    border-radius: 9px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(242,102,36,0.3);
+    transition: all 0.2s;
+}
+
+.btn-primario:hover,
+.btn-primario.orange-solid:hover {
+    background: #d5551d;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(242,102,36,0.4);
+}
+
+.btn-primario.orange-solid {
+    background: #f26624;
+    color: white;
+    padding: 11px 26px;
+    border-radius: 9px;
+    border: none;
+    font-weight: 800;
     cursor: pointer;
 }
+
 /* =========================================
-   MEDIA QUERIES (RESPONSIVO)
+   MEDIA QUERIES
    ========================================= */
 
 @media (max-width: 992px) {
-  .rep-container {
-    flex-direction: column;
-    height: auto;
-    overflow-y: auto;
-    width: 100%;
-  }
-
-  .rep-sidebar {
-    width: 100%;
-    height: auto;
-    padding: 20px;
-    position: relative;
-  }
-
-  .rep-main-content {
-    width: 100%;
-    padding: 10px; /* Reducido para aprovechar espacio */
-    margin: 0;
-    overflow-x: hidden;
-  }
-
-  .main-banner {
-    height: 200px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    width: 100%;
-  }
-
-  .main-banner img {
-    object-fit: cover;
-    object-position: center;
-  }
-
-  .banner-text {
-    padding: 15px;
-  }
-
-  .banner-text h1 {
-    font-size: 1.3rem;
-    text-align: center;
-  }
-
-  /* Bloques de sección más compactos */
-  .seccion-bloque {
-    padding: 15px 10px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-  }
-
-  .seccion-header h3 {
-    font-size: 1.1rem;
-  }
-
-  .subseccion-caja {
-    padding: 12px;
-    margin-bottom: 15px;
-  }
-
-  .sub-titulo h4 {
-    font-size: 0.95rem;
-  }
-
-  /* Tablas súper compactas */
-  .tabla-inventario {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border: 1px solid #eee;
-  }
-
-  .tabla-inventario th {
-    padding: 8px 10px;
-    font-size: 0.7rem;
-  }
-
-  .tabla-inventario td {
-    padding: 8px 10px;
-    font-size: 0.75rem;
-  }
-
-  .col-cant {
-    font-size: 0.9rem !important;
-  }
-
-  .nota-tecnica {
-    font-size: 0.75rem;
-    padding: 3px 10px;
-  }
-
-  .btn-regresar {
-    width: 100%;
-    margin-top: 15px;
-  }
+  .rep-container { flex-direction: column; height: auto; overflow-y: auto; width: 100%; }
+  .rep-sidebar { width: 100%; height: auto; padding: 20px; position: relative; }
+  .rep-main-content { width: 100%; padding: 10px; margin: 0; overflow-x: hidden; }
+  .main-banner { height: 200px; margin-bottom: 20px; border-radius: 8px; width: 100%; }
+  .main-banner img { object-fit: cover; object-position: center; }
+  .banner-text { padding: 15px; }
+  .banner-text h1 { font-size: 1.3rem; text-align: center; }
+  .seccion-bloque { padding: 15px 10px; margin-bottom: 15px; border-radius: 8px; }
+  .seccion-header h3 { font-size: 1.1rem; }
+  .subseccion-caja { padding: 12px; margin-bottom: 15px; }
+  .sub-titulo h4 { font-size: 0.95rem; }
+  .tabla-inventario { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #eee; }
+  .tabla-inventario th { padding: 8px 10px; font-size: 0.7rem; }
+  .tabla-inventario td { padding: 8px 10px; font-size: 0.75rem; }
+  .col-cant { font-size: 0.9rem !important; }
+  .nota-tecnica { font-size: 0.75rem; padding: 3px 10px; }
+  .btn-regresar { width: 100%; margin-top: 15px; }
+  .cot-modal-card.wide { width: 98%; }
+  .cot-grid-tools { flex-direction: column; }
+  .cot-modal-footer, .cot-modal-footer.dinamico { flex-direction: column; align-items: stretch; }
+  .actions, .footer-actions { flex-direction: column; }
+  .btn-primario, .btn-secundario { width: 100%; text-align: center; justify-content: center; }
 }
 
 @media (max-width: 480px) {
-  .rep-main-content {
-    padding: 5px; /* Mínimo padding para maximizar área de lectura */
-  }
-
-  .main-banner {
-    height: 150px;
-  }
-
-  .banner-text h1 {
-    font-size: 1.1rem;
-  }
-  
-  .seccion-header {
-    padding-left: 10px;
-    margin-bottom: 15px;
-  }
+  .rep-main-content { padding: 5px; }
+  .main-banner { height: 150px; }
+  .banner-text h1 { font-size: 1.1rem; }
+  .seccion-header { padding-left: 10px; margin-bottom: 15px; }
+  .cot-modal-card, .cot-modal-card.wide { width: 100%; border-radius: 0; max-width: none; }
 }
+
