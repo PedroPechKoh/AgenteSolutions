@@ -47,6 +47,8 @@ const DetallePropiedad = () => {
   });
 
   const [listaTecnicos, setListaTecnicos] = useState([]);
+  const [tabTablero, setTabTablero] = useState('activos'); // 'activos' | 'historial'
+  const [mesesAbiertos, setMesesAbiertos] = useState({});
   const [historialFinalizados, setHistorialFinalizados] = useState([]);
   const [reportesDetallados, setReportesDetallados] = useState([]);
   const [cargandoReportes, setCargandoReportes] = useState(false);
@@ -271,6 +273,60 @@ const DetallePropiedad = () => {
     const dia = String(hoy.getDate()).padStart(2, '0');
     return `${año}-${mes}-${dia}`;
   };
+
+  const agruparPorMesYAnio = (trabajos) => {
+    const grupos = {};
+    (trabajos || []).forEach(t => {
+      let date = null;
+      if (t.fecha && t.fecha !== "---") {
+        const parts = t.fecha.split('/');
+        if (parts.length === 3) {
+          date = new Date(parts[2], parts[1] - 1, parts[0]);
+        } else {
+          date = new Date(t.fecha);
+        }
+      }
+      
+      if (!date || isNaN(date.getTime())) {
+        date = new Date();
+      }
+      
+      const meses = [
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+      ];
+      const mesNombre = meses[date.getMonth()];
+      const anio = date.getFullYear();
+      const clave = `${mesNombre} ${anio}`;
+      
+      if (!grupos[clave]) {
+        grupos[clave] = {
+          mes: mesNombre,
+          anio: anio,
+          orden: date.getTime(),
+          items: []
+        };
+      }
+      grupos[clave].items.push(t);
+    });
+
+    return Object.values(grupos).sort((a, b) => b.orden - a.orden);
+  };
+
+  useEffect(() => {
+    if (historialFinalizados.length > 0) {
+      const grupos = agruparPorMesYAnio(historialFinalizados);
+      if (grupos.length > 0) {
+        const primeraClave = `${grupos[0].mes} ${grupos[0].anio}`;
+        setMesesAbiertos(prev => {
+          if (Object.keys(prev).length === 0) {
+            return { [primeraClave]: true };
+          }
+          return prev;
+        });
+      }
+    }
+  }, [historialFinalizados]);
 
   // --- FUNCIONES ---
   const abrirModalCotizar = (sos) => {
@@ -639,38 +695,229 @@ const DetallePropiedad = () => {
         </div>
 
         {/* Tablero Kanban */}
-        <section className="kanban-section-full">
-          <div className="section-title"><LayoutDashboard size={20}/> <h2>Tablero de Control de Servicios</h2></div>
-          <div className="kanban-container-ui">
-            {["ESPERANDO", "SOS", "PENDIENTE", "EN PROCESO", "FINALIZADO"].map((estado, idx) => (
-              <div key={idx} className={`k-column ${estado === 'SOS' ? 'sos-line' : estado === 'ESPERANDO' ? 'orange-line' : estado === 'PENDIENTE' ? 'yellow-line' : estado === 'EN PROCESO' ? 'blue-line' : 'green-line'}`}>
-                <div className={`k-header ${estado === 'SOS' ? 'red-text' : estado === 'ESPERANDO' ? 'orange-text' : ''}`}>
-                  {estado === 'SOS' ? 'SOS ACTIVO' : estado === 'ESPERANDO' ? 'POR AUTORIZAR' : estado === 'PENDIENTE' ? 'POR HACER' : estado} 
-                  <span>{colaTrabajos.filter(t=>t.estado === estado).length}</span>
-                </div>
-                <div className="k-body">
-                  {colaTrabajos.filter(t => t.estado === estado).map(t => (
-                    <div key={t.id} className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}>
-                      <h4>{t.producto}</h4>
-                      {t.descripcion && (
-                        <p style={{ fontSize: '0.85em', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>
-                          {t.descripcion.length > 60 
-                            ? t.descripcion.substring(0, 60) + '…' 
-                            : t.descripcion}
-                        </p>
-                      )}
-                      <div className="k-footer">
-                        <span className={estado === 'SOS' ? 'badge-sos' : estado === 'ESPERANDO' ? 'badge-status-waiting' : 'badge-prio alta'}>
-                          {t.tecnico || 'Sin Técnico'}
-                        </span>
-                        <span className={estado === 'SOS' ? 'date-text-red' : 'date-text'}><Clock size={12}/> {t.fecha}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+        <section className="kanban-section-full" style={{ background: '#f8fafc', padding: '25px', borderRadius: '20px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', marginBottom: '20px' }}>
+            <div className="section-title" style={{ margin: 0 }}><LayoutDashboard size={20}/> <h2>Tablero de Control de Servicios</h2></div>
+            
+            {/* Pestañas estilo píldora */}
+            <div style={{ display: 'flex', gap: '10px', background: '#f1f5f9', padding: '4px', borderRadius: '30px', border: '1px solid #cbd5e1' }}>
+              <button 
+                onClick={() => setTabTablero('activos')}
+                style={{
+                  padding: '8px 20px',
+                  borderRadius: '25px',
+                  border: 'none',
+                  background: tabTablero === 'activos' ? '#f26624' : 'transparent',
+                  color: tabTablero === 'activos' ? 'white' : '#475569',
+                  fontWeight: '800',
+                  fontSize: '0.88rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                ⚡ ACTIVOS ({colaTrabajos.filter(t => t.estado !== 'FINALIZADO').length})
+              </button>
+              <button 
+                onClick={() => setTabTablero('historial')}
+                style={{
+                  padding: '8px 20px',
+                  borderRadius: '25px',
+                  border: 'none',
+                  background: tabTablero === 'historial' ? '#2e7d32' : 'transparent',
+                  color: tabTablero === 'historial' ? 'white' : '#475569',
+                  fontWeight: '800',
+                  fontSize: '0.88rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                📋 HISTORIAL ({historialFinalizados.length})
+              </button>
+            </div>
           </div>
+
+          {tabTablero === 'activos' ? (
+            <div className="kanban-container-ui">
+              {["ESPERANDO", "SOS", "PENDIENTE", "EN PROCESO"].map((estado, idx) => (
+                <div key={idx} className={`k-column ${estado === 'SOS' ? 'sos-line' : estado === 'ESPERANDO' ? 'orange-line' : estado === 'PENDIENTE' ? 'yellow-line' : 'blue-line'}`}>
+                  <div className={`k-header ${estado === 'SOS' ? 'red-text' : estado === 'ESPERANDO' ? 'orange-text' : ''}`}>
+                    {estado === 'SOS' ? 'SOS ACTIVO' : estado === 'ESPERANDO' ? 'POR AUTORIZAR' : estado === 'PENDIENTE' ? 'POR HACER' : estado} 
+                    <span>{colaTrabajos.filter(t=>t.estado === estado).length}</span>
+                  </div>
+                  <div className="k-body">
+                    {colaTrabajos.filter(t => t.estado === estado).length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '30px 10px', color: '#94a3b8', fontSize: '0.85rem', fontStyle: 'italic' }}>
+                        Sin trabajos en este estado
+                      </div>
+                    ) : (
+                      colaTrabajos.filter(t => t.estado === estado).map(t => (
+                        <div key={t.id} className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}>
+                          <h4>{t.producto}</h4>
+                          {t.descripcion && (
+                            <p style={{ fontSize: '0.85em', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>
+                              {t.descripcion.length > 60 
+                                ? t.descripcion.substring(0, 60) + '…' 
+                                : t.descripcion}
+                            </p>
+                          )}
+                          <div className="k-footer">
+                            <span className={estado === 'SOS' ? 'badge-sos' : estado === 'ESPERANDO' ? 'badge-status-waiting' : 'badge-prio alta'}>
+                              {t.tecnico || 'Sin Técnico'}
+                            </span>
+                            <span className={estado === 'SOS' ? 'date-text-red' : 'date-text'}><Clock size={12}/> {t.fecha}</span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* VISTA DE HISTORIAL EN ACORDEONES POR MES Y AÑO */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', background: 'white', padding: '20px', borderRadius: '15px', border: '1px solid #cbd5e1' }}>
+              {historialFinalizados.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
+                  <CheckCircle size={40} style={{ color: '#cbd5e1', marginBottom: '10px' }} />
+                  <p style={{ margin: 0, fontWeight: 'bold' }}>No hay registros de trabajos finalizados en esta propiedad.</p>
+                </div>
+              ) : (
+                agruparPorMesYAnio(historialFinalizados).map((grupo, gIdx) => {
+                  const clave = `${grupo.mes} ${grupo.anio}`;
+                  const isOpen = !!mesesAbiertos[clave];
+                  return (
+                    <div key={gIdx} style={{ border: '1px solid #cbd5e1', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.01)' }}>
+                      {/* Cabecera del acordeón */}
+                      <div 
+                        onClick={() => setMesesAbiertos(prev => ({ ...prev, [clave]: !isOpen }))}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '16px 20px',
+                          background: isOpen ? '#f0fdf4' : '#f8fafc',
+                          cursor: 'pointer',
+                          borderBottom: isOpen ? '1px solid #cbd5e1' : 'none',
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '1.2rem' }}>{isOpen ? '▼' : '►'}</span>
+                          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '800', color: isOpen ? '#15803d' : '#334155' }}>
+                            {grupo.mes} {grupo.anio}
+                          </h3>
+                        </div>
+                        <span style={{ 
+                          background: isOpen ? '#dcfce7' : '#e2e8f0', 
+                          color: isOpen ? '#15803d' : '#475569', 
+                          padding: '4px 12px', 
+                          borderRadius: '20px', 
+                          fontWeight: '800',
+                          fontSize: '0.8rem'
+                        }}>
+                          {grupo.items.length} Trabajo{grupo.items.length > 1 ? 's' : ''}
+                        </span>
+                      </div>
+
+                      {/* Cuerpo del acordeón */}
+                      {isOpen && (
+                        <div style={{ padding: '15px', background: 'white', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          {grupo.items.map((item, itemIdx) => (
+                            <div 
+                              key={item.id || itemIdx}
+                              onClick={() => {
+                                const realItem = colaTrabajos.find(t => String(t.realId) === String(item.id) && t.tipo_registro === item.tipo_registro) || item;
+                                fetchDetalleTrabajo(realItem);
+                              }}
+                              style={{ 
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '12px 18px',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '10px',
+                                cursor: 'pointer',
+                                background: '#ffffff',
+                                transition: 'all 0.2s ease',
+                                gap: '15px',
+                                flexWrap: 'wrap'
+                              }}
+                              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                            >
+                              {/* Izquierda: Estatus + Título */}
+                              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px', minWidth: '240px' }}>
+                                <span style={{ background: '#dcfce7', color: '#15803d', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid #bbf7d0' }}>
+                                  <CheckCircle size={12} /> LISTO
+                                </span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                  <h4 style={{ margin: 0, fontSize: '0.92rem', fontWeight: '700', color: '#1e293b' }}>
+                                    {item.producto}
+                                  </h4>
+                                  <div style={{ display: 'flex', gap: '10px', fontSize: '0.8rem', color: '#64748b' }}>
+                                    <span>👤 Técnico: <strong>{item.tecnico}</strong></span>
+                                    <span>📅 Fecha: <strong>{item.fecha}</strong></span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Derecha: Evidencias y Botón */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                {/* Foto miniaturas */}
+                                <div style={{ display: 'flex', gap: '5px' }}>
+                                  {item.evidencias && item.evidencias.slice(0, 3).map((img, imgIdx) => (
+                                    <img 
+                                      key={imgIdx} 
+                                      src={img} 
+                                      alt="Evidencia" 
+                                      style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} 
+                                    />
+                                  ))}
+                                  {item.evidencias && item.evidencias.length > 3 && (
+                                    <div style={{ width: '38px', height: '38px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold', color: '#475569' }}>
+                                      +{item.evidencias.length - 3}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Botón Ver */}
+                                <button 
+                                  style={{
+                                    background: '#f8fafc',
+                                    border: '1px solid #cbd5e1',
+                                    borderRadius: '20px',
+                                    padding: '6px 14px',
+                                    fontSize: '0.78rem',
+                                    fontWeight: '700',
+                                    color: '#475569',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                  onMouseEnter={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
+                                  onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
+                                >
+                                  <Briefcase size={13} style={{ color: '#2e7d32' }} /> Ver Bitácora
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
         </section>
 
         {/* REPORTES REALIZADOS EN LA PROPIEDAD */}
@@ -795,38 +1042,7 @@ const DetallePropiedad = () => {
           )}
         </section>
 
-        {/* HISTORIAL DE TRABAJOS FINALIZADOS */}
-        <section className="history-section-container">
-          <div className="card-header-ui">
-            <CheckCircle size={20} className="icon-blue"/>
-            <h2>Historial de Trabajos Finalizados</h2>
-          </div>
-          <div className="history-grid-layout">
-            {historialFinalizados.map((item) => (
-              <div 
-                key={item.id} 
-                className="history-log-card clickable-card"
-                onClick={() => fetchDetalleTrabajo(item)}
-              >
-                <div className="log-status"><CheckCircle size={12}/> FINALIZADO</div>
-                <div className="log-content">
-                  <h4>{item.producto}</h4>
-                  <div className="log-meta">
-                    <span><User size={14}/> {item.tecnico}</span>
-                    <span><Clock size={14}/> {item.fecha}</span>
-                  </div>
-                </div>
-                <div className="photo-grid-report">
-                  {item.evidencias && item.evidencias.map((img, index) => (
-                    <div key={index} className="photo-item">
-                      <img src={img} alt="evidencia"/>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+
       </main>
 
       {/* MODAL DE COTIZACIÓN EMERGENCIA */}
