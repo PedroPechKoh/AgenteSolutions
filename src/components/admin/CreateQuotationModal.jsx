@@ -3,7 +3,8 @@ import axios from 'axios';
 import { 
   X, Plus, Trash2, Calculator, 
   Search, User, Home, Wrench, 
-  AlertCircle, CheckCircle, Upload
+  AlertCircle, CheckCircle, Upload,
+  MapPin, Phone
 } from 'lucide-react';
 
 const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
@@ -13,6 +14,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
 
   // --- BUSQUEDA DE SERVICIO ---
   const [busqueda, setBusqueda] = useState('');
+  const [todosServicios, setTodosServicios] = useState([]);
   const [serviciosEncontrados, setServiciosEncontrados] = useState([]);
   const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
 
@@ -49,22 +51,45 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
     }
   }, [prefillData]);
 
+  // Cargar todos los servicios al abrir para poder filtrar localmente por todos los campos
   useEffect(() => {
-    if (busqueda.length > 2) {
-      buscarServicios();
-    }
-  }, [busqueda]);
+    const cargarServicios = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios`);
+        const data = res.data.data || res.data || [];
+        setTodosServicios(data);
+        setServiciosEncontrados(data);
+      } catch (error) {
+        console.error("Error al cargar servicios para cotizar:", error);
+      }
+    };
+    cargarServicios();
+  }, []);
 
-  const buscarServicios = async () => {
-    try {
-      // Usamos el endpoint de servicios globales para admin
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios?search=${busqueda}`);
-      const data = res.data.data || res.data;
-      setServiciosEncontrados(data.slice(0, 5));
-    } catch (error) {
-      console.error("Error buscando servicios:", error);
+  // Filtrado reactivo local en múltiples campos
+  useEffect(() => {
+    const termino = busqueda.toLowerCase().trim();
+    if (!termino) {
+      setServiciosEncontrados(todosServicios);
+      return;
     }
-  };
+
+    const filtrados = todosServicios.filter(s => {
+      const idStr = String(s.curp || s.identificador_curp || s.id || '').toLowerCase();
+      const clienteNombre = String(s.cliente_nombre || s.propietario || '').toLowerCase();
+      const propiedadNombre = String(s.propiedad_nombre || '').toLowerCase();
+      const telefono = String(s.cliente_telefono || s.telefono_cliente || s.telefono || '').toLowerCase();
+      const direccion = String(s.direccion || '').toLowerCase();
+
+      return idStr.includes(termino) ||
+             clienteNombre.includes(termino) ||
+             propiedadNombre.includes(termino) ||
+             telefono.includes(termino) ||
+             direccion.includes(termino);
+    });
+
+    setServiciosEncontrados(filtrados);
+  }, [busqueda, todosServicios]);
 
   const addFila = (setter) => setter(prev => [...prev, { id: Date.now(), desc: '', cant: 1, precio: 0 }]);
   const removeFila = (setter, id) => setter(prev => prev.filter(f => f.id !== id));
@@ -162,33 +187,120 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
                 />
               </div>
 
-              <div className="servicios-results" style={{ marginTop: '20px' }}>
-                {serviciosEncontrados.map(s => (
-                  <div 
-                    key={s.id} 
-                    className={`servicio-item-card ${servicioSeleccionado?.id === s.id ? 'selected' : ''}`}
-                    onClick={() => setServicioSeleccionado(s)}
-                    style={{ 
-                      padding: '15px', border: '1px solid #eee', borderRadius: '12px', marginBottom: '10px', 
-                      cursor: 'pointer', transition: 'all 0.2s',
-                      background: servicioSeleccionado?.id === s.id ? '#fff3e0' : '#fff',
-                      borderColor: servicioSeleccionado?.id === s.id ? '#ff8800' : '#eee'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                      <span style={{ fontWeight: 'bold', color: '#ff8800' }}>#{s.identificador_curp || s.id}</span>
-                      <span style={{ fontSize: '0.8rem', background: '#eee', padding: '2px 8px', borderRadius: '10px' }}>{s.tipoPropiedad}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
-                      <User size={14} color="#666" />
-                      <span style={{ fontSize: '0.9rem', color: '#333' }}>{s.propietario}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Home size={14} color="#666" />
-                      <span style={{ fontSize: '0.9rem', color: '#555' }}>{s.propiedad_nombre} - {s.direccion}</span>
-                    </div>
+              <div className="servicios-results" style={{ marginTop: '20px', maxHeight: '420px', overflowY: 'auto', paddingRight: '5px' }}>
+                {serviciosEncontrados.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '30px', color: '#777', background: '#f9f9f9', borderRadius: '12px', border: '1px dashed #ddd' }}>
+                    <AlertCircle size={32} color="#999" style={{ marginBottom: '10px', display: 'inline-block' }} />
+                    <p style={{ margin: 0, fontWeight: '600' }}>No se encontraron servicios que coincidan con la búsqueda.</p>
                   </div>
-                ))}
+                ) : (
+                  serviciosEncontrados.map(s => {
+                    const isSelected = servicioSeleccionado?.id === s.id;
+                    return (
+                      <div 
+                        key={s.id} 
+                        className={`servicio-item-card ${isSelected ? 'selected' : ''}`}
+                        onClick={() => setServicioSeleccionado(s)}
+                        style={{ 
+                          display: 'flex',
+                          gap: '15px',
+                          padding: '15px', 
+                          border: '2px solid', 
+                          borderRadius: '12px', 
+                          marginBottom: '12px', 
+                          cursor: 'pointer', 
+                          transition: 'all 0.2s ease-in-out',
+                          background: isSelected ? '#fff8f4' : '#ffffff',
+                          borderColor: isSelected ? '#f26624' : '#e2e8f0',
+                          boxShadow: isSelected ? '0 4px 12px rgba(242,102,36,0.1)' : '0 2px 4px rgba(0,0,0,0.02)',
+                        }}
+                      >
+                        {/* Fachada Thumbnail */}
+                        <div style={{ 
+                          width: '90px', 
+                          height: '90px', 
+                          borderRadius: '8px', 
+                          overflow: 'hidden', 
+                          flexShrink: 0,
+                          backgroundColor: '#f1f5f9',
+                          border: '1px solid #cbd5e1',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          position: 'relative'
+                        }}>
+                          {s.foto_fachada ? (
+                            <img 
+                              src={s.foto_fachada} 
+                              alt="Fachada" 
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              onError={(e) => { e.target.style.display = 'none'; }}
+                            />
+                          ) : (
+                            <div style={{ 
+                              width: '100%', 
+                              height: '100%', 
+                              background: 'linear-gradient(135deg, rgba(242,102,36,0.1), rgba(242,102,36,0.25))',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              <Home size={32} color="#f26624" style={{ opacity: 0.7 }} />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Contenido info */}
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '5px', justifyContent: 'center' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '2px' }}>
+                            <span style={{ fontWeight: '800', color: '#f26624', fontSize: '0.95rem' }}>
+                              #{s.curp || s.identificador_curp || s.id}
+                            </span>
+                            <span style={{ 
+                              fontSize: '0.75rem', 
+                              background: isSelected ? 'rgba(242,102,36,0.15)' : '#f1f5f9', 
+                              color: isSelected ? '#f26624' : '#475569', 
+                              padding: '3px 10px', 
+                              borderRadius: '20px',
+                              fontWeight: '700'
+                            }}>
+                              {s.propiedad_tipo || s.tipoPropiedad || 'Servicio'}
+                            </span>
+                          </div>
+
+                          {/* Dueño / Cliente */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                            <User size={15} color="#475569" style={{ flexShrink: 0 }} />
+                            <span style={{ fontSize: '0.88rem', color: '#1e293b', fontWeight: '700' }}>
+                              Dueño: <span style={{ color: '#0f172a', fontWeight: '800' }}>{s.cliente_nombre || s.propietario || 'Sin nombre'}</span>
+                            </span>
+                            {(s.cliente_telefono || s.telefono_cliente || s.telefono) && (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', marginLeft: '6px', fontSize: '0.8rem', color: '#f26624', background: 'rgba(242,102,36,0.08)', padding: '1px 6px', borderRadius: '4px', border: '1px solid rgba(242,102,36,0.15)', fontWeight: '600' }}>
+                                <Phone size={11} /> {s.cliente_telefono || s.telefono_cliente || s.telefono}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Propiedad */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Home size={15} color="#475569" style={{ flexShrink: 0 }} />
+                            <span style={{ fontSize: '0.88rem', color: '#334155', fontWeight: '600' }}>
+                              Propiedad: <span style={{ color: '#0f172a', fontWeight: '700' }}>{s.propiedad_nombre}</span>
+                            </span>
+                          </div>
+
+                          {/* Dirección */}
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                            <MapPin size={15} color="#64748b" style={{ marginTop: '2px', flexShrink: 0 }} />
+                            <span style={{ fontSize: '0.8rem', color: '#64748b', lineHeight: '1.25', fontWeight: '500' }}>
+                              {s.direccion || 'Sin dirección registrada'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
 
               {servicioSeleccionado && (

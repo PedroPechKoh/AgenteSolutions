@@ -9,7 +9,7 @@ import {
   ArrowUpDown, FileText, Upload, 
   MoreVertical, Eye, CheckCircle, 
   XCircle, Clock, ChevronDown, ChevronLeft,
-  User, Wrench, Truck, Layout
+  User, Wrench, Truck, Layout, Home, Phone, MapPin
 } from 'lucide-react';
 import CreateQuotationModal from "./CreateQuotationModal";
 import UniversalSearch from "../Shared/UniversalSearch";
@@ -430,7 +430,16 @@ const VistaCotizaciones = () => {
       })
       .map((c) => (
       <tr key={c.id} style={c.status === 'Rechazado' ? { backgroundColor: '#fff5f5', borderLeft: '4px solid #ef4444' } : {}}>
-        <td className="bold-folio" data-label="FOLIO">#{c.folio}</td>
+        <td className="bold-folio" data-label="FOLIO">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            <span>#{c.folio}</span>
+            {c.propiedad_nombre && c.propiedad_nombre !== 'N/A' && (
+              <span style={{ fontSize: '0.78rem', color: '#f26624', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <Home size={12} /> {c.propiedad_nombre}
+              </span>
+            )}
+          </div>
+        </td>
         <td className="cotiz-date" data-label="FECHA">
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.85rem', color: '#666' }}>
             <Calendar size={14} />
@@ -440,7 +449,14 @@ const VistaCotizaciones = () => {
         {!esCliente && (
           <td className="cliente-name" data-label="CLIENTE">
             <div className="cliente-info-wrapper">
-              <div style={{ fontWeight: 'bold', color: '#0f172a' }}>{c.cliente}</div>
+              <div style={{ fontWeight: 'bold', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
+                <span>{c.cliente}</span>
+                {(c.cliente_telefono || c.telefono_cliente || c.telefono) && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', fontSize: '0.75rem', color: '#f26624', background: 'rgba(242,102,36,0.08)', padding: '1px 6px', borderRadius: '4px', border: '1px solid rgba(242,102,36,0.15)', fontWeight: '600' }}>
+                    <Phone size={10} /> {c.cliente_telefono || c.telefono_cliente || c.telefono}
+                  </span>
+                )}
+              </div>
               {c.created_by_role === 'Técnico' ? (
                 <div className="origin-tag-mini">
                   <Wrench size={10} /> TÉCNICO: {c.tecnico}
@@ -531,20 +547,72 @@ const VistaCotizaciones = () => {
             
             <div className="modal-body-content" style={{ overflowY: 'auto', flexGrow: 1 }}>
                 
-                <div className="modal-info-summary">
-                  {cotizacionSeleccionada.tecnico && (
-                    <div style={{ gridColumn: 'span 2', background: '#f8fafc', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #f26624', marginBottom: '10px' }}>
-                      <p style={{ margin: 0, fontSize: '0.95rem', color: '#334155', fontWeight: '500' }}>
-                        🛠️ {cotizacionSeleccionada.created_by_role === 'Técnico' ? 'Propuesta técnica enviada al Administrador' : 'Cotización oficial para el Cliente'}
-                      </p>
-                      <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>
-                        Propiedad: {cotizacionSeleccionada.propiedad_nombre || 'Sin nombre'}
-                      </p>
+                {cotizacionSeleccionada.created_by_role === 'Técnico' && !esCliente && (
+                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #f26624', marginBottom: '15px' }}>
+                    <p style={{ margin: 0, fontSize: '0.95rem', color: '#334155', fontWeight: '600' }}>
+                      🛠️ Propuesta técnica enviada al Administrador
+                    </p>
+                  </div>
+                )}
+                
+                <div style={{ display: 'flex', gap: '20px', background: '#f8fafc', padding: '20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '20px', flexWrap: 'wrap' }}>
+                  {cotizacionSeleccionada.foto_fachada && (
+                    <div style={{ 
+                      width: '120px', 
+                      height: '120px', 
+                      borderRadius: '8px', 
+                      overflow: 'hidden', 
+                      border: '1px solid #cbd5e1', 
+                      flexShrink: 0 
+                    }}>
+                      <img 
+                        src={cotizacionSeleccionada.foto_fachada} 
+                        alt="Fachada de la propiedad" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
                     </div>
                   )}
-                  <p><strong>Cliente:</strong> {cotizacionSeleccionada.cliente}</p>
-                  {cotizacionSeleccionada.tecnico && <p><strong>Técnico:</strong> {cotizacionSeleccionada.tecnico}</p>}
-                  <p><strong>Fecha:</strong> {cotizacionSeleccionada.fecha}</p>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '220px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                      <User size={16} color="#64748b" style={{ flexShrink: 0 }} />
+                      <span style={{ fontSize: '0.92rem', color: '#334155' }}>
+                        <strong>Cliente / Dueño:</strong> {cotizacionSeleccionada.cliente}
+                      </span>
+                      {(cotizacionSeleccionada.cliente_telefono || cotizacionSeleccionada.telefono_cliente || cotizacionSeleccionada.telefono) && (
+                        <span style={{ fontSize: '0.8rem', color: '#f26624', background: 'rgba(242,102,36,0.08)', padding: '1px 6px', borderRadius: '4px', border: '1px solid rgba(242,102,36,0.15)', display: 'inline-flex', alignItems: 'center', gap: '3px', fontWeight: '600' }}>
+                          <Phone size={11} /> {cotizacionSeleccionada.cliente_telefono || cotizacionSeleccionada.telefono_cliente || cotizacionSeleccionada.telefono}
+                        </span>
+                      )}
+                    </div>
+                    {cotizacionSeleccionada.propiedad_nombre && cotizacionSeleccionada.propiedad_nombre !== 'N/A' && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Home size={16} color="#64748b" style={{ flexShrink: 0 }} />
+                        <span style={{ fontSize: '0.92rem', color: '#334155' }}>
+                          <strong>Propiedad:</strong> {cotizacionSeleccionada.propiedad_nombre}
+                        </span>
+                      </div>
+                    )}
+                    {cotizacionSeleccionada.propiedad_direccion && cotizacionSeleccionada.propiedad_direccion !== 'N/A' && (
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                        <MapPin size={16} color="#64748b" style={{ marginTop: '2px', flexShrink: 0 }} />
+                        <span style={{ fontSize: '0.88rem', color: '#475569' }}>
+                          <strong>Dirección:</strong> {cotizacionSeleccionada.propiedad_direccion}
+                        </span>
+                      </div>
+                    )}
+                    {cotizacionSeleccionada.tecnico && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Wrench size={16} color="#64748b" style={{ flexShrink: 0 }} />
+                        <span style={{ fontSize: '0.92rem', color: '#334155' }}>
+                          <strong>Técnico Responsable:</strong> {cotizacionSeleccionada.tecnico}
+                        </span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.88rem', color: '#64748b', marginTop: '4px', borderTop: '1px solid #e2e8f0', paddingTop: '8px' }}>
+                      <span>📅 <strong>Fecha de Creación:</strong> {cotizacionSeleccionada.fecha}</span>
+                    </div>
+                  </div>
                 </div>
 
                 {cotizacionSeleccionada.type === 'archivo' ? (
