@@ -1,4 +1,4 @@
-customize-wrapper {
+.customize-wrapper {
   max-width: 800px; 
   margin: 0 auto;
   text-align: center;
@@ -6,6 +6,16 @@ customize-wrapper {
   flex-direction: column;
   justify-content: center;
   min-height: 70vh;
+  width: 100%;
+  padding: 0 15px;
+  box-sizing: border-box;
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .customize-title {
@@ -167,5 +177,36 @@ customize-wrapper {
   }
   .preview-box {
     height: 120px; 
+  }
+
+  /* --- RESPONSIVIDAD DEL HEADER --- */
+  .header-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 15px !important;
+    text-align: center !important;
+    width: 100% !important;
+  }
+  
+  .header-content .logo-section {
+    justify-content: center !important;
+    width: 100% !important;
+    gap: 15px !important;
+  }
+  
+  .header-content .user-controls {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+  
+  .header-content .welcome-title {
+    font-size: 1.25rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .header-content .main-logo {
+    max-width: 150px !important;
   }
 }
