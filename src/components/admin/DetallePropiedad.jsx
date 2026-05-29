@@ -74,6 +74,8 @@ const DetallePropiedad = () => {
     pagadas: false
   });
 
+  const [colAbiertaKanban, setColAbiertaKanban] = useState('SOS');
+
   useEffect(() => {
     try {
       const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
@@ -777,40 +779,52 @@ const DetallePropiedad = () => {
 
           {tabTablero === 'activos' ? (
             <div className="kanban-container-ui">
-              {["ESPERANDO", "SOS", "PENDIENTE", "EN PROCESO"].map((estado, idx) => (
-                <div key={idx} className={`k-column ${estado === 'SOS' ? 'sos-line' : estado === 'ESPERANDO' ? 'orange-line' : estado === 'PENDIENTE' ? 'yellow-line' : 'blue-line'}`}>
-                  <div className={`k-header ${estado === 'SOS' ? 'red-text' : estado === 'ESPERANDO' ? 'orange-text' : ''}`}>
-                    {estado === 'SOS' ? 'SOS ACTIVO' : estado === 'ESPERANDO' ? 'POR AUTORIZAR' : estado === 'PENDIENTE' ? 'POR HACER' : estado} 
-                    <span>{colaTrabajos.filter(t=>t.estado === estado).length}</span>
-                  </div>
-                  <div className="k-body">
-                    {colaTrabajos.filter(t => t.estado === estado).length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '30px 10px', color: '#94a3b8', fontSize: '0.85rem', fontStyle: 'italic' }}>
-                        Sin trabajos en este estado
-                      </div>
-                    ) : (
-                      colaTrabajos.filter(t => t.estado === estado).map(t => (
-                        <div key={t.id} className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}>
-                          <h4>{t.producto}</h4>
-                          {t.descripcion && (
-                            <p style={{ fontSize: '0.85em', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>
-                              {t.descripcion.length > 60 
-                                ? t.descripcion.substring(0, 60) + '…' 
-                                : t.descripcion}
-                            </p>
-                          )}
-                          <div className="k-footer">
-                            <span className={estado === 'SOS' ? 'badge-sos' : estado === 'ESPERANDO' ? 'badge-status-waiting' : 'badge-prio alta'}>
-                              {t.tecnico || 'Sin Técnico'}
-                            </span>
-                            <span className={estado === 'SOS' ? 'date-text-red' : 'date-text'}><Clock size={12}/> {t.fecha}</span>
-                          </div>
+              {["ESPERANDO", "SOS", "PENDIENTE", "EN PROCESO"].map((estado, idx) => {
+                const isOpen = colAbiertaKanban === estado;
+                return (
+                  <div key={idx} className={`k-column ${estado === 'SOS' ? 'sos-line' : estado === 'ESPERANDO' ? 'orange-line' : estado === 'PENDIENTE' ? 'yellow-line' : 'blue-line'}`}>
+                    <div 
+                      className={`k-header ${estado === 'SOS' ? 'red-text' : estado === 'ESPERANDO' ? 'orange-text' : ''}`}
+                      onClick={() => setColAbiertaKanban(prev => prev === estado ? '' : estado)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="kanban-caret-icon" style={{ fontSize: '0.8rem' }}>
+                          {isOpen ? '▼' : '►'}
+                        </span>
+                        {estado === 'SOS' ? 'SOS ACTIVO' : estado === 'ESPERANDO' ? 'POR AUTORIZAR' : estado === 'PENDIENTE' ? 'POR HACER' : estado}
+                      </span>
+                      <span>{colaTrabajos.filter(t=>t.estado === estado).length}</span>
+                    </div>
+                    <div className={`k-body ${isOpen ? 'is-open' : 'is-closed'}`}>
+                      {colaTrabajos.filter(t => t.estado === estado).length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '30px 10px', color: '#94a3b8', fontSize: '0.85rem', fontStyle: 'italic' }}>
+                          Sin trabajos en este estado
                         </div>
-                      ))
-                    )}
+                      ) : (
+                        colaTrabajos.filter(t => t.estado === estado).map(t => (
+                          <div key={t.id} className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}>
+                            <h4>{t.producto}</h4>
+                            {t.descripcion && (
+                              <p style={{ fontSize: '0.85em', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>
+                                {t.descripcion.length > 60 
+                                  ? t.descripcion.substring(0, 60) + '…' 
+                                  : t.descripcion}
+                              </p>
+                            )}
+                            <div className="k-footer">
+                              <span className={estado === 'SOS' ? 'badge-sos' : estado === 'ESPERANDO' ? 'badge-status-waiting' : 'badge-prio alta'}>
+                                {t.tecnico || 'Sin Técnico'}
+                              </span>
+                              <span className={estado === 'SOS' ? 'date-text-red' : 'date-text'}><Clock size={12}/> {t.fecha}</span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             /* VISTA DE HISTORIAL EN ACORDEONES POR MES Y AÑO */
@@ -1010,16 +1024,16 @@ const DetallePropiedad = () => {
                         </thead>
                         <tbody>
                           {cotizacionesNoPagadas.map(cot => (
-                            <tr key={cot.id} className={cot.esEmergencia ? 'row-priority-sos' : ''} style={{ background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                              <td style={{ padding: '16px' }}><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
-                              <td style={{ padding: '16px' }}><span className={`status-pill pill-${cot.status.toLowerCase()}`}>{cot.status}</span></td>
-                              <td className="comment-cell" style={{ padding: '16px', maxWidth: '300px' }}>
+                            <tr key={cot.id} className={cot.esEmergencia ? 'row-priority-sos' : 'row-quote-pending'} style={{ background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                              <td data-label="Servicio" style={{ padding: '16px' }}><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
+                              <td data-label="Estatus" style={{ padding: '16px' }}><span className={`status-pill pill-${cot.status.toLowerCase()}`}>{cot.status}</span></td>
+                              <td data-label="Comentario" className="comment-cell" style={{ padding: '16px', maxWidth: '300px' }}>
                                 <div className="flex-comment" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
                                   <MessageSquare size={16} className="icon-gray" style={{ flexShrink: 0, marginTop: '2px' }}/>
                                   <span style={{ color: '#475569', fontSize: '0.9rem' }}>{cot.comentario || "Sin observaciones"}</span>
                                 </div>
                               </td>
-                              <td style={{ padding: '16px', textAlign: 'center' }}>
+                              <td data-label="Acciones" style={{ padding: '16px', textAlign: 'center' }}>
                                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
                                   {cot.status === "ACEPTADA" || cot.status === "Aprobado" || cot.status === "Pendiente" ? (
                                     <button className="btn-planificar" onClick={() => {
@@ -1153,16 +1167,16 @@ const DetallePropiedad = () => {
                         </thead>
                         <tbody>
                           {cotizacionesPagadas.map(cot => (
-                            <tr key={cot.id} style={{ background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                              <td style={{ padding: '16px' }}><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
-                              <td style={{ padding: '16px' }}><span className="status-pill pill-pagada" style={{ background: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', fontWeight: 'bold', padding: '6px 12px', borderRadius: '15px' }}>PAGADO</span></td>
-                              <td className="comment-cell" style={{ padding: '16px', maxWidth: '300px' }}>
+                            <tr key={cot.id} className="row-quote-paid" style={{ background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                              <td data-label="Servicio" style={{ padding: '16px' }}><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
+                              <td data-label="Estatus" style={{ padding: '16px' }}><span className="status-pill pill-pagada" style={{ background: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', fontWeight: 'bold', padding: '6px 12px', borderRadius: '15px' }}>PAGADO</span></td>
+                              <td data-label="Comentario" className="comment-cell" style={{ padding: '16px', maxWidth: '300px' }}>
                                 <div className="flex-comment" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
                                   <MessageSquare size={16} className="icon-gray" style={{ flexShrink: 0, marginTop: '2px' }}/>
                                   <span style={{ color: '#475569', fontSize: '0.9rem' }}>{cot.comentario || "Sin observaciones"}</span>
                                 </div>
                               </td>
-                              <td style={{ padding: '16px', textAlign: 'center' }}>
+                              <td data-label="Acciones" style={{ padding: '16px', textAlign: 'center' }}>
                                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
                                   <span className="text-closed" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#2e7d32', fontWeight: 'bold', fontSize: '0.85rem', padding: '8px 12px', background: '#e8f5e9', borderRadius: '20px', border: '1px solid #c8e6c9' }}>
                                     <CheckCircle size={15}/> PAGADO
