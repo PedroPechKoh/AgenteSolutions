@@ -66,6 +66,21 @@ const DetallePropiedad = () => {
     descripcionTrabajo: ""
   });
 
+  const [mensajeChat, setMensajeChat] = useState('');
+  const [enviandoMensaje, setEnviandoMensaje] = useState(false);
+  const [usuarioId, setUsuarioId] = useState(null);
+
+  useEffect(() => {
+    try {
+      const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+      if (session?.userData) {
+        setUsuarioId(session.userData.id || null);
+      }
+    } catch (e) {
+      console.error("Error reading session:", e);
+    }
+  }, []);
+
   // EFECTO DE CARGA
   useEffect(() => {
     const fetchAllData = async () => {
@@ -138,6 +153,7 @@ const DetallePropiedad = () => {
             comentario: c.observations || c.observaciones || "",
             esEmergencia: c.is_emergency || c.type === 'SOS' || false,
             items: itemsParsed,
+            chat_history: c.chat_history || [],
             raw: c
           };
         });
@@ -492,6 +508,74 @@ const DetallePropiedad = () => {
       console.error("Error al cargar la bitácora del trabajo:", error);
     } finally {
       setCargandoReportes(false);
+    }
+  };
+
+  const enviarMensajeChatDetail = async () => {
+    if (!mensajeChat.trim() || !cotizacionDetail) return;
+    setEnviandoMensaje(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionDetail.id}/chat`, {
+        message: mensajeChat
+      }, { headers });
+      
+      setCotizacionDetail(prev => ({
+        ...prev,
+        chat_history: res.data.chat_history,
+        raw: {
+          ...(prev.raw || prev),
+          chat_history: res.data.chat_history
+        }
+      }));
+
+      setCotizaciones(prevCots => prevCots.map(c => 
+        c.id === cotizacionDetail.id 
+          ? { ...c, chat_history: res.data.chat_history, raw: { ...c.raw, chat_history: res.data.chat_history } }
+          : c
+      ));
+
+      setMensajeChat('');
+    } catch (e) {
+      console.error(e);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error al enviar el mensaje' });
+    } finally {
+      setEnviandoMensaje(false);
+    }
+  };
+
+  const enviarMensajeChatModal = async () => {
+    if (!mensajeChat.trim() || !chatCotizacion) return;
+    setEnviandoMensaje(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${chatCotizacion.id}/chat`, {
+        message: mensajeChat
+      }, { headers });
+
+      setChatCotizacion(prev => ({
+        ...prev,
+        chat_history: res.data.chat_history,
+        raw: {
+          ...(prev.raw || {}),
+          chat_history: res.data.chat_history
+        }
+      }));
+
+      setCotizaciones(prevCots => prevCots.map(c => 
+        c.id === chatCotizacion.id 
+          ? { ...c, chat_history: res.data.chat_history, raw: { ...c.raw, chat_history: res.data.chat_history } }
+          : c
+      ));
+
+      setMensajeChat('');
+    } catch (e) {
+      console.error(e);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error al enviar el mensaje' });
+    } finally {
+      setEnviandoMensaje(false);
     }
   };
 
@@ -1248,41 +1332,87 @@ const DetallePropiedad = () => {
       {/* MODAL CHAT */}
       {isModalChatOpen && chatCotizacion && (
         <div className="modal-overlay-ui" onClick={() => setIsModalChatOpen(false)}>
-          <div className="modal-card-ui report-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
-            <div className="modal-header-premium">
-              <div className="header-content">
-                <div className="icon-badge-white"><MessageCircle size={22} /></div>
+          <div className="modal-card-ui report-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '550px', width: '90%', borderRadius: '20px', overflow: 'hidden' }}>
+            <div className="modal-header-premium" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', padding: '20px 25px' }}>
+              <div className="header-content" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <div className="icon-badge-white" style={{ backgroundColor: 'white', color: '#f26624', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <MessageCircle size={22} />
+                </div>
                 <div>
-                  <h3>Chat con Cliente</h3>
-                  <span>Cotización #{chatCotizacion.id} – {chatCotizacion.producto}</span>
+                  <h3 style={{ color: 'white', margin: 0 }}>Chat con Cliente</h3>
+                  <span style={{ color: '#cbd5e1', fontSize: '0.85rem' }}>Cotización #{chatCotizacion.id} – {chatCotizacion.producto}</span>
                 </div>
               </div>
-              <button className="btn-close-light" onClick={() => setIsModalChatOpen(false)}><X size={20}/></button>
+              <button className="btn-close-light" onClick={() => setIsModalChatOpen(false)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20}/></button>
             </div>
-            <div className="modal-body modern-body" style={{ maxHeight: '400px', overflowY: 'auto', padding: '20px' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontSize: '0.85em', color: '#888', marginBottom: '8px' }}>Admin • 10:30 AM</div>
-                <div style={{ background: '#f1f5f9', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '80%', marginBottom: '12px' }}>
-                  Hola, hemos preparado el presupuesto para la {chatCotizacion.producto.toLowerCase()}. ¿Tienes alguna duda?
-                </div>
+            
+            <div className="modal-body modern-body" style={{ display: 'flex', flexDirection: 'column', gap: '15px', padding: '20px', maxHeight: '60vh' }}>
+              {/* Contenedor de mensajes */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '350px', paddingRight: '5px' }}>
+                {(chatCotizacion.chat_history || chatCotizacion.raw?.chat_history || []).length > 0 ? (
+                  (chatCotizacion.chat_history || chatCotizacion.raw?.chat_history || []).map((msg, index) => {
+                    const esMio = msg.sender_id === usuarioId;
+                    const bgColor = esMio ? '#e0f2fe' : '#f1f5f9';
+                    const align = esMio ? 'flex-end' : 'flex-start';
+                    const textAlign = esMio ? 'right' : 'left';
+                    const colorName = msg.sender_role === 'Cliente' ? '#0ea5e9' : (msg.sender_role === 'Admin' ? '#16a34a' : '#f59e0b');
+
+                    return (
+                      <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: align, width: '100%' }}>
+                        <span style={{ fontSize: '0.7rem', color: colorName, fontWeight: 'bold', marginBottom: '2px' }}>
+                          {msg.sender_name} ({msg.sender_role})
+                        </span>
+                        <div style={{ 
+                          background: bgColor, 
+                          padding: '10px 14px', 
+                          borderRadius: '12px', 
+                          maxWidth: '85%', 
+                          color: '#334155', 
+                          fontSize: '0.9rem', 
+                          textAlign: textAlign,
+                          borderBottomRightRadius: esMio ? '2px' : '12px',
+                          borderBottomLeftRadius: !esMio ? '2px' : '12px'
+                        }}>
+                          {msg.message}
+                        </div>
+                        <span style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '2px' }}>
+                          {new Date(msg.created_at).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })}
+                        </span>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem', margin: '30px 0' }}>No hay mensajes en esta cotización.</p>
+                )}
               </div>
-              <div style={{ marginBottom: '16px', textAlign: 'right' }}>
-                <div style={{ fontSize: '0.85em', color: '#888', marginBottom: '8px' }}>Cliente • 10:32 AM</div>
-                <div style={{ background: '#e0f2fe', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '80%', marginBottom: '12px' }}>
-                  Gracias, lo reviso. ¿Cuánto tiempo tomaría el trabajo?
-                </div>
-              </div>
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontSize: '0.85em', color: '#888', marginBottom: '8px' }}>Admin • 10:33 AM</div>
-                <div style={{ background: '#f1f5f9', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '80%', marginBottom: '12px' }}>
-                  Aproximadamente 2-3 horas. Podemos agendar para mañana si confirmas hoy.
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.85em', color: '#888', marginBottom: '8px' }}>Cliente • 10:35 AM</div>
-                <div style={{ background: '#e0f2fe', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '80%' }}>
-                  Perfecto, adelante. Autorizado.
-                </div>
+
+              {/* Input y Botón de envío */}
+              <div style={{ display: 'flex', gap: '10px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
+                <input 
+                  type="text" 
+                  placeholder="Escribe un mensaje para negociar o aclarar dudas..." 
+                  style={{ flex: 1, padding: '10px 15px', borderRadius: '20px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '0.9rem' }}
+                  value={mensajeChat}
+                  onChange={e => setMensajeChat(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') enviarMensajeChatModal(); }}
+                  disabled={enviandoMensaje}
+                />
+                <button 
+                  style={{ 
+                    background: '#3b82f6', 
+                    color: 'white', 
+                    border: 'none', 
+                    padding: '0 20px', 
+                    borderRadius: '20px', 
+                    fontWeight: 'bold', 
+                    cursor: 'pointer', 
+                    opacity: enviandoMensaje || !mensajeChat.trim() ? 0.5 : 1 
+                  }}
+                  onClick={enviarMensajeChatModal}
+                  disabled={enviandoMensaje || !mensajeChat.trim()}
+                >
+                  {enviandoMensaje ? '...' : 'ENVIAR'}
+                </button>
               </div>
             </div>
           </div>
@@ -1510,6 +1640,79 @@ const DetallePropiedad = () => {
                     </p>
                   </div>
                 )}
+
+                {/* --- SECCIÓN DE CHAT DE NEGOCIACIÓN --- */}
+                <div style={{ padding: '20px', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '20px' }}>
+                  <h4 style={{ margin: '0 0 15px 0', fontSize: '1rem', color: '#1e293b', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <MessageCircle size={18} color="#f26624" /> Conversación de la Cotización
+                  </h4>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '250px', overflowY: 'auto', marginBottom: '15px', paddingRight: '5px' }}>
+                    {(cotRaw.chat_history || cotRaw.raw?.chat_history || []).length > 0 ? (
+                      (cotRaw.chat_history || cotRaw.raw?.chat_history || []).map((msg, index) => {
+                        const esMio = msg.sender_id === usuarioId;
+                        const bgColor = esMio ? '#e0f2fe' : '#f1f5f9';
+                        const align = esMio ? 'flex-end' : 'flex-start';
+                        const textAlign = esMio ? 'right' : 'left';
+                        const colorName = msg.sender_role === 'Cliente' ? '#0ea5e9' : (msg.sender_role === 'Admin' ? '#16a34a' : '#f59e0b');
+
+                        return (
+                          <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: align, width: '100%' }}>
+                            <span style={{ fontSize: '0.7rem', color: colorName, fontWeight: 'bold', marginBottom: '2px' }}>
+                              {msg.sender_name} ({msg.sender_role})
+                            </span>
+                            <div style={{ 
+                              background: bgColor, 
+                              padding: '10px 14px', 
+                              borderRadius: '12px', 
+                              maxWidth: '85%', 
+                              color: '#334155', 
+                              fontSize: '0.9rem', 
+                              textAlign: textAlign,
+                              borderBottomRightRadius: esMio ? '2px' : '12px',
+                              borderBottomLeftRadius: !esMio ? '2px' : '12px'
+                            }}>
+                              {msg.message}
+                            </div>
+                            <span style={{ fontSize: '0.65rem', color: '#94a3b8', marginTop: '2px' }}>
+                              {new Date(msg.created_at).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })}
+                            </span>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem', margin: '20px 0' }}>No hay mensajes en esta cotización.</p>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input 
+                      type="text" 
+                      placeholder="Escribe un mensaje para negociar o aclarar dudas..." 
+                      style={{ flex: 1, padding: '10px 15px', borderRadius: '20px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '0.9rem' }}
+                      value={mensajeChat}
+                      onChange={e => setMensajeChat(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') enviarMensajeChatDetail(); }}
+                      disabled={enviandoMensaje}
+                    />
+                    <button 
+                      style={{ 
+                        background: '#3b82f6', 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '0 20px', 
+                        borderRadius: '20px', 
+                        fontWeight: 'bold', 
+                        cursor: 'pointer', 
+                        opacity: enviandoMensaje || !mensajeChat.trim() ? 0.5 : 1 
+                      }}
+                      onClick={enviarMensajeChatDetail}
+                      disabled={enviandoMensaje || !mensajeChat.trim()}
+                    >
+                      {enviandoMensaje ? '...' : 'ENVIAR'}
+                    </button>
+                  </div>
+                </div>
 
                 <div style={{ display: 'flex', gap: '15px', marginTop: '30px' }}>
                   {cotRaw.type !== 'archivo' && (
