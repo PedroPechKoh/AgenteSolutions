@@ -3,6 +3,53 @@ import axios from 'axios';
 import "../../styles/TecnicoStyles/RegistroDetalleHabitacion.css";
 import { ArrowLeft, Plus, Trash2, X, Loader2, ImageIcon, Edit3, Eye } from 'lucide-react';
 import Header from '../Shared/Header';
+const obtenerColorHex = (val) => {
+  if (!val) return null;
+  const cleanVal = val.trim().toLowerCase();
+  
+  if (/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.test(cleanVal)) {
+    return cleanVal.startsWith('#') ? cleanVal : `#${cleanVal}`;
+  }
+  
+  const colorNames = {
+    blanco: '#ffffff', white: '#ffffff',
+    negro: '#000000', black: '#000000',
+    rojo: '#ff0000', red: '#ff0000',
+    verde: '#00ff00', green: '#00ff00',
+    azul: '#0000ff', blue: '#0000ff',
+    amarillo: '#ffff00', yellow: '#ffff00',
+    gris: '#808080', gray: '#808080', grey: '#808080',
+    naranja: '#ff8c00', orange: '#ffa500',
+    rosa: '#ffc0cb', pink: '#ffc0cb',
+    morado: '#800080', purple: '#800080',
+    cafe: '#8b4513', brown: '#a52a2a',
+    beige: '#f5f5dc',
+    celeste: '#87ceeb',
+    turquesa: '#40e0d0', turquoise: '#40e0d0',
+    cian: '#00ffff', cyan: '#00ffff',
+    magenta: '#ff00ff',
+    lila: '#c8a2c8',
+    violeta: '#ee82ee', violet: '#ee82ee',
+    fucsia: '#ff00ff', fuchsia: '#ff00ff',
+    dorado: '#ffd700', gold: '#ffd700',
+    plateado: '#c0c0c0', silver: '#c0c0c0',
+    marron: '#800000', maroon: '#800000',
+    oliva: '#808000', olive: '#808000',
+    ocre: '#cc7722',
+    coral: '#ff7f50',
+    salmon: '#fa8072', salmón: '#fa8072',
+    durazno: '#ffdab9', peach: '#ffdab9',
+    menta: '#f5fffa', mint: '#f5fffa',
+    lavanda: '#e6e6fa', lavender: '#e6e6fa',
+    esmeralda: '#50c878', emerald: '#50c878',
+    crema: '#fffdd0', cream: '#fffdd0'
+  };
+
+  if (colorNames[cleanVal]) {
+    return colorNames[cleanVal];
+  }
+  return null;
+};
 
 const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, alVolver }) => {
   const [componentes, setComponentes] = useState([]);
@@ -293,13 +340,18 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
       {/* MODAL CON FOTO, GALERÍA, SERIE Y COMENTARIOS */}
       {isModalOpen && (
         <div className="rdh-modal-overlay">
-          <div className="rdh-modal-content" style={{ width: '500px' }}>
+          <div className="rdh-modal-content" style={{ width: '500px', maxWidth: '95vw', backgroundColor: '#f8fafc' }}>
             <button className="rdh-modal-close" onClick={() => setIsModalOpen(false)}>
               <X size={24} strokeWidth={3} />
             </button>
             
             {/* TÍTULO DINÁMICO */}
-            <h2 className="rdh-modal-title">{modoEdicion ? 'EDITAR PRODUCTO' : 'NUEVO PRODUCTO'}</h2>
+            <h2 className="rdh-modal-title" style={{ color: '#1e293b' }}>
+              {modoEdicion 
+                ? (categoriaActiva?.name === 'PINTURA' ? 'EDITAR COLORIMETRÍA' : 'EDITAR PRODUCTO') 
+                : (categoriaActiva?.name === 'PINTURA' ? 'NUEVA COLORIMETRÍA / PINTURA' : 'NUEVO PRODUCTO')
+              }
+            </h2>
             
             <div className="rdh-modal-form" style={{ maxHeight: '65vh', overflowY: 'auto', paddingRight: '10px' }}>
               
@@ -448,17 +500,40 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
               {categoriaActiva?.name === 'PINTURA' ? (
                 <>
                   <div className="rdh-modal-field">
-                    <label>TONO *</label>
-                    <input 
-                      type="text" 
-                      className="rdh-modal-input" 
-                      placeholder="Ej. BLANCO OSTIÓN, GRIS" 
-                      value={nuevoRegistro.model_or_color} 
-                      onChange={(e) => setNuevoRegistro({...nuevoRegistro, model_or_color: e.target.value.toUpperCase()})}
-                    />
+                    <label style={{ color: '#1e293b' }}>TONO *</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                      <input 
+                        type="text" 
+                        className="rdh-modal-input" 
+                        placeholder="Ej. BLANCO OSTIÓN, GRIS" 
+                        value={nuevoRegistro.model_or_color} 
+                        onChange={(e) => setNuevoRegistro({...nuevoRegistro, model_or_color: e.target.value.toUpperCase()})}
+                        style={{ flex: 1 }}
+                      />
+                      {(() => {
+                        const colorHex = obtenerColorHex(nuevoRegistro.model_or_color) || obtenerColorHex(nuevoRegistro.serial_number);
+                        if (colorHex) {
+                          return (
+                            <div 
+                              style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: colorHex,
+                                border: '2px solid white',
+                                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                                flexShrink: 0
+                              }} 
+                              title={`Color detectado: ${colorHex}`}
+                            />
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
                   </div>
                   <div className="rdh-modal-field">
-                    <label>MARCA</label>
+                    <label style={{ color: '#1e293b' }}>MARCA</label>
                     <input 
                       type="text" 
                       className="rdh-modal-input" 
@@ -468,17 +543,40 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                     />
                   </div>
                   <div className="rdh-modal-field">
-                    <label>CLAVE</label>
-                    <input 
-                      type="text" 
-                      className="rdh-modal-input" 
-                      placeholder="Ej. fórmulas, códigos..." 
-                      value={nuevoRegistro.serial_number} 
-                      onChange={(e) => setNuevoRegistro({...nuevoRegistro, serial_number: e.target.value.toUpperCase()})}
-                    />
+                    <label style={{ color: '#1e293b' }}>CLAVE</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                      <input 
+                        type="text" 
+                        className="rdh-modal-input" 
+                        placeholder="Ej. #FF5733 o código..." 
+                        value={nuevoRegistro.serial_number} 
+                        onChange={(e) => setNuevoRegistro({...nuevoRegistro, serial_number: e.target.value.toUpperCase()})}
+                        style={{ flex: 1 }}
+                      />
+                      {(() => {
+                        const colorHex = obtenerColorHex(nuevoRegistro.serial_number);
+                        if (colorHex) {
+                          return (
+                            <div 
+                              style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: colorHex,
+                                border: '2px solid white',
+                                boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                                flexShrink: 0
+                              }} 
+                              title={`Color detectado: ${colorHex}`}
+                            />
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
                   </div>
                   <div className="rdh-modal-field">
-                    <label>M² *</label>
+                    <label style={{ color: '#1e293b' }}>M² *</label>
                     <input 
                       type="number" 
                       min="0.01" 
