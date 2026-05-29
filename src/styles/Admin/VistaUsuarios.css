@@ -303,21 +303,87 @@
         padding: 8px 4px;
     }
     
-    .modern-table td, 
-    .modern-table th {
-        padding: 10px 8px;
-        font-size: 0.8rem;
+    .table-wrapper-scroll {
+        overflow-x: hidden;
+        height: auto;
+        box-shadow: none;
+        background: transparent;
+        border: none;
+    }
+
+    .modern-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        display: block;
+    }
+
+    .modern-table thead {
+        display: none;
+    }
+
+    .modern-table tbody,
+    .modern-table tr,
+    .modern-table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .modern-table tr {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .modern-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0 !important;
+        border-bottom: 1px dashed #f1f5f9;
+        text-align: right !important;
+        font-size: 0.88rem;
+    }
+
+    .modern-table td:last-child {
+        border-bottom: none;
+    }
+
+    .modern-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        color: #64748b;
+        text-align: left;
+        margin-right: 15px;
+    }
+
+    .modern-table td[data-label="Foto"] {
+        justify-content: space-between;
     }
     
+    .avatar-circle {
+        margin: 0 !important;
+    }
+
+    .actions-cell {
+        justify-content: flex-end !important;
+        gap: 8px;
+    }
+
     .btn-table-oval {
-        padding: 4px 12px;
-        font-size: 0.7rem;
+        padding: 6px 14px;
+        font-size: 0.75rem;
     }
     
     .btn-table-oval-small {
-        width: 28px;
-        height: 28px;
-        font-size: 0.8rem;
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
     }
 }
 /* =========================================

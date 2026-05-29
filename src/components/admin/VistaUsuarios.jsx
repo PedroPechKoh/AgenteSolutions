@@ -191,7 +191,7 @@ const VistaUsuarios = () => {
                 usuariosFiltrados.map((u) => (
                   <tr key={u.id} className={u.bloqueado ? "user-row-blocked" : ""}>
                     
-                    <td>
+                    <td data-label="Foto">
                       <div className="avatar-circle">
                         {u.profile_picture_url ? (
                           <img src={u.profile_picture_url} alt="Perfil" className="perfil-photo" />
@@ -199,22 +199,23 @@ const VistaUsuarios = () => {
                       </div>
                     </td>
 
-                   <td 
-  className={u.rol === "CLIENTE" || u.rol === "TECNICO" ? "clickable-name" : ""} 
-  onClick={() => {
-    if (u.rol === "CLIENTE") {
-      navigate("/detalle-cliente", { state: { cliente: u } });
-    } if (u.rol === "TECNICO") {
-      navigate("/detalle-tecnico", { state: { tecnico: u } });
-    }
-  }}
->
-  {u.nombre} {u.bloqueado && <span className="blocked-tag">BLOQUEADO</span>}
-</td>
+                    <td 
+                      data-label="Nombre"
+                      className={u.rol === "CLIENTE" || u.rol === "TECNICO" ? "clickable-name" : ""} 
+                      onClick={() => {
+                        if (u.rol === "CLIENTE") {
+                          navigate("/detalle-cliente", { state: { cliente: u } });
+                        } if (u.rol === "TECNICO") {
+                          navigate("/detalle-tecnico", { state: { tecnico: u } });
+                        }
+                      }}
+                    >
+                      {u.nombre} {u.bloqueado && <span className="blocked-tag">BLOQUEADO</span>}
+                    </td>
 
-                    <td>{u.correo}</td>
+                    <td data-label="Correo">{u.correo}</td>
 
-                    <td>
+                    <td data-label="Rol">
                       {u.role_id === 0 ? (
                         <span className="badge-rol root">ROOT</span>
                       ) : (
@@ -230,12 +231,12 @@ const VistaUsuarios = () => {
                       )}
                     </td>
 
-                    <td>
+                    <td data-label="Estado">
                       <span className={`status-dot ${u.bloqueado ? "status-off" : "status-on"}`} />
                       {u.bloqueado ? "Inactivo" : u.estado}
                     </td>
 
-                    <td className="actions-cell">
+                    <td data-label="Acciones" className="actions-cell">
                       <button 
                         className={`btn-table-oval ${u.bloqueado ? "is-blocked" : "is-unblocked"}`} 
                         onClick={() => toggleBloqueo(u.id, u.role_id, u.bloqueado)}
