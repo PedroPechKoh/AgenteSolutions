@@ -339,7 +339,7 @@ const VistaCotizaciones = () => {
             <UniversalSearch 
               data={cotizaciones}
               setFilteredData={setCotizacionesFiltradas}
-              placeholder="Buscar por cliente, folio o monto..."
+              placeholder="Buscar por folio, cliente, propiedad, técnico, dirección o teléfono..."
               filtroActual={filtro}
               type="COTIZACIONES"
             />

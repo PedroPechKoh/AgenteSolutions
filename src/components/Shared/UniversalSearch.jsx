@@ -44,9 +44,35 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
       }
 
       // Búsqueda por texto (Lupa)
-      const coincideBusqueda = Object.values(item).some(valor => 
-        String(valor || '').toLowerCase().includes(termino)
-      );
+      let coincideBusqueda = false;
+      if (type === 'COTIZACIONES') {
+        const searchFields = [
+          item.folio,
+          item.cliente,
+          item.propiedad_nombre,
+          item.propiedad_direccion,
+          item.tecnico,
+          item.cliente_telefono,
+          item.telefono_cliente,
+          item.telefono,
+          item.total
+        ];
+
+        // Incluir cualquier otro valor directo del objeto
+        Object.keys(item).forEach(key => {
+          const val = item[key];
+          if (typeof val === 'string' || typeof val === 'number') {
+            searchFields.push(val);
+          }
+        });
+
+        const textToSearch = searchFields.map(val => String(val || '').toLowerCase()).join(' ');
+        coincideBusqueda = textToSearch.includes(termino);
+      } else {
+        coincideBusqueda = Object.values(item).some(valor => 
+          String(valor || '').toLowerCase().includes(termino)
+        );
+      }
 
       return coincideFiltro && coincideBusqueda;
     });
