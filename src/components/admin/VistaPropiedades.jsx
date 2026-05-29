@@ -331,6 +331,10 @@ const VistaPropiedades = () => {
                   className="property-image" 
                 />
 
+                <div className="property-name-bar">
+                  <h3>{p.nombre_propiedad || "Propiedad sin nombre"}</h3>
+                </div>
+
                   <div className="property-overlay">
                     <div className="overlay-icon-actions">
                       <button 
