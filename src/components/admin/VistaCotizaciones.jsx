@@ -316,17 +316,26 @@ const VistaCotizaciones = () => {
 
       <main className="cotiz-main-content" style={esCliente ? { padding: '20px 0', width: '100%', maxWidth: '1000px', margin: '0 auto' } : {}}>
         
-        <div className="cotiz-header-actions" style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'flex-start' }}>
+        <div className="cotiz-header-actions" style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'stretch', width: '100%' }}>
           
-          <button 
-            onClick={() => navigate(-1)} 
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
-          >
-            <ChevronLeft size={18} />
-            <span>REGRESAR</span>
-          </button>
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => navigate(-1)} 
+              style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+            >
+              <ChevronLeft size={18} />
+              <span>REGRESAR</span>
+            </button>
 
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px' }}>
+            {!esCliente && (
+              <button className="btn-new-cotiz-v2" onClick={() => setShowCreateModal(true)}>
+                <Plus size={18} />
+                <span>NUEVA COTIZACIÓN</span>
+              </button>
+            )}
+          </div>
+
+          <div className="search-wrapper-full" style={{ width: '100%' }}>
             <UniversalSearch 
               data={cotizaciones}
               setFilteredData={setCotizacionesFiltradas}
@@ -334,13 +343,6 @@ const VistaCotizaciones = () => {
               filtroActual={filtro}
               type="COTIZACIONES"
             />
-            
-            {!esCliente && (
-              <button className="btn-new-cotiz-v2" onClick={() => setShowCreateModal(true)}>
-                <Plus size={18} />
-                <span>NUEVA COTIZACIÓN</span>
-              </button>
-            )}
           </div>
         </div>
 

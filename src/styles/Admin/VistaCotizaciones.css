@@ -103,10 +103,10 @@
 }
 
 .cotiz-pill.active {
-    background: #f26624;
-    border-color: #f26624;
-    color: white;
-    box-shadow: 0 4px 10px rgba(242, 102, 36, 0.2);
+    background: #f26624 !important;
+    border-color: #f26624 !important;
+    color: white !important;
+    box-shadow: 0 4px 10px rgba(242, 102, 36, 0.2) !important;
 }
 
 .origin-pills {
