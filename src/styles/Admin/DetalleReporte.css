@@ -1149,7 +1149,7 @@
     letter-spacing: 0.05em;
 }
 
-.total-amount, strong {
+.total-amount {
     color: #1e293b;
     font-size: 1.5rem;
     font-weight: 900;
