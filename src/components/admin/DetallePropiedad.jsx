@@ -69,6 +69,10 @@ const DetallePropiedad = () => {
   const [mensajeChat, setMensajeChat] = useState('');
   const [enviandoMensaje, setEnviandoMensaje] = useState(false);
   const [usuarioId, setUsuarioId] = useState(null);
+  const [cotsAcordeonOpen, setCotsAcordeonOpen] = useState({
+    pendientes: true,
+    pagadas: false
+  });
 
   useEffect(() => {
     try {
@@ -511,6 +515,41 @@ const DetallePropiedad = () => {
     }
   };
 
+  const handleValidarPagoDetail = async () => {
+    if (!cotizacionDetail) return;
+    try {
+      setEnviandoMensaje(true);
+      const token = localStorage.getItem('agente_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionDetail.id}/validar-pago`, {}, { headers });
+      
+      // Actualizar localmente
+      setCotizacionDetail(prev => ({
+        ...prev,
+        status: 'Pagado',
+        raw: {
+          ...(prev.raw || prev),
+          status: 'Pagado',
+          payment_status: 'Validado'
+        }
+      }));
+
+      // Actualizar listado de cotizaciones
+      setCotizaciones(prevCots => prevCots.map(c => 
+        c.id === cotizacionDetail.id 
+          ? { ...c, status: 'Pagado', raw: { ...c.raw, status: 'Pagado', payment_status: 'Validado' } }
+          : c
+      ));
+
+      Swal.fire({ icon: 'success', title: '¡Pago Validado!', text: 'Pago validado y servicio programado correctamente.' });
+    } catch (error) {
+      console.error('Error validando pago:', error);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Hubo un problema al validar el pago.' });
+    } finally {
+      setEnviandoMensaje(false);
+    }
+  };
+
   const enviarMensajeChatDetail = async () => {
     if (!mensajeChat.trim() || !cotizacionDetail) return;
     setEnviandoMensaje(true);
@@ -593,6 +632,16 @@ const DetallePropiedad = () => {
       </div>
     );
   }
+
+  const cotizacionesPagadas = cotizaciones.filter(c => 
+    String(c.status || '').toLowerCase().includes('pagad') || 
+    String(c.status || '').toLowerCase() === 'pagado'
+  );
+  
+  const cotizacionesNoPagadas = cotizaciones.filter(c => 
+    !String(c.status || '').toLowerCase().includes('pagad') && 
+    String(c.status || '').toLowerCase() !== 'pagado'
+  );
 
   return (
     <div className="app-container">
@@ -678,107 +727,277 @@ const DetallePropiedad = () => {
           </div>
         )}
 
-        <div className="management-section-full" style={{ width: '100%', marginBottom: '30px' }}>
+        <div className="management-section-full" style={{ width: '100%', marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Historial de Servicios (TABLA PRINCIPAL COMPLETA) */}
-          <section className="glass-card" style={{ width: '100%' }}>
-            <div className="card-header-ui"><CheckCircle size={20} className="icon-blue"/> <h2>Historial de Solicitudes y Cotizaciones</h2></div>
-            <div className="table-wrapper">
-              <table className="modern-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
-                <thead>
-                  <tr>
-                    <th style={{ padding: '12px 16px' }}>Servicio / Concepto</th>
-                    <th style={{ padding: '12px 16px' }}>Estatus</th>
-                    <th style={{ padding: '12px 16px', maxWidth: '300px' }}>Comentario Cliente</th>
-                    <th style={{ padding: '12px 16px', textAlign: 'center' }}>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cotizaciones.map(cot => (
-                    <tr key={cot.id} className={cot.esEmergencia ? 'row-priority-sos' : ''} style={{ background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                      <td style={{ padding: '16px' }}><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
-                      <td style={{ padding: '16px' }}><span className={`status-pill pill-${cot.status.toLowerCase()}`}>{cot.status}</span></td>
-                      <td className="comment-cell" style={{ padding: '16px', maxWidth: '300px' }}>
-                        <div className="flex-comment" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
-                          <MessageSquare size={16} className="icon-gray" style={{ flexShrink: 0, marginTop: '2px' }}/>
-                          <span style={{ color: '#475569', fontSize: '0.9rem' }}>{cot.comentario || "Sin observaciones"}</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-                          {cot.status === "ACEPTADA" || cot.status === "Aprobado" || cot.status === "Pendiente" ? (
-                            <button className="btn-planificar" onClick={() => {
-                              setCotizacionSeleccionada(cot);
-                              setFormPlanificacion({ 
-                                tecnico: "", 
-                                fecha: cot.esEmergencia ? obtenerFechaHoy() : "", 
-                                prioridad: cot.esEmergencia ? "SOS" : "ALTA",
-                                descripcionTrabajo: ""
-                              });
-                            }} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '20px', background: '#1e293b', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                              <Settings size={15}/> ASIGNAR
-                            </button>
-                          ) : cot.status === "ASIGNADO" || cot.status === "Programado" ? (
-                             <span className="text-assigned" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#16a34a', fontWeight: 'bold', fontSize: '0.85rem', padding: '8px 12px', background: '#f0fdf4', borderRadius: '20px', border: '1px solid #bbf7d0' }}>
-                               <CheckCircle size={15}/> EN TABLERO
-                             </span>
-                          ) : (
-                            <span className="text-closed" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748b', fontWeight: 'bold', fontSize: '0.85rem', padding: '8px 12px', background: '#f1f5f9', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
-                              {cot.status === "ENVIADA" ? "ESPERANDO..." : "CERRADO"}
-                            </span>
-                          )}
+          <section className="glass-card" style={{ width: '100%', background: 'transparent', boxShadow: 'none', border: 'none', padding: 0 }}>
+            <div className="card-header-ui" style={{ marginBottom: '15px' }}><CheckCircle size={20} className="icon-blue"/> <h2>Historial de Solicitudes y Cotizaciones</h2></div>
+            
+            {/* Acordeón de Cotizaciones Pendientes / No Pagadas */}
+            <div style={{ border: '1px solid #cbd5e1', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.01)' }}>
+              <div 
+                onClick={() => setCotsAcordeonOpen(prev => ({ ...prev, pendientes: !prev.pendientes }))}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px 20px',
+                  background: cotsAcordeonOpen.pendientes ? '#fff7ed' : '#f8fafc',
+                  cursor: 'pointer',
+                  borderBottom: cotsAcordeonOpen.pendientes ? '1px solid #cbd5e1' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '1.2rem', color: cotsAcordeonOpen.pendientes ? '#f26624' : '#64748b' }}>{cotsAcordeonOpen.pendientes ? '▼' : '►'}</span>
+                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '800', color: cotsAcordeonOpen.pendientes ? '#f26624' : '#334155' }}>
+                    📝 SOLICITUDES Y COTIZACIONES PENDIENTES / ACTIVAS
+                  </h3>
+                </div>
+                <span style={{ 
+                  background: cotsAcordeonOpen.pendientes ? '#ffedd5' : '#e2e8f0', 
+                  color: cotsAcordeonOpen.pendientes ? '#f26624' : '#475569', 
+                  padding: '4px 12px', 
+                  borderRadius: '20px', 
+                  fontWeight: '800',
+                  fontSize: '0.8rem'
+                }}>
+                  {cotizacionesNoPagadas.length} Registro{cotizacionesNoPagadas.length !== 1 ? 's' : ''}
+                </span>
+              </div>
 
-                          <button
-                            onClick={() => {
-                              setChatCotizacion(cot);
-                              setIsModalChatOpen(true);
-                            }}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              padding: '8px 16px',
-                              borderRadius: '20px',
-                              border: '1px solid #cbd5e1',
-                              background: 'white',
-                              cursor: 'pointer',
-                              fontSize: '0.85rem',
-                              color: '#334155',
-                              fontWeight: '600',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                            }}
-                            title="Ver conversación con el cliente"
-                          >
-                            <MessageCircle size={15} color="#3b82f6" /> Chat
-                          </button>
-                          <button
-                            onClick={() => {
-                              setCotizacionDetail(cot);
-                              setIsModalCotizacionDetailOpen(true);
-                            }}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              padding: '8px 16px',
-                              borderRadius: '20px',
-                              border: '1px solid #cbd5e1',
-                              background: 'white',
-                              cursor: 'pointer',
-                              fontSize: '0.85rem',
-                              color: '#334155',
-                              fontWeight: '600',
-                              boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                            }}
-                            title="Ver detalle de la cotización"
-                          >
-                            <Eye size={15} color="#f26624" /> Ver cotización
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {cotsAcordeonOpen.pendientes && (
+                <div style={{ padding: '15px', background: 'white' }}>
+                  {cotizacionesNoPagadas.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '30px 10px', color: '#94a3b8', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                      No hay cotizaciones pendientes en esta propiedad.
+                    </div>
+                  ) : (
+                    <div className="table-wrapper">
+                      <table className="modern-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+                        <thead>
+                          <tr>
+                            <th style={{ padding: '12px 16px' }}>Servicio / Concepto</th>
+                            <th style={{ padding: '12px 16px' }}>Estatus</th>
+                            <th style={{ padding: '12px 16px', maxWidth: '300px' }}>Comentario Cliente</th>
+                            <th style={{ padding: '12px 16px', textAlign: 'center' }}>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {cotizacionesNoPagadas.map(cot => (
+                            <tr key={cot.id} className={cot.esEmergencia ? 'row-priority-sos' : ''} style={{ background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                              <td style={{ padding: '16px' }}><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
+                              <td style={{ padding: '16px' }}><span className={`status-pill pill-${cot.status.toLowerCase()}`}>{cot.status}</span></td>
+                              <td className="comment-cell" style={{ padding: '16px', maxWidth: '300px' }}>
+                                <div className="flex-comment" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
+                                  <MessageSquare size={16} className="icon-gray" style={{ flexShrink: 0, marginTop: '2px' }}/>
+                                  <span style={{ color: '#475569', fontSize: '0.9rem' }}>{cot.comentario || "Sin observaciones"}</span>
+                                </div>
+                              </td>
+                              <td style={{ padding: '16px', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+                                  {cot.status === "ACEPTADA" || cot.status === "Aprobado" || cot.status === "Pendiente" ? (
+                                    <button className="btn-planificar" onClick={() => {
+                                      setCotizacionSeleccionada(cot);
+                                      setFormPlanificacion({ 
+                                        tecnico: "", 
+                                        fecha: cot.esEmergencia ? obtenerFechaHoy() : "", 
+                                        prioridad: cot.esEmergencia ? "SOS" : "ALTA",
+                                        descripcionTrabajo: ""
+                                      });
+                                    }} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '20px', background: '#1e293b', color: 'white', border: 'none', fontWeight: 'bold', fontSize: '0.85rem', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                                      <Settings size={15}/> ASIGNAR
+                                    </button>
+                                  ) : cot.status === "ASIGNADO" || cot.status === "Programado" ? (
+                                     <span className="text-assigned" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#16a34a', fontWeight: 'bold', fontSize: '0.85rem', padding: '8px 12px', background: '#f0fdf4', borderRadius: '20px', border: '1px solid #bbf7d0' }}>
+                                       <CheckCircle size={15}/> EN TABLERO
+                                     </span>
+                                  ) : (
+                                    <span className="text-closed" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748b', fontWeight: 'bold', fontSize: '0.85rem', padding: '8px 12px', background: '#f1f5f9', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
+                                      {cot.status === "ENVIADA" ? "ESPERANDO..." : "CERRADO"}
+                                    </span>
+                                  )}
+
+                                  <button
+                                    onClick={() => {
+                                      setChatCotizacion(cot);
+                                      setIsModalChatOpen(true);
+                                    }}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '6px',
+                                      padding: '8px 16px',
+                                      borderRadius: '20px',
+                                      border: '1px solid #cbd5e1',
+                                      background: 'white',
+                                      cursor: 'pointer',
+                                      fontSize: '0.85rem',
+                                      color: '#334155',
+                                      fontWeight: '600',
+                                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                                    }}
+                                    title="Ver conversación con el cliente"
+                                  >
+                                    <MessageCircle size={15} color="#3b82f6" /> Chat
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setCotizacionDetail(cot);
+                                      setIsModalCotizacionDetailOpen(true);
+                                    }}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '6px',
+                                      padding: '8px 16px',
+                                      borderRadius: '20px',
+                                      border: '1px solid #cbd5e1',
+                                      background: 'white',
+                                      cursor: 'pointer',
+                                      fontSize: '0.85rem',
+                                      color: '#334155',
+                                      fontWeight: '600',
+                                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                                    }}
+                                    title="Ver detalle de la cotización"
+                                  >
+                                    <Eye size={15} color="#f26624" /> Ver cotización
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Acordeón de Cotizaciones Pagadas */}
+            <div style={{ border: '1px solid #cbd5e1', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.01)' }}>
+              <div 
+                onClick={() => setCotsAcordeonOpen(prev => ({ ...prev, pagadas: !prev.pagadas }))}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px 20px',
+                  background: cotsAcordeonOpen.pagadas ? '#e8f5e9' : '#f8fafc',
+                  cursor: 'pointer',
+                  borderBottom: cotsAcordeonOpen.pagadas ? '1px solid #cbd5e1' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '1.2rem', color: cotsAcordeonOpen.pagadas ? '#2e7d32' : '#64748b' }}>{cotsAcordeonOpen.pagadas ? '▼' : '►'}</span>
+                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '800', color: cotsAcordeonOpen.pagadas ? '#2e7d32' : '#334155' }}>
+                    ✅ COTIZACIONES PAGADAS
+                  </h3>
+                </div>
+                <span style={{ 
+                  background: cotsAcordeonOpen.pagadas ? '#c8e6c9' : '#e2e8f0', 
+                  color: cotsAcordeonOpen.pagadas ? '#2e7d32' : '#475569', 
+                  padding: '4px 12px', 
+                  borderRadius: '20px', 
+                  fontWeight: '800',
+                  fontSize: '0.8rem'
+                }}>
+                  {cotizacionesPagadas.length} Registro{cotizacionesPagadas.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+
+              {cotsAcordeonOpen.pagadas && (
+                <div style={{ padding: '15px', background: 'white' }}>
+                  {cotizacionesPagadas.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '30px 10px', color: '#94a3b8', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                      No hay cotizaciones pagadas en esta propiedad.
+                    </div>
+                  ) : (
+                    <div className="table-wrapper">
+                      <table className="modern-table" style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+                        <thead>
+                          <tr>
+                            <th style={{ padding: '12px 16px' }}>Servicio / Concepto</th>
+                            <th style={{ padding: '12px 16px' }}>Estatus</th>
+                            <th style={{ padding: '12px 16px', maxWidth: '300px' }}>Comentario Cliente</th>
+                            <th style={{ padding: '12px 16px', textAlign: 'center' }}>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {cotizacionesPagadas.map(cot => (
+                            <tr key={cot.id} style={{ background: 'white', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                              <td style={{ padding: '16px' }}><b>{cot.producto}</b> {cot.esEmergencia && <span className="prio-tag">SOS</span>}</td>
+                              <td style={{ padding: '16px' }}><span className="status-pill pill-pagada" style={{ background: '#e8f5e9', color: '#2e7d32', border: '1px solid #c8e6c9', fontWeight: 'bold', padding: '6px 12px', borderRadius: '15px' }}>PAGADO</span></td>
+                              <td className="comment-cell" style={{ padding: '16px', maxWidth: '300px' }}>
+                                <div className="flex-comment" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.4' }}>
+                                  <MessageSquare size={16} className="icon-gray" style={{ flexShrink: 0, marginTop: '2px' }}/>
+                                  <span style={{ color: '#475569', fontSize: '0.9rem' }}>{cot.comentario || "Sin observaciones"}</span>
+                                </div>
+                              </td>
+                              <td style={{ padding: '16px', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+                                  <span className="text-closed" style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#2e7d32', fontWeight: 'bold', fontSize: '0.85rem', padding: '8px 12px', background: '#e8f5e9', borderRadius: '20px', border: '1px solid #c8e6c9' }}>
+                                    <CheckCircle size={15}/> PAGADO
+                                  </span>
+
+                                  <button
+                                    onClick={() => {
+                                      setChatCotizacion(cot);
+                                      setIsModalChatOpen(true);
+                                    }}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '6px',
+                                      padding: '8px 16px',
+                                      borderRadius: '20px',
+                                      border: '1px solid #cbd5e1',
+                                      background: 'white',
+                                      cursor: 'pointer',
+                                      fontSize: '0.85rem',
+                                      color: '#334155',
+                                      fontWeight: '600',
+                                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                                    }}
+                                    title="Ver conversación con el cliente"
+                                  >
+                                    <MessageCircle size={15} color="#3b82f6" /> Chat
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setCotizacionDetail(cot);
+                                      setIsModalCotizacionDetailOpen(true);
+                                    }}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '6px',
+                                      padding: '8px 16px',
+                                      borderRadius: '20px',
+                                      border: '1px solid #cbd5e1',
+                                      background: 'white',
+                                      cursor: 'pointer',
+                                      fontSize: '0.85rem',
+                                      color: '#334155',
+                                      fontWeight: '600',
+                                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                                    }}
+                                    title="Ver detalle de la cotización"
+                                  >
+                                    <Eye size={15} color="#f26624" /> Ver cotización
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </section>
         </div>
@@ -1638,6 +1857,38 @@ const DetallePropiedad = () => {
                     <p style={{ margin: 0, fontSize: '0.95rem', color: '#422006', whiteSpace: 'pre-wrap', fontStyle: 'italic' }}>
                       {cotRaw.internal_observations}
                     </p>
+                  </div>
+                )}
+
+                {/* --- SECCIÓN DE COMPROBANTE DE PAGO --- */}
+                {cotRaw.payment_receipt_path && (
+                  <div style={{ padding: '16px', background: '#fffbeb', borderRadius: '12px', marginTop: '20px', borderLeft: '4px solid #fbbf24', border: '1px solid #fef3c7' }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '1rem', color: '#b45309', fontWeight: 'bold' }}>🧾 Comprobante de Pago ({cotRaw.payment_status || 'En Revisión'}):</h4>
+                    <div style={{ textAlign: 'center' }}>
+                      <img 
+                        src={cotRaw.payment_receipt_path} 
+                        alt="Comprobante de Pago" 
+                        style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '8px', cursor: 'pointer', objectFit: 'contain', border: '1px solid #fcd34d' }} 
+                        onClick={() => setImagenAmpliada(cotRaw.payment_receipt_path)}
+                      />
+                      <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '5px 0 10px 0' }}>Click para ampliar</p>
+                      
+                      {(cotRaw.status === 'Pago en Revisión' || cotRaw.payment_status === 'Pago en Revisión') && (
+                        <button 
+                          onClick={handleValidarPagoDetail}
+                          disabled={enviandoMensaje}
+                          style={{ 
+                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+                            color: 'white', border: 'none', padding: '12px 25px', borderRadius: '25px', 
+                            fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', 
+                            margin: '10px auto 0', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.2)', transition: 'all 0.2s' 
+                          }}
+                        >
+                          <CheckCircle size={20} /> 
+                          {enviandoMensaje ? 'VALIDANDO...' : 'VALIDAR PAGO'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
 
