@@ -293,8 +293,29 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                 <div key={reg.id} className="rdh-table-row" style={{ gridTemplateColumns: categoriaActiva?.name === 'PINTURA' ? '1.2fr 1fr 1fr 1fr 120px' : '1fr 1fr 0.5fr 1fr 120px' }}>
                   {categoriaActiva?.name === 'PINTURA' ? (
                     <>
-                      <span data-label="Tono" style={{ fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '1.2rem' }}>🎨</span> {reg.model_or_color || 'N/A'}
+                      <span data-label="Tono" style={{ fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                        {(() => {
+                          const colorHex = obtenerColorHex(reg.model_or_color) || obtenerColorHex(reg.serial_number);
+                          if (colorHex) {
+                            return (
+                              <span 
+                                style={{
+                                  width: '20px',
+                                  height: '20px',
+                                  borderRadius: '50%',
+                                  backgroundColor: colorHex,
+                                  border: '2px solid white',
+                                  boxShadow: '0 1px 4px rgba(0,0,0,0.25)',
+                                  display: 'inline-block',
+                                  flexShrink: 0
+                                }} 
+                                title={`Color detectado: ${colorHex}`}
+                              />
+                            );
+                          }
+                          return <span style={{ fontSize: '1.2rem' }}>🎨</span>;
+                        })()}
+                        {reg.model_or_color || 'N/A'}
                       </span>
                       <span data-label="Marca">{reg.brand || 'N/A'}</span>
                       <span data-label="Clave">{reg.serial_number || 'N/A'}</span>
