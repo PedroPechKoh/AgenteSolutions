@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { ChevronLeft } from 'lucide-react';
 import Header from "./Shared/Header";
 import "../styles/CustomizeLogin.css";
 
@@ -96,6 +97,28 @@ const CustomizeLogin = () => {
         <Header titulo="PERSONALIZACIÓN" />
 
         <div className="customize-wrapper">
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '5px', 
+              background: '#F26522', 
+              color: 'white', 
+              padding: '8px 25px', 
+              borderRadius: '25px', 
+              border: 'none', 
+              cursor: 'pointer', 
+              fontWeight: 'bold', 
+              fontSize: '0.9rem',
+              alignSelf: 'flex-start',
+              marginBottom: '15px'
+            }}
+          >
+            <ChevronLeft size={18} />
+            <span>VOLVER AL PANEL</span>
+          </button>
+
           <h2 className="customize-title">PERSONALIZAR PANTALLA DE LOGIN</h2>
 
           <div className="customize-card">
@@ -223,10 +246,6 @@ const CustomizeLogin = () => {
               </p>
             )}
           </div>
-
-          <button onClick={() => navigate(-1)} className="btn-back">
-            Volver al panel
-          </button>
         </div>
       </div>
     </div>
