@@ -397,75 +397,158 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
 
       {/* MODAL PARA AGREGAR NUEVA CATEGORÍA */}
       {isModalOpen && (
-        <div className="rdh-modal-overlay">
-          <div className="rdh-modal-content" style={{ width: '450px' }}>
-            <div className="rdh-modal-title">
+        <div className="rdh-modal-overlay" onClick={() => {
+          setIsModalOpen(false);
+          setCreandoNuevaCategoria(false);
+          setCategoriasSeleccionadas([]);
+        }}>
+          <div className="rdh-modal-content" style={{ width: '600px', maxWidth: '95vw', padding: '30px' }} onClick={e => e.stopPropagation()}>
+            <button className="rdh-modal-close" onClick={() => {
+              setIsModalOpen(false);
+              setCreandoNuevaCategoria(false);
+              setCategoriasSeleccionadas([]);
+            }}>
+              <X size={24} strokeWidth={3} />
+            </button>
+            <div className="rdh-modal-title" style={{ marginBottom: '20px' }}>
               <h2>NUEVA CATEGORÍA</h2>
             </div>
             
-            <div className="rdh-modal-form" style={{ padding: '20px' }}>
+            <div className="rdh-modal-form" style={{ padding: '0 10px 10px' }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <label style={{fontWeight: 900, fontSize: 14, marginBottom: 15, color: '#333'}}>
+                <label style={{fontWeight: 900, fontSize: 13, marginBottom: 15, color: '#333', letterSpacing: '0.5px', textTransform: 'uppercase'}}>
                   SELECCIONA LAS CATEGORÍAS A AGREGAR
                 </label>
                 
                 <div className="cat-multi-select-grid" style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', 
-                  gap: '10px', 
-                  maxHeight: '200px',
-                  overflowY: 'auto',
-                  padding: '10px',
-                  backgroundColor: 'rgba(0,0,0,0.05)',
-                  borderRadius: '10px',
-                  marginBottom: '15px'
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', 
+                  gap: '12px', 
+                  padding: '12px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.45)',
+                  border: '1px solid rgba(0,0,0,0.05)',
+                  borderRadius: '16px',
+                  marginBottom: '20px'
                 }}>
-                  {OPCIONES_CAT_PREDEFINIDAS.map(opc => (
-                    <button
-                      key={opc}
-                      type="button"
-                      onClick={() => toggleCatSelection(opc)}
-                      style={{
-                        padding: '10px',
-                        borderRadius: '8px',
-                        border: '2px solid',
-                        borderColor: categoriasSeleccionadas.includes(opc) ? '#F26522' : '#ddd',
-                        backgroundColor: categoriasSeleccionadas.includes(opc) ? '#F26522' : 'white',
-                        color: categoriasSeleccionadas.includes(opc) ? 'white' : '#444',
-                        cursor: 'pointer',
-                        fontSize: '0.75rem',
-                        fontWeight: 'bold',
-                        transition: 'all 0.2s',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                      }}
-                    >
-                      {opc}
-                    </button>
-                  ))}
+                  {(() => {
+                    const ICONOS_CATEGORIAS = {
+                      "ELÉCTRICO": "🔌",
+                      "PLOMERÍA": "🚰",
+                      "AIRE ACONDICIONADO": "❄️",
+                      "ELECTRODOMÉSTICOS": "📺",
+                      "MUEBLES": "🪑",
+                      "CARPINTERÍA": "🔨",
+                      "PINTURA": "🎨",
+                      "ILUMINACIÓN": "💡",
+                      "ACABADOS": "🧱"
+                    };
+
+                    return OPCIONES_CAT_PREDEFINIDAS.map(opc => {
+                      const isSelected = categoriasSeleccionadas.includes(opc);
+                      const emoji = ICONOS_CATEGORIAS[opc] || "🛠️";
+                      return (
+                        <button
+                          key={opc}
+                          type="button"
+                          onClick={() => toggleCatSelection(opc)}
+                          style={{
+                            padding: '15px 10px',
+                            borderRadius: '14px',
+                            border: '2px solid',
+                            borderColor: isSelected ? '#F26522' : 'transparent',
+                            backgroundColor: isSelected ? '#F26522' : 'white',
+                            color: isSelected ? 'white' : '#1e293b',
+                            cursor: 'pointer',
+                            fontSize: '0.82rem',
+                            fontWeight: '800',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '8px',
+                            transition: 'all 0.2s ease',
+                            boxShadow: isSelected ? '0 6px 15px rgba(242,101,34,0.3)' : '0 2px 4px rgba(0,0,0,0.04)',
+                            transform: isSelected ? 'translateY(-2px)' : 'none'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.borderColor = '#F26522';
+                              e.currentTarget.style.transform = 'translateY(-2px)';
+                              e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.06)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.borderColor = 'transparent';
+                              e.currentTarget.style.transform = 'none';
+                              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.04)';
+                            }
+                          }}
+                        >
+                          <span style={{ fontSize: '1.8rem' }}>{emoji}</span>
+                          <span style={{ textAlign: 'center', lineHeight: '1.2' }}>{opc}</span>
+                        </button>
+                      );
+                    });
+                  })()}
+                  
                   <button
                     type="button"
                     onClick={() => setCreandoNuevaCategoria(!creandoNuevaCategoria)}
                     style={{
-                      padding: '10px',
-                      borderRadius: '8px',
+                      padding: '15px 10px',
+                      borderRadius: '14px',
                       border: '2px solid',
-                      borderColor: creandoNuevaCategoria ? '#F26522' : '#ddd',
+                      borderColor: creandoNuevaCategoria ? '#F26522' : 'transparent',
                       backgroundColor: creandoNuevaCategoria ? '#F26522' : 'white',
-                      color: creandoNuevaCategoria ? 'white' : '#444',
+                      color: creandoNuevaCategoria ? 'white' : '#1e293b',
                       cursor: 'pointer',
-                      fontSize: '0.75rem',
-                      fontWeight: 'bold',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                      fontSize: '0.82rem',
+                      fontWeight: '800',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s ease',
+                      boxShadow: creandoNuevaCategoria ? '0 6px 15px rgba(242,101,34,0.3)' : '0 2px 4px rgba(0,0,0,0.04)',
+                      transform: creandoNuevaCategoria ? 'translateY(-2px)' : 'none'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!creandoNuevaCategoria) {
+                        e.currentTarget.style.borderColor = '#F26522';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.06)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!creandoNuevaCategoria) {
+                        e.currentTarget.style.borderColor = 'transparent';
+                        e.currentTarget.style.transform = 'none';
+                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.04)';
+                      }
                     }}
                   >
-                    OTRA...
+                    <span style={{ fontSize: '1.8rem' }}>✨</span>
+                    <span>OTRA...</span>
                   </button>
                 </div>
 
                 {creandoNuevaCategoria && (
                   <input 
                     className="rdh-modal-input" 
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', textTransform: 'uppercase' }}
+                    style={{ 
+                      width: '100%', 
+                      padding: '12px 18px', 
+                      borderRadius: '12px', 
+                      border: '2px solid #ddd', 
+                      fontSize: '14px', 
+                      textTransform: 'uppercase', 
+                      backgroundColor: '#fff', 
+                      color: '#333',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.05)',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#F26522'}
+                    onBlur={(e) => e.target.style.borderColor = '#ddd'}
                     type="text" 
                     value={nuevaCategoria} 
                     onChange={(e) => setNuevaCategoria(e.target.value.toUpperCase())} 
@@ -476,7 +559,7 @@ const DetalleHabitacion = ({ habitacion, propertyCurp, alVolver, servicioId }) =
               </div>
             </div>
 
-            <div className="rdh-modal-btn-container" style={{ gap: '15px', marginTop: '10px', padding: '0 20px 20px' }}>
+            <div className="rdh-modal-btn-container" style={{ gap: '15px', marginTop: '10px', padding: '0 10px 10px' }}>
               <button className="dh-btn-save-3d" style={{ background: '#777', boxShadow: '0 6px 0px #444', height: '45px', padding: '0 30px', fontSize: '16px' }} onClick={() => {
                 setIsModalOpen(false);
                 setCreandoNuevaCategoria(false);

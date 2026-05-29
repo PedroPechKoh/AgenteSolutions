@@ -304,10 +304,15 @@
     min-width: unset !important; /* Forzamos reset de ancho */
   }
 
-  .rdh-table-row span:nth-child(1)::before { content: "MARCA: "; color: #333; opacity: 0.6; font-size: 10px; display: block; }
-  .rdh-table-row span:nth-child(2)::before { content: "MODELO: "; color: #333; opacity: 0.6; font-size: 10px; display: block; }
-  .rdh-table-row span:nth-child(3)::before { content: "CANTIDAD: "; color: #333; opacity: 0.6; font-size: 10px; display: block; }
-  .rdh-table-row span:nth-child(4)::before { content: "TIPO: "; color: #333; opacity: 0.6; font-size: 10px; display: block; }
+  .rdh-table-row span::before {
+    content: attr(data-label) ": ";
+    color: #333;
+    opacity: 0.6;
+    font-size: 10px;
+    display: block;
+    text-transform: uppercase;
+    font-weight: 800;
+  }
 
   .rdh-table-row div:last-child {
     justify-content: center !important;

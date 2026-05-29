@@ -111,20 +111,26 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
   };
 
   const guardarComponente = async () => {
-    if (!nuevoRegistro.sub_category) return alert("El campo TIPO es obligatorio.");
+    let subCat = nuevoRegistro.sub_category;
+    if (categoriaActiva?.name === 'PINTURA') {
+      subCat = 'COLORIMETRÍA';
+      if (!nuevoRegistro.model_or_color) return alert("El campo TONO es obligatorio.");
+    } else {
+      if (!subCat) return alert("El campo TIPO es obligatorio.");
+    }
 
     setGuardando(true);
     
     const formData = new FormData();
     formData.append('property_area_id', habitacion.id);
     formData.append('category', categoriaActiva.name);
-    formData.append('sub_category', nuevoRegistro.sub_category);
+    formData.append('sub_category', subCat);
     formData.append('brand', nuevoRegistro.brand);
     formData.append('model_or_color', nuevoRegistro.model_or_color);
     formData.append('quantity', nuevoRegistro.quantity);
     formData.append('serial_number', nuevoRegistro.serial_number);
     formData.append('observations', nuevoRegistro.observations);
-    formData.append('unit', 'PZA');
+    formData.append('unit', categoriaActiva?.name === 'PINTURA' ? 'M2' : 'PZA');
     formData.append('status', 'Bueno');
     
     if (selectedFile) {
@@ -209,11 +215,22 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
 
         <div className="rdh-content-layout">
           <div className="rdh-table-container">
-            <div className="rdh-table-header">
-              <span>MARCA</span>
-              <span>MODELO</span>
-              <span>CANTIDAD</span>
-              <span>TIPO</span>
+            <div className="rdh-table-header" style={{ gridTemplateColumns: categoriaActiva?.name === 'PINTURA' ? '1.2fr 1fr 1fr 1fr 120px' : '1fr 1fr 0.5fr 1fr 120px' }}>
+              {categoriaActiva?.name === 'PINTURA' ? (
+                <>
+                  <span>TONO / COLOR</span>
+                  <span>MARCA</span>
+                  <span>CLAVE / FÓRMULA</span>
+                  <span>ÁREA (M²)</span>
+                </>
+              ) : (
+                <>
+                  <span>MARCA</span>
+                  <span>MODELO</span>
+                  <span>CANTIDAD</span>
+                  <span>TIPO</span>
+                </>
+              )}
               <span></span>
             </div>
             
@@ -221,11 +238,24 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
               <p style={{textAlign: 'center', color: 'white', padding: '20px'}}>Cargando elementos...</p>
             ) : componentes.length > 0 ? (
               componentes.map((reg) => (
-                <div key={reg.id} className="rdh-table-row">
-                  <span>{reg.brand || 'N/A'}</span>
-                  <span>{reg.model_or_color || 'N/A'}</span>
-                  <span>{reg.quantity}</span>
-                  <span>{reg.sub_category}</span>
+                <div key={reg.id} className="rdh-table-row" style={{ gridTemplateColumns: categoriaActiva?.name === 'PINTURA' ? '1.2fr 1fr 1fr 1fr 120px' : '1fr 1fr 0.5fr 1fr 120px' }}>
+                  {categoriaActiva?.name === 'PINTURA' ? (
+                    <>
+                      <span data-label="Tono" style={{ fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '5px', justifyContent: 'center' }}>
+                        <span style={{ fontSize: '1.2rem' }}>🎨</span> {reg.model_or_color || 'N/A'}
+                      </span>
+                      <span data-label="Marca">{reg.brand || 'N/A'}</span>
+                      <span data-label="Clave">{reg.serial_number || 'N/A'}</span>
+                      <span data-label="Área" style={{ fontWeight: 'bold' }}>{reg.quantity} m²</span>
+                    </>
+                  ) : (
+                    <>
+                      <span data-label="Marca">{reg.brand || 'N/A'}</span>
+                      <span data-label="Modelo">{reg.model_or_color || 'N/A'}</span>
+                      <span data-label="Cantidad">{reg.quantity}</span>
+                      <span data-label="Tipo">{reg.sub_category}</span>
+                    </>
+                  )}
                   
                   {/* SECCIÓN DE BOTONES: DETALLE, EDITAR Y ELIMINAR */}
                   <div style={{display: 'flex', gap: '10px', justifyContent: 'flex-end'}}>
@@ -415,28 +445,75 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
               </div>
 
 
-              <div className="rdh-modal-field">
-                <label>TIPO *</label>
-                <input type="text" className="rdh-modal-input" placeholder="Ej. ENCHUFE, FOCO" value={nuevoRegistro.sub_category} onChange={(e) => setNuevoRegistro({...nuevoRegistro, sub_category: e.target.value.toUpperCase()})}/>
-              </div>
-              <div className="rdh-modal-field">
-                <label>MARCA</label>
-                <input type="text" className="rdh-modal-input" value={nuevoRegistro.brand} onChange={(e) => setNuevoRegistro({...nuevoRegistro, brand: e.target.value.toUpperCase()})}/>
-              </div>
-              <div className="rdh-modal-field">
-                <label>MODELO</label>
-                <input type="text" className="rdh-modal-input" value={nuevoRegistro.model_or_color} onChange={(e) => setNuevoRegistro({...nuevoRegistro, model_or_color: e.target.value.toUpperCase()})}/>
-              </div>
-              
-              <div className="rdh-modal-field">
-                <label>NO. SERIE</label>
-                <input type="text" className="rdh-modal-input" placeholder="S/N" value={nuevoRegistro.serial_number} onChange={(e) => setNuevoRegistro({...nuevoRegistro, serial_number: e.target.value.toUpperCase()})}/>
-              </div>
-
-              <div className="rdh-modal-field">
-                <label>CANTIDAD *</label>
-                <input type="number" min="0.1" step="0.1" className="rdh-modal-input" value={nuevoRegistro.quantity} onChange={(e) => setNuevoRegistro({...nuevoRegistro, quantity: e.target.value})}/>
-              </div>
+              {categoriaActiva?.name === 'PINTURA' ? (
+                <>
+                  <div className="rdh-modal-field">
+                    <label>TONO *</label>
+                    <input 
+                      type="text" 
+                      className="rdh-modal-input" 
+                      placeholder="Ej. BLANCO OSTIÓN, GRIS" 
+                      value={nuevoRegistro.model_or_color} 
+                      onChange={(e) => setNuevoRegistro({...nuevoRegistro, model_or_color: e.target.value.toUpperCase()})}
+                    />
+                  </div>
+                  <div className="rdh-modal-field">
+                    <label>MARCA</label>
+                    <input 
+                      type="text" 
+                      className="rdh-modal-input" 
+                      placeholder="Ej. COMEX, SHERWIN" 
+                      value={nuevoRegistro.brand} 
+                      onChange={(e) => setNuevoRegistro({...nuevoRegistro, brand: e.target.value.toUpperCase()})}
+                    />
+                  </div>
+                  <div className="rdh-modal-field">
+                    <label>CLAVE</label>
+                    <input 
+                      type="text" 
+                      className="rdh-modal-input" 
+                      placeholder="Ej. fórmulas, códigos..." 
+                      value={nuevoRegistro.serial_number} 
+                      onChange={(e) => setNuevoRegistro({...nuevoRegistro, serial_number: e.target.value.toUpperCase()})}
+                    />
+                  </div>
+                  <div className="rdh-modal-field">
+                    <label>M² *</label>
+                    <input 
+                      type="number" 
+                      min="0.01" 
+                      step="0.01" 
+                      className="rdh-modal-input" 
+                      placeholder="Metros cuadrados"
+                      value={nuevoRegistro.quantity} 
+                      onChange={(e) => setNuevoRegistro({...nuevoRegistro, quantity: e.target.value})}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="rdh-modal-field">
+                    <label>TIPO *</label>
+                    <input type="text" className="rdh-modal-input" placeholder="Ej. ENCHUFE, FOCO" value={nuevoRegistro.sub_category} onChange={(e) => setNuevoRegistro({...nuevoRegistro, sub_category: e.target.value.toUpperCase()})}/>
+                  </div>
+                  <div className="rdh-modal-field">
+                    <label>MARCA</label>
+                    <input type="text" className="rdh-modal-input" value={nuevoRegistro.brand} onChange={(e) => setNuevoRegistro({...nuevoRegistro, brand: e.target.value.toUpperCase()})}/>
+                  </div>
+                  <div className="rdh-modal-field">
+                    <label>MODELO</label>
+                    <input type="text" className="rdh-modal-input" value={nuevoRegistro.model_or_color} onChange={(e) => setNuevoRegistro({...nuevoRegistro, model_or_color: e.target.value.toUpperCase()})}/>
+                  </div>
+                  <div className="rdh-modal-field">
+                    <label>NO. SERIE</label>
+                    <input type="text" className="rdh-modal-input" placeholder="S/N" value={nuevoRegistro.serial_number} onChange={(e) => setNuevoRegistro({...nuevoRegistro, serial_number: e.target.value.toUpperCase()})}/>
+                  </div>
+                  <div className="rdh-modal-field">
+                    <label>CANTIDAD *</label>
+                    <input type="number" min="0.1" step="0.1" className="rdh-modal-input" value={nuevoRegistro.quantity} onChange={(e) => setNuevoRegistro({...nuevoRegistro, quantity: e.target.value})}/>
+                  </div>
+                </>
+              )}
 
               <div className="rdh-modal-field" style={{ alignItems: 'flex-start' }}>
                 <label style={{ marginTop: '15px' }}>COMENTARIOS</label>
@@ -499,11 +576,22 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
 
               {/* COLUMNA DERECHA: DATOS */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', backgroundColor: '#999', padding: '25px', borderRadius: '15px', color: 'white', justifyContent: 'flex-start' }}>
-                <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>TIPO:</strong> {itemDetalle.sub_category}</div>
-                <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>MARCA:</strong> {itemDetalle.brand || 'N/A'}</div>
-                <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>MODELO:</strong> {itemDetalle.model_or_color || 'N/A'}</div>
-                <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>NO. SERIE:</strong> {itemDetalle.serial_number || 'S/N'}</div>
-                <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>CANTIDAD:</strong> {itemDetalle.quantity}</div>
+                {categoriaActiva?.name === 'PINTURA' ? (
+                  <>
+                    <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>TONO / COLOR:</strong> {itemDetalle.model_or_color || 'N/A'}</div>
+                    <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>MARCA:</strong> {itemDetalle.brand || 'N/A'}</div>
+                    <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>CLAVE / FÓRMULA:</strong> {itemDetalle.serial_number || 'N/A'}</div>
+                    <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>ÁREA ESTIMADA:</strong> {itemDetalle.quantity} m²</div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>TIPO:</strong> {itemDetalle.sub_category}</div>
+                    <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>MARCA:</strong> {itemDetalle.brand || 'N/A'}</div>
+                    <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>MODELO:</strong> {itemDetalle.model_or_color || 'N/A'}</div>
+                    <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>NO. SERIE:</strong> {itemDetalle.serial_number || 'S/N'}</div>
+                    <div style={{ fontSize: '15px' }}><strong style={{color: '#fff'}}>CANTIDAD:</strong> {itemDetalle.quantity}</div>
+                  </>
+                )}
                 <div style={{ marginTop: '10px', fontSize: '15px' }}><strong style={{color: '#fff'}}>OBSERVACIONES:</strong></div>
                 <div style={{ backgroundColor: '#777', padding: '15px', borderRadius: '10px', minHeight: '80px', fontStyle: 'italic', fontSize: '14px', overflowY: 'auto' }}>
                   {itemDetalle.observations || 'Sin observaciones del técnico.'}
