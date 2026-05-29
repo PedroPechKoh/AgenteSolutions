@@ -192,6 +192,11 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
     // SI ESTAMOS EDITANDO, AGREGAMOS EL TRUCO PARA LARAVEL Y CAMBIAMOS LA URL
     if (modoEdicion) {
       formData.append('_method', 'PUT'); 
+      if (removedGalleryIds.length > 0) {
+        removedGalleryIds.forEach((id) => {
+          formData.append('deleted_gallery_ids[]', id);
+        });
+      }
     }
 
     const url = modoEdicion 
@@ -430,12 +435,101 @@ const RegistroDetalleHabitacion = ({ habitacion, categoriaActiva, propertyCurp, 
                         
                         {/* Mostrar fotos limpias de la BD */}
                         {galeriaExistente.map((foto, i) => (
-                           <img key={`ex-${i}`} src={foto.image_path} alt={`galeria-bd-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
+                           <div 
+                             key={`ex-${i}`} 
+                             style={{ 
+                               position: 'relative', 
+                               width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', 
+                               height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%'
+                             }}
+                           >
+                             <img 
+                               src={foto.image_path} 
+                               alt={`galeria-bd-${i}`} 
+                               style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px' }} 
+                             />
+                             <button
+                               type="button"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setGaleriaExistente(prev => prev.filter((_, idx) => idx !== i));
+                                 setRemovedGalleryIds(prev => [...prev, foto.id]);
+                               }}
+                               title="Eliminar foto"
+                               style={{
+                                 position: 'absolute',
+                                 top: '-2px',
+                                 right: '-2px',
+                                 background: '#e02424',
+                                 color: '#ffffff',
+                                 border: '1px solid #ffffff',
+                                 borderRadius: '50%',
+                                 width: '16px',
+                                 height: '16px',
+                                 cursor: 'pointer',
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center',
+                                 fontSize: '11px',
+                                 fontWeight: 'bold',
+                                 zIndex: 10,
+                                 boxShadow: '0px 1px 3px rgba(0,0,0,0.3)',
+                                 padding: 0,
+                                 lineHeight: 1
+                               }}
+                             >
+                               ×
+                             </button>
+                           </div>
                         ))}
 
                         {/* Mostrar fotos recién seleccionadas */}
                         {galeriaArchivos.slice(0, 4 - galeriaExistente.length).map((file, i) => (
-                           <img key={`new-${i}`} src={URL.createObjectURL(file)} alt={`galeria-new-${i}`} style={{ width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', objectFit: 'cover', borderRadius: '5px' }} />
+                           <div 
+                             key={`new-${i}`} 
+                             style={{ 
+                               position: 'relative', 
+                               width: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%', 
+                               height: (galeriaArchivos.length + galeriaExistente.length) > 1 ? '45%' : '90%'
+                             }}
+                           >
+                             <img 
+                               src={URL.createObjectURL(file)} 
+                               alt={`galeria-new-${i}`} 
+                               style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px' }} 
+                             />
+                             <button
+                               type="button"
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setGaleriaArchivos(prev => prev.filter((_, idx) => idx !== i));
+                               }}
+                               title="Eliminar foto nueva"
+                               style={{
+                                 position: 'absolute',
+                                 top: '-2px',
+                                 right: '-2px',
+                                 background: '#e02424',
+                                 color: '#ffffff',
+                                 border: '1px solid #ffffff',
+                                 borderRadius: '50%',
+                                 width: '16px',
+                                 height: '16px',
+                                 cursor: 'pointer',
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 justifyContent: 'center',
+                                 fontSize: '11px',
+                                 fontWeight: 'bold',
+                                 zIndex: 10,
+                                 boxShadow: '0px 1px 3px rgba(0,0,0,0.3)',
+                                 padding: 0,
+                                 lineHeight: 1
+                               }}
+                             >
+                               ×
+                             </button>
+                           </div>
                         ))}
 
                       </div>
