@@ -26,10 +26,10 @@ html {
   overflow: hidden;
   height: 100%;
   /* Ocultar scrollbar global en todos los navegadores */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
-html::-webkit-scrollbar { display: none; }
+html::-webkit-scrollbar { display: none !important; width: 0 !important; }
 
 body {
   margin: 0;
@@ -37,10 +37,21 @@ body {
   height: 100%;
   overflow: hidden;
   /* Ocultar scrollbar global */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
-body::-webkit-scrollbar { display: none; }
+body::-webkit-scrollbar { display: none !important; width: 0 !important; }
+
+/* REGLA MAESTRA PARA OCULTAR TODOS LOS SCROLLBARS GLOBALES */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
 
 
 h1 {
