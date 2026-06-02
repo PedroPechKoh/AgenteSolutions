@@ -4,7 +4,7 @@
   height: 100vh;
   width: 100%;
   background-color: white;
-  overflow: visible;
+  overflow: hidden; /* Evita scroll horizontal global */
 }
 
 
@@ -151,13 +151,12 @@
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
+  /* Ocultar scrollbar en todos los navegadores */
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE / Edge legacy */
 }
 .tt-body::-webkit-scrollbar {
-  width: 6px;
-}
-.tt-body::-webkit-scrollbar-thumb {
-  background: #ddd;
-  border-radius: 10px;
+  display: none; /* Chrome, Safari, Opera */
 }
 
 

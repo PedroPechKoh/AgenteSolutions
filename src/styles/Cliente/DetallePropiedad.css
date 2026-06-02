@@ -22,6 +22,7 @@
   margin: 0 auto;
   align-items: start;
   box-sizing: border-box;
+  min-width: 0; /* Evita que el grid desborde */
 }
 
 .left-column,
@@ -29,6 +30,23 @@
   width: 100%;
 }
 
+/* iPad horizontal / tablet grande (1050px) - columnas compactas */
+@media (max-width: 1050px) {
+  .main-layout-detail {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .action-header-right {
+    flex-wrap: wrap !important;
+    gap: 8px;
+  }
+  .btn-add-service-full {
+    font-size: 12px;
+    padding: 11px 8px;
+  }
+}
+
+/* iPad vertical / tablet mediana (950px) - apila en columna */
 @media (max-width: 950px) {
   .main-layout-detail { 
     display: flex; 
@@ -43,7 +61,7 @@
   /* Reordenamiento de las secciones para móviles */
   .property-id-header { order: 1; width: 100%; }
   .hero-section-compact { order: 2; width: 100%; }
-  .action-header-right { order: 3; margin-top: 5px; width: 100%; }
+  .action-header-right { order: 3; margin-top: 5px; width: 100%; flex-wrap: wrap !important; }
   .sticky-card { order: 4; width: 100%; box-sizing: border-box; }
   .historial-section { order: 5; width: 100%; box-sizing: border-box; }
 }
