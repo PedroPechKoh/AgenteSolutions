@@ -9,6 +9,7 @@ import {
   CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon, ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import Logo3 from '../../assets/Logo3.png';
 
 const DetallePropiedad = () => {
   const { id } = useParams();
@@ -686,8 +687,8 @@ const DetallePropiedad = () => {
               <ArrowLeft size={16} /> Regresar
             </button>
 
-            <div className="logo-brand">
-              AGENTE <span className="logo-solutions">SOLUTIONS</span>
+            <div className="logo-brand" style={{ display: 'flex', alignItems: 'center', margin: '0 15px' }}>
+              <img src={Logo3} alt="Agente Solutions" style={{ height: '30px', objectFit: 'contain' }} />
             </div>
 
             <nav className="top-nav">
