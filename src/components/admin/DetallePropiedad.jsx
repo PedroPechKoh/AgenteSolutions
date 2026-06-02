@@ -8,11 +8,13 @@ import {
   X, LayoutDashboard, FileText, Send, Trash2, Clock, Briefcase, MessageSquare,
   CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon, ArrowLeft
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const DetallePropiedad = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   // --- ESTADOS ---
   const [isModalPerfilOpen, setIsModalPerfilOpen] = useState(false);
@@ -655,7 +657,13 @@ const DetallePropiedad = () => {
           {/* Logo + Navegación */}
           <div className="top-bar-left">
             <button 
-              onClick={() => navigate(-1)} 
+              onClick={() => {
+                if (user?.role_id === 3) {
+                  navigate(`/DetallePropiedad/${id}`);
+                } else {
+                  navigate('/VistaRoot');
+                }
+              }} 
               className="btn-back-header"
               style={{
                 display: 'flex',
@@ -688,9 +696,11 @@ const DetallePropiedad = () => {
                 <LayoutDashboard size={18}/> Dashboard
               </button>
 
-              <button className="nav-item" onClick={() => setIsModalPerfilOpen(true)}>
-                <User size={18}/> Perfil Propiedad
-              </button>
+              {user?.role_id !== 3 && (
+                <button className="nav-item" onClick={() => setIsModalPerfilOpen(true)}>
+                  <User size={18}/> Perfil Propiedad
+                </button>
+              )}
 
             </nav>
           </div>
@@ -706,7 +716,7 @@ const DetallePropiedad = () => {
                 <MapPin size={14}/> {datosPropiedad.location || "Mérida, Yuc."}
               </p>
             </div>
-            <div className="user-badge" onClick={() => setIsModalPerfilOpen(true)}>
+            <div className="user-badge" onClick={() => { if(user?.role_id !== 3) setIsModalPerfilOpen(true); }}>
               <div className="avatar">
                 {datosPropiedad.personaCargo.charAt(0).toUpperCase()}
               </div>
@@ -716,7 +726,7 @@ const DetallePropiedad = () => {
 
         </header>
 
-        {sosPendientes.length > 0 && (
+        {user?.role_id !== 3 && sosPendientes.length > 0 && (
           <div className="sos-alert-banner">
             <div className="sos-banner-content">
               <div className="icon-pulse"><AlertTriangle size={24} /></div>

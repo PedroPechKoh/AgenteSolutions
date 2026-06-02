@@ -176,7 +176,7 @@ useEffect(() => {
         <Route path="/Cotizaciones" element={<MainLayoutCliente><Cotizaciones /></MainLayoutCliente>} />
         <Route path="/Pago" element={<MainLayoutCliente><Pago /></MainLayoutCliente>} />
         <Route path="/SOSView" element={<MainLayoutCliente><SOSView /></MainLayoutCliente>} />
-        <Route path="/propiedad/:id/tablero" element={<MainLayoutCliente><TableroScrum /></MainLayoutCliente>} />
+        <Route path="/propiedad/:id/tablero" element={<DetallePropiedadadmin />} />
         <Route path="/DetallePropiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
         <Route path="/ReporteTrabajo" element={<MainLayoutCliente><ReporteTrabajo /></MainLayoutCliente>} />
         <Route path="/VistaDetallePropiedad" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
