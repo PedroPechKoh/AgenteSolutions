@@ -28,6 +28,15 @@
 .left-column,
 .right-column {
   width: 100%;
+  min-width: 0; /* Permite que la columna se encoja más allá de su contenido fijo */
+}
+
+/* Permitir que los botones superiores hagan wrap por defecto si no caben en PC */
+.action-header-right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap; /* CRUCIAL para que los botones bajen de línea si no hay espacio */
+  margin-bottom: 15px;
 }
 
 /* iPad horizontal / tablet grande (1050px) - columnas compactas */
@@ -243,6 +252,7 @@
   border: 1px solid rgba(0,0,0,0.05);
   text-align: center;
   transition: 0.3s;
+  word-break: break-word; /* Permite que el texto se rompa y no desborde */
 }
 
 .stat-box:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
@@ -574,6 +584,8 @@
   color: white;
   border: none;
   padding: 14px;
+  white-space: normal; /* Permite que el texto baje de línea si no cabe */
+  text-align: center;
   border-radius: 12px;
   font-weight: 800;
   font-size: 14px;
