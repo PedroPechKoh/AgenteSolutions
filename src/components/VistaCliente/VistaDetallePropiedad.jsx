@@ -674,6 +674,9 @@ const VistaDetallePropiedad = () => {
                 <div className="form-group">
                   <label><Camera size={16}/> Evidencia Visual (Máx 2 fotos)</label>
                   
+                  <input type="file" ref={cameraRef} hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
+                  <input type="file" ref={galleryRef} hidden accept="image/*" multiple onChange={handleFileSelect} />
+
                   {nuevoServicio.fotos.length < 2 && (
                     <button 
                       type="button" 
