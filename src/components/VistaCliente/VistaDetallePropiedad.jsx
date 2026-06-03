@@ -677,17 +677,36 @@ const VistaDetallePropiedad = () => {
                   <input type="file" ref={cameraRef} hidden accept="image/*" capture="environment" onChange={handleFileSelect} />
                   <input type="file" ref={galleryRef} hidden accept="image/*" multiple onChange={handleFileSelect} />
 
-                  {nuevoServicio.fotos.length < 2 && (
-                    <button 
-                      type="button" 
-                      className="btn-add-foto-placeholder"
-                      onClick={() => setIsPhotoMenuOpen(true)}
-                      style={{ width: '80px', height: '80px', border: '2px dashed #ccc', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#f9f9f9', color: '#666' }}
-                    >
-                      <PlusCircle size={24} />
-                      <span style={{ fontSize: '10px', fontWeight: 'bold', marginTop: '4px' }}>AÑADIR</span>
-                    </button>
-                  )}
+                  <div className="fotos-preview-container" style={{ display: 'flex', gap: '10px', marginTop: '10px', flexWrap: 'wrap' }}>
+                    {nuevoServicio.fotos.map((foto, idx) => (
+                      <div key={idx} className="foto-preview-wrapper" style={{ position: 'relative', width: '80px', height: '80px' }}>
+                        <img 
+                          src={URL.createObjectURL(foto)} 
+                          alt="preview" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px', border: '2px solid #f26624' }} 
+                        />
+                        <button 
+                          type="button"
+                          onClick={() => removeFoto(idx)}
+                          style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#e63946', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+
+                    {nuevoServicio.fotos.length < 2 && (
+                      <button 
+                        type="button" 
+                        className="btn-add-foto-placeholder"
+                        onClick={() => setIsPhotoMenuOpen(true)}
+                        style={{ width: '80px', height: '80px', border: '2px dashed #ccc', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#f9f9f9', color: '#666' }}
+                      >
+                        <PlusCircle size={24} />
+                        <span style={{ fontSize: '10px', fontWeight: 'bold', marginTop: '4px' }}>AÑADIR</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
                 <small style={{ color: '#666', fontSize: '11px', marginTop: '8px', display: 'block' }}>
