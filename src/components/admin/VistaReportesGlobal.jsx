@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Shared/Header';
-import { Search, MapPin, Calendar, FileText, ChevronLeft } from 'lucide-react';
+import { Search, MapPin, Calendar, FileText, ChevronLeft, Plus, Edit, Trash2, X, Upload } from 'lucide-react';
+import Swal from 'sweetalert2';
 import '../../styles/Admin/VistaReportesGlobal.css';
 
 const VistaReportesGlobal = () => {
@@ -11,6 +12,15 @@ const VistaReportesGlobal = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('add');
+  const [selectedReportId, setSelectedReportId] = useState(null);
+  const [selectedTrabajoId, setSelectedTrabajoId] = useState(null);
+  const [selectedTipo, setSelectedTipo] = useState(null);
+  const [formData, setFormData] = useState({ description: '', image: null });
+  const [previewImage, setPreviewImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchReportesYCotizaciones();
@@ -28,6 +38,98 @@ const VistaReportesGlobal = () => {
       console.error("Error fetching data", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenModal = (mode, report = null, trabajoId = null, tipo = null) => {
+    setModalMode(mode);
+    setFormData({ description: mode === 'edit' ? report.description : '', image: null });
+    setPreviewImage(mode === 'edit' ? (report.image_url || report.image_path) : null);
+    setSelectedReportId(report ? report.id : null);
+    setSelectedTrabajoId(trabajoId);
+    setSelectedTipo(tipo);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setFormData({ description: '', image: null });
+    setPreviewImage(null);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, image: file });
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmitReport = async (e) => {
+    e.preventDefault();
+    if (!formData.description && modalMode === 'add') {
+      Swal.fire('Error', 'Debes añadir una descripción.', 'error');
+      return;
+    }
+    if (!formData.image && !previewImage && modalMode === 'add') {
+      Swal.fire('Error', 'Debes seleccionar una imagen.', 'error');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const data = new FormData();
+    data.append('description', formData.description);
+    if (formData.image) {
+      data.append('image', formData.image);
+    }
+
+    try {
+      if (modalMode === 'add') {
+        const url = `${import.meta.env.VITE_API_BASE_URL}/servicios/${selectedTipo}-${selectedTrabajoId}/reportes`;
+        await axios.post(url, data, {
+          headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        Swal.fire('Éxito', 'Reporte añadido correctamente', 'success');
+      } else {
+        const url = `${import.meta.env.VITE_API_BASE_URL}/reportes/${selectedReportId}`;
+        // append _method for laravel put with file
+        data.append('_method', 'PUT');
+        await axios.post(url, data, { 
+          headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        Swal.fire('Éxito', 'Reporte actualizado correctamente', 'success');
+      }
+      closeModal();
+      fetchReportesYCotizaciones();
+    } catch (error) {
+      Swal.fire('Error', 'Hubo un problema al guardar el reporte.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteReport = async (id) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar reporte?',
+      text: "Esta acción no se puede deshacer.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/reportes/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        Swal.fire('Eliminado', 'El reporte ha sido eliminado.', 'success');
+        fetchReportesYCotizaciones();
+      } catch (error) {
+        Swal.fire('Error', 'No se pudo eliminar el reporte.', 'error');
+      }
     }
   };
 
@@ -223,7 +325,15 @@ const VistaReportesGlobal = () => {
 
                   <div className="global-gallery-grid">
                     {reports.map(r => (
-                      <div key={r.id} className="global-report-card">
+                      <div key={r.id} className="global-report-card" style={{ position: 'relative' }}>
+                        <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', gap: 5, zIndex: 10 }}>
+                          <button onClick={(e) => { e.stopPropagation(); handleOpenModal('edit', r, trabajoId, tipo); }} style={{ background: '#fff', border: 'none', padding: 8, borderRadius: '50%', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }} title="Editar reporte">
+                            <Edit size={16} color="#003366" />
+                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); handleDeleteReport(r.id); }} style={{ background: '#fff', border: 'none', padding: 8, borderRadius: '50%', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }} title="Eliminar reporte">
+                            <Trash2 size={16} color="#d33" />
+                          </button>
+                        </div>
                         <img 
                           src={r.image_url || r.image_path} 
                           alt="Reporte" 
@@ -257,6 +367,22 @@ const VistaReportesGlobal = () => {
                         </div>
                       </div>
                     ))}
+                    
+                    <div 
+                      onClick={() => handleOpenModal('add', null, trabajoId, tipo)}
+                      style={{
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        border: '2px dashed #ccc', borderRadius: '15px', cursor: 'pointer', padding: '20px',
+                        minHeight: '200px', backgroundColor: '#fafafa', color: '#555', gap: '10px',
+                        transition: 'all 0.3s ease',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.borderColor = '#F26522'}
+                      onMouseLeave={(e) => e.currentTarget.style.borderColor = '#ccc'}
+                    >
+                      <Plus size={40} color="#F26522" />
+                      <strong style={{ color: '#333' }}>AÑADIR ESPACIO</strong>
+                    </div>
+
                   </div>
                 </div>
               );
@@ -264,6 +390,70 @@ const VistaReportesGlobal = () => {
           </div>
         )}
       </div>
+
+      {isModalOpen && (
+        <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div className="modal-content" style={{ background: 'white', padding: '30px', borderRadius: '15px', width: '100%', maxWidth: '500px', position: 'relative' }}>
+            <button onClick={closeModal} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <X size={24} color="#666" />
+            </button>
+            <h3 style={{ marginTop: 0, color: '#003366', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {modalMode === 'add' ? <Plus size={24} color="#F26522" /> : <Edit size={24} color="#F26522" />}
+              {modalMode === 'add' ? 'AÑADIR NUEVO REPORTE' : 'EDITAR REPORTE'}
+            </h3>
+            
+            <form onSubmit={handleSubmitReport} style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '20px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Descripción / Avance</label>
+                <textarea 
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Escribe la descripción del avance..."
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ccc', minHeight: '100px', resize: 'vertical' }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>Evidencia Fotográfica</label>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleImageChange}
+                  style={{ display: 'none' }}
+                  id="report-image-upload"
+                />
+                <label 
+                  htmlFor="report-image-upload" 
+                  style={{ 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+                    padding: '12px', border: '2px dashed #003366', borderRadius: '8px', 
+                    cursor: 'pointer', color: '#003366', fontWeight: 'bold', textAlign: 'center' 
+                  }}
+                >
+                  <Upload size={20} />
+                  {formData.image ? 'Cambiar Imagen Seleccionada' : (modalMode === 'edit' ? 'Subir Nueva Imagen (Opcional)' : 'Subir Imagen')}
+                </label>
+
+                {previewImage && (
+                  <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                    <img src={previewImage} alt="Vista previa" style={{ maxWidth: '100%', maxHeight: '200px', borderRadius: '8px', border: '1px solid #eee' }} />
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button type="button" onClick={closeModal} style={{ flex: 1, padding: '12px', background: '#f1f1f1', color: '#333', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  CANCELAR
+                </button>
+                <button type="submit" disabled={isSubmitting} style={{ flex: 1, padding: '12px', background: '#F26522', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: isSubmitting ? 'not-allowed' : 'pointer', opacity: isSubmitting ? 0.7 : 1 }}>
+                  {isSubmitting ? 'GUARDANDO...' : 'GUARDAR REPORTE'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
