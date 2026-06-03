@@ -273,6 +273,17 @@ const VistaServiciosAdmin = () => {
                     {(tarea.estado === 'sos' || (tarea.estado === 'progress' && tarea.prioridad === 'SOS')) && <AlertTriangle size={14} className="sos-icon-inline" />}
                     {tarea.titulo}
                   </h5>
+                  {(() => {
+                    const loteMatch = tarea.descripcion ? tarea.descripcion.match(/\[LOTE-[A-Z0-9]+\] \(\d+\/\d+\)/) : null;
+                    if (loteMatch) {
+                      return (
+                        <div style={{ background: '#e0f2fe', color: '#0284c7', padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '10px', border: '1px solid #7dd3fc', width: 'fit-content' }}>
+                          <span style={{ fontSize: '12px' }}>📦</span> LISTADO MULTIPLE: {loteMatch[0]}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                   <div style={{ fontSize: '0.7rem', color: '#777', textAlign: 'left', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <div><strong>Solicitado:</strong> {tarea.fechaSolicitud}</div>
                     <div><strong>Solucionado:</strong> {tarea.fechaSolucion}</div>
