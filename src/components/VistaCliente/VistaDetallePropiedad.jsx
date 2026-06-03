@@ -5,7 +5,7 @@ import {
   Layout, CheckCircle2, ListTodo, Timer, AlertCircle, 
   FileText, History, ChevronDown, ChevronUp, X, 
   User, Eye, MapPin, Tag, PlusCircle, 
-  Home, Wrench, MessageSquare, Camera, ImageIcon,
+  Home, Wrench, MessageSquare, Camera, ImageIcon, Image, Trash2, Plus,
   ChevronLeft, ArrowLeft, Loader2, Clock, Briefcase
 } from 'lucide-react';
 import '../../styles/Cliente/DetallePropiedad.css';
