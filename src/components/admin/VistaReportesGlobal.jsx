@@ -87,7 +87,7 @@ const VistaReportesGlobal = () => {
       if (modalMode === 'add') {
         const url = `${import.meta.env.VITE_API_BASE_URL}/servicios/${selectedTipo}-${selectedTrabajoId}/reportes`;
         await axios.post(url, data, {
-          headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('agente_token')}` }
         });
         Swal.fire('Éxito', 'Reporte añadido correctamente', 'success');
       } else {
@@ -95,7 +95,7 @@ const VistaReportesGlobal = () => {
         // append _method for laravel put with file
         data.append('_method', 'PUT');
         await axios.post(url, data, { 
-          headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${localStorage.getItem('agente_token')}` }
         });
         Swal.fire('Éxito', 'Reporte actualizado correctamente', 'success');
       }
@@ -123,7 +123,7 @@ const VistaReportesGlobal = () => {
     if (result.isConfirmed) {
       try {
         await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/reportes/${id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { Authorization: `Bearer ${localStorage.getItem('agente_token')}` }
         });
         Swal.fire('Eliminado', 'El reporte ha sido eliminado.', 'success');
         fetchReportesYCotizaciones();
