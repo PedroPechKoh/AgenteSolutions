@@ -252,6 +252,15 @@ const VistaDetallePropiedad = () => {
     setNuevoServicio({ ...nuevoServicio, fotos: nuevasFotos });
   };
 
+  const selectPhotoSource = (source) => {
+    if (source === 'camera') {
+      cameraRef.current.click();
+    } else {
+      galleryRef.current.click();
+    }
+    setIsPhotoMenuOpen(false);
+  };
+
   // Manejador del select de zonas en el modal
   const handleZonaChange = async (areaId) => {
     if (areaId === 'otro') {
