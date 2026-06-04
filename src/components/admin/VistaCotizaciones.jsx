@@ -126,6 +126,13 @@ const VistaCotizaciones = () => {
   };
 
   const filtradas = cotizaciones.filter(c => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const filterPropId = searchParams.get('propertyId');
+    const coincidePropiedad = !filterPropId || 
+                              String(c.property_id) === String(filterPropId) || 
+                              String(c.propiedad_id) === String(filterPropId) || 
+                              String(c.propertyId) === String(filterPropId);
+
     const coincideFiltro = 
       (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
       (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad') || c.status === 'Validado')) ||
@@ -141,7 +148,7 @@ const VistaCotizaciones = () => {
       (filtroTipo === 'manual' && c.type !== 'archivo') || 
       (filtroTipo === 'archivo' && c.type === 'archivo');
 
-    return coincideFiltro && coincideBusqueda && correspondeAlCliente && coincideTipo;
+    return coincideFiltro && coincideBusqueda && correspondeAlCliente && coincideTipo && coincidePropiedad;
   }).sort((a, b) => {
     if (!ordenMonto) return 0;
     const valA = parseFloat(a.total) || 0;

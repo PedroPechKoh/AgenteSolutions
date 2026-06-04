@@ -457,7 +457,7 @@ const VistaDetallePropiedad = () => {
               </div>
             </div>
             
-            <div className="quote-section-link" onClick={() => navigate('/cotizacion1')}>
+            <div className="quote-section-link" onClick={() => navigate(`/vista-cotizaciones?propertyId=${id}`)}>
               <div className="quote-content">
                 <FileText size={20} />
                 <span>Ver Cotizaciones Pendientes</span>

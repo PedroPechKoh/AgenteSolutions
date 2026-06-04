@@ -62,13 +62,11 @@ const MainLayoutCliente = ({ children }) => {
   const globalNavButtons = [
     { label: 'PROPIEDADES', path: '/propiedades', icon: <Home size={18} /> },
     { label: 'LEVANTAMIENTOS', path: '/levantamientos', icon: <LayoutDashboard size={18} /> },
-    { label: 'COTIZACIONES', path: '/vista-cotizaciones', icon: <FileText size={18} /> },
   ];
 
   const propertyNavButtons = [
     { label: 'DETALLES PROPIEDAD', path: tableroPath, icon: <Home size={18} /> },
     { label: 'SOS', path: '/SOSView', icon: <Bell size={18} /> },
-    { label: 'COTIZACIONES', path: '/vista-cotizaciones', icon: <FileText size={18} /> },
   ];
 
   const currentNavButtons = isGlobalRoute ? globalNavButtons : propertyNavButtons;
