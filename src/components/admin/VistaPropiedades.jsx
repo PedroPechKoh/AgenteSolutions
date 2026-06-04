@@ -35,8 +35,13 @@ const VistaPropiedades = () => {
   const [editando, setEditando] = useState(false);
   
   // CONTEXTO DE BÚSQUEDA (desde MainLayoutCliente)
-  const outletContext = useOutletContext();
-  const searchTerm = outletContext?.searchTerm || "";
+  let searchTerm = "";
+  try {
+    const outletContext = useOutletContext();
+    searchTerm = outletContext?.searchTerm || "";
+  } catch (e) {
+    // Si no está dentro de un Outlet (por ejemplo al renderizarse como children en MainLayoutCliente), ignoramos el error.
+  }
   
   // ROLE CHECK
   const user = JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData;

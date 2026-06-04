@@ -328,7 +328,14 @@ const VistaCotizaciones = () => {
           
           <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
             <button 
-              onClick={() => navigate(-1)} 
+              onClick={() => {
+                const pId = new URLSearchParams(location.search).get('propertyId');
+                if (pId) {
+                  navigate(`/DetallePropiedad/${pId}`);
+                } else {
+                  navigate('/propiedades');
+                }
+              }} 
               style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
             >
               <ChevronLeft size={18} />
