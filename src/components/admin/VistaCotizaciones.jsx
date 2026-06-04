@@ -329,11 +329,11 @@ const VistaCotizaciones = () => {
           <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
             <button 
               onClick={() => {
-                const pId = new URLSearchParams(location.search).get('propertyId');
+                const pId = new URLSearchParams(window.location.search).get('propertyId');
                 if (pId) {
-                  navigate(`/DetallePropiedad/${pId}`);
+                  window.location.href = `/DetallePropiedad/${pId}`;
                 } else {
-                  navigate('/propiedades');
+                  window.location.href = '/propiedades';
                 }
               }} 
               style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
