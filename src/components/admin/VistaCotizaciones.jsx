@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import "../../styles/Admin/VistaCotizaciones.css";
 import Header from "../Shared/Header";
@@ -17,6 +17,7 @@ import Pago from "../VistaCliente/Pago";
 
 const VistaCotizaciones = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [cotizacionParaAsignar, setCotizacionParaAsignar] = useState(null);
   const [cotizaciones, setCotizaciones] = useState([]);
@@ -126,7 +127,7 @@ const VistaCotizaciones = () => {
   };
 
   const filtradas = cotizaciones.filter(c => {
-    const searchParams = new URLSearchParams(window.location.search);
+    const searchParams = new URLSearchParams(location.search);
     const filterPropId = searchParams.get('propertyId');
     const coincidePropiedad = !filterPropId || 
                               String(c.property_id) === String(filterPropId) || 
@@ -344,7 +345,12 @@ const VistaCotizaciones = () => {
 
           <div className="search-wrapper-full" style={{ width: '100%' }}>
             <UniversalSearch 
-              data={cotizaciones}
+              data={(() => {
+                const searchParams = new URLSearchParams(location.search);
+                const filterPropId = searchParams.get('propertyId');
+                if (!filterPropId) return cotizaciones;
+                return cotizaciones.filter(c => String(c.property_id) === String(filterPropId) || String(c.propiedad_id) === String(filterPropId) || String(c.propertyId) === String(filterPropId));
+              })()}
               setFilteredData={setCotizacionesFiltradas}
               placeholder="Buscar por folio, cliente, propiedad, técnico, dirección o teléfono..."
               filtroActual={filtro}
