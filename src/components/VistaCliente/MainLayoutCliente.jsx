@@ -221,7 +221,8 @@ const MainLayoutCliente = ({ children }) => {
               )}
             </div>
           </div>
-        </header>
+        </div>
+      </header>
         
         <div className="tt-orange-bar"></div>
 
