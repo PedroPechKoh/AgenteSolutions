@@ -303,8 +303,13 @@ const DetallePropiedad = () => {
     return `${año}-${mes}-${dia}`;
   };
 
-  const agruparPorMesYAnio = (trabajos) => {
-    const grupos = {};
+  const agruparPorAnioYMes = (trabajos) => {
+    const gruposAnio = {};
+    const meses = [
+      "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+      "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    ];
+
     (trabajos || []).forEach(t => {
       let date = null;
       if (t.fecha && t.fecha !== "---") {
@@ -320,36 +325,42 @@ const DetallePropiedad = () => {
         date = new Date();
       }
       
-      const meses = [
-        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-      ];
       const mesNombre = meses[date.getMonth()];
       const anio = date.getFullYear();
-      const clave = `${mesNombre} ${anio}`;
       
-      if (!grupos[clave]) {
-        grupos[clave] = {
+      if (!gruposAnio[anio]) {
+        gruposAnio[anio] = { anio: anio, ordenAnio: anio, meses: {} };
+      }
+      
+      if (!gruposAnio[anio].meses[mesNombre]) {
+        gruposAnio[anio].meses[mesNombre] = {
           mes: mesNombre,
-          anio: anio,
-          orden: date.getTime(),
+          ordenMes: date.getMonth(),
           items: []
         };
       }
-      grupos[clave].items.push(t);
+      
+      gruposAnio[anio].meses[mesNombre].items.push(t);
     });
 
-    return Object.values(grupos).sort((a, b) => b.orden - a.orden);
+    return Object.values(gruposAnio).sort((a, b) => b.ordenAnio - a.ordenAnio).map(anioObj => {
+      const mesesArray = Object.values(anioObj.meses).sort((a, b) => b.ordenMes - a.ordenMes);
+      return {
+        anio: anioObj.anio,
+        meses: mesesArray
+      };
+    });
   };
 
   useEffect(() => {
     if (historialFinalizados.length > 0) {
-      const grupos = agruparPorMesYAnio(historialFinalizados);
-      if (grupos.length > 0) {
-        const primeraClave = `${grupos[0].mes} ${grupos[0].anio}`;
+      const grupos = agruparPorAnioYMes(historialFinalizados);
+      if (grupos.length > 0 && grupos[0].meses.length > 0) {
+        const primeraClaveAnio = String(grupos[0].anio);
+        const primeraClaveMes = `${grupos[0].meses[0].mes} ${grupos[0].anio}`;
         setMesesAbiertos(prev => {
           if (Object.keys(prev).length === 0) {
-            return { [primeraClave]: true };
+            return { [primeraClaveAnio]: true, [primeraClaveMes]: true };
           }
           return prev;
         });
@@ -890,7 +901,7 @@ const DetallePropiedad = () => {
               })}
             </div>
           ) : (
-            /* VISTA DE HISTORIAL EN ACORDEONES POR MES Y AÑO */
+            /* VISTA DE HISTORIAL EN ACORDEONES POR AÑO Y MES */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', background: 'white', padding: '20px', borderRadius: '15px', border: '1px solid #cbd5e1' }}>
               {historialFinalizados.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
@@ -898,64 +909,32 @@ const DetallePropiedad = () => {
                   <p style={{ margin: 0, fontWeight: 'bold' }}>No hay registros de trabajos finalizados en esta propiedad.</p>
                 </div>
               ) : (
-                agruparPorMesYAnio(historialFinalizados).map((grupo, gIdx) => {
-                  const clave = `${grupo.mes} ${grupo.anio}`;
-                  const isOpen = !!mesesAbiertos[clave];
+                agruparPorAnioYMes(historialFinalizados).map((grupoAnio, aIdx) => {
+                  const claveAnio = String(grupoAnio.anio);
+                  const isAnioOpen = !!mesesAbiertos[claveAnio];
+
                   return (
-                    <div key={gIdx} style={{ border: '1px solid #cbd5e1', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.01)' }}>
-                      {/* Cabecera del acordeón */}
+                    <div key={`anio-${aIdx}`} style={{ border: '1px solid #cbd5e1', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 4px rgba(0,0,0,0.01)', marginBottom: '10px' }}>
+                      {/* Cabecera del Año */}
                       <div 
-                        onClick={() => setMesesAbiertos(prev => ({ ...prev, [clave]: !isOpen }))}
+                        onClick={() => setMesesAbiertos(prev => ({ ...prev, [claveAnio]: !isAnioOpen }))}
                         style={{
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
                           padding: '16px 20px',
-                          background: isOpen ? '#f0fdf4' : '#f8fafc',
+                          background: isAnioOpen ? '#1e293b' : '#334155',
+                          color: 'white',
                           cursor: 'pointer',
-                          borderBottom: isOpen ? '1px solid #cbd5e1' : 'none',
                           transition: 'all 0.2s ease'
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '1.2rem' }}>{isOpen ? '▼' : '►'}</span>
-                          <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '800', color: isOpen ? '#15803d' : '#334155' }}>
-                            {grupo.mes} {grupo.anio}
+                          <span style={{ fontSize: '1.2rem' }}>{isAnioOpen ? '▼' : '►'}</span>
+                          <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
+                            {grupoAnio.anio}
                           </h3>
                         </div>
-                        <span style={{ 
-                          background: isOpen ? '#dcfce7' : '#e2e8f0', 
-                          color: isOpen ? '#15803d' : '#475569', 
-                          padding: '4px 12px', 
-                          borderRadius: '20px', 
-                          fontWeight: '800',
-                          fontSize: '0.8rem'
-                        }}>
-                          {grupo.items.length} Trabajo{grupo.items.length > 1 ? 's' : ''}
-                        </span>
-                      </div>
-
-                      {/* Cuerpo del acordeón */}
-                      {isOpen && (
-                        <div style={{ padding: '15px', background: 'white', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                          {grupo.items.map((item, itemIdx) => (
-                            <div 
-                              key={item.id || itemIdx}
-                              onClick={() => {
-                                const realItem = colaTrabajos.find(t => String(t.realId) === String(item.id) && t.tipo_registro === item.tipo_registro) || item;
-                                fetchDetalleTrabajo(realItem);
-                              }}
-                              style={{ 
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                padding: '12px 18px',
-                                border: '1px solid #e2e8f0',
-                                borderRadius: '10px',
-                                cursor: 'pointer',
-                                background: '#ffffff',
-                                transition: 'all 0.2s ease',
-                                gap: '15px',
                                 flexWrap: 'wrap'
                               }}
                               onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
