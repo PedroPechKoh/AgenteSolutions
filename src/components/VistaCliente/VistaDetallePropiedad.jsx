@@ -347,50 +347,7 @@ const VistaDetallePropiedad = () => {
             />
           </div>
 
-          <div className="info-card-premium historial-section">
-            <div className="card-header-clean historial-trigger" onClick={() => setMostrarHistorial(!mostrarHistorial)}>
-              <div className="header-title-flex">
-                <History size={20} className="icon-orange" />
-                <h3>Historial de Trabajos</h3>
-              </div>
-              {mostrarHistorial ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </div>
-
-            {mostrarHistorial && (
-              <div className="historial-list-container">
-                {historial && historial.length > 0 ? (
-                  historial.map((trabajo) => (
-                    <div key={trabajo.id} className="historial-card-item" onClick={() => fetchDetalleTrabajo(trabajo)}>
-                      <div className="h-card-left">
-                        <span className="h-card-date">{trabajo.fecha}</span>
-                        <h4 className="h-card-title">{trabajo.producto}</h4>
-                        <span className="h-card-tech">Por: <strong>{trabajo.tecnico}</strong></span>
-                      </div>
-                      <div className="h-card-right">
-                        <div className="h-card-photos-stack">
-                          {trabajo.evidencias && trabajo.evidencias.length > 0 ? (
-                            <img src={trabajo.evidencias[0]} alt="evidencia" className="stack-img img-0" />
-                          ) : (
-                            <div style={{width: '40px', height: '40px', background: '#ccc', borderRadius: '8px'}}></div>
-                          )}
-                        </div>
-                        <Eye size={18} className="view-icon" />
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p style={{padding: '20px', textAlign: 'center', color: '#666'}}>No hay historial de trabajos aún.</p>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ==========================================
-            COLUMNA DERECHA (Tablero + Acciones)
-            ========================================== */}
-        <div className="right-column">
-          <div className="action-header-right" style={{ display: 'flex', gap: '10px', flexDirection: window.innerWidth <= 768 ? 'column' : 'row' }}>
+          <div className="action-header-right" style={{ display: 'flex', gap: '10px', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', marginTop: '20px' }}>
             {data && !data.is_shared_with_me && (
               <button className="btn-add-service-full" style={{ flex: 1, backgroundColor: '#007bff', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => setMostrarModalCompartir(true)}>
                 <User size={20} /> {usuariosCompartidos.length > 0 ? "COMPARTIENDO" : "COMPARTIR"}
@@ -411,6 +368,12 @@ const VistaDetallePropiedad = () => {
               <FileText size={20} /> VER LEVANTAMIENTO
             </button>
           </div>
+        </div>
+
+        {/* ==========================================
+            COLUMNA DERECHA (Tablero + Acciones)
+            ========================================== */}
+        <div className="right-column">
 
           <div className="info-card-premium sticky-card">
             <div className="card-header-clean">
