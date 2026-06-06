@@ -13,7 +13,7 @@ const MainLayoutCliente = ({ children }) => {
   const [menuAbierto, setMenuAbierto] = React.useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [searchTerm, setSearchTerm] = React.useState("");
-  const userName = user?.first_name || user?.name || "Cliente";
+  const fullName = `${user?.first_name || user?.name || 'Cliente'} ${user?.last_name || ''}`.trim();
   
   const { id: urlPropertyId } = useParams();
   
@@ -154,43 +154,44 @@ const MainLayoutCliente = ({ children }) => {
                   <ArrowLeft size={16} /> REGRESAR
                 </button>
               )}
-              {!isGlobalRoute && (
-                <span className="header-username-text" style={{ cursor: 'default' }}>
-                  {userName}
-                </span>
-              )}
             </div>
           </div>
 
           {isGlobalRoute && (
             <div className="center-title-section">
                <h2 className="header-welcome-message">
-                 Hola {(userName || "Cliente").toUpperCase()}. Gracias por trabajar con nosotros.
+                 Hola {(user?.first_name || user?.name || "Cliente").toUpperCase()}. Gracias por trabajar con nosotros.
                </h2>
             </div>
           )}
           
-          <div className="header-right-group">
+          <div className="header-right-group" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <div className="header-actions-wrapper">
                <NotificationBell />
             </div>
             
-            <div style={{ position: "relative" }}>
-              <button
-                className="icon-btn"
-                style={{ padding: 0, overflow: "hidden", display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #eee' }}
-                onClick={() => setMenuAbierto(!menuAbierto)}
-              >
-                {user?.profile_picture ? (
-                  <img
-                    src={user.profile_picture}
-                    alt="Foto de perfil"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                ) : (
-                  <User size={22} color="#666" />
-                )}
-              </button>
+            <div className="user-profile-info" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {!isGlobalRoute && (
+                <span className="header-username-text" style={{ cursor: 'default', fontWeight: 'bold', fontSize: '0.95rem', whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
+                  {fullName}
+                </span>
+              )}
+              <div style={{ position: "relative" }}>
+                <button
+                  className="icon-btn"
+                  style={{ padding: 0, overflow: "hidden", display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', border: '2px solid #f26624' }}
+                  onClick={() => setMenuAbierto(!menuAbierto)}
+                >
+                  {user?.profile_picture ? (
+                    <img
+                      src={user.profile_picture}
+                      alt="Foto de perfil"
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
+                  ) : (
+                    <User size={22} color="#666" />
+                  )}
+                </button>
 
               {menuAbierto && (
                 <>
