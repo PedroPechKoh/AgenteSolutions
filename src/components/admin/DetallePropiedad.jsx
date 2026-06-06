@@ -117,10 +117,13 @@ const DetallePropiedad = () => {
           resDash = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/propiedades/${id}`, { headers });
         }
 
-        const { propiedad, stats: backStats, historial } = resDash.data;
+        const { propiedad, stats: backStats, historial, owner_info, shared_users, is_shared_with_me } = resDash.data;
 
         setDatosPropiedad({
-          personaCargo: propiedad.propietario || "Sin asignar",
+          personaCargo: owner_info?.name || propiedad.propietario || "Sin asignar",
+          personaFoto: owner_info?.profile_picture || null,
+          sharedUsers: shared_users || [],
+          isSharedWithMe: is_shared_with_me || false,
           curp: propiedad.custom_curp || propiedad.id,
           direccion: propiedad.address || "Sin dirección",
           mapsUrl: propiedad.coordinates ? `https://maps.google.com/?q=${propiedad.coordinates}` : "#",
@@ -717,12 +720,55 @@ const DetallePropiedad = () => {
                 <MapPin size={14}/> {datosPropiedad.location || "Mérida, Yuc."}
               </p>
             </div>
-            <div className="user-badge" onClick={() => { if(user?.role_id !== 3) setIsModalPerfilOpen(true); }}>
-              <div className="avatar">
-                {datosPropiedad.personaCargo.charAt(0).toUpperCase()}
-              </div>
-              <span>{datosPropiedad.personaCargo}</span>
-            </div>
+            {(() => {
+              const ownerName = datosPropiedad.personaCargo;
+              const ownerPic = datosPropiedad.personaFoto;
+              const isSharedWithMe = datosPropiedad.isSharedWithMe;
+              const sharedUsers = datosPropiedad.sharedUsers || [];
+              const isSharedByOwner = sharedUsers.length > 0;
+
+              if (isSharedWithMe) {
+                return (
+                  <div className="user-badge shared-with-me" onClick={() => { if(user?.role_id !== 3) setIsModalPerfilOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#f8f9fa', borderRadius: '20px', border: '1px solid #ddd', cursor: 'pointer' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#666' }}>Propiedad de:</span>
+                    {ownerPic ? (
+                      <img src={ownerPic} alt={ownerName} style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+                    ) : (
+                      <div className="avatar" style={{ width: '24px', height: '24px', background: '#f26624', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                        {ownerName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span style={{ fontWeight: '600', color: '#333' }}>{ownerName}</span>
+                  </div>
+                );
+              } else if (isSharedByOwner) {
+                return (
+                  <div className="user-badge sharing-with" onClick={() => { if(user?.role_id !== 3) setIsModalPerfilOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#fff3cd', borderRadius: '20px', border: '1px solid #ffeeba', cursor: 'pointer' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#856404' }}>Compartiendo con:</span>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      {sharedUsers.map((u, i) => (
+                        <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: i > 0 ? '8px' : '0' }}>
+                          {u.profile_picture ? (
+                            <img src={u.profile_picture} alt={u.name} title={u.name} style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+                          ) : (
+                            <div className="avatar" title={u.name} style={{ width: '24px', height: '24px', background: '#ffc107', color: 'black', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                              {u.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <span style={{ fontWeight: '600', color: '#856404', fontSize: '0.85rem' }}>{u.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="user-badge unshared" onClick={() => { if(user?.role_id !== 3) setIsModalPerfilOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', background: '#e2e3e5', borderRadius: '20px', border: '1px solid #d6d8db', cursor: 'pointer' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#383d41', fontWeight: '600' }}>PROPIEDAD SIN COMPARTIR</span>
+                  </div>
+                );
+              }
+            })()}
           </div>
 
         </header>
