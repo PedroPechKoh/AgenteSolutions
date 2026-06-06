@@ -814,7 +814,13 @@ const DetallePropiedad = () => {
                         </div>
                       ) : (
                         colaTrabajos.filter(t => t.estado === estado).map(t => (
-                          <div key={t.id} className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}>
+                          <div 
+                            key={t.id} 
+                            className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}
+                            onClick={() => fetchDetalleTrabajo(t)}
+                            style={{ cursor: 'pointer' }}
+                            title="Ver detalles del servicio"
+                          >
                             <h4>{t.producto}</h4>
                             {t.descripcion && (
                               <p style={{ fontSize: '0.85em', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>

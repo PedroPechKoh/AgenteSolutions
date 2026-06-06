@@ -210,7 +210,16 @@ const DetallePropiedad = () => {
                   </div>
                   <div className="k-body">
                     {colaTrabajos.filter(t => t.estado === estado).map(t => (
-                      <div key={t.id} className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}>
+                      <div 
+                        key={t.id} 
+                        className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}
+                        onClick={() => { 
+                          setTrabajoSeleccionado({ ...t, evidencias: t.evidencias || [] }); 
+                          setIsModalHistorialOpen(true); 
+                        }}
+                        style={{ cursor: 'pointer' }}
+                        title="Ver detalles del servicio"
+                      >
                           <h4>{t.producto}</h4>
                           <div className="k-footer">
                             <span className={estado === 'SOS' ? 'badge-sos' : estado === 'ESPERANDO' ? 'badge-status-waiting' : 'badge-prio'}>
