@@ -1474,7 +1474,12 @@ const DetallePropiedad = () => {
                 {(JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData?.role_id !== 3) && (
                   <button 
                     className="btn-primary-ui" 
-                    onClick={() => navigate(`/reporte-detallado/${trabajoSeleccionado.id}`)}
+                    onClick={() => {
+                      const paramId = trabajoSeleccionado.tipo_registro === 'work_order' 
+                        ? `work_order-${trabajoSeleccionado.realId}` 
+                        : `servicio-${trabajoSeleccionado.realId || trabajoSeleccionado.id}`;
+                      navigate(`/reporte-trabajo-admin/${paramId}`);
+                    }}
                     style={{ background: '#3b82f6', boxShadow: '0 4px 0 #2563eb', padding: '8px 20px', fontSize: '12px' }}
                   >
                     <FileText size={16} /> GENERAR REPORTE OFICIAL
