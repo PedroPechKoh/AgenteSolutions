@@ -935,70 +935,126 @@ const DetallePropiedad = () => {
                             {grupoAnio.anio}
                           </h3>
                         </div>
-                                flexWrap: 'wrap'
-                              }}
-                              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
-                              onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
-                            >
-                              {/* Izquierda: Estatus + Título */}
-                              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px', minWidth: '240px' }}>
-                                <span style={{ background: '#dcfce7', color: '#15803d', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid #bbf7d0' }}>
-                                  <CheckCircle size={12} /> LISTO
-                                </span>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                  <h4 style={{ margin: 0, fontSize: '0.92rem', fontWeight: '700', color: '#1e293b' }}>
-                                    {item.producto}
-                                  </h4>
-                                  <div style={{ display: 'flex', gap: '10px', fontSize: '0.8rem', color: '#64748b' }}>
-                                    <span>👤 Técnico: <strong>{item.tecnico}</strong></span>
-                                    <span>📅 Fecha: <strong>{item.fecha}</strong></span>
-                                  </div>
-                                </div>
-                              </div>
+                      </div>
 
-                              {/* Derecha: Evidencias y Botón */}
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                {/* Foto miniaturas */}
-                                <div style={{ display: 'flex', gap: '5px' }}>
-                                  {item.evidencias && item.evidencias.slice(0, 3).map((img, imgIdx) => (
-                                    <img 
-                                      key={imgIdx} 
-                                      src={img} 
-                                      alt="Evidencia" 
-                                      style={{ width: '38px', height: '38px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }} 
-                                    />
-                                  ))}
-                                  {item.evidencias && item.evidencias.length > 3 && (
-                                    <div style={{ width: '38px', height: '38px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 'bold', color: '#475569' }}>
-                                      +{item.evidencias.length - 3}
-                                    </div>
-                                  )}
-                                </div>
+                      {/* Cuerpo del Año (Meses) */}
+                      {isAnioOpen && (
+                        <div style={{ padding: '15px', background: '#f8fafc', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          {grupoAnio.meses.map((grupoMes, mIdx) => {
+                            const claveMes = `${grupoMes.mes} ${grupoAnio.anio}`;
+                            const isMesOpen = !!mesesAbiertos[claveMes];
 
-                                {/* Botón Ver Detalles */}
-                                <button 
+                            return (
+                              <div key={`mes-${mIdx}`} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden', background: 'white' }}>
+                                {/* Cabecera del Mes */}
+                                <div 
+                                  onClick={() => setMesesAbiertos(prev => ({ ...prev, [claveMes]: !isMesOpen }))}
                                   style={{
-                                    background: '#f8fafc',
-                                    border: '1px solid #cbd5e1',
-                                    borderRadius: '20px',
-                                    padding: '6px 14px',
-                                    fontSize: '0.78rem',
-                                    fontWeight: '700',
-                                    color: '#475569',
-                                    cursor: 'pointer',
                                     display: 'flex',
+                                    justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    gap: '4px',
+                                    padding: '12px 16px',
+                                    background: isMesOpen ? '#f0fdf4' : 'white',
+                                    cursor: 'pointer',
+                                    borderBottom: isMesOpen ? '1px solid #e2e8f0' : 'none',
                                     transition: 'all 0.2s ease'
                                   }}
-                                  onMouseEnter={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
-                                  onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
                                 >
-                                  <Eye size={13} style={{ color: '#f26624' }} /> Ver Detalles
-                                </button>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <span style={{ fontSize: '1rem', color: '#64748b' }}>{isMesOpen ? '▼' : '►'}</span>
+                                    <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: isMesOpen ? '#15803d' : '#475569' }}>
+                                      {grupoMes.mes}
+                                    </h4>
+                                  </div>
+                                  <span style={{ 
+                                    background: isMesOpen ? '#dcfce7' : '#f1f5f9', 
+                                    color: isMesOpen ? '#15803d' : '#64748b', 
+                                    padding: '4px 10px', 
+                                    borderRadius: '15px', 
+                                    fontWeight: '700',
+                                    fontSize: '0.8rem'
+                                  }}>
+                                    {grupoMes.items.length} Trabajo{grupoMes.items.length > 1 ? 's' : ''}
+                                  </span>
+                                </div>
+
+                                {/* Cuerpo del Mes (Trabajos) */}
+                                {isMesOpen && (
+                                  <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {grupoMes.items.map((item, itemIdx) => (
+                                      <div 
+                                        key={item.id || itemIdx}
+                                        onClick={() => {
+                                          const realItem = colaTrabajos.find(t => String(t.realId) === String(item.id) && t.tipo_registro === item.tipo_registro) || item;
+                                          fetchDetalleTrabajo(realItem);
+                                        }}
+                                        style={{ 
+                                          display: 'flex',
+                                          justifyContent: 'space-between',
+                                          alignItems: 'center',
+                                          padding: '12px',
+                                          background: '#f8fafc',
+                                          borderRadius: '8px',
+                                          cursor: 'pointer',
+                                          border: '1px solid transparent',
+                                          transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseEnter={e => {
+                                          e.currentTarget.style.background = 'white';
+                                          e.currentTarget.style.border = '1px solid #cbd5e1';
+                                          e.currentTarget.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+                                        }}
+                                        onMouseLeave={e => {
+                                          e.currentTarget.style.background = '#f8fafc';
+                                          e.currentTarget.style.border = '1px solid transparent';
+                                          e.currentTarget.style.boxShadow = 'none';
+                                        }}
+                                      >
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                          <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#334155' }}>{item.producto}</h4>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: '#64748b' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={12}/> {item.fecha}</span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><User size={12}/> {item.tecnico}</span>
+                                          </div>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                          {item.evidencias && item.evidencias.length > 0 ? (
+                                            <div style={{ width: '36px', height: '36px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                                              <img src={item.evidencias[0]} alt="Evidencia" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            </div>
+                                          ) : (
+                                            <div style={{ width: '36px', height: '36px', borderRadius: '6px', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                              <ImageIcon size={16} color="#94a3b8" />
+                                            </div>
+                                          )}
+                                          <button 
+                                            style={{
+                                              background: '#f8fafc',
+                                              border: '1px solid #cbd5e1',
+                                              borderRadius: '20px',
+                                              padding: '6px 14px',
+                                              fontSize: '0.78rem',
+                                              fontWeight: '700',
+                                              color: '#475569',
+                                              cursor: 'pointer',
+                                              display: 'flex',
+                                              alignItems: 'center',
+                                              gap: '4px',
+                                              transition: 'all 0.2s ease'
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
+                                          >
+                                            <Eye size={13} style={{ color: '#f26624' }} /> Ver Detalles
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </div>
