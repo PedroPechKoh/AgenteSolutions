@@ -230,6 +230,7 @@
   border: 1px solid #ccc;
   outline: none;
   background: #f8fafc;
+  color: #000;
 }
 
 .sidebar-link-input {
@@ -239,6 +240,7 @@
   border-radius: 8px;
   border: 1px solid #ccc;
   outline: none;
+  color: #000;
 }
 
 .btn-add-link {
