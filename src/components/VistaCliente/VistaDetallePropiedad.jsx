@@ -348,6 +348,13 @@ const VistaDetallePropiedad = () => {
           </div>
 
           <div className="action-header-right" style={{ display: 'flex', gap: '10px', flexDirection: window.innerWidth <= 768 ? 'column' : 'row', marginTop: '20px' }}>
+            <button 
+              className="btn-add-service-full" 
+              style={{ flex: 1, backgroundColor: '#ef4444', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', boxShadow: '0 4px 10px rgba(239, 68, 68, 0.3)' }} 
+              onClick={() => navigate('/SOSView')}
+            >
+              <AlertCircle size={20} /> SOS
+            </button>
             {data && !data.is_shared_with_me && (
               <button className="btn-add-service-full" style={{ flex: 1, backgroundColor: '#007bff', color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} onClick={() => setMostrarModalCompartir(true)}>
                 <User size={20} /> {usuariosCompartidos.length > 0 ? "COMPARTIENDO" : "COMPARTIR"}

@@ -165,6 +165,97 @@
   font-size: 0.9rem;
 }
 
+/* --- TAB STYLES --- */
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #666;
+  cursor: pointer;
+  border-radius: 10px 10px 0 0;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-button:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.tab-button.active {
+  color: #F26522;
+  border-bottom: 3px solid #F26522;
+  background-color: #fffaf5;
+}
+
+/* --- SIDEBAR CONFIG STYLES --- */
+.sidebar-links-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.sidebar-link-item {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.sidebar-link-icon-select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  background: #f8fafc;
+}
+
+.sidebar-link-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.btn-add-link {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
 @media (max-width: 768px) {
   .customize-grid {
     grid-template-columns: 1fr;

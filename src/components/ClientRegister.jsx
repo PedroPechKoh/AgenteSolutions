@@ -21,7 +21,7 @@ const ClientRegister = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000' });
+  const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000', appLogo: null });
 
   const navigate = useNavigate();
 
@@ -34,7 +34,7 @@ const ClientRegister = () => {
         }
       } catch (error) {
         console.error("Error al cargar configuraciones visuales:", error);
-        setBackgroundSettings({ imageUrl: null, colorHex: '#000000' });
+        setBackgroundSettings({ imageUrl: null, colorHex: '#000000', appLogo: null });
       }
     };
     fetchSettings();
@@ -98,9 +98,10 @@ const ClientRegister = () => {
       }} 
     >
       <img
-        src={Logo4}
+        src={backgroundSettings.appLogo || Logo4}
         alt="Agente Solutions"
         className="logo-top-left"
+        style={{ objectFit: 'contain' }}
       />
       <div className="decoration-layer">
         <div className="stripe-top"></div>

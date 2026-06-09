@@ -1,10 +1,11 @@
 import React from 'react';
 import { useNavigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
-import { User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X, Search } from 'lucide-react';
+import { User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X, Search, Facebook, Instagram, Twitter, Youtube, Phone, Mail, Globe, MapPin, Link as LinkIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../Shared/NotificationBell';
-import logo from "../../assets/Logo4.png";
+import defaultLogo from "../../assets/Logo4.png";
+import axios from "axios";
 
 const MainLayoutCliente = ({ children }) => {
   const navigate = useNavigate();
@@ -15,11 +16,36 @@ const MainLayoutCliente = ({ children }) => {
   const [searchTerm, setSearchTerm] = React.useState("");
   const fullName = `${user?.first_name || user?.name || 'Cliente'} ${user?.last_name || ''}`.trim();
   
+  const [appLogo, setAppLogo] = React.useState(defaultLogo);
+  const [sidebarLinks, setSidebarLinks] = React.useState([]);
+
   const { id: urlPropertyId } = useParams();
   
   // Estados para mantener los IDs sincronizados
   const [currentPropertyId, setCurrentPropertyId] = React.useState(localStorage.getItem('current_property_id'));
   const [currentLevantamientoId, setCurrentLevantamientoId] = React.useState(localStorage.getItem('current_levantamiento_id'));
+
+  const fetchDynamicSettings = async () => {
+    try {
+      const resSettings = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`);
+      if (resSettings.data.success && resSettings.data.settings.appLogo) {
+        setAppLogo(resSettings.data.settings.appLogo);
+      }
+      
+      const resLinks = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/sidebar-links`);
+      if (resLinks.data.success && resLinks.data.links) {
+        setSidebarLinks(resLinks.data.links);
+      }
+    } catch (error) {
+      console.error("Error fetching dynamic sidebar settings", error);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchDynamicSettings();
+    window.addEventListener('settings-updated', fetchDynamicSettings);
+    return () => window.removeEventListener('settings-updated', fetchDynamicSettings);
+  }, []);
 
   // Sincronizar cada vez que cambia la ruta O cuando se dispara el evento personalizado
   React.useEffect(() => {
@@ -27,51 +53,42 @@ const MainLayoutCliente = ({ children }) => {
       const pId = localStorage.getItem('current_property_id');
       const lId = localStorage.getItem('current_levantamiento_id');
       
-      // Si la URL tiene un ID de propiedad y es diferente al guardado, limpiamos el levantamiento 
-      // para evitar "fantasmas" de la propiedad anterior mientras carga la nueva.
       if (urlPropertyId && urlPropertyId !== pId) {
         setCurrentLevantamientoId(null);
       } else {
         setCurrentLevantamientoId(lId);
       }
-      
       setCurrentPropertyId(pId);
     };
 
-    syncIds(); // Al montar y cambiar ruta
-    
+    syncIds();
     window.addEventListener('sync-agente-ids', syncIds);
     return () => window.removeEventListener('sync-agente-ids', syncIds);
   }, [location.pathname, urlPropertyId]);
   
-  // Priorizar el ID de la URL si estamos en un detalle y limpiar el prefijo 'prop_' si existe
   const cleanId = (id) => id ? id.toString().replace('prop_', '') : null;
-  
-  // Si estamos en la ruta de detalle-reporte, el ID de la URL es del reporte, no de la propiedad
   const isReportRoute = location.pathname.includes('/detalle-reporte');
   const effectivePropertyId = isReportRoute ? cleanId(currentPropertyId) : (cleanId(urlPropertyId) || cleanId(currentPropertyId));
-
-  // Rutas dinámicas basadas en el contexto sincronizado
-  const detailPath = currentLevantamientoId ? `/detalle-reporte/${currentLevantamientoId}` : (effectivePropertyId ? `/detalle-reporte/prop_${effectivePropertyId}` : '/propiedades');
   const tableroPath = effectivePropertyId ? `/DetallePropiedad/${effectivePropertyId}` : '/propiedades';
-
-  // Check if we are in a global route
+  
   const globalRoutes = ['/propiedades', '/levantamientos', '/vista-cotizaciones', '/registro-propiedades'];
   const isGlobalRoute = globalRoutes.includes(location.pathname);
-
-  const globalNavButtons = [
-    { label: 'PROPIEDADES', path: '/propiedades', icon: <Home size={18} /> },
-    { label: 'LEVANTAMIENTOS', path: '/levantamientos', icon: <LayoutDashboard size={18} /> },
-  ];
-
-  const propertyNavButtons = [
-    { label: 'DETALLES PROPIEDAD', path: tableroPath, icon: <Home size={18} /> },
-    { label: 'SOS', path: '/SOSView', icon: <Bell size={18} /> },
-  ];
-
-  const currentNavButtons = isGlobalRoute ? globalNavButtons : propertyNavButtons;
-
   const isHomeView = location.pathname === '/VistaInicioCliente';
+
+  const getIconComponent = (iconName) => {
+    switch(iconName) {
+      case 'Facebook': return <Facebook size={18} />;
+      case 'Instagram': return <Instagram size={18} />;
+      case 'Twitter': return <Twitter size={18} />;
+      case 'TikTok': return <Globe size={18} />; // Alternativa si no existe logo de Tiktok
+      case 'Youtube': return <Youtube size={18} />;
+      case 'Phone': return <Phone size={18} />;
+      case 'Mail': return <Mail size={18} />;
+      case 'Globe': return <Globe size={18} />;
+      case 'MapPin': return <MapPin size={18} />;
+      default: return <LinkIcon size={18} />;
+    }
+  };
 
   return (
     <div className="tt-container">
@@ -92,7 +109,7 @@ const MainLayoutCliente = ({ children }) => {
           )}
   
           <div className="logo-section">
-             <img src={logo} alt="Agente Logo" className="main-logo" style={{ cursor: 'pointer' }} onClick={() => navigate('/propiedades')} />
+             <img src={appLogo} alt="Agente Logo" className="main-logo" style={{ cursor: 'pointer', objectFit: 'contain' }} onClick={() => navigate('/propiedades')} />
           </div>
 
           <div className="sidebar-search-wrapper">
@@ -108,15 +125,14 @@ const MainLayoutCliente = ({ children }) => {
             </div>
           </div>
   
-          
           <div className="tt-nav">
-            {currentNavButtons.map((btn) => (
+            {sidebarLinks.map((link) => (
               <button 
-                key={btn.label}
-                className={`tt-nav-btn ${location.pathname === btn.path ? 'active' : ''}`} 
-                onClick={() => navigate(btn.path)}
+                key={link.id}
+                className="tt-nav-btn" 
+                onClick={() => window.open(link.url, '_blank')}
               >
-                {btn.icon} <span>{btn.label}</span>
+                {getIconComponent(link.icon)} <span>{link.label}</span>
               </button>
             ))}
           </div>

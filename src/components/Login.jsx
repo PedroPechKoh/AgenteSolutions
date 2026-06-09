@@ -23,7 +23,7 @@ const LoginAgente = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   //Variablaes para personalizar el Login
-const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000' });
+const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000', appLogo: null });
 
   // 1. AUTO-LOGIN: Si ya existe sesión, redirigir según el rol
   useEffect(() => {
@@ -44,7 +44,7 @@ const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, c
         }
       } catch (error) {
         console.error("Error al cargar configuraciones visuales:", error);
-        setBackgroundSettings({ imageUrl: null, colorHex: '#000000' });
+        setBackgroundSettings({ imageUrl: null, colorHex: '#000000', appLogo: null });
       }
     };
     fetchSettings();
@@ -176,7 +176,7 @@ const handleLogin = async (e) => {
     >
          
       
-      <img src={Logo4} alt="Agente Solutions" className="logo-top-left" />
+      <img src={backgroundSettings.appLogo || Logo4} alt="Agente Solutions" className="logo-top-left" style={{ objectFit: 'contain' }} />
       <div className="decoration-layer">
         <div className="stripe-top"></div>
         <div className="stripe-bottom"></div>
@@ -245,7 +245,7 @@ const handleLogin = async (e) => {
       {isRecoverModalOpen && (
         <div className="login-modal-overlay">
           <div className="login-modal-content">
-            <img src={Logo4} alt="Agente Solutions" className="login-modal-logo" style={{ width: '150px', marginBottom: '20px' }} />
+            <img src={backgroundSettings.appLogo || Logo4} alt="Agente Solutions" className="login-modal-logo" style={{ width: '150px', marginBottom: '20px', objectFit: 'contain' }} />
             <h3 style={{ color: 'white', marginBottom: '20px', fontStyle: 'italic' }}>RECUPERAR CONTRASEÑA</h3>
             <form onSubmit={handleRecoverPassword} style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '100%' }}>
               <div className="input-group">
