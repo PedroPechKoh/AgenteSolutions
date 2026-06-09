@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Home } from 'lucide-react'; // ✅ Importamos el ícono de la casita
 import logo from '../../assets/Logo3.png'; 
 import NotificationBell from '../Shared/NotificationBell'; 
+import axios from 'axios';
 
 const Header = ({ rolTexto = "USUARIO", titulo }) => {
   const { user, logoutGlobal } = useAuth();
   const navigate = useNavigate();
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [appLogo, setAppLogo] = useState(logo);
+
+  const fetchDynamicSettings = async () => {
+    try {
+      const resSettings = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`);
+      if (resSettings.data.success && resSettings.data.settings.appLogo) {
+        setAppLogo(resSettings.data.settings.appLogo);
+      }
+    } catch (error) {
+      console.error("Error fetching dynamic header settings", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDynamicSettings();
+    window.addEventListener('settings-updated', fetchDynamicSettings);
+    return () => window.removeEventListener('settings-updated', fetchDynamicSettings);
+  }, []);
 
   const handleCerrarSesion = () => {
     logoutGlobal();
@@ -32,7 +51,7 @@ const Header = ({ rolTexto = "USUARIO", titulo }) => {
       
       {/* SECCIÓN IZQUIERDA: Logo y Casita */}
       <div className="logo-section" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-        <img src={logo} alt="Logo" className="main-logo" />
+        <img src={appLogo} alt="Logo" className="main-logo" style={{ objectFit: 'contain' }} />
         
         {/* NUEVO BOTÓN DE INICIO (Solo ícono, grande y visible) */}
         <button 
