@@ -1605,11 +1605,27 @@ const DetallePropiedad = () => {
                 <button 
                   className="btn-secondary-ui" 
                   onClick={() => {
-                    const paramId = trabajoSeleccionado.tipo_registro === 'work_order' 
-                      ? `${trabajoSeleccionado.realId}` 
-                      : `${trabajoSeleccionado.realId || trabajoSeleccionado.id}`;
-                    // Enviamos a la vista de cotización (Asumiendo que hay una vista o se busca en las cotizaciones globales)
-                    navigate(`/vista-cotizaciones?search=${paramId}`);
+                    // Buscar la cotización vinculada en el estado local de cotizaciones
+                    let cotVinculada = null;
+                    if (trabajoSeleccionado.tipo_registro === 'work_order') {
+                      cotVinculada = cotizaciones.find(c => String(c.raw?.work_order_id) === String(trabajoSeleccionado.realId));
+                    } else {
+                      cotVinculada = cotizaciones.find(c => String(c.raw?.service_id) === String(trabajoSeleccionado.realId));
+                    }
+
+                    if (cotVinculada) {
+                      setCotizacionDetail(cotVinculada);
+                      setIsModalCotizacionDetailOpen(true);
+                      // Opcional: Cerrar el modal actual para no encimar tantos modales (o dejarlo abierto atrás)
+                      setIsModalHistorialOpen(false);
+                    } else {
+                      Swal.fire({
+                        icon: 'info',
+                        title: 'Sin Cotización',
+                        text: 'Este trabajo no tiene una cotización vinculada o fue creado directamente como servicio/emergencia.',
+                        confirmButtonColor: '#f26624'
+                      });
+                    }
                   }}
                   style={{ flex: 1, background: '#10b981', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.2)' }}
                 >
