@@ -1571,11 +1571,15 @@ const DetallePropiedad = () => {
               <div className="info-grid" style={{ marginBottom: '30px' }}>
                 <div className="info-item-card">
                   <div className="item-icon"><User size={18} /></div>
-                  <div className="item-details"><label>Cliente</label><p>{datosPropiedad.propietario || "No asignado"}</p></div>
+                  <div className="item-details"><label>Cliente</label><p>{datosPropiedad.personaCargo || "No asignado"}</p></div>
                 </div>
                 <div className="info-item-card">
                   <div className="item-icon"><MapPin size={18} /></div>
-                  <div className="item-details"><label>Lugar del Servicio</label><p>{datosPropiedad.nombre_propiedad}</p></div>
+                  <div className="item-details">
+                    <label>Lugar del Servicio</label>
+                    <p style={{ margin: 0, fontWeight: 'bold' }}>{datosPropiedad.nombre_propiedad}</p>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>{datosPropiedad.direccion}</p>
+                  </div>
                 </div>
                 <div className="info-item-card">
                   <div className="item-icon"><User size={18} /></div>
