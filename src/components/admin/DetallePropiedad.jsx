@@ -1354,9 +1354,19 @@ const DetallePropiedad = () => {
               gap: '25px' 
             }}>
               {reportesPropiedad.map((rep) => {
-                const techObj = rep.technician || {};
-                const techName = techObj.first_name ? `${techObj.first_name} ${techObj.last_name}` : "Técnico";
-                const techInitial = techObj.first_name ? techObj.first_name.charAt(0).toUpperCase() : "T";
+                const techList = rep.technicians || [];
+                let techName = "Por asignar";
+                if (techList.length > 0) {
+                  techName = techList.map(t => `${t.first_name || t.name || ''} ${t.last_name || ''}`.trim()).filter(Boolean).join(', ');
+                } else if (rep.technician) {
+                  techName = `${rep.technician.first_name || rep.technician.name || ''} ${rep.technician.last_name || ''}`.trim() || "Técnico";
+                } else if (rep.tecnico_nombre) {
+                  techName = rep.tecnico_nombre;
+                } else if (rep.tecnico && typeof rep.tecnico === 'string') {
+                  techName = rep.tecnico;
+                }
+                
+                const techInitial = techName !== "Por asignar" && techName !== "Técnico" ? techName.charAt(0).toUpperCase() : "T";
                 const imgUrl = rep.todas_fotos ? rep.todas_fotos[0] : (rep.image_url || rep.image_path || rep.foto || rep.photo || null);
                 const trabajoId = rep.service_id || rep.work_order_id || rep.id;
                 const fechaFormat = rep.created_at ? new Date(rep.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "---";
@@ -1369,7 +1379,7 @@ const DetallePropiedad = () => {
                       const tipoRegistro = rep.work_order_id || rep.workOrder ? 'work_order' : 'servicio';
                       const realId = rep.service_id || rep.work_order_id || rep.id;
                       const producto = rep.service?.title || rep.workOrder?.type || rep.title || "Reporte de Trabajo";
-                      const tecnico = rep.technician ? `${rep.technician.first_name} ${rep.technician.last_name}` : "Técnico";
+                      const tecnico = techName;
                       const fecha = rep.service?.scheduled_start ? new Date(rep.service.scheduled_start).toLocaleDateString() : (rep.workOrder?.scheduled_at ? new Date(rep.workOrder.scheduled_at).toLocaleDateString() : (rep.created_at ? new Date(rep.created_at).toLocaleDateString() : "---"));
                       fetchDetalleTrabajo({
                         id: realId,

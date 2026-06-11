@@ -229,6 +229,10 @@ const ReporteTrabajo = () => {
     0
   );
 
+  // Validar si el usuario es cliente para restringir edición
+  const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+  const isClient = session?.userData?.role_id === 3;
+
   if (loading) return <div className="loading-report">Cargando editor de reporte...</div>;
 
   return (
@@ -237,15 +241,17 @@ const ReporteTrabajo = () => {
         <button onClick={() => navigate(-1)} className="btn-back">
           <ChevronLeft size={18} /> REGRESAR
         </button>
-        <button onClick={handleSave} className="btn-save" disabled={saving}>
-          <Save size={18} /> {saving ? "GUARDANDO..." : "GUARDAR CAMBIOS"}
-        </button>
+        {!isClient && (
+          <button onClick={handleSave} className="btn-save" disabled={saving}>
+            <Save size={18} /> {saving ? "GUARDANDO..." : "GUARDAR CAMBIOS"}
+          </button>
+        )}
         <button onClick={handlePrint} className="btn-print">
           <Printer size={18} /> IMPRIMIR REPORTE
         </button>
       </div>
 
-      <div ref={componentRef} className="reporte-content editable-mode">
+      <div ref={componentRef} className={isClient ? "reporte-content" : "reporte-content editable-mode"}>
         {/* Encabezado */}
         <div className="reporte-header">
           <div className="header-left">
@@ -258,6 +264,7 @@ const ReporteTrabajo = () => {
                 className="editable-folio" 
                 value={reportData.folio} 
                 onChange={(e) => updateField(null, 'folio', e.target.value)} 
+                disabled={isClient}
               />
             </div>
           </div>
@@ -268,11 +275,11 @@ const ReporteTrabajo = () => {
           <h2>REPORTE DE TRABAJO REALIZADO</h2>
           <div className="fecha-trabajo">
             <span>📅 Fecha: 
-                <input type="text" className="inline-input" value={reportData.fechaTrabajo} onChange={(e) => updateField(null, 'fechaTrabajo', e.target.value)} />
+                <input type="text" className="inline-input" value={reportData.fechaTrabajo} onChange={(e) => updateField(null, 'fechaTrabajo', e.target.value)} disabled={isClient} />
             </span>
             <span>⏰ Horario: 
-                <input type="text" className="inline-input" style={{width: '80px'}} value={reportData.horaInicio} onChange={(e) => updateField(null, 'horaInicio', e.target.value)} /> - 
-                <input type="text" className="inline-input" style={{width: '80px'}} value={reportData.horaFin} onChange={(e) => updateField(null, 'horaFin', e.target.value)} />
+                <input type="text" className="inline-input" style={{width: '80px'}} value={reportData.horaInicio} onChange={(e) => updateField(null, 'horaInicio', e.target.value)} disabled={isClient} /> - 
+                <input type="text" className="inline-input" style={{width: '80px'}} value={reportData.horaFin} onChange={(e) => updateField(null, 'horaFin', e.target.value)} disabled={isClient} />
             </span>
           </div>
         </div>
@@ -283,15 +290,15 @@ const ReporteTrabajo = () => {
           <div className="info-grid-2cols">
             <div className="info-linea">
               <strong>NOMBRE:</strong> 
-              <input className="editable-span" value={reportData.cliente.nombre} onChange={(e) => updateField('cliente', 'nombre', e.target.value)} />
+              <input className="editable-span" value={reportData.cliente.nombre} onChange={(e) => updateField('cliente', 'nombre', e.target.value)} disabled={isClient} />
             </div>
             <div className="info-linea">
               <strong>TELÉFONO:</strong> 
-              <input className="editable-span" value={reportData.cliente.telefono} onChange={(e) => updateField('cliente', 'telefono', e.target.value)} />
+              <input className="editable-span" value={reportData.cliente.telefono} onChange={(e) => updateField('cliente', 'telefono', e.target.value)} disabled={isClient} />
             </div>
             <div className="info-linea full-width">
               <strong>CORREO:</strong> 
-              <input className="editable-span" value={reportData.cliente.correo} onChange={(e) => updateField('cliente', 'correo', e.target.value)} />
+              <input className="editable-span" value={reportData.cliente.correo} onChange={(e) => updateField('cliente', 'correo', e.target.value)} disabled={isClient} />
             </div>
           </div>
         </div>
@@ -302,15 +309,15 @@ const ReporteTrabajo = () => {
           <div className="info-grid-2cols">
             <div className="info-linea">
               <strong>PROPIEDAD:</strong> 
-              <input className="editable-span" value={reportData.propiedad.nombre} onChange={(e) => updateField('propiedad', 'nombre', e.target.value)} />
+              <input className="editable-span" value={reportData.propiedad.nombre} onChange={(e) => updateField('propiedad', 'nombre', e.target.value)} disabled={isClient} />
             </div>
             <div className="info-linea">
               <strong>TIPO:</strong> 
-              <input className="editable-span" value={reportData.propiedad.tipo} onChange={(e) => updateField('propiedad', 'tipo', e.target.value)} />
+              <input className="editable-span" value={reportData.propiedad.tipo} onChange={(e) => updateField('propiedad', 'tipo', e.target.value)} disabled={isClient} />
             </div>
             <div className="info-linea full-width">
               <strong>DIRECCIÓN:</strong> 
-              <input className="editable-span" value={reportData.propiedad.direccion} onChange={(e) => updateField('propiedad', 'direccion', e.target.value)} />
+              <input className="editable-span" value={reportData.propiedad.direccion} onChange={(e) => updateField('propiedad', 'direccion', e.target.value)} disabled={isClient} />
             </div>
           </div>
         </div>
@@ -321,19 +328,19 @@ const ReporteTrabajo = () => {
           <div className="info-grid-2cols">
             <div className="info-linea full-width">
               <strong>NOMBRE:</strong> 
-              <input className="editable-span" value={reportData.tecnico.nombre} onChange={(e) => updateField('tecnico', 'nombre', e.target.value)} />
+              <input className="editable-span" value={reportData.tecnico.nombre} onChange={(e) => updateField('tecnico', 'nombre', e.target.value)} disabled={isClient} />
             </div>
             <div className="info-linea">
               <strong>ESPECIALIDAD:</strong> 
-              <input className="editable-span" value={reportData.tecnico.especialidad} onChange={(e) => updateField('tecnico', 'especialidad', e.target.value)} />
+              <input className="editable-span" value={reportData.tecnico.especialidad} onChange={(e) => updateField('tecnico', 'especialidad', e.target.value)} disabled={isClient} />
             </div>
             <div className="info-linea">
               <strong>CELULAR:</strong> 
-              <input className="editable-span" value={reportData.tecnico.celular} onChange={(e) => updateField('tecnico', 'celular', e.target.value)} />
+              <input className="editable-span" value={reportData.tecnico.celular} onChange={(e) => updateField('tecnico', 'celular', e.target.value)} disabled={isClient} />
             </div>
             <div className="info-linea full-width">
               <strong>CORREO:</strong> 
-              <input className="editable-span" value={reportData.tecnico.correo} onChange={(e) => updateField('tecnico', 'correo', e.target.value)} />
+              <input className="editable-span" value={reportData.tecnico.correo} onChange={(e) => updateField('tecnico', 'correo', e.target.value)} disabled={isClient} />
             </div>
           </div>
         </div>
@@ -347,6 +354,7 @@ const ReporteTrabajo = () => {
                 value={reportData.descripcion} 
                 onChange={(e) => updateField(null, 'descripcion', e.target.value)}
                 placeholder="Escribe aquí el resumen de las actividades realizadas..."
+                disabled={isClient}
             />
           </div>
         </div>
@@ -354,7 +362,7 @@ const ReporteTrabajo = () => {
         {/* Materiales */}
         <div className="info-section">
           <h3>MATERIALES UTILIZADOS 
-              <button className="btn-add-item no-print" onClick={addMaterial}><Plus size={14}/> AGREGAR</button>
+              {!isClient && <button className="btn-add-item no-print" onClick={addMaterial}><Plus size={14}/> AGREGAR</button>}
           </h3>
           <table className="materiales-table">
             <thead>
@@ -364,26 +372,28 @@ const ReporteTrabajo = () => {
                 <th style={{width: '80px'}}>Unidad</th>
                 <th style={{width: '100px'}}>P. Unitario</th>
                 <th style={{width: '100px'}}>Subtotal</th>
-                <th className="no-print" style={{width: '40px'}}></th>
+                {!isClient && <th className="no-print" style={{width: '40px'}}></th>}
               </tr>
             </thead>
             <tbody>
               {reportData.materiales.map((material, idx) => (
                 <tr key={idx}>
-                  <td><input className="table-input" value={material.nombre} onChange={(e) => handleMaterialChange(idx, 'nombre', e.target.value)} /></td>
-                  <td><input className="table-input center" type="number" value={material.cantidad} onChange={(e) => handleMaterialChange(idx, 'cantidad', e.target.value)} /></td>
-                  <td><input className="table-input center" value={material.unidad} onChange={(e) => handleMaterialChange(idx, 'unidad', e.target.value)} /></td>
-                  <td><input className="table-input" type="number" value={material.precio} onChange={(e) => handleMaterialChange(idx, 'precio', e.target.value)} /></td>
+                  <td><input className="table-input" value={material.nombre} onChange={(e) => handleMaterialChange(idx, 'nombre', e.target.value)} disabled={isClient} /></td>
+                  <td><input className="table-input center" type="number" value={material.cantidad} onChange={(e) => handleMaterialChange(idx, 'cantidad', e.target.value)} disabled={isClient} /></td>
+                  <td><input className="table-input center" value={material.unidad} onChange={(e) => handleMaterialChange(idx, 'unidad', e.target.value)} disabled={isClient} /></td>
+                  <td><input className="table-input" type="number" value={material.precio} onChange={(e) => handleMaterialChange(idx, 'precio', e.target.value)} disabled={isClient} /></td>
                   <td>${(material.cantidad * material.precio).toFixed(2)}</td>
-                  <td className="no-print">
-                      <button className="btn-row-delete" onClick={() => removeMaterial(idx)}><Trash2 size={12}/></button>
-                  </td>
+                  {!isClient && (
+                    <td className="no-print">
+                        <button className="btn-row-delete" onClick={() => removeMaterial(idx)}><Trash2 size={12}/></button>
+                    </td>
+                  )}
                 </tr>
               ))}
               <tr className="total-row">
                 <td colSpan="4" className="total-label">TOTAL MATERIALES:</td>
                 <td className="total-amount">${totalMateriales.toFixed(2)}</td>
-                <td className="no-print"></td>
+                {!isClient && <td className="no-print"></td>}
               </tr>
             </tbody>
           </table>
@@ -403,16 +413,18 @@ const ReporteTrabajo = () => {
                 />
                 
                 {/* Botón de eliminar en hover (no se imprime) */}
-                <button 
-                  className="btn-delete-photo no-print" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleImage(img);
-                  }}
-                  title="Eliminar de este reporte"
-                >
-                  <X size={18} />
-                </button>
+                {!isClient && (
+                  <button 
+                    className="btn-delete-photo no-print" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleImage(img);
+                    }}
+                    title="Eliminar de este reporte"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
 
                 <div className="photo-zoom-hint no-print" onClick={() => setSelectedImage(img)}>
                   <Maximize2 size={12} />
@@ -445,6 +457,7 @@ const ReporteTrabajo = () => {
                 className="editable-textarea" 
                 value={reportData.observaciones} 
                 onChange={(e) => updateField(null, 'observaciones', e.target.value)}
+                disabled={isClient}
             />
           </div>
         </div>
