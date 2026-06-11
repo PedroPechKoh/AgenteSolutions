@@ -249,38 +249,53 @@ const VistaServiciosAdmin = () => {
     }
   };
 
-  const tareasParaMostrar = tareasFiltradas.filter(t => {
-    if (filtroFecha === 'todas') return true;
-    
-    const hoy = new Date();
-    hoy.setHours(0,0,0,0);
-    const manana = new Date(hoy);
-    manana.setDate(manana.getDate() + 1);
-    const finSemana = new Date(hoy);
-    finSemana.setDate(finSemana.getDate() + 7);
-
-    if (filtroFecha === 'sin_fecha') return !t.scheduledAt;
-    if (!t.scheduledAt) return false;
-
-    const d = new Date(t.scheduledAt);
-    d.setHours(0,0,0,0);
-
-    if (filtroFecha === 'hoy') return d.getTime() === hoy.getTime();
-    if (filtroFecha === 'manana') return d.getTime() === manana.getTime();
-    if (filtroFecha === 'semana') return d >= hoy && d <= finSemana;
-    if (filtroFecha === 'atrasados') return d < hoy && !['done', 'rejected'].includes(t.estado);
-    
-    return true;
-  });
-
   const renderColumna = (colId, titulo, clase) => {
-    const tareasFiltradasCol = tareasParaMostrar.filter(t => t.estado === colId);
+    let tareasFiltradasCol = tareasFiltradas.filter(t => t.estado === colId);
+
+    if (colId === 'todo' && filtroFecha !== 'todas') {
+      const hoy = new Date();
+      hoy.setHours(0,0,0,0);
+      const manana = new Date(hoy);
+      manana.setDate(manana.getDate() + 1);
+      const finSemana = new Date(hoy);
+      finSemana.setDate(finSemana.getDate() + 7);
+
+      tareasFiltradasCol = tareasFiltradasCol.filter(t => {
+        if (filtroFecha === 'sin_fecha') return !t.scheduledAt;
+        if (!t.scheduledAt) return false;
+
+        const d = new Date(t.scheduledAt);
+        d.setHours(0,0,0,0);
+
+        if (filtroFecha === 'hoy') return d.getTime() === hoy.getTime();
+        if (filtroFecha === 'manana') return d.getTime() === manana.getTime();
+        if (filtroFecha === 'semana') return d >= hoy && d <= finSemana;
+        if (filtroFecha === 'atrasados') return d < hoy && !['done', 'rejected'].includes(t.estado);
+        return true;
+      });
+    }
     
     return (
       <div className={`scrum-column ${clase}`}>
-        <div className="column-header">
-          <span className="column-title-text">{titulo}</span>
-          <span className="column-badge">{tareasFiltradasCol.length}</span>
+        <div className="column-header" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <span className="column-title-text">{titulo}</span>
+            <span className="column-badge">{tareasFiltradasCol.length}</span>
+          </div>
+          {colId === 'todo' && (
+            <select 
+              value={filtroFecha} 
+              onChange={(e) => setFiltroFecha(e.target.value)}
+              style={{ border: '1px solid #cbd5e1', background: 'white', outline: 'none', fontSize: '0.75rem', fontWeight: 'bold', color: '#f26522', cursor: 'pointer', padding: '6px 8px', borderRadius: '8px', width: '100%' }}
+            >
+              <option value="todas">Todas las fechas</option>
+              <option value="hoy">Solo Hoy</option>
+              <option value="manana">Mañana</option>
+              <option value="semana">Próximos 7 días</option>
+              <option value="atrasados">Atrasados</option>
+              <option value="sin_fecha">Sin programar</option>
+            </select>
+          )}
         </div>
         <div className="cards-container">
           {tareasFiltradasCol.length > 0 ? (
@@ -380,32 +395,14 @@ const VistaServiciosAdmin = () => {
         <h2 style={{ fontStyle: 'italic', fontWeight: '900', margin: 0 }}>GESTIÓN GLOBAL DE SERVICIOS</h2>
       </header>
 
-      {/* Buscador Universal y Filtros */}
-      <div className="search-bar-admin-wrapper" style={{ marginBottom: '20px', padding: '0 5px', display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '300px' }}>
-          <UniversalSearch 
-            data={tareasData}
-            setFilteredData={setTareasFiltradas}
-            placeholder="BUSCAR POR FOLIO, CLIENTE, PROPIEDAD O DESCRIPCIÓN DE SERVICIO..."
-            type="TECNICO_TABLERO"
-          />
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'white', padding: '6px 15px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-          <Calendar size={18} color="#64748b" />
-          <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#475569' }}>FECHA:</span>
-          <select 
-            value={filtroFecha} 
-            onChange={(e) => setFiltroFecha(e.target.value)}
-            style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.85rem', fontWeight: 'bold', color: '#f26522', cursor: 'pointer' }}
-          >
-            <option value="todas">Todas las fechas</option>
-            <option value="hoy">Solo Hoy</option>
-            <option value="manana">Mañana</option>
-            <option value="semana">Próximos 7 días</option>
-            <option value="atrasados">Atrasados</option>
-            <option value="sin_fecha">Sin programar</option>
-          </select>
-        </div>
+      {/* Buscador Universal */}
+      <div className="search-bar-admin-wrapper" style={{ marginBottom: '20px', padding: '0 5px' }}>
+        <UniversalSearch 
+          data={tareasData}
+          setFilteredData={setTareasFiltradas}
+          placeholder="BUSCAR POR FOLIO, CLIENTE, PROPIEDAD O DESCRIPCIÓN DE SERVICIO..."
+          type="TECNICO_TABLERO"
+        />
       </div>
 
       {/* Pestañas Principales (Activos vs Finalizados/Rechazados) */}
@@ -417,7 +414,7 @@ const VistaServiciosAdmin = () => {
           <span className="main-tab-icon">⚡</span>
           <span className="main-tab-text">Servicios Activos</span>
           <span className="main-tab-count">
-            {tareasParaMostrar.filter(t => ['sos', 'unassigned', 'todo', 'progress'].includes(t.estado)).length}
+            {tareasFiltradas.filter(t => ['sos', 'unassigned', 'todo', 'progress'].includes(t.estado)).length}
           </span>
         </button>
         <button 
@@ -427,7 +424,7 @@ const VistaServiciosAdmin = () => {
           <span className="main-tab-icon">📋</span>
           <span className="main-tab-text">Finalizados y Rechazados</span>
           <span className="main-tab-count">
-            {tareasParaMostrar.filter(t => ['done', 'rejected'].includes(t.estado)).length}
+            {tareasFiltradas.filter(t => ['done', 'rejected'].includes(t.estado)).length}
           </span>
         </button>
       </div>
