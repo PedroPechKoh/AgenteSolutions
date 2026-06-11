@@ -1552,20 +1552,6 @@ const DetallePropiedad = () => {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                {(JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData?.role_id !== 3) && (
-                  <button 
-                    className="btn-primary-ui" 
-                    onClick={() => {
-                      const paramId = trabajoSeleccionado.tipo_registro === 'work_order' 
-                        ? `work_order-${trabajoSeleccionado.realId}` 
-                        : `servicio-${trabajoSeleccionado.realId || trabajoSeleccionado.id}`;
-                      navigate(`/reporte-trabajo-admin/${paramId}`);
-                    }}
-                    style={{ background: '#3b82f6', boxShadow: '0 4px 0 #2563eb', padding: '8px 20px', fontSize: '12px' }}
-                  >
-                    <FileText size={16} /> GENERAR REPORTE OFICIAL
-                  </button>
-                )}
                 <button className="btn-close-light" onClick={() => setIsModalHistorialOpen(false)}><X size={20}/></button>
               </div>
             </div>
@@ -1575,16 +1561,46 @@ const DetallePropiedad = () => {
               <div className="info-grid" style={{ marginBottom: '30px' }}>
                 <div className="info-item-card">
                   <div className="item-icon"><User size={18} /></div>
-                  <div className="item-details"><label>Técnico Responsable</label><p>{trabajoSeleccionado.tecnico}</p></div>
-                </div>
-                <div className="info-item-card">
-                  <div className="item-icon"><Clock size={18} /></div>
-                  <div className="item-details"><label>ID de Servicio</label><p>#{trabajoSeleccionado.id}</p></div>
+                  <div className="item-details"><label>Cliente</label><p>{datosPropiedad.propietario || "No asignado"}</p></div>
                 </div>
                 <div className="info-item-card">
                   <div className="item-icon"><MapPin size={18} /></div>
-                  <div className="item-details"><label>Propiedad</label><p>{datosPropiedad.nombre_propiedad}</p></div>
+                  <div className="item-details"><label>Lugar del Servicio</label><p>{datosPropiedad.nombre_propiedad}</p></div>
                 </div>
+                <div className="info-item-card">
+                  <div className="item-icon"><User size={18} /></div>
+                  <div className="item-details"><label>Técnico Responsable</label><p>{trabajoSeleccionado.tecnico}</p></div>
+                </div>
+              </div>
+
+              {/* Botones de Acción Rápida */}
+              <div style={{ display: 'flex', gap: '15px', marginBottom: '30px' }}>
+                <button 
+                  className="btn-primary-ui" 
+                  onClick={() => {
+                    const paramId = trabajoSeleccionado.tipo_registro === 'work_order' 
+                      ? `work_order-${trabajoSeleccionado.realId}` 
+                      : `servicio-${trabajoSeleccionado.realId || trabajoSeleccionado.id}`;
+                    navigate(`/reporte-trabajo-admin/${paramId}`);
+                  }}
+                  style={{ flex: 1, background: '#3b82f6', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(59, 130, 246, 0.2)' }}
+                >
+                  <FileText size={18} /> Reporte de este trabajo
+                </button>
+                
+                <button 
+                  className="btn-secondary-ui" 
+                  onClick={() => {
+                    const paramId = trabajoSeleccionado.tipo_registro === 'work_order' 
+                      ? `${trabajoSeleccionado.realId}` 
+                      : `${trabajoSeleccionado.realId || trabajoSeleccionado.id}`;
+                    // Enviamos a la vista de cotización (Asumiendo que hay una vista o se busca en las cotizaciones globales)
+                    navigate(`/vista-cotizaciones?search=${paramId}`);
+                  }}
+                  style={{ flex: 1, background: '#10b981', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.2)' }}
+                >
+                  <FileText size={18} /> Cotización de este trabajo
+                </button>
               </div>
 
               {/* Sección de Evidencias Generales */}
