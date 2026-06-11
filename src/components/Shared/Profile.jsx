@@ -96,7 +96,8 @@ const Profile = () => {
       alert("¡Datos actualizados con éxito!");
     } catch (error) {
       console.error("Error en handleSaveProfile:", error);
-      alert("Hubo un error al actualizar los datos.");
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || "Hubo un error al actualizar los datos.";
+      alert(errorMsg);
     }
   };
 
