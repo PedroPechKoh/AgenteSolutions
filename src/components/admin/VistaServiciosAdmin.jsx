@@ -31,6 +31,7 @@ const VistaServiciosAdmin = () => {
   const [tabActiva, setTabActiva] = useState('sos'); // Estado para pestañas en móvil
   const [showModalCotizacion, setShowModalCotizacion] = useState(false);
   const [cotizacionesData, setCotizacionesData] = useState([]);
+  const [filtroFecha, setFiltroFecha] = useState('todas');
   
   const columnasConfig = [
     { id: 'sos', titulo: 'SOS / PRIORITARIOS', color: '#e63946', icon: <AlertTriangle size={20} /> },
@@ -52,14 +53,12 @@ const VistaServiciosAdmin = () => {
     return data.map(item => {
       let estado = 'todo';
       const hasTechnician = item.tecnico_id || (item.technicians && item.technicians.length > 0);
-      
-      const isToday = item.scheduled_at && new Date(item.scheduled_at).toDateString() === new Date().toDateString();
 
       if (item.status === 'Listo' || item.status === 'Finalizado') {
         estado = 'done';
       } else if (item.status === 'Rechazado') {
         estado = 'rejected';
-      } else if (item.status === 'En Proceso' || (isToday && hasTechnician)) {
+      } else if (item.status === 'En Proceso') {
         estado = 'progress';
       } else if (item.priority === 'Urgente') {
         estado = 'sos';
@@ -250,8 +249,32 @@ const VistaServiciosAdmin = () => {
     }
   };
 
+  const tareasParaMostrar = tareasFiltradas.filter(t => {
+    if (filtroFecha === 'todas') return true;
+    
+    const hoy = new Date();
+    hoy.setHours(0,0,0,0);
+    const manana = new Date(hoy);
+    manana.setDate(manana.getDate() + 1);
+    const finSemana = new Date(hoy);
+    finSemana.setDate(finSemana.getDate() + 7);
+
+    if (filtroFecha === 'sin_fecha') return !t.scheduledAt;
+    if (!t.scheduledAt) return false;
+
+    const d = new Date(t.scheduledAt);
+    d.setHours(0,0,0,0);
+
+    if (filtroFecha === 'hoy') return d.getTime() === hoy.getTime();
+    if (filtroFecha === 'manana') return d.getTime() === manana.getTime();
+    if (filtroFecha === 'semana') return d >= hoy && d <= finSemana;
+    if (filtroFecha === 'atrasados') return d < hoy && !['done', 'rejected'].includes(t.estado);
+    
+    return true;
+  });
+
   const renderColumna = (colId, titulo, clase) => {
-    const tareasFiltradasCol = tareasFiltradas.filter(t => t.estado === colId);
+    const tareasFiltradasCol = tareasParaMostrar.filter(t => t.estado === colId);
     
     return (
       <div className={`scrum-column ${clase}`}>
@@ -268,6 +291,7 @@ const VistaServiciosAdmin = () => {
                     tarea.isOverdue ? 'is-overdue' : ''
                   } ${
                     tarea.estado === 'sos' ? 'is-sos' : 
+                    tarea.estado === 'unassigned' ? 'is-unassigned' :
                     tarea.estado === 'progress' ? (tarea.prioridad === 'SOS' ? 'is-sos is-active' : 'is-active') : 
                     tarea.estado === 'done' ? 'is-done' : ''
                   }`}
@@ -356,14 +380,32 @@ const VistaServiciosAdmin = () => {
         <h2 style={{ fontStyle: 'italic', fontWeight: '900', margin: 0 }}>GESTIÓN GLOBAL DE SERVICIOS</h2>
       </header>
 
-      {/* Buscador Universal */}
-      <div className="search-bar-admin-wrapper" style={{ marginBottom: '20px', padding: '0 5px' }}>
-        <UniversalSearch 
-          data={tareasData}
-          setFilteredData={setTareasFiltradas}
-          placeholder="BUSCAR POR FOLIO, CLIENTE, PROPIEDAD O DESCRIPCIÓN DE SERVICIO..."
-          type="TECNICO_TABLERO"
-        />
+      {/* Buscador Universal y Filtros */}
+      <div className="search-bar-admin-wrapper" style={{ marginBottom: '20px', padding: '0 5px', display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: '300px' }}>
+          <UniversalSearch 
+            data={tareasData}
+            setFilteredData={setTareasFiltradas}
+            placeholder="BUSCAR POR FOLIO, CLIENTE, PROPIEDAD O DESCRIPCIÓN DE SERVICIO..."
+            type="TECNICO_TABLERO"
+          />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'white', padding: '6px 15px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <Calendar size={18} color="#64748b" />
+          <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#475569' }}>FECHA:</span>
+          <select 
+            value={filtroFecha} 
+            onChange={(e) => setFiltroFecha(e.target.value)}
+            style={{ border: 'none', background: 'transparent', outline: 'none', fontSize: '0.85rem', fontWeight: 'bold', color: '#f26522', cursor: 'pointer' }}
+          >
+            <option value="todas">Todas las fechas</option>
+            <option value="hoy">Solo Hoy</option>
+            <option value="manana">Mañana</option>
+            <option value="semana">Próximos 7 días</option>
+            <option value="atrasados">Atrasados</option>
+            <option value="sin_fecha">Sin programar</option>
+          </select>
+        </div>
       </div>
 
       {/* Pestañas Principales (Activos vs Finalizados/Rechazados) */}
@@ -375,7 +417,7 @@ const VistaServiciosAdmin = () => {
           <span className="main-tab-icon">⚡</span>
           <span className="main-tab-text">Servicios Activos</span>
           <span className="main-tab-count">
-            {tareasFiltradas.filter(t => ['sos', 'unassigned', 'todo', 'progress'].includes(t.estado)).length}
+            {tareasParaMostrar.filter(t => ['sos', 'unassigned', 'todo', 'progress'].includes(t.estado)).length}
           </span>
         </button>
         <button 
@@ -385,7 +427,7 @@ const VistaServiciosAdmin = () => {
           <span className="main-tab-icon">📋</span>
           <span className="main-tab-text">Finalizados y Rechazados</span>
           <span className="main-tab-count">
-            {tareasFiltradas.filter(t => ['done', 'rejected'].includes(t.estado)).length}
+            {tareasParaMostrar.filter(t => ['done', 'rejected'].includes(t.estado)).length}
           </span>
         </button>
       </div>

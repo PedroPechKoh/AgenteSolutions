@@ -154,6 +154,7 @@
 /* Colores de cabecera por estado */
 .col-sos .column-header { border-bottom-color: #ff4d4f; }
 .col-sos .column-title-text { color: #cf1322; }
+.col-unassigned .column-header { border-bottom-color: #8b5cf6; }
 .col-todo .column-header { border-bottom-color: #fbbf24; }
 .col-progress .column-header { border-bottom-color: #3b82f6; }
 .col-done .column-header { border-bottom-color: #22c55e; }
@@ -200,6 +201,7 @@
 
 /* Variantes de borde izquierdo */
 .is-sos { border-left-color: #ff4d4f; background: #fffafa; }
+.is-unassigned { border-left-color: #8b5cf6; }
 .is-active { border-left-color: #3b82f6; }
 .is-done { border-left-color: #22c55e; }
 .is-rejected { border-left-color: #dc2626; background: #fef2f2; }
@@ -297,6 +299,7 @@
 }
 
 .modal-top-indicator.sos { background: #ff4d4f; }
+.modal-top-indicator.unassigned { background: #8b5cf6; }
 .modal-top-indicator.todo { background: #fbbf24; }
 .modal-top-indicator.progress { background: #3b82f6; }
 .modal-top-indicator.done { background: #22c55e; }
