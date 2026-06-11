@@ -33,7 +33,8 @@ const VistaServiciosAdmin = () => {
   const [cotizacionesData, setCotizacionesData] = useState([]);
   
   const columnasConfig = [
-    { id: 'sos', titulo: 'SOS', color: '#e63946', icon: <AlertTriangle size={20} /> },
+    { id: 'sos', titulo: 'SOS / PRIORITARIOS', color: '#e63946', icon: <AlertTriangle size={20} /> },
+    { id: 'unassigned', titulo: 'POR ASIGNAR', color: '#8b5cf6', icon: <UserCircle size={20} /> },
     { id: 'todo', titulo: 'POR HACER', color: '#333', icon: <FileText size={20} /> },
     { id: 'progress', titulo: 'EN PROCESO', color: '#f26522', icon: <Timer size={20} /> },
     { id: 'done', titulo: 'FINALIZADOS', color: '#1b8a5a', icon: <CheckCircle2 size={20} /> },
@@ -50,14 +51,20 @@ const VistaServiciosAdmin = () => {
   const transformarTareas = useCallback((data) => {
     return data.map(item => {
       let estado = 'todo';
+      const hasTechnician = item.tecnico_id || (item.technicians && item.technicians.length > 0);
+      
+      const isToday = item.scheduled_at && new Date(item.scheduled_at).toDateString() === new Date().toDateString();
+
       if (item.status === 'Listo' || item.status === 'Finalizado') {
         estado = 'done';
       } else if (item.status === 'Rechazado') {
         estado = 'rejected';
-      } else if (item.status === 'En Proceso') {
+      } else if (item.status === 'En Proceso' || (isToday && hasTechnician)) {
         estado = 'progress';
       } else if (item.priority === 'Urgente') {
         estado = 'sos';
+      } else if (!hasTechnician) {
+        estado = 'unassigned';
       }
       
       return {
@@ -69,8 +76,9 @@ const VistaServiciosAdmin = () => {
         fechaFin: new Date(item.updated_at).toLocaleDateString(),
         fechaSolicitud: new Date(item.created_at).toLocaleDateString(),
         fechaSolucion: ['Listo', 'Finalizado'].includes(item.status) ? new Date(item.updated_at).toLocaleDateString() : 'Pendiente',
-        tecnico: item.tecnico ? `${item.tecnico.first_name} ${item.tecnico.last_name}` : 'Pendiente de asignar',
+        tecnico: item.tecnico ? `${item.tecnico.first_name} ${item.tecnico.last_name}` : (item.technicians?.length ? item.technicians.map(t=>t.name || t.first_name).join(', ') : 'Pendiente de asignar'),
         tecnicoId: item.tecnico_id,
+        tecnicosIds: item.technicians ? item.technicians.map(t => t.id) : [],
         propertyId: item.property_id,
         fechaInicio: new Date(item.created_at).toLocaleDateString(),
         estado: estado,
@@ -127,9 +135,9 @@ const VistaServiciosAdmin = () => {
     if (jobId && tareasData.length > 0) {
       const tarea = tareasData.find(t => t.dbId === parseInt(jobId));
       if (tarea) {
-        const esActivo = ['sos', 'todo', 'progress'].includes(tarea.estado);
+        const esActivo = ['sos', 'unassigned', 'todo', 'progress'].includes(tarea.estado);
         setSeccionTab(esActivo ? 'activos' : 'finalizados');
-        setTabActiva(tarea.estado); // Cambiamos a la pestaña correcta (SOS, Todo, etc.)
+        setTabActiva(tarea.estado); // Cambiamos a la pestaña correcta (SOS, Unassigned, Todo, etc.)
         abrirModal(tarea);
         // Limpiamos la URL para no re-abrir al recargar
         window.history.replaceState({}, '', window.location.pathname);
@@ -367,7 +375,7 @@ const VistaServiciosAdmin = () => {
           <span className="main-tab-icon">⚡</span>
           <span className="main-tab-text">Servicios Activos</span>
           <span className="main-tab-count">
-            {tareasFiltradas.filter(t => ['sos', 'todo', 'progress'].includes(t.estado)).length}
+            {tareasFiltradas.filter(t => ['sos', 'unassigned', 'todo', 'progress'].includes(t.estado)).length}
           </span>
         </button>
         <button 
@@ -384,7 +392,7 @@ const VistaServiciosAdmin = () => {
 
       {(() => {
         const columnasMostrar = seccionTab === 'activos'
-          ? columnasConfig.filter(col => ['sos', 'todo', 'progress'].includes(col.id))
+          ? columnasConfig.filter(col => ['sos', 'unassigned', 'todo', 'progress'].includes(col.id))
           : columnasConfig.filter(col => ['done', 'rejected'].includes(col.id));
 
         return (
@@ -409,7 +417,7 @@ const VistaServiciosAdmin = () => {
               className="scrum-board-layout" 
               style={{ 
                 display: 'grid',
-                gridTemplateColumns: seccionTab === 'activos' ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)',
+                gridTemplateColumns: seccionTab === 'activos' ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)',
                 gap: '14px',
                 width: '100%',
                 alignItems: 'start'
@@ -417,7 +425,7 @@ const VistaServiciosAdmin = () => {
             >
               {columnasMostrar.map(col => (
                 <div key={col.id} className={`column-wrapper-responsive ${tabActiva === col.id ? 'show-mobile' : 'hide-mobile'}`}>
-                  {renderColumna(col.id, col.titulo === 'SOS' ? 'SOS / PRIORITARIOS' : col.titulo, `col-${col.id}`)}
+                  {renderColumna(col.id, col.titulo, `col-${col.id}`)}
                 </div>
               ))}
             </div>
@@ -630,7 +638,7 @@ const VistaServiciosAdmin = () => {
                     </div>
 
                     <div className="modal-main-action-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'sos' ? (
+                      {tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'unassigned' || tareaSeleccionada.estado === 'sos' ? (
                         <button className="modal-action-btn variant-black" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('En Proceso')}>
                           <Timer size={18} /> {procesandoAccion ? 'Actualizando...' : 'INICIAR TRABAJO'}
                         </button>
