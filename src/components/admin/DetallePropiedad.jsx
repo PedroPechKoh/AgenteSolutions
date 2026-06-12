@@ -1010,14 +1010,14 @@ const DetallePropiedad = () => {
                                           e.currentTarget.style.boxShadow = 'none';
                                         }}
                                       >
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                          <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#334155' }}>{item.producto}</h4>
-                                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: '#64748b' }}>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={12}/> {item.fecha}</span>
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><User size={12}/> {item.tecnico}</span>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1, minWidth: 0 }}>
+                                          <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#334155', wordBreak: 'break-word', lineHeight: '1.3' }}>{item.producto}</h4>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem', color: '#64748b', flexWrap: 'wrap' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}><Clock size={12}/> {item.fecha}</span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}><User size={12}/> {item.tecnico}</span>
                                           </div>
                                         </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                                           {item.evidencias && item.evidencias.length > 0 ? (
                                             <div style={{ width: '36px', height: '36px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
                                               <img src={item.evidencias[0]} alt="Evidencia" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
