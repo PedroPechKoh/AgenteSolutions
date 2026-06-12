@@ -332,6 +332,10 @@ const VistaCotizaciones = () => {
           <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
             <button 
               onClick={() => {
+                if (esTecnico) {
+                  navigate('/trabajos-tecnico');
+                  return;
+                }
                 const pId = new URLSearchParams(window.location.search).get('propertyId');
                 if (pId) {
                   window.location.href = `/DetallePropiedad/${pId}`;
