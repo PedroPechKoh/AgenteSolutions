@@ -50,8 +50,9 @@ const TrabajoPropiedad = () => {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
       const allQuotes = res.data.data || res.data;
       const found = allQuotes.find(q => 
-        (isWorkOrder && q.work_order_id === parseInt(realId)) || 
-        (!isWorkOrder && q.service_id === parseInt(realId))
+        ((isWorkOrder && q.work_order_id === parseInt(realId)) || 
+        (!isWorkOrder && q.service_id === parseInt(realId))) &&
+        q.created_by_role === 'Técnico'
       );
       if (found) {
         setCotizacionExistente(found);
