@@ -106,9 +106,12 @@ const VistaCotizaciones = () => {
       const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
       let data = respuesta.data;
 
-      // FILTRO PARA TÉCNICOS: Solo ver sus propuestas al Admin o cotizaciones asignadas a él
+      // FILTRO PARA TÉCNICOS: Solo ver sus propuestas al Admin
       if (roleId === 2) {
-        data = data.filter(c => c.tecnico_user_id == userId || c.tecnico_id == userId || c.user_id == userId || c.tecnico === session?.userData?.name);
+        data = data.filter(c => 
+          (c.tecnico_user_id == userId || c.tecnico_id == userId || c.user_id == userId || c.tecnico === session?.userData?.name) 
+          && c.created_by_role === 'Técnico'
+        );
       }
 
       setCotizaciones(data);
