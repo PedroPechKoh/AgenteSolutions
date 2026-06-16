@@ -112,16 +112,35 @@ const VistaDetalleTecnico = () => {
         {/* LADO IZQUIERDO: PERFIL */}
         <div className="cliente-sidebar">
           <div className="cliente-profile-card">
-            <div className="profile-header">
-              <div className="profile-avatar">
+            <div className="profile-header" style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div 
+                className="profile-avatar" 
+                style={{ 
+                  width: '120px', 
+                  height: '120px', 
+                  borderRadius: '50%', 
+                  overflow: 'hidden', 
+                  margin: '0 auto 15px',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+                  cursor: tecnico.profile_picture_url ? 'pointer' : 'default',
+                  border: '4px solid white'
+                }}
+                onClick={() => {
+                  if (tecnico.profile_picture_url) {
+                    setSelectedImage({ image_url: tecnico.profile_picture_url, created_at: new Date(), property: { property_name: 'Foto de Perfil' } });
+                  }
+                }}
+              >
                 {tecnico.profile_picture_url ? (
-                  <img src={tecnico.profile_picture_url} alt="Perfil" style={{width:'100%', height:'100%', borderRadius:'50%', objectFit:'cover'}} />
+                  <img src={tecnico.profile_picture_url} alt="Perfil" style={{width:'100%', height:'100%', objectFit:'cover'}} />
                 ) : (
-                  <User size={60} color="#F26522" />
+                  <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', background:'#f8f9fa'}}>
+                    <User size={60} color="#F26522" />
+                  </div>
                 )}
               </div>
-              <h2 className="cliente-name">{tecnico.nombre || tecnico.name}</h2>
-              <span className="cliente-type-badge" style={{background: '#e8f4fd', color: '#3498db'}}>TÉCNICO</span>
+              <h2 className="cliente-name" style={{ margin: '0 0 10px', fontSize: '1.4rem', color: '#2c3e50' }}>{tecnico.nombre || tecnico.name}</h2>
+              <span className="cliente-type-badge" style={{background: '#e8f4fd', color: '#3498db', padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold'}}>TÉCNICO</span>
             </div>
 
             <div className="cliente-info-list">

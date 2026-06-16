@@ -284,3 +284,28 @@
 .image-modal-close:hover {
   color: #F26522;
 }
+
+/* Responsive Layout Adjustments */
+@media (max-width: 768px) {
+  .detalle-cliente-container {
+    flex-direction: column !important;
+    padding: 10px !important;
+  }
+  
+  .cliente-sidebar {
+    width: 100% !important;
+    margin-bottom: 20px;
+  }
+  
+  .cliente-content {
+    width: 100% !important;
+  }
+  
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-wall {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}
