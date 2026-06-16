@@ -113,32 +113,54 @@ const VistaDetalleTecnico = () => {
 
   if (!tecnico) return <div className="text-center p-10">Cargando expediente...</div>;
 
-  const renderCard = (item, prefixUrl) => {
-    const isCompleted = ['finalizado', 'completado', 'completed', 'listo'].includes((item.status || '').toLowerCase());
-    const statusColor = isCompleted ? 'green' : (item.status === 'En Proceso' || item.status === 'En Progreso' ? '#F26522' : '#888');
+  const renderCard = (item, type) => {
+    const isCompleted = ['finalizado', 'completado', 'completed', 'listo', 'aprobado'].includes((item.status || '').toLowerCase());
+    const isPending = ['en proceso', 'en progreso', 'programado', 'por hacer', 'asignado', 'pendiente'].includes((item.status || '').toLowerCase());
     
+    let statusColor = '#888';
+    if (isCompleted) statusColor = '#16a34a'; 
+    else if (isPending) statusColor = '#F26522'; 
+    else if ((item.status || '').toLowerCase().includes('rechazado')) statusColor = '#ef4444'; 
+
+    const handleCardClick = () => {
+      if (type === 'cotizacion') {
+        navigate(`/vista-cotizaciones?quoteId=${item.id}`);
+      } else {
+        navigate(`/tablero-servicios?jobId=${item.id}`);
+      }
+    };
+
     return (
-      <div key={item.id} className="history-log-card clickable-card" onClick={() => navigate(`/${prefixUrl}/${item.id}`)}>
-        <div className="log-status" style={{ color: statusColor, borderColor: statusColor }}>
-          <CheckCircle size={12}/> {item.status ? item.status.toUpperCase() : 'ASIGNADO'}
+      <div key={item.composite_id || item.id} className="history-log-card clickable-card" onClick={handleCardClick} style={{ borderLeft: `4px solid ${statusColor}`, padding: '15px', background: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '8px', cursor: 'pointer' }}>
+        <div className="log-status" style={{ color: statusColor, fontWeight: 'bold', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          {isCompleted ? <CheckCircle size={14}/> : <Clock size={14}/>} 
+          <span>{item.status ? item.status.toUpperCase() : 'ASIGNADO'}</span>
         </div>
-        <div className="log-content">
-          <h4>{item.title || item.type || item.description || (prefixUrl.includes('cotiza') ? `Cotización #${item.folio}` : `Trabajo #${item.id}`)}</h4>
+        <div className="log-content" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b' }}>
+            {item.title || item.type || item.description || (type === 'cotizacion' ? `Cotización #${item.folio}` : `Trabajo #${item.id}`)}
+          </h4>
+          
           {(item.property_name || item.address || item.cliente) && (
-             <div style={{fontSize: '0.85rem', color: '#64748b', marginBottom: '8px'}}>
-               <strong>{item.property_name || item.cliente || 'Sin nombre'}</strong> - {item.address || 'Sin dirección'}
+             <div style={{fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'flex-start', gap: '5px'}}>
+               <MapPin size={14} color="#F26522" style={{ marginTop: '2px', flexShrink: 0 }} />
+               <span><strong>{item.property_name || item.cliente || 'Sin nombre'}</strong> <br/> {item.address || 'Sin dirección'}</span>
              </div>
           )}
-          <div className="log-meta">
-            <span><User size={14}/> {tecnico.name || tecnico.nombre}</span>
-            <span><Clock size={14}/> {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Sin fecha'}</span>
+          
+          <div className="log-meta" style={{ display: 'flex', gap: '15px', marginTop: '5px', fontSize: '0.8rem', color: '#64748b' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Clock size={14}/> 
+              {item.scheduled_start ? `Fecha Asignada: ${new Date(item.scheduled_start).toLocaleDateString()}` : 
+              (item.created_at ? `Fecha Creación: ${new Date(item.created_at).toLocaleDateString()}` : 'Sin fecha')}
+            </span>
           </div>
         </div>
         {item.evidencias && item.evidencias.length > 0 && (
-          <div className="photo-grid-report">
-            {item.evidencias.map((img, idx) => (
-              <div key={idx} className="photo-item">
-                <img src={img} alt="evidencia"/>
+          <div className="photo-grid-report" style={{ marginTop: '10px', display: 'flex', gap: '5px' }}>
+            {item.evidencias.slice(0, 4).map((img, idx) => (
+              <div key={idx} className="photo-item" style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden' }}>
+                <img src={img} alt="evidencia" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             ))}
           </div>
@@ -196,22 +218,22 @@ const VistaDetalleTecnico = () => {
         <main className="propiedades-section">
           <div className={`accordion-item ${seccionAbierta === 'trabajos' ? 'is-open' : ''}`}>
             <div className="section-header clickable" onClick={() => toggleSeccion('trabajos')}>
-              <h3><Briefcase size={22} /> TRABAJOS REALIZADOS</h3><ChevronLeft className="arrow-icon" size={20} />
+              <h3><Briefcase size={22} /> TRABAJOS ASIGNADOS Y REALIZADOS</h3><ChevronLeft className="arrow-icon" size={20} />
             </div>
             <div className="accordion-content">
               {cargando ? <p className="text-center p-5">Cargando trabajos... ⏳</p> : trabajos.length > 0 ? (
-                <div className="history-grid-layout">{trabajos.map(t => renderCard(t, 'detalle-trabajo'))}</div>
+                <div className="history-grid-layout">{trabajos.map(t => renderCard(t, 'trabajo'))}</div>
               ) : <p className="text-center p-5">Sin trabajos registrados</p>}
             </div>
           </div>
 
           <div className={`accordion-item ${seccionAbierta === 'levantamientos' ? 'is-open' : ''}`}>
             <div className="section-header clickable" onClick={() => toggleSeccion('levantamientos')}>
-              <h3><Clipboard size={22} /> LEVANTAMIENTOS REALIZADOS</h3><ChevronLeft className="arrow-icon" size={20} />
+              <h3><Clipboard size={22} /> LEVANTAMIENTOS ASIGNADOS Y REALIZADOS</h3><ChevronLeft className="arrow-icon" size={20} />
             </div>
             <div className="accordion-content">
               {cargando ? null : levantamientos.length > 0 ? (
-                <div className="history-grid-layout">{levantamientos.map(l => renderCard(l, 'detalle-levantamiento'))}</div>
+                <div className="history-grid-layout">{levantamientos.map(l => renderCard(l, 'levantamiento'))}</div>
               ) : <p className="text-center p-5">Sin levantamientos registrados</p>}
             </div>
           </div>
@@ -222,7 +244,7 @@ const VistaDetalleTecnico = () => {
             </div>
             <div className="accordion-content">
               {cargando ? null : cotizaciones.length > 0 ? (
-                <div className="history-grid-layout">{cotizaciones.map(c => renderCard(c, 'detalle-cotizacion'))}</div>
+                <div className="history-grid-layout">{cotizaciones.map(c => renderCard(c, 'cotizacion'))}</div>
               ) : <p className="text-center p-5">Sin cotizaciones registradas</p>}
             </div>
           </div>
