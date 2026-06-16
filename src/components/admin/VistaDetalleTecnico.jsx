@@ -31,60 +31,92 @@ const VistaDetalleTecnico = () => {
 
     const cargarDatosTecnico = async () => {
       try {
-        const id = tecnico.id;
+        const id = tecnico.id; // user_id del tecnico
         
-        // 1. Trabajos y Levantamientos
-        const resServicios = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/tecnico/${id}/servicios`);
-        let servicios = resServicios.data || [];
-        
-        // Salvavidas por si Laravel envía un objeto JSON en lugar de Array
-        if (!Array.isArray(servicios)) {
-          servicios = typeof servicios === 'object' ? Object.values(servicios) : [];
-        }
-        if (!Array.isArray(servicios)) servicios = [];
+        // 1. Obtener TODO el tablero (Servicios y Órdenes de Trabajo) igual que en TableroScrum
+        const [resServicios, resWorkOrders, resReportes, resCotizaciones] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios`).catch(() => ({ data: [] })),
+          axios.get(`${import.meta.env.VITE_API_BASE_URL}/work-orders`).catch(() => ({ data: [] })),
+          axios.get(`${import.meta.env.VITE_API_BASE_URL}/reportes-globales`).catch(() => ({ data: [] })),
+          axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`).catch(() => ({ data: [] }))
+        ]);
 
-        // 2. Reportes para fotos
-        const resReportes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/reportes-globales`);
-        const reportesTecnico = (resReportes.data || []).filter(r => 
-          r.technician_id == id || (r.technician && r.technician.id == id)
-        );
+        const todosServicios = resServicios.data || [];
+        const todosWorkOrders = resWorkOrders.data || [];
+        const reportesGlobales = resReportes.data || [];
+        const todasCotizaciones = resCotizaciones.data || [];
 
-        // Agrupar fotos por trabajo
+        // 2. Filtrar solo los que le pertenecen al técnico actual
+        const misServicios = todosServicios.filter(s => {
+          const asignadoDirecto = s.assigned_to == id;
+          const enEquipo = s.technicians && s.technicians.some(t => t.id == id);
+          return asignadoDirecto || enEquipo;
+        }).map(s => ({
+          ...s,
+          tipo_registro: 'servicio',
+          composite_id: `servicio-${s.id}`
+        }));
+
+        const misWorkOrders = todosWorkOrders.filter(w => {
+          const asignadoDirecto = w.tecnico_id == id || w.assigned_to == id;
+          const enEquipo = w.technicians && w.technicians.some(t => t.id == id);
+          return asignadoDirecto || enEquipo;
+        }).map(w => ({
+          ...w,
+          tipo_registro: 'work_order',
+          composite_id: `work_order-${w.id}`,
+          property_name: w.property?.property_name || 'N/A',
+          address: w.property?.address || 'N/A',
+          cliente: w.property?.client?.name || 'Sin Cliente',
+          scheduled_start: w.scheduled_at
+        }));
+
+        const todoElTrabajo = [...misServicios, ...misWorkOrders];
+
+        // 3. Agrupar evidencias fotográficas por ID de trabajo
         const evidenciasPorTrabajo = {};
-        reportesTecnico.forEach(r => {
-          const trabajoId = r.service_id || r.work_order_id || r.id;
-          if (!evidenciasPorTrabajo[trabajoId]) evidenciasPorTrabajo[trabajoId] = [];
-          if (r.image_url || r.image_path) {
-            evidenciasPorTrabajo[trabajoId].push(r.image_url || r.image_path);
+        reportesGlobales.forEach(r => {
+          // Asegurarnos que el reporte es de este técnico o para este trabajo
+          const trabajoId = r.service_id || r.work_order_id;
+          if (trabajoId) {
+            if (!evidenciasPorTrabajo[trabajoId]) evidenciasPorTrabajo[trabajoId] = [];
+            if (r.image_url || r.image_path) {
+              evidenciasPorTrabajo[trabajoId].push(r.image_url || r.image_path);
+            }
           }
         });
 
+        // 4. Separar en Trabajos y Levantamientos
         const trabajosArr = [];
         const levantamientosArr = [];
 
-        servicios.forEach(s => {
-          const titulo = (s.title || s.type || s.description || 'Mantenimiento').toLowerCase();
-          const obj = { ...s, evidencias: evidenciasPorTrabajo[s.id] || [] };
+        todoElTrabajo.forEach(item => {
+          const titulo = (item.title || item.type || item.description || 'Mantenimiento').toLowerCase();
+          const itemConFotos = { ...item, evidencias: evidenciasPorTrabajo[item.id] || [] };
+          
           if (titulo.includes('levantamiento')) {
-            levantamientosArr.push(obj);
+            levantamientosArr.push(itemConFotos);
           } else {
-            trabajosArr.push(obj);
+            trabajosArr.push(itemConFotos);
           }
         });
 
-        // 3. Cotizaciones
-        const resCotizaciones = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
-        const cotizacionesArr = (resCotizaciones.data || []).filter(c => c.tecnico_id == id || c.tecnico_user_id == id);
+        // 5. Filtrar Cotizaciones
+        const cotizacionesArr = todasCotizaciones.filter(c => 
+          c.tecnico_id == id || c.tecnico_user_id == id || (c.created_by_role === 'Técnico' && (c.tecnico_id == id || c.user_id == id))
+        );
         
         setTrabajos(trabajosArr);
         setLevantamientos(levantamientosArr);
         setCotizaciones(cotizacionesArr);
+
       } catch (error) {
-        console.error('Error al cargar datos del técnico:', error);
+        console.error('Error masivo al reconstruir datos del técnico:', error);
       } finally {
         setCargando(false);
       }
     };
+
     cargarDatosTecnico();
   }, [tecnico]);
 
