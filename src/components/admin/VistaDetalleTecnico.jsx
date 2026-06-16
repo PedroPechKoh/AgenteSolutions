@@ -33,45 +33,36 @@ const VistaDetalleTecnico = () => {
       try {
         const id = tecnico.id; // user_id del tecnico
         
-        // 1. Obtener TODO el tablero (Servicios y Órdenes de Trabajo) igual que en TableroScrum
-        const [resServicios, resWorkOrders, resReportes, resCotizaciones] = await Promise.all([
-          axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios`).catch(() => ({ data: [] })),
-          axios.get(`${import.meta.env.VITE_API_BASE_URL}/work-orders`).catch(() => ({ data: [] })),
+        // 1. Obtener TODO el tablero (Igual que en VistaServiciosAdmin)
+        const [resWorkOrders, resReportes, resCotizaciones] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_API_BASE_URL}/work-orders/all`).catch(() => ({ data: [] })),
           axios.get(`${import.meta.env.VITE_API_BASE_URL}/reportes-globales`).catch(() => ({ data: [] })),
           axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`).catch(() => ({ data: [] }))
         ]);
 
-        const todosServicios = resServicios.data || [];
         const todosWorkOrders = resWorkOrders.data || [];
         const reportesGlobales = resReportes.data || [];
         const todasCotizaciones = resCotizaciones.data || [];
 
         // 2. Filtrar solo los que le pertenecen al técnico actual
-        const misServicios = todosServicios.filter(s => {
-          const asignadoDirecto = s.assigned_to == id;
-          const enEquipo = s.technicians && s.technicians.some(t => t.id == id);
-          return asignadoDirecto || enEquipo;
-        }).map(s => ({
-          ...s,
-          tipo_registro: 'servicio',
-          composite_id: `servicio-${s.id}`
-        }));
-
         const misWorkOrders = todosWorkOrders.filter(w => {
           const asignadoDirecto = w.tecnico_id == id || w.assigned_to == id;
           const enEquipo = w.technicians && w.technicians.some(t => t.id == id);
           return asignadoDirecto || enEquipo;
         }).map(w => ({
           ...w,
+          id: w.id,
           tipo_registro: 'work_order',
           composite_id: `work_order-${w.id}`,
-          property_name: w.property?.property_name || 'N/A',
+          title: `${w.zone} - ${w.equipment || 'General'}`,
+          property_name: w.property?.property_name || w.property?.nombre_propiedad || w.property?.address || 'N/A',
           address: w.property?.address || 'N/A',
           cliente: w.property?.client?.name || 'Sin Cliente',
-          scheduled_start: w.scheduled_at
+          scheduled_start: w.scheduled_at,
+          status: w.status
         }));
 
-        const todoElTrabajo = [...misServicios, ...misWorkOrders];
+        const todoElTrabajo = [...misWorkOrders];
 
         // 3. Agrupar evidencias fotográficas por ID de trabajo
         const evidenciasPorTrabajo = {};
