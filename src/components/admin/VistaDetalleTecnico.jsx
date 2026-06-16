@@ -69,7 +69,6 @@ const VistaDetalleTecnico = () => {
         // 3. Agrupar evidencias fotográficas por ID de trabajo
         const evidenciasPorTrabajo = {};
         reportesGlobales.forEach(r => {
-          // Asegurarnos que el reporte es de este técnico o para este trabajo
           const trabajoId = r.service_id || r.work_order_id;
           if (trabajoId) {
             if (!evidenciasPorTrabajo[trabajoId]) evidenciasPorTrabajo[trabajoId] = [];
@@ -94,17 +93,21 @@ const VistaDetalleTecnico = () => {
           }
         });
 
-        // 5. Filtrar Cotizaciones
+        // 5. Filtrar Cotizaciones estrictamente
+        const validWorkOrderIds = new Set(trabajosArr.map(w => w.id));
+        const validServiceIds = new Set(levantamientosArr.map(l => l.id));
+
         const cotizacionesArr = todasCotizaciones.filter(c => 
-          c.tecnico_id == id || c.tecnico_user_id == id || (c.created_by_role === 'Técnico' && (c.tecnico_id == id || c.user_id == id))
+          (c.work_order_id && validWorkOrderIds.has(c.work_order_id)) || 
+          (c.service_id && validServiceIds.has(c.service_id))
         );
-        
+
         setTrabajos(trabajosArr);
         setLevantamientos(levantamientosArr);
         setCotizaciones(cotizacionesArr);
 
       } catch (error) {
-        console.error('Error masivo al reconstruir datos del técnico:', error);
+        console.error('Error al reconstruir datos del técnico:', error);
       } finally {
         setCargando(false);
       }
@@ -152,7 +155,9 @@ const VistaDetalleTecnico = () => {
     else if (isPending) statusColor = '#F26522'; 
     else if ((item.status || '').toLowerCase().includes('rechazado')) statusColor = '#ef4444'; 
 
-    const handleCardClick = () => {
+    const handleCardClick = (e) => {
+      e.stopPropagation();
+      e.preventDefault();
       if (type === 'cotizacion') {
         navigate(`/vista-cotizaciones?quoteId=${item.id}`);
       } else {
@@ -161,12 +166,12 @@ const VistaDetalleTecnico = () => {
     };
 
     return (
-      <div key={item.composite_id || item.id} className="history-log-card clickable-card" onClick={handleCardClick} style={{ borderLeft: `4px solid ${statusColor}`, padding: '15px', background: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '8px', cursor: 'pointer' }}>
-        <div className="log-status" style={{ color: statusColor, fontWeight: 'bold', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-          {isCompleted ? <CheckCircle size={14}/> : <Clock size={14}/>} 
-          <span>{item.status ? item.status.toUpperCase() : 'ASIGNADO'}</span>
-        </div>
-        <div className="log-content" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+      <details key={item.composite_id || item.id} className="history-log-card" style={{ borderLeft: `4px solid ${statusColor}`, padding: '15px', background: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '10px' }}>
+        <summary style={{ display: 'flex', flexDirection: 'column', gap: '8px', cursor: 'pointer', outline: 'none' }}>
+          <div className="log-status" style={{ color: statusColor, fontWeight: 'bold', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            {isCompleted ? <CheckCircle size={14}/> : <Clock size={14}/>} 
+            <span>{item.status ? item.status.toUpperCase() : 'ASIGNADO'}</span>
+          </div>
           <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b' }}>
             {item.title || item.type || item.description || (type === 'cotizacion' ? `Cotización #${item.folio}` : `Trabajo #${item.id}`)}
           </h4>
@@ -178,24 +183,26 @@ const VistaDetalleTecnico = () => {
              </div>
           )}
           
-          <div className="log-meta" style={{ display: 'flex', gap: '15px', marginTop: '5px', fontSize: '0.8rem', color: '#64748b' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Clock size={14}/> 
-              {item.scheduled_start ? `Fecha Asignada: ${new Date(item.scheduled_start).toLocaleDateString()}` : 
-              (item.created_at ? `Fecha Creación: ${new Date(item.created_at).toLocaleDateString()}` : 'Sin fecha')}
-            </span>
+          <div style={{fontSize: '0.75rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px'}}>
+            <Clock size={12}/> Fecha: {item.fecha || item.created_at?.split('T')[0] || '---'}
           </div>
+        </summary>
+        
+        <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #eee' }}>
+          <button onClick={handleCardClick} style={{ background: '#F26522', color: 'white', padding: '8px 15px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '15px' }}>
+            VER DETALLES EN TABLERO
+          </button>
+          
+          {item.evidencias && item.evidencias.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 'bold', color: '#475569' }}>Evidencias Fotográficas:</p>
+              {item.evidencias.map((img, idx) => (
+                <img key={idx} src={img} alt="evidencia" style={{ width: '100%', height: 'auto', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
+              ))}
+            </div>
+          )}
         </div>
-        {item.evidencias && item.evidencias.length > 0 && (
-          <div className="photo-grid-report" style={{ marginTop: '10px', display: 'flex', gap: '5px' }}>
-            {item.evidencias.slice(0, 4).map((img, idx) => (
-              <div key={idx} className="photo-item" style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden' }}>
-                <img src={img} alt="evidencia" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      </details>
     );
   };
 
@@ -252,7 +259,32 @@ const VistaDetalleTecnico = () => {
             </div>
             <div className="accordion-content">
               {cargando ? <p className="text-center p-5">Cargando trabajos... ⏳</p> : trabajos.length > 0 ? (
-                <div className="history-grid-layout">{trabajos.map(t => renderCard(t, 'trabajo'))}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {(() => {
+                    const pendingTrabajos = trabajos.filter(t => !['finalizado', 'completado', 'completed', 'listo'].includes((t.status || '').toLowerCase()));
+                    const completedTrabajos = trabajos.filter(t => ['finalizado', 'completado', 'completed', 'listo'].includes((t.status || '').toLowerCase()));
+                    return (
+                      <>
+                        {pendingTrabajos.length > 0 && (
+                          <details open style={{ background: '#f8f9fa', padding: '15px', borderRadius: '12px', border: '1px solid #eee' }}>
+                            <summary style={{ fontWeight: 'bold', color: '#F26522', cursor: 'pointer', marginBottom: '10px' }}>⏳ POR HACER ({pendingTrabajos.length})</summary>
+                            <div className="history-grid-layout">
+                              {pendingTrabajos.map(t => renderCard(t, 'trabajo'))}
+                            </div>
+                          </details>
+                        )}
+                        {completedTrabajos.length > 0 && (
+                          <details open style={{ background: '#f8f9fa', padding: '15px', borderRadius: '12px', border: '1px solid #eee' }}>
+                            <summary style={{ fontWeight: 'bold', color: '#16a34a', cursor: 'pointer', marginBottom: '10px' }}>✅ FINALIZADOS ({completedTrabajos.length})</summary>
+                            <div className="history-grid-layout">
+                              {completedTrabajos.map(t => renderCard(t, 'trabajo'))}
+                            </div>
+                          </details>
+                        )}
+                      </>
+                    )
+                  })()}
+                </div>
               ) : (
                 <div style={{ padding: '40px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: '12px', border: '2px dashed #cbd5e1', margin: '15px' }}>
                   <div style={{ color: '#94a3b8', marginBottom: '15px', display: 'flex', justifyContent: 'center' }}><Briefcase size={50} /></div>
@@ -274,7 +306,32 @@ const VistaDetalleTecnico = () => {
             </div>
             <div className="accordion-content">
               {cargando ? null : levantamientos.length > 0 ? (
-                <div className="history-grid-layout">{levantamientos.map(l => renderCard(l, 'levantamiento'))}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {(() => {
+                    const pendingL = levantamientos.filter(t => !['finalizado', 'completado', 'completed', 'listo'].includes((t.status || '').toLowerCase()));
+                    const completedL = levantamientos.filter(t => ['finalizado', 'completado', 'completed', 'listo'].includes((t.status || '').toLowerCase()));
+                    return (
+                      <>
+                        {pendingL.length > 0 && (
+                          <details open style={{ background: '#f8f9fa', padding: '15px', borderRadius: '12px', border: '1px solid #eee' }}>
+                            <summary style={{ fontWeight: 'bold', color: '#F26522', cursor: 'pointer', marginBottom: '10px' }}>⏳ POR HACER ({pendingL.length})</summary>
+                            <div className="history-grid-layout">
+                              {pendingL.map(l => renderCard(l, 'levantamiento'))}
+                            </div>
+                          </details>
+                        )}
+                        {completedL.length > 0 && (
+                          <details open style={{ background: '#f8f9fa', padding: '15px', borderRadius: '12px', border: '1px solid #eee' }}>
+                            <summary style={{ fontWeight: 'bold', color: '#16a34a', cursor: 'pointer', marginBottom: '10px' }}>✅ FINALIZADOS ({completedL.length})</summary>
+                            <div className="history-grid-layout">
+                              {completedL.map(l => renderCard(l, 'levantamiento'))}
+                            </div>
+                          </details>
+                        )}
+                      </>
+                    )
+                  })()}
+                </div>
               ) : (
                 <div style={{ padding: '40px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: '12px', border: '2px dashed #cbd5e1', margin: '15px' }}>
                   <div style={{ color: '#94a3b8', marginBottom: '15px', display: 'flex', justifyContent: 'center' }}><Clipboard size={50} /></div>
@@ -296,7 +353,32 @@ const VistaDetalleTecnico = () => {
             </div>
             <div className="accordion-content">
               {cargando ? null : cotizaciones.length > 0 ? (
-                <div className="history-grid-layout">{cotizaciones.map(c => renderCard(c, 'cotizacion'))}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {(() => {
+                    const pendingC = cotizaciones.filter(t => ['en proceso', 'pendiente', 'pendiente de admin'].includes((t.status || '').toLowerCase()));
+                    const completedC = cotizaciones.filter(t => !['en proceso', 'pendiente', 'pendiente de admin'].includes((t.status || '').toLowerCase()));
+                    return (
+                      <>
+                        {pendingC.length > 0 && (
+                          <details open style={{ background: '#f8f9fa', padding: '15px', borderRadius: '12px', border: '1px solid #eee' }}>
+                            <summary style={{ fontWeight: 'bold', color: '#F26522', cursor: 'pointer', marginBottom: '10px' }}>⏳ PENDIENTES DE REVISIÓN ({pendingC.length})</summary>
+                            <div className="history-grid-layout">
+                              {pendingC.map(c => renderCard(c, 'cotizacion'))}
+                            </div>
+                          </details>
+                        )}
+                        {completedC.length > 0 && (
+                          <details open style={{ background: '#f8f9fa', padding: '15px', borderRadius: '12px', border: '1px solid #eee' }}>
+                            <summary style={{ fontWeight: 'bold', color: '#16a34a', cursor: 'pointer', marginBottom: '10px' }}>✅ FINALIZADAS / APROBADAS ({completedC.length})</summary>
+                            <div className="history-grid-layout">
+                              {completedC.map(c => renderCard(c, 'cotizacion'))}
+                            </div>
+                          </details>
+                        )}
+                      </>
+                    )
+                  })()}
+                </div>
               ) : (
                 <div style={{ padding: '40px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: '12px', border: '2px dashed #cbd5e1', margin: '15px' }}>
                   <div style={{ color: '#94a3b8', marginBottom: '15px', display: 'flex', justifyContent: 'center' }}><FileText size={50} /></div>
