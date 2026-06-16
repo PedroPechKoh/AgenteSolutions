@@ -251,7 +251,18 @@ const VistaDetalleTecnico = () => {
             <div className="accordion-content">
               {cargando ? <p className="text-center p-5">Cargando trabajos... ⏳</p> : trabajos.length > 0 ? (
                 <div className="history-grid-layout">{trabajos.map(t => renderCard(t, 'trabajo'))}</div>
-              ) : <p className="text-center p-5">Sin trabajos registrados</p>}
+              ) : (
+                <div style={{ padding: '40px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: '12px', border: '2px dashed #cbd5e1', margin: '15px' }}>
+                  <div style={{ color: '#94a3b8', marginBottom: '15px', display: 'flex', justifyContent: 'center' }}><Briefcase size={50} /></div>
+                  <h4 style={{ color: '#334155', margin: '0 0 8px', fontSize: '1.2rem', fontWeight: 'bold' }}>Sin trabajos asignados</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.95rem', margin: '0 0 20px', maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>
+                    Este técnico no tiene historial de trabajos ni está asignado a ninguno actualmente.
+                  </p>
+                  <button onClick={() => navigate('/tablero-servicios')} style={{ background: '#F26522', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(242, 101, 34, 0.2)' }}>
+                    IR AL TABLERO A ASIGNAR TRABAJO
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -262,7 +273,18 @@ const VistaDetalleTecnico = () => {
             <div className="accordion-content">
               {cargando ? null : levantamientos.length > 0 ? (
                 <div className="history-grid-layout">{levantamientos.map(l => renderCard(l, 'levantamiento'))}</div>
-              ) : <p className="text-center p-5">Sin levantamientos registrados</p>}
+              ) : (
+                <div style={{ padding: '40px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: '12px', border: '2px dashed #cbd5e1', margin: '15px' }}>
+                  <div style={{ color: '#94a3b8', marginBottom: '15px', display: 'flex', justifyContent: 'center' }}><Clipboard size={50} /></div>
+                  <h4 style={{ color: '#334155', margin: '0 0 8px', fontSize: '1.2rem', fontWeight: 'bold' }}>Sin levantamientos en su historial</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.95rem', margin: '0 0 20px', maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>
+                    No hay registros de visitas técnicas previas (levantamientos) a cargo de este usuario.
+                  </p>
+                  <button onClick={() => navigate('/tablero-servicios')} style={{ background: '#3498db', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(52, 152, 219, 0.2)' }}>
+                    IR A GESTIÓN DE LEVANTAMIENTOS
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -273,7 +295,18 @@ const VistaDetalleTecnico = () => {
             <div className="accordion-content">
               {cargando ? null : cotizaciones.length > 0 ? (
                 <div className="history-grid-layout">{cotizaciones.map(c => renderCard(c, 'cotizacion'))}</div>
-              ) : <p className="text-center p-5">Sin cotizaciones registradas</p>}
+              ) : (
+                <div style={{ padding: '40px 20px', textAlign: 'center', background: '#f8fafc', borderRadius: '12px', border: '2px dashed #cbd5e1', margin: '15px' }}>
+                  <div style={{ color: '#94a3b8', marginBottom: '15px', display: 'flex', justifyContent: 'center' }}><FileText size={50} /></div>
+                  <h4 style={{ color: '#334155', margin: '0 0 8px', fontSize: '1.2rem', fontWeight: 'bold' }}>Cero cotizaciones</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.95rem', margin: '0 0 20px', maxWidth: '300px', marginLeft: 'auto', marginRight: 'auto' }}>
+                    Este técnico todavía no ha enviado ninguna propuesta o presupuesto al administrador.
+                  </p>
+                  <button onClick={() => navigate('/cotizaciones-admin')} style={{ background: '#2ecc71', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(46, 204, 113, 0.2)' }}>
+                    VER TODAS LAS COTIZACIONES
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </main>
