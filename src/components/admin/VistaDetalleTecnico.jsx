@@ -36,6 +36,11 @@ const VistaDetalleTecnico = () => {
         // 1. Trabajos y Levantamientos
         const resServicios = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/tecnico/${id}/servicios`);
         let servicios = resServicios.data || [];
+        
+        // Salvavidas por si Laravel envía un objeto JSON en lugar de Array
+        if (!Array.isArray(servicios)) {
+          servicios = typeof servicios === 'object' ? Object.values(servicios) : [];
+        }
         if (!Array.isArray(servicios)) servicios = [];
 
         // 2. Reportes para fotos
