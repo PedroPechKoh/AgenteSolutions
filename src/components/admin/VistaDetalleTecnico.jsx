@@ -69,7 +69,7 @@ const VistaDetalleTecnico = () => {
 
         // 3. Cotizaciones
         const resCotizaciones = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
-        const cotizacionesArr = (resCotizaciones.data || []).filter(c => c.created_by == id || c.technician_id == id);
+        const cotizacionesArr = (resCotizaciones.data || []).filter(c => c.tecnico_id == id || c.tecnico_user_id == id);
         
         setTrabajos(trabajosArr);
         setLevantamientos(levantamientosArr);
