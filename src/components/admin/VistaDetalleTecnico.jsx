@@ -2,22 +2,20 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  ChevronLeft, User, Mail, MapPin, Phone, ShieldCheck, X, Save, 
-  Image as ImageIcon, FileText, Camera, BarChart3, Clock
+  ChevronLeft, User, Mail, MapPin, ArrowRight, ShieldCheck, X, Save, Phone, Lock, CheckCircle, Briefcase, Clipboard, FileText, Clock
 } from 'lucide-react';
 import '../../styles/Admin/VistaDetalleCliente.css';
-import '../../styles/Admin/VistaDetalleTecnico.css';
 
 const VistaDetalleTecnico = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [tecnico, setTecnico] = useState(location.state?.tecnico || location.state?.u || null);
-  const [reportes, setReportes] = useState([]);
+  const [trabajos, setTrabajos] = useState([]);
+  const [levantamientos, setLevantamientos] = useState([]);
   const [cotizaciones, setCotizaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  // Modal para edición de perfil
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     nombre: tecnico?.name || tecnico?.nombre || '',
@@ -28,321 +26,291 @@ const VistaDetalleTecnico = () => {
     password: '',
   });
 
-  // Modal para ver foto completa
-  const [selectedImage, setSelectedImage] = useState(null);
-
   useEffect(() => {
     if (!tecnico) return;
 
-    const cargarDatosAuditoria = async () => {
+    const cargarDatosTecnico = async () => {
       try {
         const id = tecnico.id; // user_id del tecnico
         
-        // Solo necesitamos Reportes Globales y Cotizaciones (ambos tienen el rastro del tecnico)
-        const [resReportes, resCotizaciones] = await Promise.all([
+        // 1. Obtener TODO el tablero (Igual que en VistaServiciosAdmin)
+        const [resWorkOrders, resReportes, resCotizaciones] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_API_BASE_URL}/work-orders/all`).catch(() => ({ data: [] })),
           axios.get(`${import.meta.env.VITE_API_BASE_URL}/reportes-globales`).catch(() => ({ data: [] })),
           axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`).catch(() => ({ data: [] }))
         ]);
 
+        const todosWorkOrders = resWorkOrders.data || [];
         const reportesGlobales = resReportes.data || [];
         const todasCotizaciones = resCotizaciones.data || [];
 
-        // Filtrar reportes creados por este técnico
-        const misReportes = reportesGlobales.filter(r => 
-          r.technician_id == id || (r.technician && r.technician.id == id)
-        );
+        // 2. Filtrar solo los que le pertenecen al técnico actual
+        const misWorkOrders = todosWorkOrders.filter(w => {
+          const asignadoDirecto = w.tecnico_id == id || w.assigned_to == id;
+          const enEquipo = w.technicians && w.technicians.some(t => t.id == id);
+          return asignadoDirecto || enEquipo;
+        }).map(w => ({
+          ...w,
+          id: w.id,
+          tipo_registro: 'work_order',
+          composite_id: `work_order-${w.id}`,
+          title: `${w.zone} - ${w.equipment || 'General'}`,
+          property_name: w.property?.property_name || w.property?.nombre_propiedad || w.property?.address || 'N/A',
+          address: w.property?.address || 'N/A',
+          cliente: w.property?.client?.name || 'Sin Cliente',
+          scheduled_start: w.scheduled_at,
+          status: w.status
+        }));
 
-        // Filtrar cotizaciones generadas por este técnico
-        const misCotizaciones = todasCotizaciones.filter(c => 
+        const todoElTrabajo = [...misWorkOrders];
+
+        // 3. Agrupar evidencias fotográficas por ID de trabajo
+        const evidenciasPorTrabajo = {};
+        reportesGlobales.forEach(r => {
+          // Asegurarnos que el reporte es de este técnico o para este trabajo
+          const trabajoId = r.service_id || r.work_order_id;
+          if (trabajoId) {
+            if (!evidenciasPorTrabajo[trabajoId]) evidenciasPorTrabajo[trabajoId] = [];
+            if (r.image_url || r.image_path) {
+              evidenciasPorTrabajo[trabajoId].push(r.image_url || r.image_path);
+            }
+          }
+        });
+
+        // 4. Separar en Trabajos y Levantamientos
+        const trabajosArr = [];
+        const levantamientosArr = [];
+
+        todoElTrabajo.forEach(item => {
+          const titulo = (item.title || item.type || item.description || 'Mantenimiento').toLowerCase();
+          const itemConFotos = { ...item, evidencias: evidenciasPorTrabajo[item.id] || [] };
+          
+          if (titulo.includes('levantamiento')) {
+            levantamientosArr.push(itemConFotos);
+          } else {
+            trabajosArr.push(itemConFotos);
+          }
+        });
+
+        // 5. Filtrar Cotizaciones
+        const cotizacionesArr = todasCotizaciones.filter(c => 
           c.tecnico_id == id || c.tecnico_user_id == id || (c.created_by_role === 'Técnico' && (c.tecnico_id == id || c.user_id == id))
         );
+        
+        setTrabajos(trabajosArr);
+        setLevantamientos(levantamientosArr);
+        setCotizaciones(cotizacionesArr);
 
-        setReportes(misReportes);
-        setCotizaciones(misCotizaciones);
       } catch (error) {
-        console.error('Error al cargar datos de auditoría:', error);
+        console.error('Error masivo al reconstruir datos del técnico:', error);
       } finally {
         setCargando(false);
       }
     };
 
-    cargarDatosAuditoria();
+    cargarDatosTecnico();
   }, [tecnico]);
 
   const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const [seccionAbierta, setSeccionAbierta] = useState('trabajos');
+  const toggleSeccion = (seccion) => setSeccionAbierta(seccionAbierta === seccion ? null : seccion);
 
-  const handleUpdate = async () => {
+  const guardarCambios = async (e) => {
+    e.preventDefault();
     try {
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/usuarios/${tecnico.id}`, formData);
+      const payload = {
+        id: tecnico.id,
+        first_name: formData.nombre.split(' ')[0] || '',
+        last_name: formData.nombre.split(' ').slice(1).join(' ') || '',
+        email: formData.correo,
+        phone_number: formData.telefono,
+        address: formData.direccion,
+        is_active: formData.estado === 'Activo' ? 1 : 0,
+      };
+      if (formData.password) payload.password = formData.password;
+
+      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, payload);
       setTecnico({ ...tecnico, ...formData });
       setIsModalOpen(false);
-      alert('Técnico actualizado correctamente');
+      alert(data.message || '¡Perfil actualizado con éxito!');
     } catch (error) {
-      alert('Error al actualizar: ' + (error.response?.data?.message || error.message));
+      console.error('Error al actualizar perfil:', error);
+      alert('No se pudieron guardar los cambios: ' + (error.response?.data?.message || error.message));
     }
   };
 
-  if (!tecnico) {
-    return <div className="loading-container"><h2>No se encontró información del técnico.</h2></div>;
-  }
+  if (!tecnico) return <div className="text-center p-10">Cargando expediente...</div>;
 
-  // Filtrar solo los reportes que tienen imagen válida para la galería
-  const galeriaFotos = reportes.filter(r => r.image_url || r.image_path);
+  const renderCard = (item, type) => {
+    const isCompleted = ['finalizado', 'completado', 'completed', 'listo', 'aprobado'].includes((item.status || '').toLowerCase());
+    const isPending = ['en proceso', 'en progreso', 'programado', 'por hacer', 'asignado', 'pendiente'].includes((item.status || '').toLowerCase());
+    
+    let statusColor = '#888';
+    if (isCompleted) statusColor = '#16a34a'; 
+    else if (isPending) statusColor = '#F26522'; 
+    else if ((item.status || '').toLowerCase().includes('rechazado')) statusColor = '#ef4444'; 
+
+    const handleCardClick = () => {
+      if (type === 'cotizacion') {
+        navigate(`/vista-cotizaciones?quoteId=${item.id}`);
+      } else {
+        navigate(`/tablero-servicios?jobId=${item.id}`);
+      }
+    };
+
+    return (
+      <div key={item.composite_id || item.id} className="history-log-card clickable-card" onClick={handleCardClick} style={{ borderLeft: `4px solid ${statusColor}`, padding: '15px', background: '#fff', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '8px', cursor: 'pointer' }}>
+        <div className="log-status" style={{ color: statusColor, fontWeight: 'bold', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          {isCompleted ? <CheckCircle size={14}/> : <Clock size={14}/>} 
+          <span>{item.status ? item.status.toUpperCase() : 'ASIGNADO'}</span>
+        </div>
+        <div className="log-content" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#1e293b' }}>
+            {item.title || item.type || item.description || (type === 'cotizacion' ? `Cotización #${item.folio}` : `Trabajo #${item.id}`)}
+          </h4>
+          
+          {(item.property_name || item.address || item.cliente) && (
+             <div style={{fontSize: '0.85rem', color: '#475569', display: 'flex', alignItems: 'flex-start', gap: '5px'}}>
+               <MapPin size={14} color="#F26522" style={{ marginTop: '2px', flexShrink: 0 }} />
+               <span><strong>{item.property_name || item.cliente || 'Sin nombre'}</strong> <br/> {item.address || 'Sin dirección'}</span>
+             </div>
+          )}
+          
+          <div className="log-meta" style={{ display: 'flex', gap: '15px', marginTop: '5px', fontSize: '0.8rem', color: '#64748b' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Clock size={14}/> 
+              {item.scheduled_start ? `Fecha Asignada: ${new Date(item.scheduled_start).toLocaleDateString()}` : 
+              (item.created_at ? `Fecha Creación: ${new Date(item.created_at).toLocaleDateString()}` : 'Sin fecha')}
+            </span>
+          </div>
+        </div>
+        {item.evidencias && item.evidencias.length > 0 && (
+          <div className="photo-grid-report" style={{ marginTop: '10px', display: 'flex', gap: '5px' }}>
+            {item.evidencias.slice(0, 4).map((img, idx) => (
+              <div key={idx} className="photo-item" style={{ width: '40px', height: '40px', borderRadius: '4px', overflow: 'hidden' }}>
+                <img src={img} alt="evidencia" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
-    <div className="main-container-users bg-light">
-      <div className="top-bar-orange"></div>
-      <div className="top-bar-black"></div>
-
-      {/* HEADER DE NAVEGACIÓN */}
-      <div style={{ display: 'flex', alignItems: 'center', padding: '15px 20px', background: 'white', borderBottom: '1px solid #ddd' }}>
-        <button 
-          onClick={() => navigate(-1)}
-          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 20px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
-        >
+    <div className="detalle-cliente-container">
+      <header className="detalle-header">
+        <button onClick={() => navigate(-1)} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}>
           <ChevronLeft size={20} /> REGRESAR
         </button>
-        <h2 style={{ margin: '0 0 0 20px', color: '#2c3e50', fontSize: '1.4rem' }}>
-          Auditoría de Técnico
-        </h2>
-      </div>
-
-      <div className="detalle-cliente-container" style={{ maxWidth: '1200px', margin: '20px auto', padding: '0 20px' }}>
-        
-        {/* LADO IZQUIERDO: PERFIL */}
-        <div className="cliente-sidebar">
-          <div className="cliente-profile-card">
-            <div className="profile-header" style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <div 
-                className="profile-avatar" 
-                style={{ 
-                  width: '120px', 
-                  height: '120px', 
-                  borderRadius: '50%', 
-                  overflow: 'hidden', 
-                  margin: '0 auto 15px',
-                  boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-                  cursor: tecnico.profile_picture_url ? 'pointer' : 'default',
-                  border: '4px solid white'
-                }}
-                onClick={() => {
-                  if (tecnico.profile_picture_url) {
-                    setSelectedImage({ image_url: tecnico.profile_picture_url, created_at: new Date(), property: { property_name: 'Foto de Perfil' } });
-                  }
-                }}
-              >
-                {tecnico.profile_picture_url ? (
-                  <img src={tecnico.profile_picture_url} alt="Perfil" style={{width:'100%', height:'100%', objectFit:'cover'}} />
-                ) : (
-                  <div style={{width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center', background:'#f8f9fa'}}>
-                    <User size={60} color="#F26522" />
-                  </div>
-                )}
-              </div>
-              <h2 className="cliente-name" style={{ margin: '0 0 10px', fontSize: '1.4rem', color: '#2c3e50' }}>{tecnico.nombre || tecnico.name}</h2>
-              <span className="cliente-type-badge" style={{background: '#e8f4fd', color: '#3498db', padding: '5px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold'}}>TÉCNICO</span>
-            </div>
-
-            <div className="cliente-info-list">
-              <div className="info-item">
-                <Mail className="info-icon" />
-                <div>
-                  <span className="info-label">CORREO ELECTRÓNICO</span>
-                  <span className="info-value">{tecnico.correo || tecnico.email}</span>
-                </div>
-              </div>
-              <div className="info-item">
-                <Phone className="info-icon" />
-                <div>
-                  <span className="info-label">TELÉFONO</span>
-                  <span className="info-value">{tecnico.telefono || tecnico.phone || 'No especificado'}</span>
-                </div>
-              </div>
-              <div className="info-item">
-                <MapPin className="info-icon" />
-                <div>
-                  <span className="info-label">DIRECCIÓN PARTICULAR</span>
-                  <span className="info-value">{tecnico.direccion || tecnico.address || 'No especificada'}</span>
-                </div>
-              </div>
-              <div className="info-item">
-                <ShieldCheck className="info-icon" />
-                <div>
-                  <span className="info-label">ID DE SISTEMA</span>
-                  <span className="info-value">#{tecnico.id}</span>
-                </div>
-              </div>
-            </div>
-
-            <button className="btn-edit-profile" onClick={() => setIsModalOpen(true)}>
-              MODIFICAR PERFIL
-            </button>
-          </div>
+        <div className="header-title">
+          <h1>Expediente del Técnico</h1>
         </div>
+      </header>
 
-        {/* LADO DERECHO: PANEL DE AUDITORÍA */}
-        <div className="cliente-content" style={{ padding: '0' }}>
-          
-          {cargando ? (
-            <div className="loading-state">Cargando datos de auditoría...</div>
-          ) : (
-            <div className="audit-dashboard">
-              
-              {/* TARJETAS DE KPIs */}
-              <div className="kpi-grid">
-                <div className="kpi-card">
-                  <div className="kpi-icon orange"><Camera size={26} /></div>
-                  <div className="kpi-info">
-                    <h4>Fotos Subidas</h4>
-                    <p>{galeriaFotos.length}</p>
-                  </div>
-                </div>
-                <div className="kpi-card">
-                  <div className="kpi-icon blue"><FileText size={26} /></div>
-                  <div className="kpi-info">
-                    <h4>Cotizaciones Generadas</h4>
-                    <p>{cotizaciones.length}</p>
-                  </div>
-                </div>
-                <div className="kpi-card">
-                  <div className="kpi-icon green"><BarChart3 size={26} /></div>
-                  <div className="kpi-info">
-                    <h4>Actividad Total</h4>
-                    <p>{reportes.length + cotizaciones.length}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* MURO DE EVIDENCIAS FOTOGRÁFICAS */}
-              <div style={{ background: 'white', padding: '25px', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
-                <div className="audit-section-header">
-                  <ImageIcon className="icon" size={24} />
-                  <h3>Muro de Evidencias Fotográficas</h3>
-                </div>
-
-                {galeriaFotos.length > 0 ? (
-                  <div className="photo-wall">
-                    {galeriaFotos.map((foto, index) => (
-                      <div key={index} className="photo-item" onClick={() => setSelectedImage(foto)}>
-                        <img src={foto.image_url || foto.image_path} alt="Evidencia" />
-                        <div className="photo-overlay">
-                          <span className="date">{new Date(foto.created_at).toLocaleDateString()}</span>
-                          <span className="prop">{foto.property?.property_name || foto.property?.address || 'Sin asignar'}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty-audit">
-                    <Camera size={40} />
-                    <p>El técnico no ha subido ninguna fotografía de evidencia al sistema.</p>
-                  </div>
-                )}
-              </div>
-
-              {/* HISTORIAL DE COTIZACIONES */}
-              <div style={{ background: 'white', padding: '25px', borderRadius: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
-                <div className="audit-section-header">
-                  <FileText className="icon" size={24} />
-                  <h3>Cotizaciones Creadas por el Técnico</h3>
-                </div>
-
-                {cotizaciones.length > 0 ? (
-                  <div className="quotes-list">
-                    {cotizaciones.map((cot, index) => (
-                      <div key={index} className="quote-card">
-                        <div className="quote-info">
-                          <span className="quote-title">{cot.folio || `Cotización #${cot.id}`}</span>
-                          <div className="quote-meta">
-                            <span><Clock size={14} style={{verticalAlign:'middle', marginRight:'4px'}}/> {new Date(cot.created_at).toLocaleDateString()}</span>
-                            <span>{cot.property?.property_name || cot.property?.address || 'Sin propiedad'}</span>
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                          <span className={`quote-status ${(cot.status || 'pendiente').toLowerCase()}`}>
-                            {cot.status || 'Pendiente'}
-                          </span>
-                          <button className="quote-action" onClick={() => navigate('/cotizaciones-admin')}>
-                            VER TABLA
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty-audit">
-                    <FileText size={40} />
-                    <p>El técnico no ha generado ninguna cotización todavía.</p>
-                  </div>
-                )}
-              </div>
-
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* MODAL EDICIÓN PERFIL */}
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="modal-close" onClick={() => setIsModalOpen(false)}>
-              <X size={24} />
-            </button>
-            <h2 className="modal-title">Modificar Perfil</h2>
-            <div className="modal-form">
-              <div className="form-group">
-                <label>Nombre Completo</label>
-                <input type="text" name="nombre" value={formData.nombre} onChange={handleInputChange} />
-              </div>
-              <div className="form-group">
-                <label>Correo Electrónico</label>
-                <input type="email" name="correo" value={formData.correo} onChange={handleInputChange} />
-              </div>
-              <div className="form-group">
-                <label>Teléfono</label>
-                <input type="tel" name="telefono" value={formData.telefono} onChange={handleInputChange} />
-              </div>
-              <div className="form-group">
-                <label>Dirección</label>
-                <input type="text" name="direccion" value={formData.direccion} onChange={handleInputChange} />
-              </div>
-              <div className="form-group">
-                <label>Estado</label>
-                <select name="estado" value={formData.estado} onChange={handleInputChange}>
-                  <option value="Activo">Activo</option>
-                  <option value="Inactivo">Inactivo</option>
-                </select>
-              </div>
-              <button className="btn-save" onClick={handleUpdate}>
-                <Save size={18} /> GUARDAR CAMBIOS
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL VISOR DE FOTOGRAFÍA */}
-      {selectedImage && (
-        <div className="image-modal-overlay" onClick={() => setSelectedImage(null)}>
-          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="image-modal-close" onClick={() => setSelectedImage(null)}>
-              <X size={32} />
-            </button>
-            <img src={selectedImage.image_url || selectedImage.image_path} alt="Evidencia Ampliada" />
-            <div className="image-modal-info">
-              <h4>Reporte de Evidencia</h4>
-              <p>Fecha: {new Date(selectedImage.created_at).toLocaleString()}</p>
-              {selectedImage.property && (
-                <p>Propiedad: {selectedImage.property.property_name || selectedImage.property.address}</p>
+      <div className="detalle-main-wrapper">
+        <aside className="cliente-data-card">
+          <div className="avatar-header-section">
+            <div className="avatar-container-large">
+              {tecnico.profile_picture_url || tecnico.profile_picture ? (
+                <img src={tecnico.profile_picture_url || tecnico.profile_picture} alt="Perfil" className="perfil-photo-circle-large" onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=User'; }} />
+              ) : (
+                <User size={50} />
               )}
             </div>
+            <h2>{tecnico.name || tecnico.nombre}</h2>
+            <span className="badge-role-center">{tecnico.rol || 'Técnico'}</span>
           </div>
-        </div>
-      )}
 
+          <div className="dossier-info-list">
+            <div className="info-row-stack">
+              <Mail size={18} className="icon-orange" />
+              <div><label>CORREO ELECTRÓNICO</label><p>{tecnico.email || tecnico.correo}</p></div>
+            </div>
+            <div className="info-row-stack">
+              <Phone size={18} className="icon-orange" />
+              <div><label>TELÉFONO</label><p>{tecnico.phone || tecnico.telefono || 'Sin registrar'}</p></div>
+            </div>
+            <div className="info-row-stack">
+              <MapPin size={18} className="icon-orange" />
+              <div><label>DIRECCIÓN PARTICULAR</label><p>{tecnico.address || tecnico.direccion || 'No especificada'}</p></div>
+            </div>
+            <div className="info-row-stack">
+              <ShieldCheck size={18} className="icon-orange" />
+              <div><label>ID DE EXPEDIENTE</label><p>#{String(tecnico.id).replace(/[^\d]/g, '')}</p></div>
+            </div>
+          </div>
+          <button className="btn-editar-perfil-new" onClick={() => setIsModalOpen(true)}>MODIFICAR PERFIL</button>
+        </aside>
+
+        <main className="propiedades-section">
+          <div className={`accordion-item ${seccionAbierta === 'trabajos' ? 'is-open' : ''}`}>
+            <div className="section-header clickable" onClick={() => toggleSeccion('trabajos')}>
+              <h3><Briefcase size={22} /> TRABAJOS ASIGNADOS Y REALIZADOS</h3><ChevronLeft className="arrow-icon" size={20} />
+            </div>
+            <div className="accordion-content">
+              {cargando ? <p className="text-center p-5">Cargando trabajos... ⏳</p> : trabajos.length > 0 ? (
+                <div className="history-grid-layout">{trabajos.map(t => renderCard(t, 'trabajo'))}</div>
+              ) : <p className="text-center p-5">Sin trabajos registrados</p>}
+            </div>
+          </div>
+
+          <div className={`accordion-item ${seccionAbierta === 'levantamientos' ? 'is-open' : ''}`}>
+            <div className="section-header clickable" onClick={() => toggleSeccion('levantamientos')}>
+              <h3><Clipboard size={22} /> LEVANTAMIENTOS ASIGNADOS Y REALIZADOS</h3><ChevronLeft className="arrow-icon" size={20} />
+            </div>
+            <div className="accordion-content">
+              {cargando ? null : levantamientos.length > 0 ? (
+                <div className="history-grid-layout">{levantamientos.map(l => renderCard(l, 'levantamiento'))}</div>
+              ) : <p className="text-center p-5">Sin levantamientos registrados</p>}
+            </div>
+          </div>
+
+          <div className={`accordion-item ${seccionAbierta === 'cotizaciones' ? 'is-open' : ''}`}>
+            <div className="section-header clickable" onClick={() => toggleSeccion('cotizaciones')}>
+              <h3><FileText size={22} /> COTIZACIONES REALIZADAS</h3><ChevronLeft className="arrow-icon" size={20} />
+            </div>
+            <div className="accordion-content">
+              {cargando ? null : cotizaciones.length > 0 ? (
+                <div className="history-grid-layout">{cotizaciones.map(c => renderCard(c, 'cotizacion'))}</div>
+              ) : <p className="text-center p-5">Sin cotizaciones registradas</p>}
+            </div>
+          </div>
+        </main>
+
+        {isModalOpen && (
+          <div className="modal-overlay-new">
+            <div className="modal-card-new">
+              <div className="modal-header-new">
+                <div className="header-icon-box"><User size={24} /></div>
+                <div><h3>Editar Perfil</h3><p>Actualizando información de {tecnico.nombre || tecnico.name}</p></div>
+                <button className="btn-close-new" onClick={() => setIsModalOpen(false)}><X size={20} /></button>
+              </div>
+              <form onSubmit={guardarCambios} className="modal-body-new">
+                <div className="input-grid-new">
+                  <div className="input-box-new"><label><User size={14} /> Nombre Completo</label><input type="text" name="nombre" value={formData.nombre} onChange={handleInputChange} required /></div>
+                  <div className="input-box-new"><label><Mail size={14} /> Correo Electrónico</label><input type="email" name="correo" value={formData.correo} onChange={handleInputChange} required /></div>
+                  <div className="input-box-new"><label><Phone size={14} /> Número de Teléfono</label><input type="text" name="telefono" value={formData.telefono} onChange={handleInputChange} /></div>
+                  <div className="input-box-new"><label><Lock size={14} /> Nueva Contraseña</label><input type="password" name="password" value={formData.password} onChange={handleInputChange} placeholder="En blanco para no cambiar" /></div>
+                  <div className="input-box-new full-width"><label><MapPin size={14} /> Dirección Particular</label><input type="text" name="direccion" value={formData.direccion} onChange={handleInputChange} placeholder="Ej. Calle 23..." /></div>
+                  <div className="input-box-new full-width">
+                    <label><CheckCircle size={14} /> Estatus del Técnico</label>
+                    <select name="estado" value={formData.estado} onChange={handleInputChange}>
+                      <option value="Activo">Activo</option>
+                      <option value="Inactivo">Inactivo</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="modal-actions-new">
+                  <button type="button" className="btn-secondary-new" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                  <button type="submit" className="btn-primary-new"><Save size={18} /> Guardar Cambios</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
-
 export default VistaDetalleTecnico;
