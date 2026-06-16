@@ -31,7 +31,9 @@ const VistaDetalleTecnico = () => {
 
     const cargarDatosTecnico = async () => {
       try {
-        const id = tecnico.id; // user_id del tecnico
+        // Limpiamos el ID por si viene con prefijos como "u_32" desde VistaUsuarios
+        const rawId = String(tecnico.id || tecnico.user_id).replace(/[^\d]/g, '');
+        const id = parseInt(rawId, 10);
         
         // 1. Obtener TODO el tablero (Igual que en VistaServiciosAdmin)
         const [resWorkOrders, resReportes, resCotizaciones] = await Promise.all([
@@ -47,7 +49,7 @@ const VistaDetalleTecnico = () => {
         // 2. Filtrar solo los que le pertenecen al técnico actual
         const misWorkOrders = todosWorkOrders.filter(w => {
           const asignadoDirecto = w.tecnico_id == id || w.assigned_to == id;
-          const enEquipo = w.technicians && w.technicians.some(t => t.id == id);
+          const enEquipo = w.technicians && w.technicians.some(t => parseInt(t.id, 10) === id);
           return asignadoDirecto || enEquipo;
         }).map(w => ({
           ...w,
