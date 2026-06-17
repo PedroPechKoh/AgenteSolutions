@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Copy, Upload, ShieldCheck, X, CheckCircle2, Loader2 } from 'lucide-react';
 import '../../styles/Cliente/Pagos.css';
+import mpLogo from '../../assets/Mercado-Pago.png';
 
 const Pago = ({ cotizacion, onClose }) => {
   const [file, setFile] = useState(null);
@@ -89,7 +90,7 @@ const Pago = ({ cotizacion, onClose }) => {
 
         <div style={{ padding: '0 20px 30px' }}>
           <div style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center', padding: '20px' }}>
-            <img src="https://logospng.org/download/mercado-pago/logo-mercado-pago-icon-1024.png" alt="MercadoPago" style={{ height: '80px', marginBottom: '20px' }} />
+            <img src={mpLogo} alt="MercadoPago" style={{ height: '40px', objectFit: 'contain', marginBottom: '20px' }} />
             <h3 style={{ color: '#1e293b', marginBottom: '10px' }}>Paga de forma rápida y segura</h3>
             <p style={{ color: '#64748b', marginBottom: '30px', fontSize: '0.9rem' }}>
               Serás redirigido al portal oficial de MercadoPago para completar tu transacción de forma segura. Podrás usar tu tarjeta de crédito, débito, saldo o transferencia.
@@ -100,7 +101,7 @@ const Pago = ({ cotizacion, onClose }) => {
               disabled={subiendo}
               style={{ width: '100%', background: '#009ee3', color: 'white', padding: '15px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', boxShadow: '0 4px 14px rgba(0, 158, 227, 0.4)' }}
             >
-              {subiendo ? <Loader2 className="spin-icon" size={20} /> : 'Pagar con MercadoPago'}
+              {subiendo ? <Loader2 className="spin-icon" size={20} /> : <>Pagar con <img src={mpLogo} alt="MercadoPago" style={{ height: '24px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} /></>}
             </button>
           </div>
         </div>
