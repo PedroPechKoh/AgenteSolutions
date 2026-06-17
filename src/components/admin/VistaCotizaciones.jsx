@@ -154,8 +154,9 @@ const VistaCotizaciones = () => {
 
     const coincideFiltro = 
       (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
-      (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad') || c.status === 'Validado')) ||
-      (filtro === 'Rechazado' && c.status?.toLowerCase().includes('rechazad'));
+      (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status === 'Validado')) ||
+      (filtro === 'Rechazado' && c.status?.toLowerCase().includes('rechazad')) ||
+      (filtro === 'Pagado' && (c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad')));
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
                              (c.folio?.toString() || "").includes(busqueda || "");
@@ -398,6 +399,9 @@ const VistaCotizaciones = () => {
             </button>
             <button className={`cotiz-pill ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>
               <XCircle size={16} /> RECHAZADAS
+            </button>
+            <button className={`cotiz-pill ${filtro === 'Pagado' ? 'active' : ''}`} onClick={() => setFiltro('Pagado')} style={{ background: filtro === 'Pagado' ? '#e8f5e9' : 'transparent', color: filtro === 'Pagado' ? '#1b8a5a' : '#64748b', borderColor: filtro === 'Pagado' ? '#c8e6c9' : '#e2e8f0' }}>
+              <CheckCircle size={16} /> PAGADAS
             </button>
           </div>
 
@@ -964,10 +968,28 @@ const VistaCotizaciones = () => {
                   )}
 
                   {/* ROW 2: Botones Verde y Rojo Abajo */}
+                  
+                  {/* Si ya está pagado, solo mostrar el banner */}
+                  {esCliente && cotizacionSeleccionada.status === 'Pagado' && (
+                    <div style={{ background: '#e8f5e9', color: '#1b8a5a', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '100%', fontWeight: 'bold', fontSize: '1.1rem', border: '1px solid #c8e6c9', marginBottom: '10px' }}>
+                      ✅ Cotización Pagada vía MercadoPago
+                    </div>
+                  )}
+
+                  {/* Si está aprobada/aceptada, mostrar botón de pagar gigante */}
+                  {esCliente && (cotizacionSeleccionada.status === 'Aprobado' || cotizacionSeleccionada.status === 'Aceptada') && (
+                    <button 
+                      className="btn-modal-print" 
+                      style={{ background: '#009ee3', color: 'white', width: '100%', textAlign: 'center', fontWeight: 'bold', padding: '15px', fontSize: '1.1rem', marginBottom: '10px' }} 
+                      onClick={() => setShowPagoModal(true)}
+                    >
+                      💳 PAGAR CON MERCADOPAGO
+                    </button>
+                  )}
+
+                  {/* Si está pendiente, mostrar Aceptar/Rechazar */}
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && 
-                    cotizacionSeleccionada.status !== 'Aprobado' && 
-                    cotizacionSeleccionada.status !== 'Pago en Revisión' && 
-                    cotizacionSeleccionada.status !== 'Pagado' && 
+                    (cotizacionSeleccionada.status === 'Pendiente' || cotizacionSeleccionada.status === 'En proceso' || cotizacionSeleccionada.status?.includes('Admin') || cotizacionSeleccionada.status === 'Rechazado') && 
                     !rechazando && (
                     <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
                       {cotizacionSeleccionada.status !== 'Rechazado' && (
@@ -996,22 +1018,6 @@ const VistaCotizaciones = () => {
                           disabled={procesando}
                         >
                           ✓ ACEPTAR COTIZACIÓN
-                        </button>
-                      )}
-
-                      {esCliente && cotizacionSeleccionada.status === 'Pagado' && (
-                        <div style={{ background: '#e8f5e9', color: '#1b8a5a', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '100%', fontWeight: 'bold', fontSize: '1.1rem', border: '1px solid #c8e6c9', marginBottom: '10px' }}>
-                          ✅ Cotización Pagada vía MercadoPago
-                        </div>
-                      )}
-
-                      {esCliente && cotizacionSeleccionada.status !== 'Rechazado' && cotizacionSeleccionada.status !== 'Pagado' && (
-                        <button 
-                          className="btn-modal-print" 
-                          style={{ background: '#009ee3', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold' }} 
-                          onClick={() => setShowPagoModal(true)}
-                        >
-                          💳 PAGAR
                         </button>
                       )}
                     </div>
