@@ -907,42 +907,6 @@ const VistaCotizaciones = () => {
                     )}
                     </div>
 
-                  {/* ROW: Botón de Pago si está Aprobado (Solo Cliente) */}
-                  {esCliente && cotizacionSeleccionada.status === 'Aprobado' && (
-                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
-                      <button 
-                        className="btn-modal-print" 
-                        style={{ background: '#1b8a5a', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold' }} 
-                        onClick={() => setShowPagoModal(true)}
-                      >
-                        💳 PAGAR
-                      </button>
-                    </div>
-                  )}
-
-                  {esCliente && cotizacionSeleccionada.status === 'Pago en Revisión' && (
-                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
-                      <button 
-                        className="btn-modal-print" 
-                        style={{ background: '#fb8c00', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold', cursor: 'not-allowed', opacity: 0.9 }} 
-                        disabled
-                      >
-                        ⏳ PAGO EN REVISIÓN
-                      </button>
-                    </div>
-                  )}
-
-                  {esCliente && cotizacionSeleccionada.status === 'Pagado' && (
-                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
-                      <button 
-                        className="btn-modal-print" 
-                        style={{ background: '#2e7d32', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold', cursor: 'not-allowed', opacity: 0.9 }} 
-                        disabled
-                      >
-                        ✅ PAGADO
-                      </button>
-                    </div>
-                  )}
 
                   {/* ROW: Validación de Pago (Solo Admin) */}
                   {!esCliente && !esTecnico && cotizacionSeleccionada.status === 'Pago en Revisión' && (
