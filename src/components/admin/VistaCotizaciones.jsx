@@ -983,6 +983,16 @@ const VistaCotizaciones = () => {
                           ✓ ACEPTAR COTIZACIÓN
                         </button>
                       )}
+
+                      {esCliente && cotizacionSeleccionada.status !== 'Rechazado' && (
+                        <button 
+                          className="btn-modal-print" 
+                          style={{ background: '#009ee3', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold' }} 
+                          onClick={() => setShowPagoModal(true)}
+                        >
+                          💳 PAGAR
+                        </button>
+                      )}
                     </div>
                   )}
 
