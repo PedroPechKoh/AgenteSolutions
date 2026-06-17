@@ -66,6 +66,18 @@ const VistaCotizaciones = () => {
     if (cotizaciones && cotizaciones.length > 0) {
       const searchParams = new URLSearchParams(window.location.search);
       const quoteIdParam = searchParams.get('quoteId');
+      const paymentStatus = searchParams.get('payment_status');
+
+      if (paymentStatus) {
+        if (paymentStatus === 'success') {
+          alert('¡Tu pago fue procesado con éxito a través de MercadoPago!');
+        } else if (paymentStatus === 'failure') {
+          alert('El pago no pudo ser procesado. Por favor intenta con otra tarjeta o método de pago.');
+        } else if (paymentStatus === 'pending') {
+          alert('Tu pago está en proceso. Te notificaremos en cuanto MercadoPago o el banco lo apruebe.');
+        }
+      }
+
       if (quoteIdParam) {
         const found = cotizaciones.find(c => String(c.id) === String(quoteIdParam));
         if (found) {
@@ -93,6 +105,9 @@ const VistaCotizaciones = () => {
           const newUrl = window.location.pathname;
           window.history.replaceState({}, document.title, newUrl);
         }
+      } else if (paymentStatus) {
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, newUrl);
       }
     }
   }, [cotizaciones]);

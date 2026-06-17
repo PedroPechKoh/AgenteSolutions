@@ -80,6 +80,31 @@ const Pago = ({ cotizacion, onClose }) => {
     }, 2000);
   };
 
+  const handleMercadoPago = async () => {
+    try {
+      setSubiendo(true);
+      const token = localStorage.getItem('agente_token');
+      
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/mercadopago/preference`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.data && response.data.init_point) {
+        // Redirigir al Checkout de MercadoPago
+        window.location.href = response.data.init_point;
+      } else {
+        alert("No se recibió el enlace de pago. Intenta de nuevo.");
+        setSubiendo(false);
+      }
+    } catch (error) {
+      console.error("Error iniciando MercadoPago:", error);
+      alert("Hubo un error al conectar con MercadoPago. Verifica tus credenciales o intenta más tarde.");
+      setSubiendo(false);
+    }
+  };
+
   if (pagoCompletado) {
     return (
       <div className="tp-modal-overlay" style={{ zIndex: 100000 }}>
@@ -172,10 +197,11 @@ const Pago = ({ cotizacion, onClose }) => {
               <p style={{ color: '#64748b', marginBottom: '30px', fontSize: '0.9rem' }}>Serás redirigido al portal de MercadoPago para completar tu transacción.</p>
               
               <button 
-                onClick={handleSimularPago}
+                onClick={handleMercadoPago}
+                disabled={subiendo}
                 style={{ width: '100%', background: '#009ee3', color: 'white', padding: '15px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', boxShadow: '0 4px 14px rgba(0, 158, 227, 0.4)' }}
               >
-                Pagar con MercadoPago
+                {subiendo ? <Loader2 className="spin-icon" size={20} /> : 'Pagar con MercadoPago'}
               </button>
             </div>
           )}
