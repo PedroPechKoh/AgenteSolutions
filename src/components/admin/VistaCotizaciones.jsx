@@ -998,9 +998,17 @@ const VistaCotizaciones = () => {
                       </button>
                       <button 
                         className="btn-modal-print" 
-                        style={{ background: '#c62828', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                        style={{ 
+                          background: '#c62828', 
+                          color: 'white', 
+                          flex: 1, 
+                          textAlign: 'center', 
+                          minWidth: '150px',
+                          opacity: (procesando || !motivoRechazo.trim()) ? 0.5 : 1,
+                          cursor: (procesando || !motivoRechazo.trim()) ? 'not-allowed' : 'pointer'
+                        }} 
                         onClick={() => procesarCotizacion('Rechazado')}
-                        disabled={procesando}
+                        disabled={procesando || !motivoRechazo.trim()}
                       >
                         CONFIRMAR RECHAZO
                       </button>
