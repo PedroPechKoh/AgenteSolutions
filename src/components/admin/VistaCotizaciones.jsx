@@ -14,6 +14,7 @@ import {
 import CreateQuotationModal from "./CreateQuotationModal";
 import UniversalSearch from "../Shared/UniversalSearch";
 import Pago from "../VistaCliente/Pago";
+import mpLogo from "../../assets/Mercado-Pago.png";
 
 const VistaCotizaciones = () => {
   const navigate = useNavigate();
@@ -935,8 +936,10 @@ const VistaCotizaciones = () => {
                   
                   {/* Si ya está pagado, solo mostrar el banner */}
                   {esCliente && cotizacionSeleccionada.status === 'Pagado' && (
-                    <div style={{ background: '#e8f5e9', color: '#1b8a5a', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '100%', fontWeight: 'bold', fontSize: '1.1rem', border: '1px solid #c8e6c9', marginBottom: '10px' }}>
-                      ✅ Cotización Pagada vía MercadoPago
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#e8f5e9', color: '#1b8a5a', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '100%', fontWeight: 'bold', fontSize: '1.1rem', border: '1px solid #c8e6c9', marginBottom: '10px' }}>
+                      <CheckCircle size={24} color="#1b8a5a" />
+                      <span>Cotización Pagada vía</span>
+                      <img src={mpLogo} alt="MercadoPago" style={{ height: '24px', objectFit: 'contain' }} />
                     </div>
                   )}
 
@@ -944,10 +947,10 @@ const VistaCotizaciones = () => {
                   {esCliente && (cotizacionSeleccionada.status === 'Aprobado' || cotizacionSeleccionada.status === 'Aceptada') && (
                     <button 
                       className="btn-modal-print" 
-                      style={{ background: '#009ee3', color: 'white', width: '100%', textAlign: 'center', fontWeight: 'bold', padding: '15px', fontSize: '1.1rem', marginBottom: '10px' }} 
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#009ee3', color: 'white', width: '100%', textAlign: 'center', fontWeight: 'bold', padding: '15px', fontSize: '1.1rem', marginBottom: '10px' }} 
                       onClick={() => setShowPagoModal(true)}
                     >
-                      💳 PAGAR CON MERCADOPAGO
+                      PAGAR CON <img src={mpLogo} alt="MercadoPago" style={{ height: '24px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                     </button>
                   )}
 
