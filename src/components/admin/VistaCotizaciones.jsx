@@ -999,7 +999,13 @@ const VistaCotizaciones = () => {
                         </button>
                       )}
 
-                      {esCliente && cotizacionSeleccionada.status !== 'Rechazado' && (
+                      {esCliente && cotizacionSeleccionada.status === 'Pagado' && (
+                        <div style={{ background: '#e8f5e9', color: '#1b8a5a', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '100%', fontWeight: 'bold', fontSize: '1.1rem', border: '1px solid #c8e6c9', marginBottom: '10px' }}>
+                          ✅ Cotización Pagada vía MercadoPago
+                        </div>
+                      )}
+
+                      {esCliente && cotizacionSeleccionada.status !== 'Rechazado' && cotizacionSeleccionada.status !== 'Pagado' && (
                         <button 
                           className="btn-modal-print" 
                           style={{ background: '#009ee3', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold' }} 
