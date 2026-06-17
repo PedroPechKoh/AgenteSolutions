@@ -70,8 +70,20 @@ const VistaCotizaciones = () => {
       const paymentStatus = searchParams.get('payment_status');
 
       if (paymentStatus) {
-        if (paymentStatus === 'success') {
-          alert('¡Tu pago fue procesado con éxito a través de MercadoPago!');
+        if (paymentStatus === 'success' && quoteIdParam) {
+          // Intentar verificar el pago manualmente de inmediato por si el webhook se retrasó
+          axios.post(`${import.meta.env.VITE_API_BASE_URL}/mercadopago/verify`, { quote_id: quoteIdParam })
+            .then(res => {
+              if (res.data.status === 'success') {
+                alert('¡Tu pago fue procesado con éxito a través de MercadoPago!');
+                cargarCotizaciones();
+              } else {
+                alert('Tu pago está en proceso de verificación por MercadoPago.');
+              }
+            }).catch(err => {
+              console.error(err);
+              alert('¡Tu pago fue recibido! Actualiza en unos segundos si no ves el cambio.');
+            });
         } else if (paymentStatus === 'failure') {
           alert('El pago no pudo ser procesado. Por favor intenta con otra tarjeta o método de pago.');
         } else if (paymentStatus === 'pending') {
