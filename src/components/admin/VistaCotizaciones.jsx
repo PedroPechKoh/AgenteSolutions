@@ -66,61 +66,51 @@ const VistaCotizaciones = () => {
   useEffect(() => {
     if (cotizaciones && cotizaciones.length > 0) {
       const searchParams = new URLSearchParams(window.location.search);
-      const quoteIdParam = searchParams.get('quoteId');
+      // MercadoPago callback usa 'quote_id' (con underscore)
+      const quoteIdParam = searchParams.get('quote_id') || searchParams.get('quoteId');
       const paymentStatus = searchParams.get('payment_status');
 
       if (paymentStatus) {
         if (paymentStatus === 'success' && quoteIdParam) {
-          // Intentar verificar el pago manualmente de inmediato por si el webhook se retrasó
+          // Verificar el pago inmediatamente al regresar de MercadoPago
           axios.post(`${import.meta.env.VITE_API_BASE_URL}/mercadopago/verify`, { quote_id: quoteIdParam })
             .then(res => {
               if (res.data.status === 'success') {
-                alert('¡Tu pago fue procesado con éxito a través de MercadoPago!');
                 cargarCotizaciones();
+                setFiltro('Pagado');
+                alert('¡Tu pago fue procesado con éxito a través de MercadoPago! La cotización ya está marcada como PAGADA.');
               } else {
-                alert('Tu pago está en proceso de verificación por MercadoPago.');
+                alert('Tu pago está en proceso de verificación. En unos minutos se actualizará automáticamente.');
               }
             }).catch(err => {
               console.error(err);
-              alert('¡Tu pago fue recibido! Actualiza en unos segundos si no ves el cambio.');
+              alert('¡Tu pago fue recibido! Actualiza la página en unos segundos si no ves el cambio.');
             });
         } else if (paymentStatus === 'failure') {
           alert('El pago no pudo ser procesado. Por favor intenta con otra tarjeta o método de pago.');
         } else if (paymentStatus === 'pending') {
           alert('Tu pago está en proceso. Te notificaremos en cuanto MercadoPago o el banco lo apruebe.');
         }
+        // Limpiar la URL siempre que haya payment_status
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      if (quoteIdParam) {
+      if (quoteIdParam && !paymentStatus) {
         const found = cotizaciones.find(c => String(c.id) === String(quoteIdParam));
         if (found) {
-          // Determinar el filtro de pestaña adecuado
           const statusLower = String(found.status || '').toLowerCase();
           if (statusLower.includes('rechazad')) {
             setFiltro('Rechazado');
-          } else if (
-            statusLower.includes('aprobad') || 
-            statusLower.includes('procesada') || 
-            statusLower.includes('aceptad') || 
-            statusLower.includes('pago') || 
-            statusLower.includes('pagad') || 
-            statusLower.includes('validado')
-          ) {
+          } else if (statusLower.includes('pagad') || statusLower.includes('pago en revisión')) {
+            setFiltro('Pagado');
+          } else if (statusLower.includes('aprobad') || statusLower.includes('procesada') || statusLower.includes('aceptad') || statusLower.includes('validado')) {
             setFiltro('Aprobado');
           } else {
             setFiltro('Pendiente');
           }
-          
-          // Seleccionar la cotización para abrir el modal
           setCotizacionSeleccionada(found);
-          
-          // Limpiar la URL para evitar reabrir al recargar
-          const newUrl = window.location.pathname;
-          window.history.replaceState({}, document.title, newUrl);
+          window.history.replaceState({}, document.title, window.location.pathname);
         }
-      } else if (paymentStatus) {
-          const newUrl = window.location.pathname;
-          window.history.replaceState({}, document.title, newUrl);
       }
     }
   }, [cotizaciones]);
@@ -944,13 +934,13 @@ const VistaCotizaciones = () => {
                     </div>
                   )}
 
-                  {/* ROW 2: Botones Verde y Rojo Abajo */}
-                  
-                  {/* Si ya está pagado, solo mostrar el banner */}
-                  {esCliente && cotizacionSeleccionada.status === 'Pagado' && (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#e8f5e9', color: '#1b8a5a', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '100%', fontWeight: 'bold', fontSize: '1.1rem', border: '1px solid #c8e6c9', marginBottom: '10px' }}>
+                  {/* ROW 2: Banner de Pagado (para TODOS: cliente y admin) */}
+
+                  {/* Banner Pagado - visible para cliente y admin */}
+                  {cotizacionSeleccionada.status === 'Pagado' && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#e8f5e9', color: '#1b8a5a', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '100%', fontWeight: 'bold', fontSize: '1.1rem', border: '2px solid #4caf50', marginBottom: '10px' }}>
                       <CheckCircle size={24} color="#1b8a5a" />
-                      <span>Cotización Pagada vía</span>
+                      <span>✅ Cotización Pagada vía</span>
                       <img src={mpLogo} alt="MercadoPago" style={{ height: '24px', objectFit: 'contain' }} />
                     </div>
                   )}
