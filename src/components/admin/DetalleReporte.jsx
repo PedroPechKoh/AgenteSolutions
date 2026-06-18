@@ -130,8 +130,8 @@ const DetalleReporte = () => {
     };
     
     // Tablas dinámicas del cotizador
-    const [filasConceptos, setFilasConceptos] = useState([{ descripcion: '', cantidad: 0, precio_u: 0 }]);
-    const [filasMateriales, setFilasMateriales] = useState([{ nombre: '', cantidad: 0, costo_u: 0 }]);
+    const [filasConceptos, setFilasConceptos] = useState([{ descripcion: '', cantidad: 1, precio_u: '' }]);
+    const [filasMateriales, setFilasMateriales] = useState([{ nombre: '', cantidad: 1, costo_u: '' }]);
     const [herramientasBasicas, setHerramientasBasicas] = useState([{ nombre: '', cantidad: 1 }]);
     const [herramientasEspeciales, setHerramientasEspeciales] = useState([{ nombre: '', cantidad: 1 }]);
     const [observaciones, setObservaciones] = useState('');

@@ -23,8 +23,8 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
   const [servicioSeleccionado, setServicioSeleccionado] = useState(null);
 
   // --- DATOS COTIZACION ---
-  const [filasConceptos, setFilasConceptos] = useState([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
-  const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
+  const [filasConceptos, setFilasConceptos] = useState([{ id: Date.now(), desc: '', cant: 1, precio: '' }]);
+  const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: '' }]);
   const [observaciones, setObservaciones] = useState('');
   const [observacionesInternas, setObservacionesInternas] = useState('');
   const [archivo, setArchivo] = useState(null);
@@ -95,7 +95,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
     setServiciosEncontrados(filtrados);
   }, [busqueda, todosServicios]);
 
-  const addFila = (setter) => setter(prev => [...prev, { id: Date.now(), desc: '', cant: 1, precio: 0 }]);
+  const addFila = (setter) => setter(prev => [...prev, { id: Date.now(), desc: '', cant: 1, precio: '' }]);
   const removeFila = (setter, id) => setter(prev => prev.filter(f => f.id !== id));
   const updateFila = (setter, id, field, value) => {
     setter(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));

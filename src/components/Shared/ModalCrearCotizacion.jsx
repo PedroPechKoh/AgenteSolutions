@@ -13,8 +13,8 @@ const ModalCrearCotizacion = ({
   isAdmin = false
 }) => {
   const [tabCotizacion, setTabCotizacion] = useState('manual');
-  const [filasConceptos, setFilasConceptos] = useState([{ id: Date.now(), desc: '', cant: 1, precio: 0 }]);
-  const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: 0 }]);
+  const [filasConceptos, setFilasConceptos] = useState([{ id: Date.now(), desc: '', cant: 1, precio: '' }]);
+  const [filasMateriales, setFilasMateriales] = useState([{ id: Date.now() + 1, desc: '', cant: 1, precio: '' }]);
   const [observacionesCotizacion, setObservacionesCotizacion] = useState('');
   const [archivoCotizacion, setArchivoCotizacion] = useState(null);
   const [fotoEvidencia, setFotoEvidencia] = useState(null);
@@ -42,7 +42,7 @@ const ModalCrearCotizacion = ({
     }
   }, [cotizacionExistente, isAdmin]);
 
-  const addFila = (setter) => setter(prev => [...prev, { id: Date.now(), desc: '', cant: 1, precio: 0 }]);
+  const addFila = (setter) => setter(prev => [...prev, { id: Date.now(), desc: '', cant: 1, precio: '' }]);
   const removeFila = (setter, id) => setter(prev => prev.filter(f => f.id !== id));
   const updateFila = (setter, id, field, value) => {
     setter(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
