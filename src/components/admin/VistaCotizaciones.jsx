@@ -937,13 +937,66 @@ const VistaCotizaciones = () => {
                   {/* ROW 2: Banner de Pagado (para TODOS: cliente y admin) */}
 
                   {/* Banner Pagado - visible para cliente y admin */}
-                  {cotizacionSeleccionada.status === 'Pagado' && (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#e8f5e9', color: '#1b8a5a', padding: '15px', borderRadius: '8px', textAlign: 'center', width: '100%', fontWeight: 'bold', fontSize: '1.1rem', border: '2px solid #4caf50', marginBottom: '10px' }}>
-                      <CheckCircle size={24} color="#1b8a5a" />
-                      <span>✅ Cotización Pagada vía</span>
-                      <img src={mpLogo} alt="MercadoPago" style={{ height: '24px', objectFit: 'contain' }} />
-                    </div>
-                  )}
+                  {cotizacionSeleccionada.status === 'Pagado' && (() => {
+                    const pd = cotizacionSeleccionada.mp_payment_data;
+                    const formatDate = (dateStr) => {
+                      if (!dateStr) return '—';
+                      try {
+                        return new Date(dateStr).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+                      } catch { return dateStr; }
+                    };
+                    return (
+                      <div style={{ width: '100%', marginBottom: '10px', border: '2px solid #4caf50', borderRadius: '12px', overflow: 'hidden' }}>
+                        {/* Header del comprobante */}
+                        <div style={{ background: 'linear-gradient(135deg, #1b8a5a, #2e7d32)', padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>
+                            <CheckCircle size={22} />
+                            <span>✅ Cotización Pagada</span>
+                          </div>
+                          <img src={mpLogo} alt="MercadoPago" style={{ height: '28px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                        </div>
+
+                        {/* Cuerpo del comprobante */}
+                        <div style={{ background: '#f0faf4', padding: '16px 18px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px', fontSize: '0.85rem' }}>
+                          {pd?.mp_payment_id && (
+                            <div>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>🔖 N° de Operación</div>
+                              <div style={{ fontWeight: 'bold', color: '#1b8a5a', fontFamily: 'monospace' }}>#{pd.mp_payment_id}</div>
+                            </div>
+                          )}
+                          {pd?.amount && (
+                            <div>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>💰 Monto Pagado</div>
+                              <div style={{ fontWeight: 'bold', color: '#1b8a5a' }}>${Number(pd.amount).toLocaleString('es-MX', { minimumFractionDigits: 2 })} {pd.currency || 'MXN'}</div>
+                            </div>
+                          )}
+                          {pd?.payment_type && (
+                            <div>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>💳 Método</div>
+                              <div style={{ fontWeight: '600' }}>{pd.payment_type}{pd.payment_method ? ` (${pd.payment_method})` : ''}{pd.last_four_digits ? ` **** ${pd.last_four_digits}` : ''}</div>
+                            </div>
+                          )}
+                          {pd?.payer_email && (
+                            <div>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>📧 Correo</div>
+                              <div style={{ fontWeight: '600', wordBreak: 'break-all' }}>{pd.payer_email}</div>
+                            </div>
+                          )}
+                          {pd?.date_approved && (
+                            <div style={{ gridColumn: '1 / -1' }}>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>📅 Fecha y Hora de Pago</div>
+                              <div style={{ fontWeight: '600' }}>{formatDate(pd.date_approved)}</div>
+                            </div>
+                          )}
+                          {!pd && (
+                            <div style={{ gridColumn: '1 / -1', color: '#555', textAlign: 'center', padding: '8px 0' }}>
+                              ✅ Pago confirmado por MercadoPago
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   {/* Si está aprobada/aceptada, mostrar botón de pagar gigante */}
                   {esCliente && (cotizacionSeleccionada.status === 'Aprobado' || cotizacionSeleccionada.status === 'Aceptada') && (
