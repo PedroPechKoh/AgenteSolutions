@@ -9,7 +9,6 @@ import {
 import mpLogo from '../../assets/Mercado-Pago.png';
 
 const IVA_RATE = 0.16;
-const MP_COMMISSION_RATE = 0.045;
 
 const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
   const [tab, setTab] = useState('manual');
@@ -105,8 +104,9 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
     const subtotal = filasConceptos.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0)
                    + filasMateriales.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
     const iva = subtotal * IVA_RATE;
-    const comisionMP = subtotal * MP_COMMISSION_RATE;
-    const total = subtotal + iva + comisionMP;
+    const subtotalConIva = subtotal + iva;
+    const comisionMP = (subtotalConIva * 0.0349 + 4) * 1.16;
+    const total = subtotalConIva + comisionMP;
     return { subtotal, iva, comisionMP, total };
   };
 
@@ -471,7 +471,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#009ee3', marginBottom: '8px', alignItems: 'center' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          Comisión <img src={mpLogo} alt="MercadoPago" style={{ height: '16px', objectFit: 'contain' }} /> (4.5%)
+                          Comisión <img src={mpLogo} alt="MercadoPago" style={{ height: '16px', objectFit: 'contain' }} /> (Tarifa Oficial)
                         </span>
                         <span style={{ fontWeight: '600' }}>{fmt(comisionMP)}</span>
                       </div>

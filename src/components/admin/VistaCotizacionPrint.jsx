@@ -7,7 +7,6 @@ import mpLogo from "../../assets/Mercado-Pago.png";
 import html2pdf from 'html2pdf.js';
 
 const IVA_RATE = 0.16;
-const MP_COMMISSION_RATE = 0.045;
 
 const VistaCotizacionPrint = () => {
   const navigate = useNavigate();
@@ -180,8 +179,9 @@ const VistaCotizacionPrint = () => {
   // Calcular subtotal a partir de los items de la tabla
   const subtotal = elementosTabla.reduce((acc, item) => acc + item.importe, 0);
   const iva = subtotal * IVA_RATE;
-  const comisionMP = subtotal * MP_COMMISSION_RATE;
-  const totalFinal = subtotal + iva + comisionMP;
+  const subtotalConIva = subtotal + iva;
+  const comisionMP = (subtotalConIva * 0.0349 + 4) * 1.16;
+  const totalFinal = subtotalConIva + comisionMP;
 
   const formatearDinero = (cantidad) => {
     return `$${parseFloat(cantidad).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -305,7 +305,7 @@ const VistaCotizacionPrint = () => {
                 <td colSpan="4" style={{ border: 'none' }}></td>
                 <td className="label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', border: 'none' }}>
                   <img src={mpLogo} alt="MercadoPago" style={{ height: '14px', objectFit: 'contain' }} />
-                  <span>COMISIÓN (4.5%)</span>
+                  <span>COMISIÓN (T. Oficial)</span>
                 </td>
                 <td style={{ color: '#009ee3', fontWeight: '600' }}>{formatearDinero(comisionMP)}</td>
               </tr>
