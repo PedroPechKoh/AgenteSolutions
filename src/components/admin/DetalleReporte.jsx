@@ -7,6 +7,10 @@ import '../../styles/Admin/DetalleReporte.css';
 import '../../styles/TecnicoStyles/RegistroDetalleHabitacion.css';
 import logo from "../../assets/Logo3.png";
 import casaImg from '../../assets/propiedad_ejemplo.jpg';
+import mpLogo from '../../assets/Mercado-Pago.png';
+
+const IVA_RATE = 0.16;
+const MP_COMMISSION_RATE = 0.045;
 
 const DetalleReporte = () => {
     const { id } = useParams();
@@ -550,8 +554,11 @@ const DetalleReporte = () => {
         }
     };
 
-    const totalGeneral = filasConceptos.reduce((acc, f) => acc + (Number(f.cantidad) * Number(f.precio_u)), 0) + 
+    const subtotalGeneral = filasConceptos.reduce((acc, f) => acc + (Number(f.cantidad) * Number(f.precio_u)), 0) + 
                          filasMateriales.reduce((acc, f) => acc + (Number(f.cantidad) * Number(f.costo_u)), 0);
+    const ivaGeneral = subtotalGeneral * IVA_RATE;
+    const comisionMPGeneral = subtotalGeneral * MP_COMMISSION_RATE;
+    const totalGeneral = subtotalGeneral + ivaGeneral + comisionMPGeneral;
 
     const guardarCotizacion = async () => {
         try {
@@ -566,7 +573,7 @@ const DetalleReporte = () => {
                     herramientas_basicas: herramientasBasicas,
                     herramientas_especiales: herramientasEspeciales
                 }));
-                data.append('estimated_amount', totalGeneral);
+                data.append('estimated_amount', totalGeneral.toFixed(2));
                 data.append('observations', observaciones);
             } else {
                 if (!archivoFisico) return alert("Selecciona un archivo");
@@ -1207,9 +1214,30 @@ const DetalleReporte = () => {
                         </div>
 
                         <div className="cot-modal-footer dinamico">
-                            <div className="total-box">
-                                <span>TOTAL ESTIMADO:</span>
-                                <strong>${totalGeneral.toLocaleString()}</strong>
+                            <div className="total-box" style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                              {(() => {
+                                const fmt = (n) => `$${Number(n).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                return (
+                                  <>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#aaa' }}>
+                                      <span>Subtotal</span><span>{fmt(subtotalGeneral)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#aaa' }}>
+                                      <span>IVA (16%)</span><span>{fmt(ivaGeneral)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#009ee3', alignItems: 'center' }}>
+                                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <img src={mpLogo} alt="MP" style={{ height: '12px', objectFit: 'contain' }} /> Comisión (4.5%)
+                                      </span>
+                                      <span>{fmt(comisionMPGeneral)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #444', paddingTop: '4px', marginTop: '2px' }}>
+                                      <span style={{ fontWeight: 'bold', color: '#fff' }}>TOTAL:</span>
+                                      <strong style={{ color: '#f26624', fontSize: '1.1rem' }}>{fmt(totalGeneral)}</strong>
+                                    </div>
+                                  </>
+                                );
+                              })()}
                             </div>
                             <div className="actions">
                                 <button className="btn-secundario" onClick={() => setMostrarCotizacion(false)}>CANCELAR</button>

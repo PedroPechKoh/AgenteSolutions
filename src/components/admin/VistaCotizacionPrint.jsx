@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import "../../styles/Admin/VistaCotizacionPrint.css";
 import logo from "../../assets/Logo3.png"; 
+import mpLogo from "../../assets/Mercado-Pago.png";
 import html2pdf from 'html2pdf.js';
+
+const IVA_RATE = 0.16;
+const MP_COMMISSION_RATE = 0.045;
 
 const VistaCotizacionPrint = () => {
   const navigate = useNavigate();
@@ -173,9 +177,11 @@ const VistaCotizacionPrint = () => {
     return <div style={{ padding: '50px', textAlign: 'center' }}>Cargando información...</div>;
   }
 
-  const totalCotizacion = parseFloat(cotizacion.total || 0);
-  const subtotal = totalCotizacion / 1.16;
-  const iva = totalCotizacion - subtotal;
+  // Calcular subtotal a partir de los items de la tabla
+  const subtotal = elementosTabla.reduce((acc, item) => acc + item.importe, 0);
+  const iva = subtotal * IVA_RATE;
+  const comisionMP = subtotal * MP_COMMISSION_RATE;
+  const totalFinal = subtotal + iva + comisionMP;
 
   const formatearDinero = (cantidad) => {
     return `$${parseFloat(cantidad).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -292,13 +298,21 @@ const VistaCotizacionPrint = () => {
               </tr>
               <tr className="totales">
                 <td colSpan="4" style={{ border: 'none' }}></td>
-                <td className="label">IVA</td>
+                <td className="label">IVA (16%)</td>
                 <td>{formatearDinero(iva)}</td>
+              </tr>
+              <tr className="totales">
+                <td colSpan="4" style={{ border: 'none' }}></td>
+                <td className="label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', border: 'none' }}>
+                  <img src={mpLogo} alt="MercadoPago" style={{ height: '14px', objectFit: 'contain' }} />
+                  <span>COMISIÓN (4.5%)</span>
+                </td>
+                <td style={{ color: '#009ee3', fontWeight: '600' }}>{formatearDinero(comisionMP)}</td>
               </tr>
               <tr className="totales total-final">
                 <td colSpan="4" style={{ border: 'none' }}></td>
                 <td className="label">TOTAL</td>
-                <td>{formatearDinero(totalCotizacion)}</td>
+                <td>{formatearDinero(totalFinal)}</td>
               </tr>
             </tbody>
           </table>

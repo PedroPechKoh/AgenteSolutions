@@ -6,6 +6,10 @@ import {
   AlertCircle, CheckCircle, Upload,
   MapPin, Phone
 } from 'lucide-react';
+import mpLogo from '../../assets/Mercado-Pago.png';
+
+const IVA_RATE = 0.16;
+const MP_COMMISSION_RATE = 0.045;
 
 const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
   const [tab, setTab] = useState('manual');
@@ -97,10 +101,13 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
     setter(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
   };
 
-  const calcularTotal = () => {
-    const totalConceptos = filasConceptos.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
-    const totalMateriales = filasMateriales.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
-    return totalConceptos + totalMateriales;
+  const calcularTotales = () => {
+    const subtotal = filasConceptos.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0)
+                   + filasMateriales.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
+    const iva = subtotal * IVA_RATE;
+    const comisionMP = subtotal * MP_COMMISSION_RATE;
+    const total = subtotal + iva + comisionMP;
+    return { subtotal, iva, comisionMP, total };
   };
 
   const handleGuardar = async () => {
@@ -124,7 +131,8 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
           materiales: filasMateriales.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio }))
         };
         formData.append('concept', JSON.stringify(conceptData));
-        formData.append('estimated_amount', calcularTotal());
+        const { total } = calcularTotales();
+        formData.append('estimated_amount', total.toFixed(2));
         formData.append('observations', observaciones);
         formData.append('internal_observations', observacionesInternas);
         if (prefillData?.id) {
@@ -446,12 +454,41 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
                 </div>
               )}
 
-              <div className="modal-summary-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8f9fa', padding: '15px', borderRadius: '12px' }}>
-                <div className="total-badge">
-                  <span style={{ fontSize: '0.9rem', color: '#666' }}>TOTAL ESTIMADO:</span>
-                  <h3 style={{ margin: 0, color: '#ff8800', fontSize: '1.5rem' }}>${calcularTotal().toLocaleString('es-MX')}</h3>
-                </div>
-                <div className="footer-btns-container" style={{ display: 'flex', gap: '10px' }}>
+              <div className="modal-summary-footer" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#f8f9fa', padding: '15px', borderRadius: '12px' }}>
+                {/* Desglose de precios */}
+                {tab === 'manual' && (() => {
+                  const { subtotal, iva, comisionMP, total } = calcularTotales();
+                  const fmt = (n) => `$${n.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                  return (
+                    <div style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#555', marginBottom: '4px' }}>
+                        <span>Subtotal (Servicios + Materiales)</span>
+                        <span style={{ fontWeight: '600' }}>{fmt(subtotal)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#555', marginBottom: '4px' }}>
+                        <span>IVA (16%)</span>
+                        <span style={{ fontWeight: '600' }}>{fmt(iva)}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#009ee3', marginBottom: '8px', alignItems: 'center' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          Comisión <img src={mpLogo} alt="MercadoPago" style={{ height: '16px', objectFit: 'contain' }} /> (4.5%)
+                        </span>
+                        <span style={{ fontWeight: '600' }}>{fmt(comisionMP)}</span>
+                      </div>
+                      <div style={{ borderTop: '2px solid #ddd', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.9rem', color: '#333', fontWeight: '700' }}>TOTAL A COBRAR AL CLIENTE:</span>
+                        <h3 style={{ margin: 0, color: '#ff8800', fontSize: '1.5rem' }}>{fmt(total)}</h3>
+                      </div>
+                    </div>
+                  );
+                })()}
+                {tab === 'archivo' && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.9rem', color: '#666' }}>TOTAL ESTIMADO:</span>
+                    <h3 style={{ margin: 0, color: '#ff8800', fontSize: '1.5rem' }}>—</h3>
+                  </div>
+                )}
+                <div className="footer-btns-container" style={{ display: 'flex', gap: '10px', width: '100%', justifyContent: 'flex-end', marginTop: '4px' }}>
                   <button onClick={() => setStep(1)} style={{ padding: '12px 20px', background: '#eee', border: 'none', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer' }}>VOLVER</button>
                   <button 
                     onClick={handleGuardar} 
