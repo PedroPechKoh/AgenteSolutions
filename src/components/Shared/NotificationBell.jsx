@@ -79,7 +79,7 @@ const NotificationBell = () => {
       // Normalización de URLs y Tipos
       if (type === 'work_order_finished' || type === 'new_report') {
         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
-      } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote') || type?.includes('payment')) {
+      } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
         if (isTecnico) {
           url = '/trabajos-tecnico';
         } else {
@@ -96,7 +96,7 @@ const NotificationBell = () => {
 
       // Fallback de seguridad
       if (!url) {
-        if (type?.includes('quote') || type?.includes('payment')) {
+        if (type?.includes('quote')) {
           if (isTecnico) {
             url = '/trabajos-tecnico';
           } else {

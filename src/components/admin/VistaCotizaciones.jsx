@@ -253,19 +253,13 @@ const VistaCotizaciones = () => {
 
   const renderConceptoDetalle = (conceptoStr) => {
     try {
-      let detalle = conceptoStr;
-      if (typeof detalle === 'string') {
-        try { detalle = JSON.parse(detalle); } catch(e) {}
-      }
-      if (typeof detalle === 'string') {
-        try { detalle = JSON.parse(detalle); } catch(e) {} // Double parse for safety
-      }
+      const detalle = typeof conceptoStr === 'string' ? JSON.parse(conceptoStr) : conceptoStr;
       
-      if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.servicios || detalle.materiales || detalle.herramientas_basicas)) {
+      if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.materiales || detalle.herramientas_basicas)) {
         return (
           <div className="detalle-parseado">
             {/* Conceptos / Servicios */}
-            {(detalle.conceptos || detalle.servicios) && (detalle.conceptos || detalle.servicios).some(c => c.descripcion) && (
+            {(detalle.conceptos || detalle.servicios) && (detalle.conceptos || detalle.servicios).some(c => c.descripcion || c.precio_u || c.precio) && (
               <div className="detalle-seccion">
                 <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px' }}>Servicios / Conceptos</h4>
                 <table className="modal-items-table">
@@ -277,7 +271,7 @@ const VistaCotizaciones = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {(detalle.conceptos || detalle.servicios).filter(c => c.descripcion).map((c, i) => (
+                    {(detalle.conceptos || detalle.servicios).filter(c => c.descripcion || c.precio_u || c.precio).map((c, i) => (
                       <tr key={i}>
                         <td>{c.descripcion}</td>
                         <td style={{ textAlign: 'center' }}>{c.cantidad || 1}</td>
@@ -290,7 +284,7 @@ const VistaCotizaciones = () => {
             )}
 
             {/* Materiales */}
-            {detalle.materiales && detalle.materiales.some(m => m.nombre || m.descripcion) && (
+            {detalle.materiales && detalle.materiales.some(m => m.nombre || m.descripcion || m.costo_u || m.precio) && (
               <div className="detalle-seccion" style={{ marginTop: '15px' }}>
                 <h4 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '5px' }}>Materiales</h4>
                 <table className="modal-items-table">
@@ -302,7 +296,7 @@ const VistaCotizaciones = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {detalle.materiales.filter(m => m.nombre || m.descripcion).map((m, i) => (
+                    {detalle.materiales.filter(m => m.nombre || m.descripcion || m.costo_u || m.precio).map((m, i) => (
                       <tr key={i}>
                         <td>{m.nombre || m.descripcion}</td>
                         <td style={{ textAlign: 'center' }}>{m.cantidad || 1}</td>
@@ -883,6 +877,65 @@ const VistaCotizaciones = () => {
                   </div>
                 )}
 
+                  {/* Banner Pagado Movido al cuerpo scrollable */}
+                  {cotizacionSeleccionada.status === 'Pagado' && (() => {
+                    const pd = cotizacionSeleccionada.mp_payment_data;
+                    const formatDate = (dateStr) => {
+                      if (!dateStr) return '—';
+                      try {
+                        return new Date(dateStr).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+                      } catch { return dateStr; }
+                    };
+                    return (
+                      <div style={{ width: '100%', marginBottom: '20px', marginTop: '15px', border: '2px solid #4caf50', borderRadius: '12px', overflow: 'hidden' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #1b8a5a, #2e7d32)', padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>
+                            <CheckCircle size={22} />
+                            <span>✅ Cotización Pagada</span>
+                          </div>
+                          <img src={mpLogo} alt="MercadoPago" style={{ height: '28px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                        </div>
+                        <div style={{ background: '#f0faf4', padding: '16px 18px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px', fontSize: '0.85rem', color: '#333' }}>
+                          {pd?.mp_payment_id && (
+                            <div>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>🔖 N° de Operación</div>
+                              <div style={{ fontWeight: 'bold', color: '#1b8a5a', fontFamily: 'monospace' }}>#{pd.mp_payment_id}</div>
+                            </div>
+                          )}
+                          {pd?.amount && (
+                            <div>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>💰 Monto Pagado</div>
+                              <div style={{ fontWeight: 'bold', color: '#1b8a5a' }}>${Number(pd.amount).toLocaleString('es-MX', { minimumFractionDigits: 2 })} {pd.currency || 'MXN'}</div>
+                            </div>
+                          )}
+                          {pd?.payment_type && (
+                            <div>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>💳 Método</div>
+                              <div style={{ fontWeight: '600', color: '#333' }}>{pd.payment_type}{pd.payment_method ? ` (${pd.payment_method})` : ''}{pd.last_four_digits ? ` **** ${pd.last_four_digits}` : ''}</div>
+                            </div>
+                          )}
+                          {pd?.payer_email && (
+                            <div>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>📧 Correo</div>
+                              <div style={{ fontWeight: '600', wordBreak: 'break-all', color: '#333' }}>{pd.payer_email}</div>
+                            </div>
+                          )}
+                          {pd?.date_approved && (
+                            <div style={{ gridColumn: '1 / -1' }}>
+                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>📅 Fecha y Hora de Pago</div>
+                              <div style={{ fontWeight: '600', color: '#333' }}>{formatDate(pd.date_approved)}</div>
+                            </div>
+                          )}
+                          {!pd && (
+                            <div style={{ gridColumn: '1 / -1', color: '#555', textAlign: 'center', padding: '8px 0' }}>
+                              ✅ Pago confirmado por MercadoPago
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
             </div>
             <div className="modal-footer-btns" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   
@@ -940,69 +993,7 @@ const VistaCotizaciones = () => {
                     </div>
                   )}
 
-                  {/* ROW 2: Banner de Pagado (para TODOS: cliente y admin) */}
-
-                  {/* Banner Pagado - visible para cliente y admin */}
-                  {cotizacionSeleccionada.status === 'Pagado' && (() => {
-                    const pd = cotizacionSeleccionada.mp_payment_data;
-                    const formatDate = (dateStr) => {
-                      if (!dateStr) return '—';
-                      try {
-                        return new Date(dateStr).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
-                      } catch { return dateStr; }
-                    };
-                    return (
-                      <div style={{ width: '100%', marginBottom: '10px', border: '2px solid #4caf50', borderRadius: '12px', overflow: 'hidden' }}>
-                        {/* Header del comprobante */}
-                        <div style={{ background: 'linear-gradient(135deg, #1b8a5a, #2e7d32)', padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontWeight: 'bold', fontSize: '1rem' }}>
-                            <CheckCircle size={22} />
-                            <span>✅ Cotización Pagada</span>
-                          </div>
-                          <img src={mpLogo} alt="MercadoPago" style={{ height: '28px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
-                        </div>
-
-                        {/* Cuerpo del comprobante */}
-                        <div style={{ background: '#f0faf4', padding: '16px 18px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px', fontSize: '0.85rem' }}>
-                          {pd?.mp_payment_id && (
-                            <div>
-                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>🔖 N° de Operación</div>
-                              <div style={{ fontWeight: 'bold', color: '#1b8a5a', fontFamily: 'monospace' }}>#{pd.mp_payment_id}</div>
-                            </div>
-                          )}
-                          {pd?.amount && (
-                            <div>
-                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>💰 Monto Pagado</div>
-                              <div style={{ fontWeight: 'bold', color: '#1b8a5a' }}>${Number(pd.amount).toLocaleString('es-MX', { minimumFractionDigits: 2 })} {pd.currency || 'MXN'}</div>
-                            </div>
-                          )}
-                          {pd?.payment_type && (
-                            <div>
-                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>💳 Método</div>
-                              <div style={{ fontWeight: '600' }}>{pd.payment_type}{pd.payment_method ? ` (${pd.payment_method})` : ''}{pd.last_four_digits ? ` **** ${pd.last_four_digits}` : ''}</div>
-                            </div>
-                          )}
-                          {pd?.payer_email && (
-                            <div>
-                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>📧 Correo</div>
-                              <div style={{ fontWeight: '600', wordBreak: 'break-all' }}>{pd.payer_email}</div>
-                            </div>
-                          )}
-                          {pd?.date_approved && (
-                            <div style={{ gridColumn: '1 / -1' }}>
-                              <div style={{ color: '#666', fontSize: '0.75rem', marginBottom: '2px' }}>📅 Fecha y Hora de Pago</div>
-                              <div style={{ fontWeight: '600' }}>{formatDate(pd.date_approved)}</div>
-                            </div>
-                          )}
-                          {!pd && (
-                            <div style={{ gridColumn: '1 / -1', color: '#555', textAlign: 'center', padding: '8px 0' }}>
-                              ✅ Pago confirmado por MercadoPago
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })()}
+                  {/* END ROW 1 */}
 
                   {/* Si está aprobada/aceptada, mostrar botón de pagar gigante */}
                   {esCliente && (cotizacionSeleccionada.status === 'Aprobado' || cotizacionSeleccionada.status === 'Aceptada') && (

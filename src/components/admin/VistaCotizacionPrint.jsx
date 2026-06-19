@@ -47,22 +47,16 @@ const VistaCotizacionPrint = () => {
       let items = [];
       
       try {
-        let detalle = rawConcept;
-        if (typeof detalle === 'string') {
-          try { detalle = JSON.parse(detalle); } catch(e) {}
-        }
-        if (typeof detalle === 'string') {
-          try { detalle = JSON.parse(detalle); } catch(e) {}
-        }
+        const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
         
         if (detalle && typeof detalle === 'object') {
           // Soporta 'conceptos' o 'servicios' (enviado por técnicos)
           const listadoServicios = detalle.conceptos || detalle.servicios || [];
-          listadoServicios.filter(c => c.descripcion).forEach(c => {
+          listadoServicios.filter(c => c.descripcion || c.precio_u || c.precio).forEach(c => {
             const precio = parseFloat(c.precio_u || c.precio || 0);
             const cant = parseFloat(c.cantidad || 1);
             items.push({ 
-              descripcion: c.descripcion, 
+              descripcion: c.descripcion || '(Sin Descripción)', 
               cantidad: cant, 
               unidad: 'S', 
               precio_u: precio, 
@@ -72,11 +66,11 @@ const VistaCotizacionPrint = () => {
 
           // Soporta 'materiales'
           if (detalle.materiales) {
-            detalle.materiales.filter(m => m.nombre || m.descripcion).forEach(m => {
+            detalle.materiales.filter(m => m.nombre || m.descripcion || m.costo_u || m.precio).forEach(m => {
               const precio = parseFloat(m.costo_u || m.precio || 0);
               const cant = parseFloat(m.cantidad || 1);
               items.push({ 
-                descripcion: m.nombre || m.descripcion, 
+                descripcion: m.nombre || m.descripcion || '(Sin Descripción)', 
                 cantidad: cant, 
                 unidad: 'PZA', 
                 precio_u: precio, 
@@ -237,25 +231,10 @@ const VistaCotizacionPrint = () => {
         <div style={{ transform: `scale(${escala})`, transformOrigin: 'top center', transition: 'transform 0.2s ease', width: '21cm' }}>
           <div id="cotizacion-pdf" className="cotizacion-container printable-page-container" style={{ minWidth: '21cm', margin: '0 auto' }}>
 
-          <div className="header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', gap: '30px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', width: '150px' }}>
-              <img src={logo} alt="logo" className="logo" style={{ width: '100%', marginBottom: '15px' }} />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', minWidth: '160px' }}>
-              <div className="fecha-box" style={{ width: '100%', boxSizing: 'border-box' }}>
-                <span>FECHA DE COTIZACIÓN</span>
-                <p>{cotizacion.fecha || new Date().toLocaleDateString()}</p> 
-              </div>
-              {cotizacion.tecnico && (
-                <div className="fecha-box" style={{ width: '100%', background: '#333', boxSizing: 'border-box' }}>
-                  <span style={{ color: '#eee' }}>TÉCNICO ASIGNADO</span>
-                  <p style={{ color: 'white' }}>{cotizacion.tecnico.toUpperCase()}</p>
-                </div>
-              )}
-            </div>
-
-            <div className="info-cliente" style={{ flexGrow: 1, minWidth: '250px' }}>
+          <div className="header">
+          <div className="header-left">
+            <img src={logo} alt="logo" className="logo" />
+            <div className="info-cliente">
               <p><strong>ATENCION A:</strong></p>
               <h2>{(cotizacion.cliente || 'CLIENTE').toUpperCase()}</h2>
               
@@ -271,8 +250,24 @@ const VistaCotizacionPrint = () => {
 
               <p><strong>LOCACION:</strong></p>
               <h3>{(cotizacion.ubicacion || 'MERIDA, YUCATAN').toUpperCase()}</h3>
+
+              {/* Cajas movidas a la izquierda debajo de la locación */}
+              <div style={{ display: 'flex', gap: '15px', marginTop: '15px', flexWrap: 'wrap' }}>
+                <div className="fecha-box" style={{ flex: 1, minWidth: '140px' }}>
+                  <span>FECHA DE COTIZACIÓN</span>
+                  <p>{cotizacion.fecha || new Date().toLocaleDateString()}</p> 
+                </div>
+                {cotizacion.tecnico && (
+                  <div className="fecha-box" style={{ flex: 1, minWidth: '140px', background: '#333' }}>
+                    <span style={{ color: '#eee' }}>TÉCNICO ASIGNADO</span>
+                    <p style={{ color: 'white' }}>{cotizacion.tecnico.toUpperCase()}</p>
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
+        </div>
 
         <div className="linea"></div>
 
