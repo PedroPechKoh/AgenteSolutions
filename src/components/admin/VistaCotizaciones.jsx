@@ -253,9 +253,15 @@ const VistaCotizaciones = () => {
 
   const renderConceptoDetalle = (conceptoStr) => {
     try {
-      const detalle = typeof conceptoStr === 'string' ? JSON.parse(conceptoStr) : conceptoStr;
+      let detalle = conceptoStr;
+      if (typeof detalle === 'string') {
+        try { detalle = JSON.parse(detalle); } catch(e) {}
+      }
+      if (typeof detalle === 'string') {
+        try { detalle = JSON.parse(detalle); } catch(e) {} // Double parse for safety
+      }
       
-      if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.materiales || detalle.herramientas_basicas)) {
+      if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.servicios || detalle.materiales || detalle.herramientas_basicas)) {
         return (
           <div className="detalle-parseado">
             {/* Conceptos / Servicios */}

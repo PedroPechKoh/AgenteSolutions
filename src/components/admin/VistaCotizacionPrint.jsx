@@ -47,7 +47,13 @@ const VistaCotizacionPrint = () => {
       let items = [];
       
       try {
-        const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
+        let detalle = rawConcept;
+        if (typeof detalle === 'string') {
+          try { detalle = JSON.parse(detalle); } catch(e) {}
+        }
+        if (typeof detalle === 'string') {
+          try { detalle = JSON.parse(detalle); } catch(e) {}
+        }
         
         if (detalle && typeof detalle === 'object') {
           // Soporta 'conceptos' o 'servicios' (enviado por técnicos)
@@ -231,10 +237,25 @@ const VistaCotizacionPrint = () => {
         <div style={{ transform: `scale(${escala})`, transformOrigin: 'top center', transition: 'transform 0.2s ease', width: '21cm' }}>
           <div id="cotizacion-pdf" className="cotizacion-container printable-page-container" style={{ minWidth: '21cm', margin: '0 auto' }}>
 
-          <div className="header">
-          <div className="header-left">
-            <img src={logo} alt="logo" className="logo" />
-            <div className="info-cliente">
+          <div className="header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', gap: '30px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', width: '150px' }}>
+              <img src={logo} alt="logo" className="logo" style={{ width: '100%', marginBottom: '15px' }} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', minWidth: '160px' }}>
+              <div className="fecha-box" style={{ width: '100%', boxSizing: 'border-box' }}>
+                <span>FECHA DE COTIZACIÓN</span>
+                <p>{cotizacion.fecha || new Date().toLocaleDateString()}</p> 
+              </div>
+              {cotizacion.tecnico && (
+                <div className="fecha-box" style={{ width: '100%', background: '#333', boxSizing: 'border-box' }}>
+                  <span style={{ color: '#eee' }}>TÉCNICO ASIGNADO</span>
+                  <p style={{ color: 'white' }}>{cotizacion.tecnico.toUpperCase()}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="info-cliente" style={{ flexGrow: 1, minWidth: '250px' }}>
               <p><strong>ATENCION A:</strong></p>
               <h2>{(cotizacion.cliente || 'CLIENTE').toUpperCase()}</h2>
               
@@ -252,19 +273,6 @@ const VistaCotizacionPrint = () => {
               <h3>{(cotizacion.ubicacion || 'MERIDA, YUCATAN').toUpperCase()}</h3>
             </div>
           </div>
-          <div className="header-right">
-            <div className="fecha-box">
-              <span>FECHA DE COTIZACIÓN</span>
-              <p>{cotizacion.fecha || new Date().toLocaleDateString()}</p> 
-            </div>
-            {cotizacion.tecnico && (
-              <div className="fecha-box" style={{ marginTop: '10px', background: '#333' }}>
-                <span style={{ color: '#eee' }}>TÉCNICO ASIGNADO</span>
-                <p style={{ color: 'white' }}>{cotizacion.tecnico.toUpperCase()}</p>
-              </div>
-            )}
-          </div>
-        </div>
 
         <div className="linea"></div>
 
