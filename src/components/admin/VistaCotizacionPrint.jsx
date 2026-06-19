@@ -251,21 +251,22 @@ const VistaCotizacionPrint = () => {
               <p><strong>LOCACION:</strong></p>
               <h3>{(cotizacion.ubicacion || 'MERIDA, YUCATAN').toUpperCase()}</h3>
 
-              {/* Cajas movidas a la izquierda debajo de la locación */}
-              <div style={{ display: 'flex', gap: '15px', marginTop: '15px', flexWrap: 'wrap' }}>
-                <div className="fecha-box" style={{ flex: 1, minWidth: '140px' }}>
-                  <span>FECHA DE COTIZACIÓN</span>
-                  <p>{cotizacion.fecha || new Date().toLocaleDateString()}</p> 
-                </div>
-                {cotizacion.tecnico && (
-                  <div className="fecha-box" style={{ flex: 1, minWidth: '140px', background: '#333' }}>
-                    <span style={{ color: '#eee' }}>TÉCNICO ASIGNADO</span>
-                    <p style={{ color: 'white' }}>{cotizacion.tecnico.toUpperCase()}</p>
-                  </div>
-                )}
-              </div>
-
             </div>
+
+            {/* Cajas movidas a la izquierda al LADO de los datos */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div className="fecha-box" style={{ width: '180px', padding: '15px' }}>
+                <span>FECHA DE COTIZACIÓN</span>
+                <p>{cotizacion.fecha || new Date().toLocaleDateString()}</p> 
+              </div>
+              {cotizacion.tecnico && (
+                <div className="fecha-box" style={{ width: '180px', padding: '15px', background: '#333' }}>
+                  <span style={{ color: '#eee' }}>TÉCNICO ASIGNADO</span>
+                  <p style={{ color: 'white' }}>{cotizacion.tecnico.toUpperCase()}</p>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
 

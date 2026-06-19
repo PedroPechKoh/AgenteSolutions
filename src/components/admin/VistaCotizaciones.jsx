@@ -740,9 +740,53 @@ const VistaCotizaciones = () => {
                     </div>
                   )}
 
-                <div className="modal-total-section">
-                  <h3>TOTAL: ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}</h3>
-                </div>
+                {(() => {
+                  let subtotalItems = 0;
+                  try {
+                    const rawConcept = cotizacionSeleccionada.concept || cotizacionSeleccionada.concepto;
+                    const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
+                    if (detalle && typeof detalle === 'object') {
+                      const listado = detalle.conceptos || detalle.servicios || [];
+                      listado.forEach(c => subtotalItems += (parseFloat(c.precio_u || c.precio || 0) * parseFloat(c.cantidad || 1)));
+                      if (detalle.materiales) {
+                        detalle.materiales.forEach(m => subtotalItems += (parseFloat(m.costo_u || m.precio || 0) * parseFloat(m.cantidad || 1)));
+                      }
+                    }
+                  } catch(e) {}
+                  
+                  const iva = subtotalItems * 0.16;
+                  const subtotalConIva = subtotalItems + iva;
+                  const comisionMP = (subtotalConIva * 0.0349 + 4) * 1.16;
+                  const totalCalc = subtotalItems > 0 ? (subtotalConIva + comisionMP) : parseFloat(cotizacionSeleccionada.total || 0);
+
+                  return (
+                    <div className="modal-total-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: '15px', background: '#f8fafc', borderTop: '2px solid #e2e8f0', marginTop: '20px' }}>
+                      {subtotalItems > 0 ? (
+                        <>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '8px', color: '#64748b' }}>
+                            <span>Subtotal:</span>
+                            <span style={{ fontWeight: 'bold' }}>${subtotalItems.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '8px', color: '#64748b' }}>
+                            <span>IVA (16%):</span>
+                            <span style={{ fontWeight: 'bold' }}>${iva.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '12px', color: '#009ee3', alignItems: 'center' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <img src={mpLogo} alt="MP" style={{ height: '14px', objectFit: 'contain' }} /> Comisión (T. Oficial):
+                            </span>
+                            <span style={{ fontWeight: 'bold' }}>${comisionMP.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          </div>
+                          <h3 style={{ margin: 0, paddingTop: '10px', borderTop: '2px solid #cbd5e1', width: '100%', maxWidth: '300px', textAlign: 'right', fontSize: '1.4rem' }}>
+                            TOTAL: ${totalCalc.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </h3>
+                        </>
+                      ) : (
+                        <h3 style={{ margin: 0, fontSize: '1.4rem' }}>TOTAL: ${totalCalc.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h3>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {cotizacionSeleccionada.observations && (
                   <div style={{ padding: '15px', background: '#f5f5f5', borderRadius: '8px', marginTop: '15px', borderLeft: '4px solid #ff8800' }}>
