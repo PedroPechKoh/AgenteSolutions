@@ -266,17 +266,6 @@ const VistaServiciosAdmin = () => {
     }
   };
 
-  if (loading) return <div className="loading-screen">Cargando Tablero de Servicios...</div>;
-
-  const cambiarSeccionTab = (nuevaSeccion) => {
-    setSeccionTab(nuevaSeccion);
-    if (nuevaSeccion === 'activos') {
-      setTabActiva('sos');
-    } else {
-      setTabActiva('done');
-    }
-  };
-
   const tareasAgrupadas = useMemo(() => {
     const agrupadas = [];
     const mapLotes = new Map();
@@ -333,6 +322,17 @@ const VistaServiciosAdmin = () => {
 
     return agrupadas;
   }, [tareasFiltradas]);
+
+  if (loading) return <div className="loading-screen">Cargando Tablero de Servicios...</div>;
+
+  const cambiarSeccionTab = (nuevaSeccion) => {
+    setSeccionTab(nuevaSeccion);
+    if (nuevaSeccion === 'activos') {
+      setTabActiva('sos');
+    } else {
+      setTabActiva('done');
+    }
+  };
 
   const renderColumna = (colId, titulo, clase) => {
     let tareasFiltradasCol = tareasAgrupadas.filter(t => t.estado === colId);
