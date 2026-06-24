@@ -24,7 +24,7 @@ const VistaCotizaciones = () => {
   const [cotizaciones, setCotizaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
 
-  const [filtro, setFiltro] = useState('Pendiente');
+  const [filtro, setFiltro] = useState('Todas');
   const [busqueda, setBusqueda] = useState('');
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
 
@@ -77,7 +77,7 @@ const VistaCotizaciones = () => {
             .then(res => {
               if (res.data.status === 'success') {
                 cargarCotizaciones();
-                setFiltro('Pagado');
+                setFiltro('Pagadas');
                 alert('¡Tu pago fue procesado con éxito a través de MercadoPago! La cotización ya está marcada como PAGADA.');
               } else {
                 alert('Tu pago está en proceso de verificación. En unos minutos se actualizará automáticamente.');
@@ -100,13 +100,13 @@ const VistaCotizaciones = () => {
         if (found) {
           const statusLower = String(found.status || '').toLowerCase();
           if (statusLower.includes('rechazad')) {
-            setFiltro('Rechazado');
+            setFiltro('Rechazadas');
           } else if (statusLower.includes('pagad') || statusLower.includes('pago en revisión')) {
-            setFiltro('Pagado');
-          } else if (statusLower.includes('aprobad') || statusLower.includes('procesada') || statusLower.includes('aceptad') || statusLower.includes('validado')) {
-            setFiltro('Aprobado');
+            setFiltro('Pagadas');
+          } else if (statusLower.includes('aprobad') || statusLower === 'procesada por admin' || statusLower.includes('aceptad') || statusLower.includes('validado')) {
+            setFiltro('Por Pagar');
           } else {
-            setFiltro('Pendiente');
+            setFiltro('Todas');
           }
           setCotizacionSeleccionada(found);
           window.history.replaceState({}, document.title, window.location.pathname);
@@ -156,10 +156,12 @@ const VistaCotizaciones = () => {
                               String(c.propertyId) === String(filterPropId);
 
     const coincideFiltro = 
-      (filtro === 'Pendiente' && (c.status === 'Pendiente' || c.status === 'En proceso' || c.status?.includes('Admin'))) ||
-      (filtro === 'Aprobado' && (c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status === 'Validado')) ||
-      (filtro === 'Rechazado' && c.status?.toLowerCase().includes('rechazad')) ||
-      (filtro === 'Pagado' && (c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad')));
+      filtro === 'Todas' ||
+      (filtro === 'Por Pagar' && (
+        c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status === 'Validado'
+      )) ||
+      (filtro === 'Rechazadas' && c.status?.toLowerCase().includes('rechazad')) ||
+      (filtro === 'Pagadas' && (c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad')));
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
                              (c.folio?.toString() || "").includes(busqueda || "");
@@ -394,16 +396,16 @@ const VistaCotizaciones = () => {
 
         <div className="cotiz-filters-row">
           <div className="cotiz-tabs-pills">
-            <button className={`cotiz-pill ${filtro === 'Pendiente' ? 'active' : ''}`} onClick={() => setFiltro('Pendiente')}>
-              <Clock size={16} /> NUEVAS
+            <button className={`cotiz-pill ${filtro === 'Todas' ? 'active' : ''}`} onClick={() => setFiltro('Todas')}>
+              <Clock size={16} /> TODAS
             </button>
-            <button className={`cotiz-pill ${filtro === 'Aprobado' ? 'active' : ''}`} onClick={() => setFiltro('Aprobado')}>
-              <CheckCircle size={16} /> APROBADAS
+            <button className={`cotiz-pill ${filtro === 'Por Pagar' ? 'active' : ''}`} onClick={() => setFiltro('Por Pagar')}>
+              <Clock size={16} /> POR PAGAR
             </button>
-            <button className={`cotiz-pill ${filtro === 'Rechazado' ? 'active' : ''}`} onClick={() => setFiltro('Rechazado')}>
+            <button className={`cotiz-pill ${filtro === 'Rechazadas' ? 'active' : ''}`} onClick={() => setFiltro('Rechazadas')}>
               <XCircle size={16} /> RECHAZADAS
             </button>
-            <button className={`cotiz-pill ${filtro === 'Pagado' ? 'active' : ''}`} onClick={() => setFiltro('Pagado')} style={{ background: filtro === 'Pagado' ? '#e8f5e9' : 'transparent', color: filtro === 'Pagado' ? '#1b8a5a' : '#64748b', borderColor: filtro === 'Pagado' ? '#c8e6c9' : '#e2e8f0' }}>
+            <button className={`cotiz-pill ${filtro === 'Pagadas' ? 'active' : ''}`} onClick={() => setFiltro('Pagadas')} style={{ background: filtro === 'Pagadas' ? '#e8f5e9' : 'transparent', color: filtro === 'Pagadas' ? '#1b8a5a' : '#64748b', borderColor: filtro === 'Pagadas' ? '#c8e6c9' : '#e2e8f0' }}>
               <CheckCircle size={16} /> PAGADAS
             </button>
           </div>
@@ -482,10 +484,23 @@ const VistaCotizaciones = () => {
       .map((c) => (
       <tr key={c.id} style={c.status === 'Rechazado' ? { backgroundColor: '#fff5f5', borderLeft: '4px solid #ef4444' } : {}}>
         <td className="bold-folio" data-label="FOLIO">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <span>#{c.folio}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+            <span>{c.folio}</span>
+            {(() => {
+              const statusLower = String(c.status || '').toLowerCase();
+              if (statusLower.includes('rechazad')) {
+                return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fee2e2', color: '#ef4444', fontSize: '0.65rem', fontWeight: 'bold' }}>RECHAZADA</span>;
+              }
+              if (statusLower.includes('pagad') || statusLower.includes('pago en revisión')) {
+                return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#dcfce7', color: '#16a34a', fontSize: '0.65rem', fontWeight: 'bold' }}>PAGADA</span>;
+              }
+              if (statusLower.includes('aprobad') || statusLower === 'procesada por admin' || statusLower.includes('aceptad') || statusLower.includes('validado')) {
+                return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fef3c7', color: '#d97706', fontSize: '0.65rem', fontWeight: 'bold' }}>POR PAGAR</span>;
+              }
+              return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0284c7', fontSize: '0.65rem', fontWeight: 'bold' }}>PENDIENTE</span>;
+            })()}
             {c.propiedad_nombre && c.propiedad_nombre !== 'N/A' && (
-              <span style={{ fontSize: '0.78rem', color: '#f26624', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '0.78rem', color: '#f26624', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                 <Home size={12} /> {c.propiedad_nombre}
               </span>
             )}
