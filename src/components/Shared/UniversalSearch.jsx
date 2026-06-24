@@ -21,16 +21,16 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
         // ✅ A PRUEBA DE BALAS: Extraemos el estado, sea como sea que venga de la BD
         const estadoActual = String(item.estado || item.status || '').toLowerCase();
         
-        if (filtroActual === 'Pendiente') {
-          coincideFiltro = estadoActual === 'pendiente' || estadoActual === 'en proceso' || estadoActual.includes('admin') || estadoActual.includes('enviada');
-        } else if (filtroActual === 'Aprobado') {
+        if (filtroActual === 'Todas') {
+          coincideFiltro = true;
+        } else if (filtroActual === 'Por Pagar') {
           coincideFiltro = estadoActual.includes('aprobad') || 
-                           estadoActual.includes('procesada') || 
+                           estadoActual === 'procesada por admin' || 
                            estadoActual.includes('aceptad') || 
-                           estadoActual.includes('pago') || 
-                           estadoActual.includes('pagad') || 
                            estadoActual.includes('validado');
-        } else if (filtroActual === 'Rechazado') {
+        } else if (filtroActual === 'Pagadas') {
+          coincideFiltro = estadoActual.includes('pagad') || estadoActual.includes('pago');
+        } else if (filtroActual === 'Rechazadas') {
           coincideFiltro = estadoActual.includes('rechazad'); // Captura rechazado y rechazada
         }
       } else if (type === 'TECNICO_TABLERO') {
