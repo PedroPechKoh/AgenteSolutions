@@ -84,6 +84,7 @@ const VistaServiciosAdmin = () => {
         descripcion: item.description,
         evidencias: [item.evidence_path, item.evidence_path_2].filter(p => p),
         custom_checklist: item.custom_checklist,
+        batch_id: item.batch_id,
         scheduledAt: item.scheduled_at,
         isOverdue: (item.scheduled_at && !['Listo', 'Finalizado'].includes(item.status)) 
                    ? new Date(item.scheduled_at) < new Date() 
@@ -189,6 +190,24 @@ const VistaServiciosAdmin = () => {
     } catch (e) {
       alert("Error al actualizar el equipo de trabajo.");
       setTecnicosEquipo(tecnicosEquipo); // revert
+    } finally {
+      setProcesandoAccion(false);
+    }
+  };
+
+  const handleAssignBatch = async () => {
+    if (!window.confirm("¿Estás seguro de que deseas asignar este mismo equipo de trabajo a TODAS las solicitudes de este lote?")) return;
+    
+    setProcesandoAccion(true);
+    try {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/batch/${tareaSeleccionada.batch_id}/assign`, {
+        tecnicos_ids: tecnicosEquipo
+      });
+      alert("Equipo asignado a todo el lote correctamente.");
+      await fetchOrders();
+    } catch (e) {
+      console.error(e);
+      alert("Error al asignar equipo al lote completo.");
     } finally {
       setProcesandoAccion(false);
     }
@@ -544,6 +563,19 @@ const VistaServiciosAdmin = () => {
                           );
                         })}
                       </div>
+
+                      {tareaSeleccionada.batch_id && tecnicosEquipo.length > 0 && (
+                        <div style={{ marginTop: '12px' }}>
+                          <button 
+                            className="modal-action-btn"
+                            onClick={handleAssignBatch}
+                            disabled={procesandoAccion}
+                            style={{ background: '#0284c7', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', width: '100%', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                          >
+                            <span style={{ fontSize: '16px' }}>📦</span> ASIGNAR EQUIPO A TODO EL LOTE MÚLTIPLE
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     <div className="ts-schedule-block" style={{ marginTop: '15px' }}>

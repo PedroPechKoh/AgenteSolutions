@@ -213,6 +213,9 @@ const VistaDetallePropiedad = () => {
         const descFinal = `[${loteId}] (${index + 1}/${total})\n${descBase}`;
         
         formData.append('description', descFinal);
+        if (total > 1) {
+            formData.append('batch_id', loteId);
+        }
         
         item.fotos.forEach((foto, i) => {
           formData.append(`evidence_${i + 1}`, foto);
