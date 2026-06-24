@@ -1662,10 +1662,11 @@ const DetallePropiedad = () => {
               <div style={{ 
                 display: 'flex', 
                 overflowX: 'auto', 
-                background: 'white', 
-                padding: '12px 12px 0 12px', 
+                background: '#f8fafc', 
+                padding: '15px 15px 0 15px', 
                 borderBottom: '1px solid #e2e8f0',
-                gap: '8px'
+                gap: '8px',
+                alignItems: 'flex-end'
               }}>
                 {trabajoSeleccionado.batchTasks.map((t, index) => (
                   <button
@@ -1678,16 +1679,17 @@ const DetallePropiedad = () => {
                       borderColor: activeBatchTab === index ? '#e2e8f0 #e2e8f0 #f8fafc #e2e8f0' : 'transparent',
                       borderTopLeftRadius: '10px',
                       borderTopRightRadius: '10px',
-                      fontWeight: activeBatchTab === index ? 'bold' : '600',
+                      fontWeight: activeBatchTab === index ? '800' : '600',
                       color: activeBatchTab === index ? '#F26522' : '#64748b',
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       marginBottom: '-1px',
                       position: 'relative',
                       zIndex: activeBatchTab === index ? 1 : 0,
-                      fontSize: '0.8rem',
+                      fontSize: '0.85rem',
                       transition: 'all 0.2s',
-                      outline: 'none'
+                      outline: 'none',
+                      lineHeight: '1.2'
                     }}
                   >
                     Servicio {index + 1}
