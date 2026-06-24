@@ -32,6 +32,7 @@ const VistaServiciosAdmin = () => {
   const [showModalCotizacion, setShowModalCotizacion] = useState(false);
   const [cotizacionesData, setCotizacionesData] = useState([]);
   const [filtroFecha, setFiltroFecha] = useState('todas');
+  const [activeBatchTab, setActiveBatchTab] = useState(0);
   
   const columnasConfig = [
     { id: 'sos', titulo: 'SOS / PRIORITARIOS', color: '#e63946', icon: <AlertTriangle size={20} /> },
@@ -148,9 +149,14 @@ const VistaServiciosAdmin = () => {
   // --- ACCIONES ---
   const abrirModal = (tarea) => {
     setTareaSeleccionada(tarea);
+    setActiveBatchTab(0);
     setVerBitacora(false);
     setEditandoCita(false);
-    setTecnicosEquipo(tarea.tecnicosIds || (tarea.tecnicoId ? [tarea.tecnicoId] : []));
+    
+    // Si es un lote, tomar los técnicos de la primera tarea como base para mostrar en la UI
+    const baseTask = tarea.isBatch ? tarea.batchTasks[0] : tarea;
+    setTecnicosEquipo(baseTask.tecnicosIds || (baseTask.tecnicoId ? [baseTask.tecnicoId] : []));
+    
     setModalVisible(true);
   };
 
@@ -159,10 +165,11 @@ const VistaServiciosAdmin = () => {
     setTareaSeleccionada(null);
   };
 
-  const cambiarEstadoTarea = async (nuevoEstadoLaravel) => {
+  const cambiarEstadoTarea = async (nuevoEstadoLaravel, targetDbId = null) => {
     setProcesandoAccion(true);
+    const dbId = targetDbId || tareaSeleccionada.dbId;
     try {
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/status`, {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${dbId}/status`, {
         status: nuevoEstadoLaravel
       });
       await fetchOrders();
@@ -174,7 +181,7 @@ const VistaServiciosAdmin = () => {
     }
   };
 
-  const toggleTecnicoEquipo = async (id) => {
+  const toggleTecnicoEquipo = async (id, targetDbId = null) => {
     const isSelected = tecnicosEquipo.includes(id);
     const newEquipo = isSelected 
       ? tecnicosEquipo.filter(tid => tid !== id) 
@@ -182,8 +189,9 @@ const VistaServiciosAdmin = () => {
       
     setTecnicosEquipo(newEquipo);
     setProcesandoAccion(true);
+    const dbId = targetDbId || tareaSeleccionada.dbId;
     try {
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/assign`, {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${dbId}/assign`, {
         tecnicos_ids: newEquipo
       });
       await fetchOrders();
@@ -213,15 +221,16 @@ const VistaServiciosAdmin = () => {
     }
   };
 
-  const handleSaveSchedule = async (newDate, newTime) => {
+  const handleSaveSchedule = async (newDate, newTime, targetDbId = null) => {
     if (!newDate || !newTime) return alert("Por favor selecciona tanto la fecha como la hora de visita.");
     
     // Combinar fecha y hora para el backend
     const scheduledAt = `${newDate} ${newTime}`;
+    const dbId = targetDbId || tareaSeleccionada.dbId;
     
     setProcesandoAccion(true);
     try {
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/assign`, {
+      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${dbId}/assign`, {
         scheduled_at: scheduledAt
       });
       alert("Cita programada y cliente notificado correctamente.");
@@ -268,8 +277,65 @@ const VistaServiciosAdmin = () => {
     }
   };
 
+  const tareasAgrupadas = useMemo(() => {
+    const agrupadas = [];
+    const mapLotes = new Map();
+
+    tareasFiltradas.forEach(tarea => {
+      if (!tarea.batch_id) {
+        agrupadas.push({ ...tarea, isBatch: false });
+      } else {
+        if (!mapLotes.has(tarea.batch_id)) {
+          mapLotes.set(tarea.batch_id, {
+            ...tarea,
+            isBatch: true,
+            batchTasks: [tarea],
+            dbId: `batch_${tarea.batch_id}`,
+            titulo: `📦 TRABAJOS MÚLTIPLES (${tarea.batch_id})`
+          });
+          agrupadas.push(mapLotes.get(tarea.batch_id));
+        } else {
+          mapLotes.get(tarea.batch_id).batchTasks.push(tarea);
+        }
+      }
+    });
+
+    // Evaluar estados globales de los lotes y calcular el progreso
+    agrupadas.forEach(item => {
+      if (item.isBatch) {
+        let hasSos = false;
+        let hasUnassigned = false;
+        let hasTodo = false;
+        let hasProgress = false;
+        let listos = 0;
+
+        item.batchTasks.forEach(bt => {
+          if (bt.estado === 'sos') hasSos = true;
+          else if (bt.estado === 'unassigned') hasUnassigned = true;
+          else if (bt.estado === 'todo') hasTodo = true;
+          else if (bt.estado === 'progress') hasProgress = true;
+          else if (bt.estado === 'done') listos++;
+        });
+
+        // La peor prioridad dicta la columna del Kanban
+        if (hasSos) item.estado = 'sos';
+        else if (hasUnassigned) item.estado = 'unassigned';
+        else if (hasTodo) item.estado = 'todo';
+        else if (hasProgress) item.estado = 'progress';
+        else if (listos === item.batchTasks.length) item.estado = 'done';
+        else item.estado = 'todo'; // Por si acaso hay mezclados pero no en los anteriores
+
+        item.batchProgressText = `Trabajos listos: ${listos}/${item.batchTasks.length}`;
+        item.listosCount = listos;
+        item.totalCount = item.batchTasks.length;
+      }
+    });
+
+    return agrupadas;
+  }, [tareasFiltradas]);
+
   const renderColumna = (colId, titulo, clase) => {
-    let tareasFiltradasCol = tareasFiltradas.filter(t => t.estado === colId);
+    let tareasFiltradasCol = tareasAgrupadas.filter(t => t.estado === colId);
 
     if (colId === 'todo' && filtroFecha !== 'todas') {
       const hoy = new Date();
@@ -339,20 +405,31 @@ const VistaServiciosAdmin = () => {
                     {(tarea.estado === 'sos' || (tarea.estado === 'progress' && tarea.prioridad === 'SOS')) && <AlertTriangle size={14} className="sos-icon-inline" />}
                     {tarea.titulo}
                   </h5>
-                  {(() => {
-                    const loteMatch = tarea.descripcion ? tarea.descripcion.match(/\[LOTE-[A-Z0-9]+\] \(\d+\/\d+\)/) : null;
-                    if (loteMatch) {
-                      return (
-                        <div style={{ background: '#e0f2fe', color: '#0284c7', padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '10px', border: '1px solid #7dd3fc', width: 'fit-content' }}>
-                          <span style={{ fontSize: '12px' }}>📦</span> LISTADO MULTIPLE: {loteMatch[0]}
-                        </div>
-                      );
-                    }
-                    return null;
-                  })()}
+                  {tarea.isBatch ? (
+                    <div style={{ background: '#e0f2fe', color: '#0284c7', padding: '6px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '10px', border: '1px solid #7dd3fc', width: '100%' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ fontSize: '14px' }}>📦</span> LISTADO MÚLTIPLE
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: '#0369a1' }}>
+                        {tarea.batchProgressText}
+                      </div>
+                    </div>
+                  ) : (
+                    (() => {
+                      const loteMatch = tarea.descripcion ? tarea.descripcion.match(/\[LOTE-[A-Z0-9]+\] \(\d+\/\d+\)/) : null;
+                      if (loteMatch) {
+                        return (
+                          <div style={{ background: '#e0f2fe', color: '#0284c7', padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '10px', border: '1px solid #7dd3fc', width: 'fit-content' }}>
+                            <span style={{ fontSize: '12px' }}>📦</span> LISTADO MULTIPLE: {loteMatch[0]}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()
+                  )}
                   <div style={{ fontSize: '0.7rem', color: '#777', textAlign: 'left', marginBottom: '10px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <div><strong>Solicitado:</strong> {tarea.fechaSolicitud}</div>
-                    <div><strong>Solucionado:</strong> {tarea.fechaSolucion}</div>
+                    {!tarea.isBatch && <div><strong>Solucionado:</strong> {tarea.fechaSolucion}</div>}
                   </div>
                   <div className="card-status-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     {tarea.estado === 'done' ? (
@@ -492,29 +569,63 @@ const VistaServiciosAdmin = () => {
       })()}
 
       {modalVisible && tareaSeleccionada && (
+        (() => {
+          const activeTask = tareaSeleccionada.isBatch ? tareaSeleccionada.batchTasks[activeBatchTab] : tareaSeleccionada;
+          return (
         <div className="modal-view-overlay" onClick={cerrarModal}>
           <div className="modal-card-container" onClick={e => e.stopPropagation()}>
-            <div className={`modal-top-indicator ${verBitacora ? 'is-bitacora' : tareaSeleccionada.estado}`}>
+            <div className={`modal-top-indicator ${verBitacora ? 'is-bitacora' : activeTask.estado}`}>
                <div className="indicator-content">
                   {verBitacora && <ArrowLeft size={18} className="nav-back-icon" onClick={() => setVerBitacora(false)} />}
                   <span className="dot-blink"></span>
-                  {verBitacora ? 'DETALLES TÉCNICOS' : 'ORDEN DE TRABAJO'}
+                  {verBitacora ? 'DETALLES TÉCNICOS' : (tareaSeleccionada.isBatch ? 'ORDEN DE TRABAJO (LOTE)' : 'ORDEN DE TRABAJO')}
                </div>
                <button className="close-modal-btn" onClick={cerrarModal}><span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>✕</span></button>
             </div>
+
+            {tareaSeleccionada.isBatch && !verBitacora && (
+              <div style={{ display: 'flex', overflowX: 'auto', background: '#f5f5f5', padding: '10px 10px 0 10px', borderBottom: '1px solid #ddd' }}>
+                {tareaSeleccionada.batchTasks.map((t, index) => (
+                  <button
+                    key={t.dbId}
+                    onClick={() => {
+                       setActiveBatchTab(index);
+                       setTecnicosEquipo(t.tecnicosIds || (t.tecnicoId ? [t.tecnicoId] : []));
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      background: activeBatchTab === index ? 'white' : 'transparent',
+                      border: '1px solid',
+                      borderColor: activeBatchTab === index ? '#ddd #ddd transparent #ddd' : 'transparent',
+                      borderTopLeftRadius: '8px',
+                      borderTopRightRadius: '8px',
+                      fontWeight: activeBatchTab === index ? 'bold' : 'normal',
+                      color: activeBatchTab === index ? '#F26522' : '#666',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      marginBottom: '-1px',
+                      position: 'relative',
+                      zIndex: activeBatchTab === index ? 1 : 0
+                    }}
+                  >
+                    Servicio {index + 1}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="modal-inner-scroll">
                 {!verBitacora ? (
                   <div className="task-details-view">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#666', fontSize: '0.75rem', fontWeight: 'bold', marginBottom: '12px', background: '#f5f5f5', padding: '6px 12px', borderRadius: '8px', width: 'fit-content', border: '1px solid #eee' }}>
                       <Calendar size={14} />
-                      <span>FECHA REPORTE: {tareaSeleccionada.fechaInicio}</span>
+                      <span>FECHA REPORTE: {activeTask.fechaInicio}</span>
                     </div>
                     
-                    <div style={{ color: '#F26522', fontWeight: 'bold', marginBottom: '5px' }}>{tareaSeleccionada.propiedad}</div>
-                    <span className="wkf-id">WKF-ORD-{tareaSeleccionada.dbId}</span>
-                    <h3 className="task-main-heading" style={{ marginTop: '5px' }}>{tareaSeleccionada.descripcion}</h3>
-                    <p className="task-long-desc">{tareaSeleccionada.titulo}</p>
+                    <div style={{ color: '#F26522', fontWeight: 'bold', marginBottom: '5px' }}>{activeTask.propiedad}</div>
+                    <span className="wkf-id">WKF-ORD-{activeTask.dbId}</span>
+                    <h3 className="task-main-heading" style={{ marginTop: '5px' }}>{activeTask.descripcion}</h3>
+                    <p className="task-long-desc">{activeTask.titulo}</p>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '15px 0' }}>
                       <button className="modal-action-btn variant-orange" onClick={() => setVerBitacora(true)}>
@@ -599,78 +710,93 @@ const VistaServiciosAdmin = () => {
                               <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
                               <input 
                                 type="date" 
-                                defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toISOString().split('T')[0] : ''}
+                                defaultValue={activeTask.scheduledAt ? new Date(activeTask.scheduledAt).toISOString().split('T')[0] : ''}
                                 id="input-date-visit"
                                 onClick={(e) => !e.target.disabled && e.target.showPicker()}
-                                disabled={tareaSeleccionada.scheduledAt && !editandoCita}
+                                disabled={activeTask.scheduledAt && !editandoCita}
                                 style={{ 
                                   width: '100%', padding: '12px 10px 12px 30px', 
                                   border: '1px solid #ccc', borderRadius: '10px', 
-                                  outline: 'none', background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
-                                  color: '#333', fontWeight: '600', display: 'block', cursor: (tareaSeleccionada.scheduledAt && !editandoCita) ? 'default' : 'pointer'
+                                  outline: 'none', background: (activeTask.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
+                                  color: '#333', fontWeight: '600', display: 'block', cursor: (activeTask.scheduledAt && !editandoCita) ? 'default' : 'pointer'
                                 }}
                               />
                             </div>
-                            <div className="input-with-icon" style={{ flex: 0.7, position: 'relative' }}>
-                              <Timer size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
+                            <div className="input-with-icon" style={{ flex: 0.9, position: 'relative' }}>
+                              <Clock size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
                               <input 
                                 type="time" 
-                                defaultValue={tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toTimeString().slice(0, 5) : ''}
                                 id="input-time-visit"
+                                defaultValue={activeTask.scheduledAt ? new Date(activeTask.scheduledAt).toISOString().split('T')[1].substring(0,5) : ''}
                                 onClick={(e) => !e.target.disabled && e.target.showPicker()}
-                                disabled={tareaSeleccionada.scheduledAt && !editandoCita}
+                                disabled={activeTask.scheduledAt && !editandoCita}
                                 style={{ 
                                   width: '100%', padding: '12px 10px 12px 30px', 
                                   border: '1px solid #ccc', borderRadius: '10px', 
-                                  outline: 'none', background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
-                                  color: '#333', fontWeight: '600', display: 'block', cursor: (tareaSeleccionada.scheduledAt && !editandoCita) ? 'default' : 'pointer'
+                                  outline: 'none', background: (activeTask.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
+                                  color: '#333', fontWeight: '600', display: 'block', cursor: (activeTask.scheduledAt && !editandoCita) ? 'default' : 'pointer'
                                 }}
                               />
                             </div>
-                            <button 
-                              onClick={() => {
-                                if (tareaSeleccionada.scheduledAt && !editandoCita) {
-                                  setEditandoCita(true);
-                                } else {
-                                  const d = document.getElementById('input-date-visit').value;
-                                  const t = document.getElementById('input-time-visit').value;
-                                  handleSaveSchedule(d, t);
-                                }
-                              }}
-                              disabled={procesandoAccion}
-                              style={{ 
-                                background: (tareaSeleccionada.scheduledAt && !editandoCita) ? '#333' : '#F26522', 
-                                color: 'white', border: 'none', 
-                                borderRadius: '10px', padding: '10px 8px', fontWeight: '900', 
-                                cursor: 'pointer', fontSize: '0.65rem',
-                                flex: '0 0 auto',
-                                width: '90px'
-                              }}
-                            >
-                              {procesandoAccion ? '...' : (
-                                !tareaSeleccionada.scheduledAt ? 'PROGRAMAR' : (
-                                  editandoCita ? 'CONFIRMAR' : 'REPROGRAMAR'
-                                )
-                              )}
-                            </button>
                           </div>
-                          {tareaSeleccionada.scheduledAt && (
-                            <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#666', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                              <CheckCircle2 size={12} color="#2e7d32" /> Cita actual: {new Date(tareaSeleccionada.scheduledAt).toLocaleString('es-MX', { dateStyle: 'long', timeStyle: 'short' })}
-                            </div>
+                          
+                          {activeTask.scheduledAt && !editandoCita ? (
+                            <button 
+                              className="modal-action-btn"
+                              onClick={() => setEditandoCita(true)}
+                              style={{ background: '#333', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '10px', cursor: 'pointer' }}
+                            >
+                              <Calendar size={16} /> REPROGRAMAR VISITA
+                            </button>
+                          ) : (
+                            <button 
+                              className="modal-action-btn"
+                              onClick={() => handleSaveSchedule(document.getElementById('input-date-visit').value, document.getElementById('input-time-visit').value, activeTask.dbId)}
+                              disabled={procesandoAccion}
+                              style={{ background: '#F26522', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '10px', cursor: 'pointer' }}
+                            >
+                              {procesandoAccion ? 'GUARDANDO...' : 'GUARDAR Y NOTIFICAR'}
+                            </button>
                           )}
                         </div>
                       </div>
+                    </div>
 
+                    <div className="checklist-container" style={{ marginTop: '20px', background: 'white', border: '1px solid #eee', borderRadius: '12px', padding: '15px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                        <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#555', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <CheckCircle2 size={16} color="#1b8a5a"/> LISTA DE TAREAS / MATERIALES
+                        </label>
+                        <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333', padding: '5px 10px', fontSize: '0.7rem' }}>
+                          {activeTask.custom_checklist ? 'EDITAR' : 'ASIGNAR'}
+                        </button>
+                      </div>
+                      
+                      <div className="checklist-items" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {activeTask.custom_checklist && activeTask.custom_checklist.length > 0 ? (
+                          activeTask.custom_checklist.map((item, idx) => (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '8px', background: item.is_completed ? '#f0fdf4' : '#fcfcfc', border: `1px solid ${item.is_completed ? '#bbf7d0' : '#eee'}`, borderRadius: '8px' }}>
+                              <div style={{ color: item.is_completed ? '#1b8a5a' : '#ccc', marginTop: '2px' }}>
+                                {item.is_completed ? <CheckCircle2 size={18} /> : <Circle size={18} />}
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: '0.85rem', fontWeight: '600', color: item.is_completed ? '#1b8a5a' : '#333', textDecoration: item.is_completed ? 'line-through' : 'none' }}>
+                                  {item.text}
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div style={{ textAlign: 'center', padding: '20px', color: '#999', fontSize: '0.8rem', fontStyle: 'italic', background: '#fafafa', borderRadius: '8px' }}>
+                            Aún no se ha añadido ninguna lista de tareas.
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
-                      <button className="modal-action-btn variant-orange" onClick={() => setModalChecklistVisible(true)} style={{ background: '#333' }}>
-                        <CheckCircle2 size={18} /> {tareaSeleccionada.custom_checklist ? 'EDITAR CHECKLIST' : 'ASIGNAR CHECKLIST'}
-                      </button>
-
                       {(() => {
-                        const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId);
+                        const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === activeTask.dbId || q.service_id === activeTask.dbId);
                         
                         return (
                           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -709,23 +835,23 @@ const VistaServiciosAdmin = () => {
                     </div>
 
                     <div className="modal-main-action-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                      {tareaSeleccionada.estado === 'todo' || tareaSeleccionada.estado === 'unassigned' || tareaSeleccionada.estado === 'sos' ? (
-                        <button className="modal-action-btn variant-black" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('En Proceso')}>
+                      {activeTask.estado === 'todo' || activeTask.estado === 'unassigned' || activeTask.estado === 'sos' ? (
+                        <button className="modal-action-btn variant-black" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('En Proceso', activeTask.dbId)}>
                           <Timer size={18} /> {procesandoAccion ? 'Actualizando...' : 'INICIAR TRABAJO'}
                         </button>
-                      ) : tareaSeleccionada.estado === 'progress' ? (
-                        <button className="modal-action-btn variant-green" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('Listo')}>
+                      ) : activeTask.estado === 'progress' ? (
+                        <button className="modal-action-btn variant-green" disabled={procesandoAccion} onClick={() => cambiarEstadoTarea('Listo', activeTask.dbId)}>
                           <CheckCircle2 size={18} /> {procesandoAccion ? 'Finalizando...' : 'MARCAR COMO LISTO'}
                         </button>
                       ) : null}
 
-                      {tareaSeleccionada.estado !== 'rejected' && (
+                      {activeTask.estado !== 'rejected' && (
                         <button 
                           className="modal-action-btn" 
                           disabled={procesandoAccion} 
                           onClick={() => {
                             if (window.confirm('¿Estás seguro de que deseas cancelar este servicio? Se moverá al apartado de rechazados.')) {
-                              cambiarEstadoTarea('Rechazado');
+                              cambiarEstadoTarea('Rechazado', activeTask.dbId);
                             }
                           }}
                           style={{ background: '#dc2626', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', border: 'none', padding: '12px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}
@@ -734,10 +860,10 @@ const VistaServiciosAdmin = () => {
                         </button>
                       )}
 
-                      {tareaSeleccionada.estado === 'done' && (
+                      {activeTask.estado === 'done' && (
                         <button 
                           className="modal-action-btn variant-orange" 
-                          onClick={() => navigate(`/galeria-reportes/${tareaSeleccionada.dbId}`, { state: { trabajoId: tareaSeleccionada.dbId, servicio: tareaSeleccionada } })}
+                          onClick={() => navigate(`/galeria-reportes/${activeTask.dbId}`, { state: { trabajoId: activeTask.dbId, servicio: activeTask } })}
                           style={{ background: '#f26624', marginTop: '10px' }}
                         >
                           <Camera size={18} /> CONSULTAR REPORTE DE TRABAJO
@@ -751,8 +877,8 @@ const VistaServiciosAdmin = () => {
                       <h6 className="section-label"><Layout size={14} /> ESTATUS ACTUAL</h6>
                       <div className="checklist-minimal">
                         <div className="check-row done"><CheckCircle2 size={16}/> Registro de solicitud</div>
-                        <div className={`check-row ${tareaSeleccionada.estado === 'progress' ? 'current' : tareaSeleccionada.estado === 'done' ? 'done' : ''}`}>
-                          {tareaSeleccionada.estado === 'done' ? <CheckCircle2 size={16}/> : <Clock size={16}/>} 
+                        <div className={`check-row ${activeTask.estado === 'progress' ? 'current' : activeTask.estado === 'done' ? 'done' : ''}`}>
+                          {activeTask.estado === 'done' ? <CheckCircle2 size={16}/> : <Clock size={16}/>} 
                           Ejecución en sitio
                         </div>
                       </div>
@@ -760,20 +886,22 @@ const VistaServiciosAdmin = () => {
                     <div className="media-area">
                       <h6 className="section-label"><Camera size={14} /> EVIDENCIAS ENVIADAS</h6>
                       <div className="evidence-grid">
-                        {tareaSeleccionada.evidencias.map((img, i) => (
+                        {activeTask.evidencias.map((img, i) => (
                           <div key={i} className="evidence-card" onClick={() => setImagenExpandida(img)}>
                             <img src={img} alt="Evidencia" />
                             <div className="evidence-overlay"><Maximize2 size={16} /></div>
                           </div>
                         ))}
                       </div>
-                      {tareaSeleccionada.evidencias.length === 0 && <p style={{ color: '#999', fontSize: '0.9rem' }}>No hay evidencias adjuntas.</p>}
+                      {activeTask.evidencias.length === 0 && <p style={{ color: '#999', fontSize: '0.9rem' }}>No hay evidencias adjuntas.</p>}
                     </div>
                   </div>
                 )}
             </div>
           </div>
         </div>
+          );
+        })()
       )}
 
       {modalSurveyVisible && (
