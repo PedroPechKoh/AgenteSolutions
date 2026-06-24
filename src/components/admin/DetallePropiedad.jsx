@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../../styles/Cliente/DetallePr.css';
@@ -23,6 +23,7 @@ const DetallePropiedad = () => {
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
   const [emergenciaACotizar, setEmergenciaACotizar] = useState(null);
   const [isModalHistorialOpen, setIsModalHistorialOpen] = useState(false);
+  const [activeBatchTab, setActiveBatchTab] = useState(0);
   const [trabajoSeleccionado, setTrabajoSeleccionado] = useState(null);
   
   // Modales de chat y detalle cotización
@@ -230,6 +231,7 @@ const DetallePropiedad = () => {
           prioridad: w.priority || "ALTA",
           descripcion: w.description || "",
           estado: mapEstado(w.status, w.priority, w.type),
+          batch_id: w.batch_id,
           evidencias: [w.evidence_path, w.evidence_path_2].filter(Boolean)
         }));
 
@@ -652,6 +654,62 @@ const DetallePropiedad = () => {
     );
   }
 
+  const tareasAgrupadas = useMemo(() => {
+    const grupos = {};
+    const resultado = [];
+
+    colaTrabajos.forEach(tarea => {
+      if (tarea.batch_id) {
+        if (!grupos[tarea.batch_id]) {
+          grupos[tarea.batch_id] = {
+            ...tarea,
+            id: `batch-${tarea.batch_id}`,
+            isBatch: true,
+            batchTasks: [tarea],
+            batchProgressText: "Trabajos listos: 0/1",
+            producto: "📦 TRABAJOS MÚLTIPLES EN LA PROPIEDAD"
+          };
+          resultado.push(grupos[tarea.batch_id]);
+        } else {
+          grupos[tarea.batch_id].batchTasks.push(tarea);
+        }
+      } else {
+        tarea.isBatch = false;
+        resultado.push(tarea);
+      }
+    });
+
+    Object.values(grupos).forEach(grupo => {
+      const listos = grupo.batchTasks.filter(t => t.estado === 'FINALIZADO').length;
+      const total = grupo.batchTasks.length;
+      grupo.batchProgressText = `Trabajos listos: ${listos}/${total}`;
+      
+      if (total === 1) {
+        grupo.isBatch = false;
+        grupo.producto = grupo.batchTasks[0].producto;
+      }
+      
+      const order = { 'SOS': 1, 'ESPERANDO': 2, 'PENDIENTE': 3, 'EN PROCESO': 4, 'FINALIZADO': 5 };
+      grupo.estado = grupo.batchTasks.reduce((prev, curr) => {
+        return order[curr.estado] < order[prev] ? curr.estado : prev;
+      }, 'FINALIZADO');
+    });
+
+    return resultado;
+  }, [colaTrabajos]);
+
+  useEffect(() => {
+    if (isModalHistorialOpen && trabajoSeleccionado && trabajoSeleccionado.isBatch) {
+      const currentTask = trabajoSeleccionado.batchTasks[activeBatchTab];
+      if (currentTask) {
+        fetchDetalleTrabajo(currentTask);
+        // Resetea a isBatch de nuevo, pues fetchDetalleTrabajo(currentTask) lo sobrescribe,
+        // esto asegura que se vuelva a renderizar la vista con el batch
+        setTrabajoSeleccionado(trabajoSeleccionado);
+      }
+    }
+  }, [activeBatchTab, isModalHistorialOpen, trabajoSeleccionado]);
+
   const cotizacionesPagadas = cotizaciones.filter(c => 
     String(c.status || '').toLowerCase().includes('pagad') || 
     String(c.status || '').toLowerCase() === 'pagado'
@@ -749,7 +807,7 @@ const DetallePropiedad = () => {
                         {ownerName.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span style={{ fontWeight: '600', color: '#333' }}>{ownerName}</span>
+                    <span style={{ fontWeight: '600', color: '#334155' }}>{ownerName}</span>
                   </div>
                 );
               } else if (isSharedByOwner) {
@@ -862,22 +920,54 @@ const DetallePropiedad = () => {
                         </span>
                         {estado === 'SOS' ? 'SOS ACTIVO' : estado === 'ESPERANDO' ? 'POR AUTORIZAR' : estado === 'PENDIENTE' ? 'POR HACER' : estado}
                       </span>
-                      <span>{colaTrabajos.filter(t=>t.estado === estado).length}</span>
+                      <span>{tareasAgrupadas.filter(t=>t.estado === estado).length}</span>
                     </div>
                     <div className={`k-body ${isOpen ? 'is-open' : 'is-closed'}`}>
-                      {colaTrabajos.filter(t => t.estado === estado).length === 0 ? (
+                      {tareasAgrupadas.filter(t => t.estado === estado).length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '30px 10px', color: '#94a3b8', fontSize: '0.85rem', fontStyle: 'italic' }}>
                           Sin trabajos en este estado
                         </div>
                       ) : (
-                        colaTrabajos.filter(t => t.estado === estado).map(t => (
+                        tareasAgrupadas.filter(t => t.estado === estado).map(t => (
                           <div 
                             key={t.id} 
                             className={`k-card ${estado === 'SOS' ? 'card-sos-active' : estado === 'ESPERANDO' ? 'card-waiting-client' : ''} animate-fade-in`}
-                            onClick={() => fetchDetalleTrabajo(t)}
+                            onClick={() => {
+                              setActiveBatchTab(0);
+                              setTrabajoSeleccionado(t);
+                              setIsModalHistorialOpen(true);
+                              if (!t.isBatch) {
+                                fetchDetalleTrabajo(t);
+                              } else {
+                                fetchDetalleTrabajo(t.batchTasks[0]);
+                                setTrabajoSeleccionado(t);
+                              }
+                            }}
                             style={{ cursor: 'pointer' }}
                             title="Ver detalles del servicio"
                           >
+                            {t.isBatch ? (
+                              <div style={{ background: '#e0f2fe', color: '#0284c7', padding: '6px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '10px', border: '1px solid #7dd3fc', width: '100%' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                  <span style={{ fontSize: '14px' }}>📦</span> LISTADO MÚLTIPLE
+                                </div>
+                                <div style={{ fontSize: '0.7rem', color: '#0369a1' }}>
+                                  {t.batchProgressText}
+                                </div>
+                              </div>
+                            ) : (
+                              (() => {
+                                const loteMatch = t.descripcion ? t.descripcion.match(/\[LOTE-[A-Z0-9]+\] \((\d+)\/(\d+)\)/) : null;
+                                if (loteMatch && loteMatch[2] !== '1') {
+                                  return (
+                                    <div style={{ background: '#e0f2fe', color: '#0284c7', padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '10px', border: '1px solid #7dd3fc', width: 'fit-content' }}>
+                                      <span style={{ fontSize: '12px' }}>📦</span> LISTADO MULTIPLE: {loteMatch[0]}
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })()
+                            )}
                             <h4>{t.producto}</h4>
                             {t.descripcion && (
                               <p style={{ fontSize: '0.85em', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>
@@ -1554,22 +1644,65 @@ const DetallePropiedad = () => {
       {/* MODAL DETALLE HISTORIAL (BITÁCORA) */}
       {isModalHistorialOpen && trabajoSeleccionado && (
         <div className="modal-overlay-ui" onClick={() => setIsModalHistorialOpen(false)}>
-          <div className="modal-card-ui report-modal animate-fade-in" onClick={e => e.stopPropagation()} style={{ width: '850px', maxWidth: '95vw' }}>
-            <div className="modal-header-premium" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' }}>
-              <div className="header-content">
-                <div className="icon-badge-white"><Eye size={22} /></div>
+          <div className="modal-card-container" onClick={e => e.stopPropagation()} style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', background: '#fff', borderRadius: '28px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className="modal-top-indicator" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', display: 'flex', justifyContent: 'space-between', padding: '14px 22px', alignItems: 'center' }}>
+              <div className="indicator-content" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'white', fontWeight: 'bold' }}>
+                <Eye size={22} />
                 <div>
-                  <h3 style={{ color: 'white' }}>Detalles de Servicio</h3>
-                  <span style={{ color: '#cbd5e1' }}>{trabajoSeleccionado.producto} • Finalizado el {trabajoSeleccionado.fecha}</span>
+                  <h3 style={{ color: 'white', margin: 0 }}>Detalles de Servicio</h3>
+                  <span style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>{trabajoSeleccionado.isBatch ? 'ORDEN DE TRABAJO (LOTE)' : (trabajoSeleccionado.producto + ' • Finalizado el ' + trabajoSeleccionado.fecha)}</span>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <button className="btn-close-light" onClick={() => setIsModalHistorialOpen(false)}><X size={20}/></button>
+                <button className="btn-close-light" onClick={() => setIsModalHistorialOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={20}/></button>
               </div>
             </div>
 
-            <div className="modal-body modern-body" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
-              
+            {trabajoSeleccionado.isBatch && (
+              <div style={{ 
+                display: 'flex', 
+                overflowX: 'auto', 
+                background: 'white', 
+                padding: '12px 12px 0 12px', 
+                borderBottom: '1px solid #e2e8f0',
+                gap: '8px'
+              }}>
+                {trabajoSeleccionado.batchTasks.map((t, index) => (
+                  <button
+                    key={t.dbId || index}
+                    onClick={() => setActiveBatchTab(index)}
+                    style={{
+                      padding: '10px 18px',
+                      background: activeBatchTab === index ? '#f8fafc' : 'white',
+                      border: '1px solid',
+                      borderColor: activeBatchTab === index ? '#e2e8f0 #e2e8f0 #f8fafc #e2e8f0' : 'transparent',
+                      borderTopLeftRadius: '10px',
+                      borderTopRightRadius: '10px',
+                      fontWeight: activeBatchTab === index ? 'bold' : '600',
+                      color: activeBatchTab === index ? '#F26522' : '#64748b',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      marginBottom: '-1px',
+                      position: 'relative',
+                      zIndex: activeBatchTab === index ? 1 : 0,
+                      fontSize: '0.8rem',
+                      transition: 'all 0.2s',
+                      outline: 'none'
+                    }}
+                  >
+                    Servicio {index + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="modal-inner-scroll" style={{ padding: '28px', overflowY: 'auto', flex: 1 }}>
+              {(() => {
+                const activeTask = trabajoSeleccionado.isBatch ? trabajoSeleccionado.batchTasks[activeBatchTab] : trabajoSeleccionado;
+                if(!activeTask) return null;
+                
+                return (
+                  <>
               <div className="info-grid" style={{ marginBottom: '30px' }}>
                 <div className="info-item-card">
                   <div className="item-icon"><User size={18} /></div>
@@ -1585,7 +1718,7 @@ const DetallePropiedad = () => {
                 </div>
                 <div className="info-item-card">
                   <div className="item-icon"><User size={18} /></div>
-                  <div className="item-details"><label>Técnico Responsable</label><p>{trabajoSeleccionado.tecnico}</p></div>
+                  <div className="item-details"><label>Técnico Responsable</label><p>{activeTask.tecnico}</p></div>
                 </div>
               </div>
 
@@ -1594,9 +1727,9 @@ const DetallePropiedad = () => {
                 <button 
                   className="btn-primary-ui" 
                   onClick={() => {
-                    const paramId = trabajoSeleccionado.tipo_registro === 'work_order' 
-                      ? `work_order-${trabajoSeleccionado.realId}` 
-                      : `servicio-${trabajoSeleccionado.realId || trabajoSeleccionado.id}`;
+                    const paramId = activeTask.tipo_registro === 'work_order' 
+                      ? `work_order-${activeTask.realId}` 
+                      : `servicio-${activeTask.realId || activeTask.id}`;
                     navigate(`/reporte-trabajo-admin/${paramId}`);
                   }}
                   style={{ flex: 1, background: '#3b82f6', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(59, 130, 246, 0.2)' }}
@@ -1609,10 +1742,10 @@ const DetallePropiedad = () => {
                   onClick={() => {
                     // Buscar la cotización vinculada en el estado local de cotizaciones
                     let cotVinculada = null;
-                    if (trabajoSeleccionado.tipo_registro === 'work_order') {
-                      cotVinculada = cotizaciones.find(c => String(c.raw?.work_order_id) === String(trabajoSeleccionado.realId));
+                    if (activeTask.tipo_registro === 'work_order') {
+                      cotVinculada = cotizaciones.find(c => String(c.raw?.work_order_id) === String(activeTask.realId));
                     } else {
-                      cotVinculada = cotizaciones.find(c => String(c.raw?.service_id) === String(trabajoSeleccionado.realId));
+                      cotVinculada = cotizaciones.find(c => String(c.raw?.service_id) === String(activeTask.realId));
                     }
 
                     if (cotVinculada) {
@@ -1636,13 +1769,13 @@ const DetallePropiedad = () => {
               </div>
 
               {/* Sección de Evidencias Generales */}
-              {trabajoSeleccionado.evidencias && trabajoSeleccionado.evidencias.length > 0 && (
+              {activeTask.evidencias && activeTask.evidencias.length > 0 && (
                 <div style={{ marginBottom: '30px' }}>
                   <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', color: '#1e293b' }}>
                     <ImageIcon size={20} /> EVIDENCIAS DEL TRABAJO
                   </h4>
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    {trabajoSeleccionado.evidencias.map((img, imgIdx) => (
+                    {activeTask.evidencias.map((img, imgIdx) => (
                       <img 
                         key={imgIdx} 
                         src={img} 
@@ -1708,6 +1841,9 @@ const DetallePropiedad = () => {
                   <p style={{ margin: 0, color: '#64748b', fontStyle: 'italic' }}>El técnico no registró pasos detallados para este servicio.</p>
                 </div>
               )}
+            </>
+                );
+              })()}
             </div>
           </div>
         </div>
