@@ -999,6 +999,38 @@ const VistaCotizaciones = () => {
                       </button>
                     )}
 
+                    {(() => {
+                      if (esCliente || esTecnico) return null;
+                      const cotHija = cotizaciones.find(c => String(c.parent_id) === String(cotizacionSeleccionada.id));
+                      if (cotHija) {
+                        return (
+                          <button 
+                            className="btn-modal-print" 
+                            style={{ background: '#3b82f6', color: 'white', fontWeight: 'bold', flex: 1, textAlign: 'center', minWidth: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} 
+                            onClick={() => {
+                              setCotizacionSeleccionada(cotHija);
+                            }}
+                          >
+                            👁️ VER COTIZACIÓN NUEVA O ACTUALIZADA
+                          </button>
+                        );
+                      } else {
+                        return (
+                          <button 
+                            className="btn-modal-print" 
+                            style={{ background: '#3b82f6', color: 'white', fontWeight: 'bold', flex: 1, textAlign: 'center', minWidth: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} 
+                            onClick={() => {
+                              setCotizacionParaAsignar({ ...cotizacionSeleccionada, isDerived: true });
+                              setCotizacionSeleccionada(null);
+                              setShowCreateModal(true);
+                            }}
+                          >
+                            ➕ GENERAR COTIZACIÓN DERIVADA
+                          </button>
+                        );
+                      }
+                    })()}
+
                     {cotizacionSeleccionada.type !== 'archivo' && (
                       <button className="btn-modal-print" style={{ background: '#F26522', color: 'white', border: 'none', flex: 1, textAlign: 'center', fontWeight: 'bold', minWidth: '150px' }} onClick={handleImprimirPDF}>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '5px' }}>

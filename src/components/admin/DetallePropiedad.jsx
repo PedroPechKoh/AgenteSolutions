@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Logo3 from '../../assets/Logo3.png';
+import CreateQuotationModal from './CreateQuotationModal';
 
 const DetallePropiedad = () => {
   const { id } = useParams();
@@ -32,6 +33,10 @@ const DetallePropiedad = () => {
   const [isModalCotizacionDetailOpen, setIsModalCotizacionDetailOpen] = useState(false);
   const [cotizacionDetail, setCotizacionDetail] = useState(null);
   const [imagenAmpliada, setImagenAmpliada] = useState(null);
+  
+  // Modal de Crear Cotizacion
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [cotizacionParaAsignar, setCotizacionParaAsignar] = useState(null);
 
   // DATOS DE LA PROPIEDAD
   const [datosPropiedad, setDatosPropiedad] = useState({
@@ -2277,6 +2282,34 @@ const DetallePropiedad = () => {
                       <FileText size={20} /> VER PDF
                     </button>
                   )}
+                  {(() => {
+                    const cotHija = cotizaciones.find(c => String(c.parent_id) === String(cotRaw.id));
+                    if (cotHija) {
+                      return (
+                        <button 
+                          onClick={() => {
+                            setCotizacionDetail(cotHija);
+                          }}
+                          style={{ flex: 1, background: '#3b82f6', color: 'white', padding: '14px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)' }}
+                        >
+                          👁️ VER COTIZACIÓN NUEVA O ACTUALIZADA
+                        </button>
+                      );
+                    } else {
+                      return (
+                        <button 
+                          onClick={() => {
+                            setCotizacionParaAsignar({ ...cotRaw, isDerived: true });
+                            setIsModalCotizacionDetailOpen(false);
+                            setShowCreateModal(true);
+                          }}
+                          style={{ flex: 1, background: '#3b82f6', color: 'white', padding: '14px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)' }}
+                        >
+                          ➕ GENERAR COTIZACIÓN DERIVADA
+                        </button>
+                      );
+                    }
+                  })()}
                   <button 
                     onClick={() => setIsModalCotizacionDetailOpen(false)}
                     style={{ flex: 1, background: '#1e293b', color: 'white', padding: '14px', borderRadius: '12px', border: 'none', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -2381,6 +2414,22 @@ const DetallePropiedad = () => {
           </div>
         </div>
       )}
+    {showCreateModal && (
+      <CreateQuotationModal 
+        prefillData={cotizacionParaAsignar}
+        onClose={() => {
+          setShowCreateModal(false);
+          setCotizacionParaAsignar(null);
+        }}
+        onSuccess={() => {
+          setShowCreateModal(false);
+          setCotizacionParaAsignar(null);
+          // fetch data again
+          // since fetchDashboardData isn't exposed globally we might just refresh
+          window.location.reload();
+        }}
+      />
+    )}
     </div>
   );
 };

@@ -146,7 +146,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
       let endpoint = `${import.meta.env.VITE_API_BASE_URL}/cotizaciones`;
       let successMsg = "¡Cotización creada y enviada al cliente exitosamente!";
 
-      if (prefillData?.status === 'Rechazado') {
+      if (prefillData?.status === 'Rechazado' && !prefillData?.isDerived) {
         endpoint = `${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${prefillData.id}/update`;
         successMsg = "¡Cotización actualizada y reenviada al cliente!";
       }
@@ -174,7 +174,9 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
         <div className="modal-header-dark">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Calculator size={24} color="#ff8800" />
-            <h2 className="cotiz-modal-title" style={{ margin: 0, fontSize: '1.2rem' }}>NUEVA COTIZACIÓN - ADMIN</h2>
+            <h2 className="cotiz-modal-title" style={{ margin: 0, fontSize: '1.2rem' }}>
+              {prefillData?.isDerived ? `NUEVA COTIZACIÓN DERIVADA DE #${prefillData.folio || prefillData.id}` : 'NUEVA COTIZACIÓN - ADMIN'}
+            </h2>
           </div>
           <button className="modal-close-icon" onClick={onClose}><X size={28} /></button>
         </div>
