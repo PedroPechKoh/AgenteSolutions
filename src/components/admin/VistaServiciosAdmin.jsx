@@ -298,25 +298,29 @@ const VistaServiciosAdmin = () => {
         let hasProgress = false;
         let listos = 0;
 
-        item.batchTasks.forEach(bt => {
-          if (bt.estado === 'sos') hasSos = true;
-          else if (bt.estado === 'unassigned') hasUnassigned = true;
-          else if (bt.estado === 'todo') hasTodo = true;
-          else if (bt.estado === 'progress') hasProgress = true;
-          else if (bt.estado === 'done') listos++;
-        });
+        if (item.batchTasks.length === 1) {
+          item.isBatch = false;
+        } else {
+          item.batchTasks.forEach(bt => {
+            if (bt.estado === 'sos') hasSos = true;
+            else if (bt.estado === 'unassigned') hasUnassigned = true;
+            else if (bt.estado === 'todo') hasTodo = true;
+            else if (bt.estado === 'progress') hasProgress = true;
+            else if (bt.estado === 'done') listos++;
+          });
 
-        // La peor prioridad dicta la columna del Kanban
-        if (hasSos) item.estado = 'sos';
-        else if (hasUnassigned) item.estado = 'unassigned';
-        else if (hasTodo) item.estado = 'todo';
-        else if (hasProgress) item.estado = 'progress';
-        else if (listos === item.batchTasks.length) item.estado = 'done';
-        else item.estado = 'todo'; // Por si acaso hay mezclados pero no en los anteriores
+          // La peor prioridad dicta la columna del Kanban
+          if (hasSos) item.estado = 'sos';
+          else if (hasUnassigned) item.estado = 'unassigned';
+          else if (hasTodo) item.estado = 'todo';
+          else if (hasProgress) item.estado = 'progress';
+          else if (listos === item.batchTasks.length) item.estado = 'done';
+          else item.estado = 'todo'; // Por si acaso hay mezclados pero no en los anteriores
 
-        item.batchProgressText = `Trabajos listos: ${listos}/${item.batchTasks.length}`;
-        item.listosCount = listos;
-        item.totalCount = item.batchTasks.length;
+          item.batchProgressText = `Trabajos listos: ${listos}/${item.batchTasks.length}`;
+          item.listosCount = listos;
+          item.totalCount = item.batchTasks.length;
+        }
       }
     });
 
@@ -416,8 +420,8 @@ const VistaServiciosAdmin = () => {
                     </div>
                   ) : (
                     (() => {
-                      const loteMatch = tarea.descripcion ? tarea.descripcion.match(/\[LOTE-[A-Z0-9]+\] \(\d+\/\d+\)/) : null;
-                      if (loteMatch) {
+                      const loteMatch = tarea.descripcion ? tarea.descripcion.match(/\[LOTE-[A-Z0-9]+\] \((\d+)\/(\d+)\)/) : null;
+                      if (loteMatch && loteMatch[2] !== '1') {
                         return (
                           <div style={{ background: '#e0f2fe', color: '#0284c7', padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '4px', marginBottom: '10px', border: '1px solid #7dd3fc', width: 'fit-content' }}>
                             <span style={{ fontSize: '12px' }}>📦</span> LISTADO MULTIPLE: {loteMatch[0]}
@@ -584,7 +588,14 @@ const VistaServiciosAdmin = () => {
             </div>
 
             {tareaSeleccionada.isBatch && !verBitacora && (
-              <div style={{ display: 'flex', overflowX: 'auto', background: '#f5f5f5', padding: '10px 10px 0 10px', borderBottom: '1px solid #ddd' }}>
+              <div style={{ 
+                display: 'flex', 
+                overflowX: 'auto', 
+                background: 'white', 
+                padding: '12px 12px 0 12px', 
+                borderBottom: '1px solid #e2e8f0',
+                gap: '8px'
+              }}>
                 {tareaSeleccionada.batchTasks.map((t, index) => (
                   <button
                     key={t.dbId}
@@ -593,19 +604,22 @@ const VistaServiciosAdmin = () => {
                        setTecnicosEquipo(t.tecnicosIds || (t.tecnicoId ? [t.tecnicoId] : []));
                     }}
                     style={{
-                      padding: '8px 16px',
-                      background: activeBatchTab === index ? 'white' : 'transparent',
+                      padding: '10px 18px',
+                      background: activeBatchTab === index ? '#f8fafc' : 'white',
                       border: '1px solid',
-                      borderColor: activeBatchTab === index ? '#ddd #ddd transparent #ddd' : 'transparent',
-                      borderTopLeftRadius: '8px',
-                      borderTopRightRadius: '8px',
-                      fontWeight: activeBatchTab === index ? 'bold' : 'normal',
-                      color: activeBatchTab === index ? '#F26522' : '#666',
+                      borderColor: activeBatchTab === index ? '#e2e8f0 #e2e8f0 #f8fafc #e2e8f0' : 'transparent',
+                      borderTopLeftRadius: '10px',
+                      borderTopRightRadius: '10px',
+                      fontWeight: activeBatchTab === index ? 'bold' : '600',
+                      color: activeBatchTab === index ? '#F26522' : '#64748b',
                       cursor: 'pointer',
                       whiteSpace: 'nowrap',
                       marginBottom: '-1px',
                       position: 'relative',
-                      zIndex: activeBatchTab === index ? 1 : 0
+                      zIndex: activeBatchTab === index ? 1 : 0,
+                      fontSize: '0.8rem',
+                      transition: 'all 0.2s',
+                      outline: 'none'
                     }}
                   >
                     Servicio {index + 1}
