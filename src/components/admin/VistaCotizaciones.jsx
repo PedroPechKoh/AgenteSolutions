@@ -169,7 +169,11 @@ const VistaCotizaciones = () => {
       }
     } catch(e) {}
     let base = subtotalItems > 0 ? subtotalItems : parseFloat(cot.total || 0);
-    if (esCliente && base > 0) {
+    if (base > 0) {
+      const statusLower = String(cot.status || '').toLowerCase();
+      if (cot.cash_requested || statusLower.includes('efectivo')) {
+        return base * 1.16;
+      }
       const iva = base * 0.16;
       const subConIva = base + iva;
       const comisionMP = (subConIva * 0.0349 + 4) * 1.16;
@@ -839,7 +843,8 @@ const VistaCotizaciones = () => {
                   
                   const iva = subtotalItems * 0.16;
                   const subtotalConIva = subtotalItems + iva;
-                  const comisionMP = (subtotalConIva * 0.0349 + 4) * 1.16;
+                  const esEfectivo = cotizacionSeleccionada.cash_requested || String(cotizacionSeleccionada.status || '').toLowerCase().includes('efectivo');
+                  const comisionMP = esEfectivo ? 0 : ((subtotalConIva * 0.0349 + 4) * 1.16);
                   const totalCalc = subtotalItems > 0 ? (subtotalConIva + comisionMP) : parseFloat(cotizacionSeleccionada.total || 0);
 
                   return (
@@ -858,7 +863,7 @@ const VistaCotizaciones = () => {
                               <span style={{ fontWeight: 'bold' }}>${iva.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
-                          {!esCliente && (
+                          {!esCliente && !esEfectivo && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '12px', color: '#009ee3', alignItems: 'center' }}>
                               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <img src={mpLogo} alt="MP" style={{ height: '14px', objectFit: 'contain' }} /> Comisión (T. Oficial):
