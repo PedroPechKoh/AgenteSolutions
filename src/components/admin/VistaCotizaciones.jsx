@@ -1114,7 +1114,7 @@ const VistaCotizaciones = () => {
                   })()}
 
                   {/* Sección: Saldo Pendiente del 40% */}
-                  {((cotizacionSeleccionada.advance_paid || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo') || cotizacionSeleccionada.cash_amount_type === 'advance') && !cotizacionSeleccionada.remaining_paid) && (() => {
+                  {((cotizacionSeleccionada.advance_paid || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo') || cotizacionSeleccionada.cash_amount_type === 'advance') && !cotizacionSeleccionada.remaining_paid && !(cotizacionSeleccionada.cash_requested && !cotizacionSeleccionada.cash_confirmed && cotizacionSeleccionada.cash_amount_type === 'remaining')) && (() => {
                     const montoRestante = parseFloat(cotizacionSeleccionada.remaining_amount) || (calcularMontoFinalNum(cotizacionSeleccionada) * 0.40);
                     return (
                       <div style={{ width: '100%', marginBottom: '20px', border: '2px solid #ea580c', borderRadius: '14px', overflow: 'hidden' }}>
@@ -1165,11 +1165,33 @@ const VistaCotizaciones = () => {
 
                   {/* Banner: Pago en Efectivo Solicitado — Visible para Admin y Cliente */}
                   {((cotizacionSeleccionada.cash_requested && !cotizacionSeleccionada.cash_confirmed) || String(cotizacionSeleccionada.status || '').toLowerCase().includes('efectivo solicitado')) && (() => {
-                    const amountLabel = cotizacionSeleccionada.cash_amount_type === 'advance' ? 'Anticipo (60%)' : 'Total (100%)';
+                    const amountLabel = cotizacionSeleccionada.cash_amount_type === 'advance' ? 'Anticipo (60%)' : cotizacionSeleccionada.cash_amount_type === 'remaining' ? 'Saldo Restante (40%)' : 'Total (100%)';
                     const timingLabel = cotizacionSeleccionada.cash_timing === 'immediate' ? 'de forma INMEDIATA' : 'AL FINALIZAR EL TRABAJO';
+                    
+                    const calcularMontoEfectivoBanner = (cot) => {
+                      if (!cot) return 0;
+                      let subtotalItems = 0;
+                      try {
+                        const rawConcept = cot.concept || cot.concepto;
+                        const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
+                        if (detalle && typeof detalle === 'object') {
+                          const listado = detalle.conceptos || detalle.servicios || [];
+                          listado.forEach(c => subtotalItems += (parseFloat(c.precio_u || c.precio || 0) * parseFloat(c.cantidad || 1)));
+                          if (detalle.materiales) {
+                            detalle.materiales.forEach(m => subtotalItems += (parseFloat(m.costo_u || m.precio || 0) * parseFloat(m.cantidad || 1)));
+                          }
+                        }
+                      } catch(e) {}
+                      let base = subtotalItems > 0 ? subtotalItems : parseFloat(cot.total || cot.estimated_amount || 0);
+                      if (base > 0) return base * 1.16;
+                      return 0;
+                    };
+
                     const monto = cotizacionSeleccionada.cash_amount_type === 'advance'
-                      ? (parseFloat(cotizacionSeleccionada.advance_amount) || (calcularMontoFinalNum(cotizacionSeleccionada) * 0.60))
-                      : calcularMontoFinalNum(cotizacionSeleccionada);
+                      ? (parseFloat(cotizacionSeleccionada.advance_amount) || (calcularMontoEfectivoBanner(cotizacionSeleccionada) * 0.60))
+                      : cotizacionSeleccionada.cash_amount_type === 'remaining'
+                      ? (parseFloat(cotizacionSeleccionada.remaining_amount) || (calcularMontoEfectivoBanner(cotizacionSeleccionada) * 0.40))
+                      : calcularMontoEfectivoBanner(cotizacionSeleccionada);
 
                     if (!esCliente && !esTecnico) {
                       return (
@@ -1437,9 +1459,13 @@ const VistaCotizaciones = () => {
       {showPagoModal && cotizacionSeleccionada && (
         <Pago 
           cotizacion={cotizacionSeleccionada} 
-          onClose={() => {
+          onClose={async () => {
             setShowPagoModal(false);
             cargarCotizaciones();
+            try {
+              const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}`);
+              if (res.data) setCotizacionSeleccionada(res.data);
+            } catch(e) {}
           }} 
         />
       )}
