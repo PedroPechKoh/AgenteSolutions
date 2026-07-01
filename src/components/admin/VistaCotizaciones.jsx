@@ -182,10 +182,10 @@ const VistaCotizaciones = () => {
     const coincideFiltro = 
       filtro === 'Todas' ||
       (filtro === 'Por Pagar' && (
-        c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status === 'Validado'
+        c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status === 'Validado' || (c.cash_requested && !c.cash_confirmed) || c.status?.toLowerCase().includes('efectivo solicitado')
       )) ||
       (filtro === 'Rechazadas' && c.status?.toLowerCase().includes('rechazad')) ||
-      (filtro === 'Pagadas' && (c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad')));
+      (filtro === 'Pagadas' && !c.status?.toLowerCase().includes('efectivo solicitado') && !(c.cash_requested && !c.cash_confirmed) && (c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad')));
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
                              (c.folio?.toString() || "").includes(busqueda || "");
@@ -540,6 +540,9 @@ const VistaCotizaciones = () => {
             <span>{c.folio}</span>
             {(() => {
               const statusLower = String(c.status || '').toLowerCase();
+              if ((c.cash_requested && !c.cash_confirmed) || statusLower.includes('efectivo solicitado')) {
+                return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fef3c7', color: '#b45309', border: '1px solid #f59e0b', fontSize: '0.65rem', fontWeight: 'bold' }}>💵 EFECTIVO PENDIENTE</span>;
+              }
               if (statusLower.includes('rechazad')) {
                 return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fee2e2', color: '#ef4444', fontSize: '0.65rem', fontWeight: 'bold' }}>RECHAZADA</span>;
               }
@@ -1053,50 +1056,72 @@ const VistaCotizaciones = () => {
                     );
                   })()}
 
-                  {/* Banner: Pago en Efectivo Solicitado — Visible solo para Admin */}
-                  {!esCliente && !esTecnico && cotizacionSeleccionada.cash_requested && !cotizacionSeleccionada.cash_confirmed && (() => {
+                  {/* Banner: Pago en Efectivo Solicitado — Visible para Admin y Cliente */}
+                  {((cotizacionSeleccionada.cash_requested && !cotizacionSeleccionada.cash_confirmed) || String(cotizacionSeleccionada.status || '').toLowerCase().includes('efectivo solicitado')) && (() => {
                     const amountLabel = cotizacionSeleccionada.cash_amount_type === 'advance' ? 'Anticipo (60%)' : 'Total (100%)';
                     const timingLabel = cotizacionSeleccionada.cash_timing === 'immediate' ? 'de forma INMEDIATA' : 'AL FINALIZAR EL TRABAJO';
                     const monto = cotizacionSeleccionada.cash_amount_type === 'advance'
-                      ? (parseFloat(cotizacionSeleccionada.advance_amount) || (parseFloat(cotizacionSeleccionada.total || 0) * 0.60))
-                      : parseFloat(cotizacionSeleccionada.total || 0);
-                    return (
-                      <div style={{ width: '100%', marginBottom: '20px', marginTop: '15px', border: '2px solid #f59e0b', borderRadius: '12px', overflow: 'hidden' }}>
-                        <div style={{ background: 'linear-gradient(135deg, #d97706, #b45309)', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '1.4rem' }}>💵</span>
-                          <div style={{ color: 'white' }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>Solicitud de Pago en Efectivo</div>
-                            <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>El cliente desea pagar el {amountLabel} {timingLabel}</div>
+                      ? (parseFloat(cotizacionSeleccionada.advance_amount) || (calcularMontoFinalNum(cotizacionSeleccionada) * 0.60))
+                      : calcularMontoFinalNum(cotizacionSeleccionada);
+
+                    if (!esCliente && !esTecnico) {
+                      return (
+                        <div style={{ width: '100%', marginBottom: '20px', marginTop: '15px', border: '2px solid #f59e0b', borderRadius: '12px', overflow: 'hidden' }}>
+                          <div style={{ background: 'linear-gradient(135deg, #d97706, #b45309)', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <span style={{ fontSize: '1.4rem' }}>💵</span>
+                            <div style={{ color: 'white' }}>
+                              <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>Solicitud de Pago en Efectivo</div>
+                              <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>El cliente desea pagar el {amountLabel} {timingLabel}</div>
+                            </div>
+                          </div>
+                          <div style={{ background: '#fffbeb', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                            <div>
+                              <div style={{ fontSize: '0.8rem', color: '#78350f', marginBottom: '2px' }}>Monto en efectivo a recibir:</div>
+                              <div style={{ fontWeight: 'bold', fontSize: '1.15rem', color: '#92400e' }}>${monto.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            </div>
+                            <button
+                              onClick={async () => {
+                                if (!window.confirm('¿Confirmas que ya recibiste el pago en efectivo del cliente?')) return;
+                                try {
+                                  setProcesando(true);
+                                  await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/confirmar-efectivo`);
+                                  cargarCotizaciones();
+                                  setCotizacionSeleccionada(null);
+                                  alert('¡Pago en efectivo confirmado exitosamente!');
+                                } catch (e) {
+                                  alert('Error al confirmar el pago en efectivo.');
+                                } finally {
+                                  setProcesando(false);
+                                }
+                              }}
+                              disabled={procesando}
+                              style={{ background: '#16a34a', color: 'white', border: 'none', padding: '12px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.95rem' }}
+                            >
+                              ✅ Confirmar Recepción de Efectivo
+                            </button>
                           </div>
                         </div>
-                        <div style={{ background: '#fffbeb', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-                          <div>
-                            <div style={{ fontSize: '0.8rem', color: '#78350f', marginBottom: '2px' }}>Monto en efectivo:</div>
-                            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#92400e' }}>${monto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</div>
+                      );
+                    } else if (esCliente) {
+                      return (
+                        <div style={{ width: '100%', marginBottom: '20px', marginTop: '15px', border: '2px solid #10b981', borderRadius: '12px', overflow: 'hidden' }}>
+                          <div style={{ background: 'linear-gradient(135deg, #059669, #047857)', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '12px', color: 'white' }}>
+                            <span style={{ fontSize: '1.5rem' }}>💵</span>
+                            <div>
+                              <div style={{ fontWeight: '800', fontSize: '1.05rem' }}>Solicitud de Pago en Efectivo Registrada</div>
+                              <div style={{ fontSize: '0.85rem', opacity: 0.9 }}>Acordaste pagar el {amountLabel} {timingLabel}</div>
+                            </div>
                           </div>
-                          <button
-                            onClick={async () => {
-                              if (!window.confirm('¿Confirmas que ya recibiste el pago en efectivo del cliente?')) return;
-                              try {
-                                setProcesando(true);
-                                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/confirmar-efectivo`);
-                                cargarCotizaciones();
-                                setCotizacionSeleccionada(null);
-                                alert('¡Pago en efectivo confirmado exitosamente!');
-                              } catch (e) {
-                                alert('Error al confirmar el pago en efectivo.');
-                              } finally {
-                                setProcesando(false);
-                              }
-                            }}
-                            disabled={procesando}
-                            style={{ background: '#16a34a', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.9rem' }}
-                          >
-                            ✅ Confirmar Recepción de Efectivo
-                          </button>
+                          <div style={{ background: '#ecfdf5', padding: '16px 18px', color: '#065f46', fontSize: '0.9rem', lineHeight: '1.5', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                            <div>
+                              Monto a entregar presencialmente: <strong style={{ fontSize: '1.1rem', color: '#047857' }}>${monto.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                              <div style={{ fontSize: '0.82rem', marginTop: '4px', color: '#065f46' }}>Tu pago está pendiente de validación por el administrador una vez entregado.</div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    );
+                      );
+                    }
+                    return null;
                   })()}
 
             </div>
