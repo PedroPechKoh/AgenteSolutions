@@ -27,9 +27,12 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
           coincideFiltro = estadoActual.includes('aprobad') || 
                            estadoActual === 'procesada por admin' || 
                            estadoActual.includes('aceptad') || 
-                           estadoActual.includes('validado');
+                           estadoActual.includes('validado') ||
+                           estadoActual.includes('anticipo') ||   // Anticipo Pagado (60%)
+                           estadoActual.includes('efectivo solic'); // Pago en Efectivo Solicitado
         } else if (filtroActual === 'Pagadas') {
-          coincideFiltro = estadoActual.includes('pagad') || estadoActual.includes('pago');
+          coincideFiltro = (estadoActual.includes('pagad') || estadoActual.includes('pago')) && 
+                           !estadoActual.includes('anticipo'); // Excluir "anticipo pagado" del grupo Pagadas
         } else if (filtroActual === 'Rechazadas') {
           coincideFiltro = estadoActual.includes('rechazad'); // Captura rechazado y rechazada
         }

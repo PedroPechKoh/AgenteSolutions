@@ -15,6 +15,15 @@ const VistaCotizacionPrint = () => {
   const [guardando, setGuardando] = useState(false);
   const [pdfGenerado, setPdfGenerado] = useState(false);
   const [pdfUrl, setPdfUrl] = useState("");
+  
+  // Detectar si quien genera el PDF es Admin o Cliente
+  const esAdmin = (() => {
+    try {
+      const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+      const roleId = session?.userData?.role_id;
+      return roleId === 0 || roleId === 1; // 0=root, 1=admin
+    } catch { return false; }
+  })();
 
   // --- ESTADOS PARA LAS ESPECIFICACIONES ---
   const [escala, setEscala] = useState(1);
@@ -300,19 +309,23 @@ const VistaCotizacionPrint = () => {
                 <td className="label">SUBTOTAL</td>
                 <td className="subtotal">{formatearDinero(subtotal)}</td>
               </tr>
-              <tr className="totales">
-                <td colSpan="4" style={{ border: 'none' }}></td>
-                <td className="label">IVA (16%)</td>
-                <td>{formatearDinero(iva)}</td>
-              </tr>
-              <tr className="totales">
-                <td colSpan="4" style={{ border: 'none' }}></td>
-                <td className="label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', border: 'none' }}>
-                  <img src={mpLogo} alt="MercadoPago" style={{ height: '14px', objectFit: 'contain' }} />
-                  <span>COMISIÓN (T. Oficial)</span>
-                </td>
-                <td style={{ color: '#009ee3', fontWeight: '600' }}>{formatearDinero(comisionMP)}</td>
-              </tr>
+              {esAdmin && (
+                <tr className="totales">
+                  <td colSpan="4" style={{ border: 'none' }}></td>
+                  <td className="label">IVA (16%)</td>
+                  <td>{formatearDinero(iva)}</td>
+                </tr>
+              )}
+              {esAdmin && (
+                <tr className="totales">
+                  <td colSpan="4" style={{ border: 'none' }}></td>
+                  <td className="label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', border: 'none' }}>
+                    <img src={mpLogo} alt="MercadoPago" style={{ height: '14px', objectFit: 'contain' }} />
+                    <span>COMISIÓN (T. Oficial)</span>
+                  </td>
+                  <td style={{ color: '#009ee3', fontWeight: '600' }}>{formatearDinero(comisionMP)}</td>
+                </tr>
+              )}
               <tr className="totales total-final">
                 <td colSpan="4" style={{ border: 'none' }}></td>
                 <td className="label">TOTAL</td>

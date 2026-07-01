@@ -778,20 +778,26 @@ const VistaCotizaciones = () => {
                     <div className="modal-total-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: '15px', background: '#f8fafc', borderTop: '2px solid #e2e8f0', marginTop: '20px' }}>
                       {subtotalItems > 0 ? (
                         <>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '8px', color: '#64748b' }}>
-                            <span>Subtotal:</span>
-                            <span style={{ fontWeight: 'bold' }}>${subtotalItems.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '8px', color: '#64748b' }}>
-                            <span>IVA (16%):</span>
-                            <span style={{ fontWeight: 'bold' }}>${iva.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '12px', color: '#009ee3', alignItems: 'center' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <img src={mpLogo} alt="MP" style={{ height: '14px', objectFit: 'contain' }} /> Comisión (T. Oficial):
-                            </span>
-                            <span style={{ fontWeight: 'bold' }}>${comisionMP.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                          </div>
+                          {!esCliente && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '8px', color: '#64748b' }}>
+                              <span>Subtotal:</span>
+                              <span style={{ fontWeight: 'bold' }}>${subtotalItems.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                          )}
+                          {!esCliente && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '8px', color: '#64748b' }}>
+                              <span>IVA (16%):</span>
+                              <span style={{ fontWeight: 'bold' }}>${iva.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                          )}
+                          {!esCliente && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '12px', color: '#009ee3', alignItems: 'center' }}>
+                              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <img src={mpLogo} alt="MP" style={{ height: '14px', objectFit: 'contain' }} /> Comisión (T. Oficial):
+                              </span>
+                              <span style={{ fontWeight: 'bold' }}>${comisionMP.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            </div>
+                          )}
                           <h3 style={{ margin: 0, paddingTop: '10px', borderTop: '2px solid #cbd5e1', width: '100%', maxWidth: '300px', textAlign: 'right', fontSize: '1.4rem' }}>
                             TOTAL: ${totalCalc.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </h3>
@@ -990,6 +996,52 @@ const VistaCotizaciones = () => {
                               ✅ Pago confirmado por MercadoPago
                             </div>
                           )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Banner: Pago en Efectivo Solicitado — Visible solo para Admin */}
+                  {!esCliente && !esTecnico && cotizacionSeleccionada.cash_requested && !cotizacionSeleccionada.cash_confirmed && (() => {
+                    const amountLabel = cotizacionSeleccionada.cash_amount_type === 'advance' ? 'Anticipo (60%)' : 'Total (100%)';
+                    const timingLabel = cotizacionSeleccionada.cash_timing === 'immediate' ? 'de forma INMEDIATA' : 'AL FINALIZAR EL TRABAJO';
+                    const monto = cotizacionSeleccionada.cash_amount_type === 'advance'
+                      ? (parseFloat(cotizacionSeleccionada.advance_amount) || (parseFloat(cotizacionSeleccionada.total || 0) * 0.60))
+                      : parseFloat(cotizacionSeleccionada.total || 0);
+                    return (
+                      <div style={{ width: '100%', marginBottom: '20px', marginTop: '15px', border: '2px solid #f59e0b', borderRadius: '12px', overflow: 'hidden' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #d97706, #b45309)', padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '1.4rem' }}>💵</span>
+                          <div style={{ color: 'white' }}>
+                            <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>Solicitud de Pago en Efectivo</div>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>El cliente desea pagar el {amountLabel} {timingLabel}</div>
+                          </div>
+                        </div>
+                        <div style={{ background: '#fffbeb', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                          <div>
+                            <div style={{ fontSize: '0.8rem', color: '#78350f', marginBottom: '2px' }}>Monto en efectivo:</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#92400e' }}>${monto.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</div>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              if (!window.confirm('¿Confirmas que ya recibiste el pago en efectivo del cliente?')) return;
+                              try {
+                                setProcesando(true);
+                                await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/confirmar-efectivo`);
+                                cargarCotizaciones();
+                                setCotizacionSeleccionada(null);
+                                alert('¡Pago en efectivo confirmado exitosamente!');
+                              } catch (e) {
+                                alert('Error al confirmar el pago en efectivo.');
+                              } finally {
+                                setProcesando(false);
+                              }
+                            }}
+                            disabled={procesando}
+                            style={{ background: '#16a34a', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.9rem' }}
+                          >
+                            ✅ Confirmar Recepción de Efectivo
+                          </button>
                         </div>
                       </div>
                     );
