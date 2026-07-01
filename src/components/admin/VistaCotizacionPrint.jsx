@@ -191,6 +191,7 @@ const VistaCotizacionPrint = () => {
   const subtotalConIva = subtotal + iva;
   const comisionMP = (subtotalConIva * 0.0349 + 4) * 1.16;
   const totalFinal = subtotalConIva + comisionMP;
+  const priceFactor = (!esAdmin && subtotal > 0) ? (totalFinal / subtotal) : 1;
 
   const formatearDinero = (cantidad) => {
     return `$${parseFloat(cantidad).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -213,26 +214,26 @@ const VistaCotizacionPrint = () => {
              <button 
                 onClick={handleGenerarPDF} 
                 disabled={guardando}
-                style={{ padding: '12px 24px', backgroundColor: '#F26522', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
+                style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
              >
-               {guardando ? 'Procesando...' : '💾 GENERAR Y GUARDAR PDF'}
+               {guardando ? 'PREPARANDO...' : '✅ SUBIR ESPECIFICACIONES A SISTEMA'}
              </button>
            ) : (
-             <>
-               <button 
-                  onClick={handleDescargar} 
-                  style={{ padding: '12px 24px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
-               >
-                 📥 GUARDAR (DESCARGAR PC)
-               </button>
-               <button 
-                  onClick={handleImprimir} 
-                  style={{ padding: '12px 24px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
-               >
-                 🖨️ IMPRIMIR
-               </button>
-             </>
+             <a 
+               href={pdfUrl} 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               style={{ padding: '12px 24px', backgroundColor: '#17a2b8', color: 'white', textDecoration: 'none', borderRadius: '6px', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', display: 'inline-block', flexGrow: 1, textAlign: 'center' }}
+             >
+               📄 VER PDF GUARDADO
+             </a>
            )}
+           <button 
+              onClick={handleImprimir}
+              style={{ padding: '12px 24px', backgroundColor: '#FF6600', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', flexGrow: 1, textAlign: 'center' }}
+           >
+             🖨️ IMPRIMIR / DESCARGAR
+           </button>
          </div>
       </div>
 
@@ -300,15 +301,17 @@ const VistaCotizacionPrint = () => {
                   <td style={{ textAlign: 'left' }}>{(item.descripcion || '').toUpperCase()}</td>
                   <td>{item.cantidad}</td>
                   <td>{item.unidad}</td>
-                  <td>{formatearDinero(item.precio_u)}</td>
-                  <td>{formatearDinero(item.importe)}</td>
+                  <td>{formatearDinero(item.precio_u * priceFactor)}</td>
+                  <td>{formatearDinero(item.importe * priceFactor)}</td>
                 </tr>
               ))}
-              <tr className="totales">
-                <td colSpan="4" style={{ border: 'none' }}></td>
-                <td className="label">SUBTOTAL</td>
-                <td className="subtotal">{formatearDinero(subtotal)}</td>
-              </tr>
+              {esAdmin && (
+                <tr className="totales">
+                  <td colSpan="4" style={{ border: 'none' }}></td>
+                  <td className="label">SUBTOTAL</td>
+                  <td className="subtotal">{formatearDinero(subtotal)}</td>
+                </tr>
+              )}
               {esAdmin && (
                 <tr className="totales">
                   <td colSpan="4" style={{ border: 'none' }}></td>

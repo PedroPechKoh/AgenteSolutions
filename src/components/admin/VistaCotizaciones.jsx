@@ -261,8 +261,8 @@ const VistaCotizaciones = () => {
         
         // ── Factor de precio para el Cliente ──────────────────────────────────
         // El Admin ingresa precios base (sin IVA ni comisión MP).
-        // Para que al Cliente le cuadre la suma de ítems con el total, escalamos
-        // cada precio por: factor = totalFinal / subtotalBase
+        // Para que al Cliente le cuadre la suma de ítems exactamente con el total visible
+        // calculamos el factor en base a la misma fórmula fiscal del sistema:
         let priceFactor = 1;
         if (esCliente) {
           let subtotalBase = 0;
@@ -272,13 +272,16 @@ const VistaCotizaciones = () => {
           (detalle.materiales || []).forEach(m => {
             subtotalBase += parseFloat(m.costo_u || m.precio || 0) * parseFloat(m.cantidad || 1);
           });
-          const totalFinal = parseFloat(cotizacionSeleccionada?.total || 0);
-          if (subtotalBase > 0 && totalFinal > 0) {
-            priceFactor = totalFinal / subtotalBase;
+          if (subtotalBase > 0) {
+            const ivaCalc = subtotalBase * 0.16;
+            const subtotalConIva = subtotalBase + ivaCalc;
+            const comisionMP = (subtotalConIva * 0.0349 + 4) * 1.16;
+            const totalConTodo = subtotalConIva + comisionMP;
+            priceFactor = totalConTodo / subtotalBase;
           }
         }
 
-        const fmtPrecio = (rawPrice, qty = 1) => {
+        const fmtPrecio = (rawPrice) => {
           const precioAjustado = parseFloat(rawPrice || 0) * priceFactor;
           return `$${precioAjustado.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         };
