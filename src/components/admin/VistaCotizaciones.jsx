@@ -543,6 +543,12 @@ const VistaCotizaciones = () => {
               if ((c.cash_requested && !c.cash_confirmed) || statusLower.includes('efectivo solicitado')) {
                 return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fef3c7', color: '#b45309', border: '1px solid #f59e0b', fontSize: '0.65rem', fontWeight: 'bold' }}>💵 EFECTIVO PENDIENTE</span>;
               }
+              if (c.cash_confirmed || statusLower.includes('pagado (efectivo)') || statusLower.includes('anticipo pagado')) {
+                if (statusLower.includes('anticipo') || c.cash_amount_type === 'advance') {
+                  return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#dcfce7', color: '#047857', border: '1px solid #10b981', fontSize: '0.65rem', fontWeight: '800' }}>💵 ANTICIPO 60% (EFECTIVO)</span>;
+                }
+                return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#dcfce7', color: '#047857', border: '1px solid #10b981', fontSize: '0.65rem', fontWeight: '800' }}>💵 PAGADA EN EFECTIVO</span>;
+              }
               if (statusLower.includes('rechazad')) {
                 return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fee2e2', color: '#ef4444', fontSize: '0.65rem', fontWeight: 'bold' }}>RECHAZADA</span>;
               }
@@ -997,8 +1003,8 @@ const VistaCotizaciones = () => {
                   </div>
                 )}
 
-                  {/* Banner Pagado Movido al cuerpo scrollable */}
-                  {cotizacionSeleccionada.status === 'Pagado' && (() => {
+                  {/* Banner Pagado por MercadoPago */}
+                  {cotizacionSeleccionada.status === 'Pagado' && !cotizacionSeleccionada.cash_confirmed && (() => {
                     const pd = cotizacionSeleccionada.mp_payment_data;
                     const formatDate = (dateStr) => {
                       if (!dateStr) return '—';
@@ -1051,6 +1057,50 @@ const VistaCotizaciones = () => {
                               ✅ Pago confirmado por MercadoPago
                             </div>
                           )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Banner: Comprobante de Pago en Efectivo Confirmado */}
+                  {(cotizacionSeleccionada.cash_confirmed || String(cotizacionSeleccionada.status || '').toLowerCase().includes('efectivo') || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo pagado')) && (() => {
+                    const formatDate = (dateStr) => {
+                      if (!dateStr) return '—';
+                      try {
+                        return new Date(dateStr).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' });
+                      } catch { return dateStr; }
+                    };
+                    const statusStr = String(cotizacionSeleccionada.status || '').toLowerCase();
+                    const esAnticipo = cotizacionSeleccionada.cash_amount_type === 'advance' || statusStr.includes('anticipo');
+                    const labelTipo = esAnticipo ? 'Anticipo del 60% Pagado en Efectivo' : 'Cotización Pagada al 100% en Efectivo';
+                    const monto = esAnticipo
+                      ? (parseFloat(cotizacionSeleccionada.advance_amount) || (calcularMontoFinalNum(cotizacionSeleccionada) * 0.60))
+                      : calcularMontoFinalNum(cotizacionSeleccionada);
+                    const autorizador = cotizacionSeleccionada.cash_confirmed_by_name || 'Administración';
+                    const fechaConfirmacion = cotizacionSeleccionada.cash_confirmed_at || cotizacionSeleccionada.advance_paid_at || cotizacionSeleccionada.remaining_paid_at || cotizacionSeleccionada.updated_at;
+
+                    return (
+                      <div style={{ width: '100%', marginBottom: '20px', marginTop: '15px', border: '2px solid #059669', borderRadius: '14px', overflow: 'hidden' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #059669, #047857)', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'white', fontWeight: '800', fontSize: '1.05rem' }}>
+                            <CheckCircle size={24} />
+                            <span>💵 {labelTipo}</span>
+                          </div>
+                          <span style={{ background: '#ecfdf5', color: '#047857', padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: '800' }}>PAGO EN EFECTIVO</span>
+                        </div>
+                        <div style={{ background: '#f0faf4', padding: '18px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px 20px', fontSize: '0.88rem', color: '#333' }}>
+                          <div>
+                            <div style={{ color: '#047857', fontSize: '0.78rem', fontWeight: '700', marginBottom: '2px' }}>💰 MONTO RECIBIDO EN EFECTIVO</div>
+                            <div style={{ fontWeight: '800', color: '#065f46', fontSize: '1.25rem' }}>${monto.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</div>
+                          </div>
+                          <div>
+                            <div style={{ color: '#047857', fontSize: '0.78rem', fontWeight: '700', marginBottom: '2px' }}>👤 AUTORIZADO Y RECIBIDO POR</div>
+                            <div style={{ fontWeight: '800', color: '#1e293b', fontSize: '1.05rem' }}>Admin: {autorizador}</div>
+                          </div>
+                          <div style={{ gridColumn: '1 / -1', borderTop: '1px solid #d1fae5', paddingTop: '10px' }}>
+                            <div style={{ color: '#047857', fontSize: '0.78rem', fontWeight: '700', marginBottom: '2px' }}>📅 FECHA Y HORA DE REGISTRO / AUTORIZACIÓN</div>
+                            <div style={{ fontWeight: '700', color: '#334155' }}>{formatDate(fechaConfirmacion)}</div>
+                          </div>
                         </div>
                       </div>
                     );
