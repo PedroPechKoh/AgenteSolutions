@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { X, CheckCircle2, Loader2 } from 'lucide-react';
+import { X, CheckCircle2, Loader2, ShieldCheck, CreditCard, Banknote, Sparkles } from 'lucide-react';
 import '../../styles/Cliente/Pagos.css';
 import mpLogo from '../../assets/Mercado-Pago.png';
 
 const Pago = ({ cotizacion, onClose }) => {
   const [subiendo, setSubiendo] = useState(false);
-  const [pagoCompletado, setPagoCompletado] = useState(false);
 
   // Estado para efectivo
   const [modoEfectivo, setModoEfectivo] = useState(false);
@@ -15,12 +14,37 @@ const Pago = ({ cotizacion, onClose }) => {
   const [enviandoEfectivo, setEnviandoEfectivo] = useState(false);
   const [efectivoEnviado, setEfectivoEnviado] = useState(false);
 
-  const total    = Number(cotizacion?.total || 0);
+  // ── CÁLCULO DEL TOTAL FINAL FISCAL (Con IVA + MP) ──
+  const calcularMontoFinal = (cot) => {
+    if (!cot) return 0;
+    let subtotalItems = 0;
+    try {
+      const rawConcept = cot.concept || cot.concepto;
+      const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
+      if (detalle && typeof detalle === 'object') {
+        const listado = detalle.conceptos || detalle.servicios || [];
+        listado.forEach(c => subtotalItems += (parseFloat(c.precio_u || c.precio || 0) * parseFloat(c.cantidad || 1)));
+        if (detalle.materiales) {
+          detalle.materiales.forEach(m => subtotalItems += (parseFloat(m.costo_u || m.precio || 0) * parseFloat(m.cantidad || 1)));
+        }
+      }
+    } catch(e) {}
+    let base = subtotalItems > 0 ? subtotalItems : parseFloat(cot.total || cot.estimated_amount || 0);
+    if (base > 0) {
+      const iva = base * 0.16;
+      const subConIva = base + iva;
+      const comisionMP = (subConIva * 0.0349 + 4) * 1.16;
+      return subConIva + comisionMP;
+    }
+    return 0;
+  };
+
+  const total    = Math.round(calcularMontoFinal(cotizacion) * 100) / 100;
   const anticipo = Math.round(total * 0.60 * 100) / 100;
   const restante = Math.round(total * 0.40 * 100) / 100;
 
   const yaPayoAnticipo = cotizacion?.advance_paid === true;
-  const fmt = (n) => `$${Number(n).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const fmt = (n) => `$${Number(n || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const handleMercadoPago = async (stage) => {
     try {
@@ -68,34 +92,35 @@ const Pago = ({ cotizacion, onClose }) => {
   if (yaPayoAnticipo && !cotizacion?.remaining_paid) {
     return (
       <div className="tp-modal-overlay" style={{ zIndex: 100000 }}>
-        <div className="payment-content-card" style={{ position: 'relative', maxWidth: '550px', width: '90%', margin: '0 auto', maxHeight: '90vh', overflowY: 'auto', background: '#ffffff', borderRadius: '16px', padding: '30px 24px' }}>
-          <button onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} color="#333" /></button>
+        <div className="payment-modal-card" style={{ maxWidth: '520px', padding: '36px 28px' }}>
+          <button onClick={onClose} className="payment-close-btn" style={{ background: '#f1f5f9', color: '#475569' }}><X size={20} /></button>
 
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-              <CheckCircle2 size={30} color="#16a34a" />
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+              <CheckCircle2 size={36} color="#16a34a" />
             </div>
-            <h2 style={{ color: '#1e293b', fontSize: '1.3rem', marginBottom: '6px' }}>Anticipo cubierto</h2>
-            <p style={{ color: '#64748b', fontSize: '0.9rem' }}>El 60% de anticipo ya fue acreditado exitosamente.</p>
+            <h2 style={{ color: '#0f172a', fontSize: '1.4rem', fontWeight: 800, margin: '0 0 6px 0' }}>Anticipo Acreditado</h2>
+            <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>El 60% inicial ya fue registrado exitosamente.</p>
           </div>
 
-          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', color: '#64748b' }}>
-              <span>✅ Anticipo pagado (60%):</span>
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '16px', padding: '18px 22px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', color: '#64748b', fontSize: '0.95rem' }}>
+              <span>✅ Anticipo cubierto (60%):</span>
               <span style={{ fontWeight: 'bold', color: '#16a34a' }}>{fmt(anticipo)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
-              <span style={{ fontWeight: 'bold', color: '#f26624' }}>Saldo pendiente (40%):</span>
-              <span style={{ fontWeight: 'bold', color: '#f26624' }}>{fmt(restante)}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.15rem', borderTop: '1px solid #e2e8f0', paddingTop: '12px', color: '#0f172a' }}>
+              <span style={{ fontWeight: 800 }}>Saldo pendiente (40%):</span>
+              <span style={{ fontWeight: 800, color: '#f26624' }}>{fmt(restante)}</span>
             </div>
           </div>
 
           <button
             onClick={() => handleMercadoPago('remaining')}
             disabled={subiendo}
-            style={{ width: '100%', background: '#009ee3', color: 'white', padding: '15px', borderRadius: '10px', border: 'none', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
+            className="btn-pay-mp btn-advance"
+            style={{ padding: '16px' }}
           >
-            {subiendo ? <Loader2 className="spin-icon" size={20} /> : <>Liquidar Saldo (40%) con <img src={mpLogo} alt="MP" style={{ height: '22px', filter: 'brightness(0) invert(1)' }} /></>}
+            {subiendo ? <Loader2 className="spin-icon" size={22} /> : <>Liquidar Saldo ({fmt(restante)}) con <img src={mpLogo} alt="MP" style={{ height: '24px', filter: 'brightness(0) invert(1)' }} /></>}
           </button>
         </div>
       </div>
@@ -106,12 +131,14 @@ const Pago = ({ cotizacion, onClose }) => {
   if (efectivoEnviado) {
     return (
       <div className="tp-modal-overlay" style={{ zIndex: 100000 }}>
-        <div className="payment-content-card" style={{ maxWidth: '480px', textAlign: 'center', padding: '50px 24px', background: '#fff', borderRadius: '16px', margin: '0 auto' }}>
-          <CheckCircle2 size={60} color="#16a34a" style={{ margin: '0 auto 16px' }} />
-          <h2 style={{ color: '#1e293b', marginBottom: '10px' }}>¡Solicitud enviada!</h2>
-          <p style={{ color: '#64748b', marginBottom: '20px' }}>El administrador ha sido notificado de tu solicitud de pago en efectivo. Te confirmará cuando reciba el pago.</p>
-          <button onClick={onClose} style={{ background: '#f26624', color: 'white', border: 'none', padding: '12px 30px', borderRadius: '25px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1rem' }}>
-            Cerrar
+        <div className="payment-modal-card" style={{ maxWidth: '480px', textAlign: 'center', padding: '48px 28px' }}>
+          <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+            <CheckCircle2 size={42} color="#16a34a" />
+          </div>
+          <h2 style={{ color: '#0f172a', fontSize: '1.5rem', fontWeight: 800, margin: '0 0 10px 0' }}>¡Solicitud Recibida!</h2>
+          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 26px 0' }}>Hemos notificado al administrador sobre tu elección de pago en efectivo. Te confirmará de inmediato al recibir tu pago.</p>
+          <button onClick={onClose} className="btn-pay-mp btn-full" style={{ maxWidth: '220px', margin: '0 auto' }}>
+            Entendido
           </button>
         </div>
       </div>
@@ -121,133 +148,167 @@ const Pago = ({ cotizacion, onClose }) => {
   // ---------- PANTALLA PRINCIPAL: Selector de método de pago ----------
   return (
     <div className="tp-modal-overlay" style={{ zIndex: 100000 }}>
-      <div className="payment-content-card" style={{ position: 'relative', maxWidth: '600px', width: '90%', margin: '0 auto', maxHeight: '90vh', overflowY: 'auto', background: '#ffffff', borderRadius: '16px' }}>
-        <button onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer', zIndex: 10 }}><X size={24} color="#333" /></button>
+      <div className="payment-modal-card">
+        
+        {/* Encabezado Premium */}
+        <div className="payment-modal-header">
+          <button onClick={onClose} className="payment-close-btn"><X size={20} /></button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+            <ShieldCheck size={22} color="#fdba74" />
+            <p className="payment-modal-subtitle">Pasarela de Pago Segura</p>
+          </div>
+          <h1 className="payment-modal-title">Selecciona tu Modalidad</h1>
+          <p style={{ fontSize: '0.9rem', opacity: 0.85, margin: 0 }}>Cotización #{cotizacion?.folio || cotizacion?.id}</p>
+        </div>
 
-        {/* Encabezado */}
-        <div style={{ textAlign: 'center', padding: '30px 24px 16px' }}>
-          <h1 style={{ color: '#1e293b', fontSize: '1.4rem', marginBottom: '6px' }}>Selecciona tu método de pago</h1>
-          <p style={{ color: '#64748b', fontSize: '0.85rem' }}>Cotización #{cotizacion?.folio || cotizacion?.id}</p>
-
-          {/* Desglose visual */}
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '18px' }}>
-            <div style={{ background: '#fff7ed', border: '1px solid #fdba74', borderRadius: '10px', padding: '12px 18px', minWidth: '130px' }}>
-              <div style={{ fontSize: '0.75rem', color: '#9a3412', marginBottom: '4px' }}>Total del servicio</div>
-              <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1e293b' }}>{fmt(total)}</div>
-            </div>
-            <div style={{ background: '#eff6ff', border: '1px solid #93c5fd', borderRadius: '10px', padding: '12px 18px', minWidth: '130px' }}>
-              <div style={{ fontSize: '0.75rem', color: '#1e40af', marginBottom: '4px' }}>Anticipo (60%)</div>
-              <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#1d4ed8' }}>{fmt(anticipo)}</div>
-            </div>
-            <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '10px', padding: '12px 18px', minWidth: '130px' }}>
-              <div style={{ fontSize: '0.75rem', color: '#166534', marginBottom: '4px' }}>Al finalizar (40%)</div>
-              <div style={{ fontWeight: 'bold', fontSize: '1.1rem', color: '#15803d' }}>{fmt(restante)}</div>
-            </div>
+        {/* Resumen visual de montos */}
+        <div className="payment-summary-pills">
+          <div className="summary-pill total-pill">
+            <div className="summary-pill-label">Total del Servicio</div>
+            <div className="summary-pill-value">{fmt(total)}</div>
+          </div>
+          <div className="summary-pill advance-pill">
+            <div className="summary-pill-label">Anticipo (60%)</div>
+            <div className="summary-pill-value">{fmt(anticipo)}</div>
+          </div>
+          <div className="summary-pill remaining-pill">
+            <div className="summary-pill-label">Al Finalizar (40%)</div>
+            <div className="summary-pill-value">{fmt(restante)}</div>
           </div>
         </div>
 
-        <div style={{ padding: '0 24px 30px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {/* Tarjetas interactivas */}
+        <div className="payment-options-list">
 
           {/* OPCIÓN 1: Anticipo 60% */}
-          <div style={{ border: '2px solid #3b82f6', borderRadius: '14px', overflow: 'hidden' }}>
-            <div style={{ background: '#eff6ff', padding: '14px 18px' }}>
-              <p style={{ fontWeight: 'bold', color: '#1e40af', margin: 0, fontSize: '0.95rem' }}>💳 Pagar Anticipo (60%) — {fmt(anticipo)}</p>
-              <p style={{ color: '#3b82f6', margin: '4px 0 0', fontSize: '0.8rem' }}>Autoriza el inicio del trabajo pagando el anticipo hoy.</p>
+          <div className="payment-card-option highlight-advance">
+            <div className="option-header">
+              <div className="option-title-area">
+                <div className="option-icon">💳</div>
+                <div>
+                  <h3 className="option-title-text">Pagar Anticipo (60%)</h3>
+                  <p className="option-subtitle-text">Inicia el trabajo hoy y paga el 40% al terminar</p>
+                </div>
+              </div>
+              <span className="option-badge badge-recommended">Recomendado</span>
             </div>
-            <div style={{ padding: '14px 18px', background: 'white' }}>
+            <div className="option-body">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', color: '#475569' }}>
+                <span>Monto a pagar hoy:</span>
+                <strong style={{ fontSize: '1.25rem', color: '#1d4ed8' }}>{fmt(anticipo)}</strong>
+              </div>
               <button
                 onClick={() => handleMercadoPago('advance')}
                 disabled={subiendo}
-                style={{ width: '100%', background: '#009ee3', color: 'white', padding: '13px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '0.95rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+                className="btn-pay-mp btn-advance"
               >
-                {subiendo ? <Loader2 className="spin-icon" size={18} /> : <>Pagar {fmt(anticipo)} con <img src={mpLogo} alt="MP" style={{ height: '20px', filter: 'brightness(0) invert(1)' }} /></>}
+                {subiendo ? <Loader2 className="spin-icon" size={20} /> : <>Pagar {fmt(anticipo)} con <img src={mpLogo} alt="MP" style={{ height: '22px', filter: 'brightness(0) invert(1)' }} /></>}
               </button>
             </div>
           </div>
 
           {/* OPCIÓN 2: Pago Total 100% */}
-          <div style={{ border: '2px solid #f26624', borderRadius: '14px', overflow: 'hidden' }}>
-            <div style={{ background: '#fff7ed', padding: '14px 18px' }}>
-              <p style={{ fontWeight: 'bold', color: '#9a3412', margin: 0, fontSize: '0.95rem' }}>💎 Pago Total (100%) — {fmt(total)}</p>
-              <p style={{ color: '#f26624', margin: '4px 0 0', fontSize: '0.8rem' }}>Liquida el total en una sola transacción y olvídate de pagos posteriores.</p>
+          <div className="payment-card-option highlight-full">
+            <div className="option-header">
+              <div className="option-title-area">
+                <div className="option-icon">💎</div>
+                <div>
+                  <h3 className="option-title-text">Liquidación Total (100%)</h3>
+                  <p className="option-subtitle-text">Liquida en una sola exhibición sin pendientes</p>
+                </div>
+              </div>
+              <span className="option-badge badge-liquidate">Pago Único</span>
             </div>
-            <div style={{ padding: '14px 18px', background: 'white' }}>
+            <div className="option-body">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', color: '#475569' }}>
+                <span>Monto total:</span>
+                <strong style={{ fontSize: '1.25rem', color: '#c2410c' }}>{fmt(total)}</strong>
+              </div>
               <button
                 onClick={() => handleMercadoPago('full')}
                 disabled={subiendo}
-                style={{ width: '100%', background: '#f26624', color: 'white', padding: '13px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '0.95rem', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+                className="btn-pay-mp btn-full"
               >
-                {subiendo ? <Loader2 className="spin-icon" size={18} /> : <>Pagar {fmt(total)} con <img src={mpLogo} alt="MP" style={{ height: '20px', filter: 'brightness(0) invert(1)' }} /></>}
+                {subiendo ? <Loader2 className="spin-icon" size={20} /> : <>Pagar {fmt(total)} con <img src={mpLogo} alt="MP" style={{ height: '22px', filter: 'brightness(0) invert(1)' }} /></>}
               </button>
             </div>
           </div>
 
           {/* OPCIÓN 3: Pago en Efectivo */}
-          <div style={{ border: '2px solid #16a34a', borderRadius: '14px', overflow: 'hidden' }}>
-            <div style={{ background: '#f0fdf4', padding: '14px 18px' }}>
-              <p style={{ fontWeight: 'bold', color: '#166534', margin: 0, fontSize: '0.95rem' }}>💵 Solicitar Pago en Efectivo</p>
-              <p style={{ color: '#16a34a', margin: '4px 0 0', fontSize: '0.8rem' }}>Coordina el pago en efectivo con el administrador.</p>
+          <div className="payment-card-option highlight-cash">
+            <div className="option-header">
+              <div className="option-title-area">
+                <div className="option-icon">💵</div>
+                <div>
+                  <h3 className="option-title-text">Acordar Pago en Efectivo</h3>
+                  <p className="option-subtitle-text">Entrega directa al personal administrativo</p>
+                </div>
+              </div>
+              <span className="option-badge badge-cash">Presencial</span>
             </div>
-            <div style={{ padding: '14px 18px', background: 'white' }}>
+            <div className="option-body">
               {!modoEfectivo ? (
                 <button
                   onClick={() => setModoEfectivo(true)}
-                  style={{ width: '100%', background: '#16a34a', color: 'white', padding: '13px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '0.95rem', cursor: 'pointer' }}
+                  className="btn-pay-mp btn-cash"
                 >
-                  Solicitar Pago en Efectivo
+                  <Banknote size={20} /> Elegir Pago en Efectivo
                 </button>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingTop: '6px' }}>
                   {/* Cuánto */}
                   <div>
-                    <p style={{ fontWeight: 'bold', color: '#1e293b', marginBottom: '8px', fontSize: '0.9rem' }}>¿Cuánto deseas pagar?</p>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px', fontSize: '0.88rem' }}>1. ¿Cuánto pagarás en efectivo?</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <button
                         onClick={() => setCashAmountType('advance')}
-                        style={{ flex: 1, padding: '10px', borderRadius: '8px', border: `2px solid ${cashAmountType === 'advance' ? '#3b82f6' : '#e2e8f0'}`, background: cashAmountType === 'advance' ? '#eff6ff' : 'white', color: cashAmountType === 'advance' ? '#1e40af' : '#64748b', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem' }}
+                        style={{ padding: '12px 10px', borderRadius: '12px', border: `2px solid ${cashAmountType === 'advance' ? '#3b82f6' : '#cbd5e1'}`, background: cashAmountType === 'advance' ? '#eff6ff' : 'white', color: cashAmountType === 'advance' ? '#1e40af' : '#64748b', fontWeight: 700, cursor: 'pointer', transition: '0.2s', textAlign: 'center' }}
                       >
-                        Anticipo 60%<br /><span style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>{fmt(anticipo)}</span>
+                        Anticipo (60%)<br /><span style={{ fontSize: '0.95rem', fontWeight: 800, color: cashAmountType === 'advance' ? '#1d4ed8' : '#334155' }}>{fmt(anticipo)}</span>
                       </button>
                       <button
                         onClick={() => setCashAmountType('full')}
-                        style={{ flex: 1, padding: '10px', borderRadius: '8px', border: `2px solid ${cashAmountType === 'full' ? '#f26624' : '#e2e8f0'}`, background: cashAmountType === 'full' ? '#fff7ed' : 'white', color: cashAmountType === 'full' ? '#9a3412' : '#64748b', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem' }}
+                        style={{ padding: '12px 10px', borderRadius: '12px', border: `2px solid ${cashAmountType === 'full' ? '#10b981' : '#cbd5e1'}`, background: cashAmountType === 'full' ? '#ecfdf5' : 'white', color: cashAmountType === 'full' ? '#047857' : '#64748b', fontWeight: 700, cursor: 'pointer', transition: '0.2s', textAlign: 'center' }}
                       >
-                        Total 100%<br /><span style={{ fontSize: '0.8rem', fontWeight: 'normal' }}>{fmt(total)}</span>
+                        Total (100%)<br /><span style={{ fontSize: '0.95rem', fontWeight: 800, color: cashAmountType === 'full' ? '#059669' : '#334155' }}>{fmt(total)}</span>
                       </button>
                     </div>
                   </div>
+
                   {/* Cuándo */}
                   <div>
-                    <p style={{ fontWeight: 'bold', color: '#1e293b', marginBottom: '8px', fontSize: '0.9rem' }}>¿Cuándo lo harás?</p>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <p style={{ fontWeight: 700, color: '#0f172a', marginBottom: '8px', fontSize: '0.88rem' }}>2. ¿Cuándo lo entregarás?</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <button
                         onClick={() => setCashTiming('immediate')}
-                        style={{ flex: 1, padding: '10px', borderRadius: '8px', border: `2px solid ${cashTiming === 'immediate' ? '#16a34a' : '#e2e8f0'}`, background: cashTiming === 'immediate' ? '#f0fdf4' : 'white', color: cashTiming === 'immediate' ? '#166534' : '#64748b', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem' }}
+                        style={{ padding: '10px', borderRadius: '12px', border: `2px solid ${cashTiming === 'immediate' ? '#10b981' : '#cbd5e1'}`, background: cashTiming === 'immediate' ? '#ecfdf5' : 'white', color: cashTiming === 'immediate' ? '#047857' : '#64748b', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}
                       >
-                        🕐 Ahora<br /><span style={{ fontSize: '0.78rem', fontWeight: 'normal' }}>Lo tengo disponible hoy</span>
+                        🕐 Inmediatamente<br /><span style={{ fontSize: '0.75rem', fontWeight: 400 }}>Hoy mismo</span>
                       </button>
                       <button
                         onClick={() => setCashTiming('on_completion')}
-                        style={{ flex: 1, padding: '10px', borderRadius: '8px', border: `2px solid ${cashTiming === 'on_completion' ? '#16a34a' : '#e2e8f0'}`, background: cashTiming === 'on_completion' ? '#f0fdf4' : 'white', color: cashTiming === 'on_completion' ? '#166534' : '#64748b', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem' }}
+                        style={{ padding: '10px', borderRadius: '12px', border: `2px solid ${cashTiming === 'on_completion' ? '#10b981' : '#cbd5e1'}`, background: cashTiming === 'on_completion' ? '#ecfdf5' : 'white', color: cashTiming === 'on_completion' ? '#047857' : '#64748b', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}
                       >
-                        📅 Al finalizar<br /><span style={{ fontSize: '0.78rem', fontWeight: 'normal' }}>Cuando el técnico termine</span>
+                        📅 Al Finalizar<br /><span style={{ fontSize: '0.75rem', fontWeight: 400 }}>Al terminar el trabajo</span>
                       </button>
                     </div>
                   </div>
-                  {/* Botón enviar */}
-                  <div style={{ display: 'flex', gap: '10px' }}>
+
+                  {/* Acciones efectivo */}
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
                     <button
                       onClick={() => setModoEfectivo(false)}
-                      style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#64748b', fontWeight: 'bold', cursor: 'pointer' }}
+                      style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#475569', fontWeight: 700, cursor: 'pointer' }}
                     >
                       Cancelar
                     </button>
                     <button
                       onClick={handleSolicitarEfectivo}
                       disabled={enviandoEfectivo}
-                      style={{ flex: 2, padding: '12px', borderRadius: '8px', border: 'none', background: '#16a34a', color: 'white', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.9rem' }}
+                      className="btn-pay-mp btn-cash"
+                      style={{ flex: 2 }}
                     >
-                      {enviandoEfectivo ? <Loader2 className="spin-icon" size={18} /> : '✅ Enviar Solicitud'}
+                      {enviandoEfectivo ? <Loader2 className="spin-icon" size={18} /> : '✅ Confirmar Solicitud'}
                     </button>
                   </div>
                 </div>
@@ -256,6 +317,7 @@ const Pago = ({ cotizacion, onClose }) => {
           </div>
 
         </div>
+
       </div>
     </div>
   );
