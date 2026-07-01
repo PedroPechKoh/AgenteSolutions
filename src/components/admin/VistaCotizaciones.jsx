@@ -147,6 +147,30 @@ const VistaCotizaciones = () => {
     }
   };
 
+  const calcularMontoFinalNum = (cot) => {
+    if (!cot || cot.type === 'archivo') return 0;
+    let subtotalItems = 0;
+    try {
+      const rawConcept = cot.concept || cot.concepto;
+      const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
+      if (detalle && typeof detalle === 'object') {
+        const listado = detalle.conceptos || detalle.servicios || [];
+        listado.forEach(c => subtotalItems += (parseFloat(c.precio_u || c.precio || 0) * parseFloat(c.cantidad || 1)));
+        if (detalle.materiales) {
+          detalle.materiales.forEach(m => subtotalItems += (parseFloat(m.costo_u || m.precio || 0) * parseFloat(m.cantidad || 1)));
+        }
+      }
+    } catch(e) {}
+    let base = subtotalItems > 0 ? subtotalItems : parseFloat(cot.total || 0);
+    if (esCliente && base > 0) {
+      const iva = base * 0.16;
+      const subConIva = base + iva;
+      const comisionMP = (subConIva * 0.0349 + 4) * 1.16;
+      return subConIva + comisionMP;
+    }
+    return base;
+  };
+
   const filtradas = cotizaciones.filter(c => {
     const searchParams = new URLSearchParams(location.search);
     const filterPropId = searchParams.get('propertyId');
@@ -176,8 +200,8 @@ const VistaCotizaciones = () => {
     return coincideFiltro && coincideBusqueda && correspondeAlCliente && coincideTipo && coincidePropiedad;
   }).sort((a, b) => {
     if (!ordenMonto) return 0;
-    const valA = parseFloat(a.total) || 0;
-    const valB = parseFloat(b.total) || 0;
+    const valA = calcularMontoFinalNum(a);
+    const valB = calcularMontoFinalNum(b);
     return ordenMonto === 'asc' ? valA - valB : valB - valA;
   });
 
@@ -357,7 +381,7 @@ const VistaCotizaciones = () => {
           <tr>
             <td>{conceptoStr}</td>
             <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
-              ${parseFloat(cotizacionSeleccionada.total).toLocaleString('es-MX')}
+              ${calcularMontoFinalNum(cotizacionSeleccionada).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>
           </tr>
         </tbody>
@@ -564,7 +588,7 @@ const VistaCotizaciones = () => {
           </td>
         )}
         <td className="monto-final" data-label="TOTAL">
-          {c.type === 'archivo' ? 'Ver Archivo' : `$${parseFloat(c.total).toLocaleString('es-MX')}`}
+          {c.type === 'archivo' ? 'Ver Archivo' : `$${calcularMontoFinalNum(c).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         </td>
         <td data-label="ACCIONES">
           <div className="cotiz-actions-cell">
