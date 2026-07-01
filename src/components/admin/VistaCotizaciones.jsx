@@ -258,6 +258,31 @@ const VistaCotizaciones = () => {
       const detalle = typeof conceptoStr === 'string' ? JSON.parse(conceptoStr) : conceptoStr;
       
       if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.materiales || detalle.herramientas_basicas)) {
+        
+        // ── Factor de precio para el Cliente ──────────────────────────────────
+        // El Admin ingresa precios base (sin IVA ni comisión MP).
+        // Para que al Cliente le cuadre la suma de ítems con el total, escalamos
+        // cada precio por: factor = totalFinal / subtotalBase
+        let priceFactor = 1;
+        if (esCliente) {
+          let subtotalBase = 0;
+          (detalle.conceptos || detalle.servicios || []).forEach(c => {
+            subtotalBase += parseFloat(c.precio_u || c.precio || 0) * parseFloat(c.cantidad || 1);
+          });
+          (detalle.materiales || []).forEach(m => {
+            subtotalBase += parseFloat(m.costo_u || m.precio || 0) * parseFloat(m.cantidad || 1);
+          });
+          const totalFinal = parseFloat(cotizacionSeleccionada?.total || 0);
+          if (subtotalBase > 0 && totalFinal > 0) {
+            priceFactor = totalFinal / subtotalBase;
+          }
+        }
+
+        const fmtPrecio = (rawPrice, qty = 1) => {
+          const precioAjustado = parseFloat(rawPrice || 0) * priceFactor;
+          return `$${precioAjustado.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        };
+
         return (
           <div className="detalle-parseado">
             {/* Conceptos / Servicios */}
@@ -277,7 +302,7 @@ const VistaCotizaciones = () => {
                       <tr key={i}>
                         <td>{c.descripcion}</td>
                         <td style={{ textAlign: 'center' }}>{c.cantidad || 1}</td>
-                        <td style={{ textAlign: 'center' }}>${parseFloat(c.precio_u || c.precio || 0).toLocaleString('es-MX')}</td>
+                        <td style={{ textAlign: 'center' }}>{fmtPrecio(c.precio_u || c.precio)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -302,7 +327,7 @@ const VistaCotizaciones = () => {
                       <tr key={i}>
                         <td>{m.nombre || m.descripcion}</td>
                         <td style={{ textAlign: 'center' }}>{m.cantidad || 1}</td>
-                        <td style={{ textAlign: 'center' }}>${parseFloat(m.costo_u || m.precio || 0).toLocaleString('es-MX')}</td>
+                        <td style={{ textAlign: 'center' }}>{fmtPrecio(m.costo_u || m.precio)}</td>
                       </tr>
                     ))}
                   </tbody>
