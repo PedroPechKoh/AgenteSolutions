@@ -1076,7 +1076,7 @@ const VistaCotizaciones = () => {
                     const monto = esAnticipo
                       ? (parseFloat(cotizacionSeleccionada.advance_amount) || (calcularMontoFinalNum(cotizacionSeleccionada) * 0.60))
                       : calcularMontoFinalNum(cotizacionSeleccionada);
-                    const autorizador = cotizacionSeleccionada.cash_confirmed_by_name || 'Administración';
+                    const autorizador = esCliente ? 'Jorge Ernesto Vallarta (Jefe General)' : (cotizacionSeleccionada.cash_confirmed_by_name || 'Administración');
                     const fechaConfirmacion = cotizacionSeleccionada.cash_confirmed_at || cotizacionSeleccionada.advance_paid_at || cotizacionSeleccionada.remaining_paid_at || cotizacionSeleccionada.updated_at;
 
                     return (
@@ -1095,12 +1095,62 @@ const VistaCotizaciones = () => {
                           </div>
                           <div>
                             <div style={{ color: '#047857', fontSize: '0.78rem', fontWeight: '700', marginBottom: '2px' }}>👤 AUTORIZADO Y RECIBIDO POR</div>
-                            <div style={{ fontWeight: '800', color: '#1e293b', fontSize: '1.05rem' }}>Admin: {autorizador}</div>
+                            <div style={{ fontWeight: '800', color: '#1e293b', fontSize: '1.05rem' }}>{autorizador}</div>
                           </div>
                           <div style={{ gridColumn: '1 / -1', borderTop: '1px solid #d1fae5', paddingTop: '10px' }}>
                             <div style={{ color: '#047857', fontSize: '0.78rem', fontWeight: '700', marginBottom: '2px' }}>📅 FECHA Y HORA DE REGISTRO / AUTORIZACIÓN</div>
                             <div style={{ fontWeight: '700', color: '#334155' }}>{formatDate(fechaConfirmacion)}</div>
                           </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Sección: Saldo Pendiente del 40% */}
+                  {((cotizacionSeleccionada.advance_paid || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo') || cotizacionSeleccionada.cash_amount_type === 'advance') && !cotizacionSeleccionada.remaining_paid) && (() => {
+                    const montoRestante = parseFloat(cotizacionSeleccionada.remaining_amount) || (calcularMontoFinalNum(cotizacionSeleccionada) * 0.40);
+                    return (
+                      <div style={{ width: '100%', marginBottom: '20px', border: '2px solid #ea580c', borderRadius: '14px', overflow: 'hidden' }}>
+                        <div style={{ background: 'linear-gradient(135deg, #ea580c, #c2410c)', padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '800', fontSize: '1rem' }}>
+                            <span>⏳ SALDO RESTANTE DEL 40% PENDIENTE</span>
+                          </div>
+                          <span style={{ background: '#fff7ed', color: '#c2410c', padding: '3px 10px', borderRadius: '12px', fontSize: '0.72rem', fontWeight: '800' }}>AL FINALIZAR</span>
+                        </div>
+                        <div style={{ background: '#fffbeb', padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
+                          <div>
+                            <div style={{ color: '#9a3412', fontSize: '0.82rem', fontWeight: '700' }}>MONTO A LIQUIDAR AL CONCLUIR EL TRABAJO:</div>
+                            <div style={{ color: '#c2410c', fontSize: '1.3rem', fontWeight: '800' }}>${montoRestante.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</div>
+                          </div>
+                          {esCliente ? (
+                            <button
+                              onClick={() => setShowPagoModal(true)}
+                              style={{ background: '#ea580c', color: 'white', border: 'none', padding: '12px 22px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', fontSize: '0.95rem', boxShadow: '0 4px 10px rgba(234, 88, 12, 0.3)' }}
+                            >
+                              💳 Liquidar Saldo (40%)
+                            </button>
+                          ) : !esTecnico ? (
+                            <button
+                              onClick={async () => {
+                                if (!window.confirm(`¿Confirmas que ya recibiste el pago en efectivo del saldo restante por $${montoRestante.toFixed(2)} MXN?`)) return;
+                                try {
+                                  setProcesando(true);
+                                  await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/confirmar-efectivo-restante`);
+                                  cargarCotizaciones();
+                                  setCotizacionSeleccionada(null);
+                                  alert('¡Cobro del 40% en efectivo confirmado exitosamente!');
+                                } catch (e) {
+                                  alert('Error al confirmar el cobro en efectivo.');
+                                } finally {
+                                  setProcesando(false);
+                                }
+                              }}
+                              disabled={procesando}
+                              style={{ background: '#16a34a', color: 'white', border: 'none', padding: '12px 20px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', fontSize: '0.95rem' }}
+                            >
+                              ✅ Confirmar Cobro 40% en Efectivo
+                            </button>
+                          ) : null}
                         </div>
                       </div>
                     );
