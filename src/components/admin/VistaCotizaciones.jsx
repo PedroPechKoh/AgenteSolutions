@@ -66,32 +66,39 @@ const VistaCotizaciones = () => {
   useEffect(() => {
     if (cotizaciones && cotizaciones.length > 0) {
       const searchParams = new URLSearchParams(window.location.search);
-      // MercadoPago callback usa 'quote_id' (con underscore)
       const quoteIdParam = searchParams.get('quote_id') || searchParams.get('quoteId');
       const paymentStatus = searchParams.get('payment_status');
+      const collectionStatus = searchParams.get('collection_status') || searchParams.get('status');
+      const paymentId = searchParams.get('payment_id') || searchParams.get('collection_id');
+      const stageParam = searchParams.get('stage') || 'full';
 
       if (paymentStatus) {
         if (paymentStatus === 'success' && quoteIdParam) {
-          // Verificar el pago inmediatamente al regresar de MercadoPago
-          axios.post(`${import.meta.env.VITE_API_BASE_URL}/mercadopago/verify`, { quote_id: quoteIdParam })
-            .then(res => {
-              if (res.data.status === 'success') {
-                cargarCotizaciones();
-                setFiltro('Pagadas');
-                alert('¡Tu pago fue procesado con éxito a través de MercadoPago! La cotización ya está marcada como PAGADA.');
-              } else {
-                alert('Tu pago está en proceso de verificación. En unos minutos se actualizará automáticamente.');
-              }
-            }).catch(err => {
-              console.error(err);
-              alert('¡Tu pago fue recibido! Actualiza la página en unos segundos si no ves el cambio.');
-            });
+          if (collectionStatus === 'rejected' || collectionStatus === 'cancelled') {
+            alert('La transacción fue cancelada o rechazada. No se ha cobrado ningún monto.');
+          } else {
+            axios.post(`${import.meta.env.VITE_API_BASE_URL}/mercadopago/verify`, { 
+              quote_id: quoteIdParam,
+              payment_id: paymentId,
+              stage: stageParam
+            })
+              .then(res => {
+                if (res.data.status === 'success') {
+                  cargarCotizaciones();
+                  setFiltro('Pagadas');
+                  alert('¡Tu pago fue validado y procesado con éxito a través de MercadoPago!');
+                } else {
+                  alert('El pago no se detectó o está en proceso de validación. Si lo completaste, se actualizará en breve.');
+                }
+              }).catch(err => {
+                console.error(err);
+              });
+          }
         } else if (paymentStatus === 'failure') {
-          alert('El pago no pudo ser procesado. Por favor intenta con otra tarjeta o método de pago.');
+          alert('El pago no pudo ser procesado o fue cancelado.');
         } else if (paymentStatus === 'pending') {
           alert('Tu pago está en proceso. Te notificaremos en cuanto MercadoPago o el banco lo apruebe.');
         }
-        // Limpiar la URL siempre que haya payment_status
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
