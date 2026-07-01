@@ -88,18 +88,59 @@ const Pago = ({ cotizacion, onClose }) => {
     }
   };
 
+  const handleSolicitarEfectivoRestante = async () => {
+    try {
+      setEnviandoEfectivo(true);
+      const token = localStorage.getItem('agente_token');
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacion.id}/solicitar-efectivo`,
+        { cash_amount_type: 'remaining', cash_timing: 'on_completion' },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      setEfectivoEnviado(true);
+    } catch (error) {
+      console.error('Error solicitando efectivo para saldo restante:', error);
+      alert('Error al enviar la solicitud en efectivo.');
+    } finally {
+      setEnviandoEfectivo(false);
+    }
+  };
+
   // ---------- PANTALLA: Anticipo ya pagado, solo queda el 40% ----------
   if (yaPayoAnticipo && !cotizacion?.remaining_paid) {
     return (
       <div className="tp-modal-overlay" style={{ zIndex: 100000 }}>
-        <div className="payment-modal-card" style={{ maxWidth: '520px', padding: '36px 28px' }}>
-          <button onClick={onClose} className="payment-close-btn" style={{ background: '#f1f5f9', color: '#475569' }}><X size={20} /></button>
+        <div className="payment-modal-card" style={{ maxWidth: '540px', padding: '36px 28px', position: 'relative' }}>
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              width: '38px',
+              height: '38px',
+              borderRadius: '50%',
+              background: '#e2e8f0',
+              color: '#0f172a',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 10,
+              boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+              transition: 'all 0.2s'
+            }}
+            title="Cerrar modal"
+          >
+            <X size={22} color="#0f172a" style={{ strokeWidth: 3 }} />
+          </button>
 
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '22px' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
               <CheckCircle2 size={36} color="#16a34a" />
             </div>
-            <h2 style={{ color: '#0f172a', fontSize: '1.4rem', fontWeight: 800, margin: '0 0 6px 0' }}>Anticipo Acreditado</h2>
+            <h2 style={{ color: '#0f172a', fontSize: '1.45rem', fontWeight: 800, margin: '0 0 6px 0' }}>Anticipo Acreditado</h2>
             <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>El 60% inicial ya fue registrado exitosamente.</p>
           </div>
 
@@ -114,14 +155,39 @@ const Pago = ({ cotizacion, onClose }) => {
             </div>
           </div>
 
-          <button
-            onClick={() => handleMercadoPago('remaining')}
-            disabled={subiendo}
-            className="btn-pay-mp btn-advance"
-            style={{ padding: '16px' }}
-          >
-            {subiendo ? <Loader2 className="spin-icon" size={22} /> : <>Liquidar Saldo ({fmt(restante)}) con <img src={mpLogo} alt="MP" style={{ height: '24px', filter: 'brightness(0) invert(1)' }} /></>}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <button
+              onClick={() => handleMercadoPago('remaining')}
+              disabled={subiendo || enviandoEfectivo}
+              className="btn-pay-mp btn-advance"
+              style={{ padding: '16px', width: '100%' }}
+            >
+              {subiendo ? <Loader2 className="spin-icon" size={22} /> : <>Liquidar Saldo ({fmt(restante)}) con <img src={mpLogo} alt="MP" style={{ height: '24px', filter: 'brightness(0) invert(1)' }} /></>}
+            </button>
+
+            <button
+              onClick={handleSolicitarEfectivoRestante}
+              disabled={subiendo || enviandoEfectivo}
+              style={{
+                width: '100%',
+                padding: '16px',
+                borderRadius: '14px',
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                fontWeight: 800,
+                fontSize: '1rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
+              }}
+            >
+              {enviandoEfectivo ? <Loader2 className="spin-icon" size={22} /> : <>💵 Solicitar Pago en Efectivo ({fmt(restante)})</>}
+            </button>
+          </div>
         </div>
       </div>
     );
