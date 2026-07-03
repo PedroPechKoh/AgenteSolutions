@@ -15,6 +15,11 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: Seleccionar Servicio, 2: Detalles
 
+  // --- MODO LOTE / UNIFICADA ---
+  const [isUnifiedBatch, setIsUnifiedBatch] = useState(false);
+  const [loteServicios, setLoteServicios] = useState([]);
+  const [activeTabLote, setActiveTabLote] = useState(0);
+
   // --- BUSQUEDA DE SERVICIO ---
   const [busqueda, setBusqueda] = useState('');
   const [todosServicios, setTodosServicios] = useState([]);
@@ -31,21 +36,47 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
   useEffect(() => {
     if (prefillData) {
       setServicioSeleccionado({
-        id: prefillData.service_id || prefillData.work_order_id,
-        is_work_order: !!prefillData.work_order_id,
-        identificador_curp: prefillData.folio,
-        propietario: prefillData.cliente,
+        id: prefillData.service_id || prefillData.work_order_id || prefillData.dbId,
+        is_work_order: !!(prefillData.work_order_id || prefillData.is_work_order || prefillData.dbId),
+        identificador_curp: prefillData.folio || prefillData.folio_interno,
+        propietario: prefillData.cliente || prefillData.cliente_nombre,
         propiedad_nombre: prefillData.propiedad_nombre || '---',
         direccion: prefillData.direccion || '---'
       });
       
-      if (prefillData.concept) {
-        const c = prefillData.concept;
-        if (c.servicios || c.conceptos) {
-          setFilasConceptos((c.servicios || c.conceptos).map((f, i) => ({ id: Date.now() + i, desc: f.descripcion || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.precio_u || 0 })));
+      if (prefillData.isUnifiedBatch || prefillData.isBatch || prefillData.batchTasks) {
+        setIsUnifiedBatch(true);
+        const batchList = prefillData.batchTasks || prefillData.serviciosLote || [];
+        if (batchList.length > 0) {
+          setLoteServicios(batchList.map((t, idx) => ({
+            id: t.dbId || t.id || idx + 1,
+            titulo: `Servicio #${idx + 1}: ${t.descripcion || t.titulo || 'Reparación'}`,
+            filasConceptos: [{ id: Date.now() + idx * 10, desc: t.descripcion || '', cant: 1, precio: '' }],
+            filasMateriales: [{ id: Date.now() + idx * 10 + 5, desc: '', cant: 1, precio: '' }]
+          })));
+        } else {
+          setLoteServicios([
+            { id: 1, titulo: 'Servicio #1', filasConceptos: [{ id: Date.now(), desc: '', cant: 1, precio: '' }], filasMateriales: [{ id: Date.now()+1, desc: '', cant: 1, precio: '' }] },
+            { id: 2, titulo: 'Servicio #2', filasConceptos: [{ id: Date.now()+2, desc: '', cant: 1, precio: '' }], filasMateriales: [{ id: Date.now()+3, desc: '', cant: 1, precio: '' }] }
+          ]);
         }
-        if (c.materiales) {
-          setFilasMateriales(c.materiales.map((f, i) => ({ id: Date.now() + 100 + i, desc: f.descripcion || f.nombre || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.costo_u || 0 })));
+      } else if (prefillData.concept) {
+        const c = prefillData.concept;
+        if (c.isUnifiedBatch && c.seccionesLote) {
+          setIsUnifiedBatch(true);
+          setLoteServicios(c.seccionesLote.map((s, idx) => ({
+            id: s.servicioId || idx + 1,
+            titulo: s.titulo || `Servicio #${idx + 1}`,
+            filasConceptos: s.conceptos?.map((f, i) => ({ id: Date.now() + i, desc: f.descripcion, cant: f.cantidad, precio: f.precio })) || [],
+            filasMateriales: s.materiales?.map((f, i) => ({ id: Date.now() + 100 + i, desc: f.descripcion, cant: f.cantidad, precio: f.precio })) || []
+          })));
+        } else {
+          if (c.servicios || c.conceptos) {
+            setFilasConceptos((c.servicios || c.conceptos).map((f, i) => ({ id: Date.now() + i, desc: f.descripcion || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.precio_u || 0 })));
+          }
+          if (c.materiales) {
+            setFilasMateriales(c.materiales.map((f, i) => ({ id: Date.now() + 100 + i, desc: f.descripcion || f.nombre || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.costo_u || 0 })));
+          }
         }
       }
       
@@ -100,9 +131,37 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
     setter(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
   };
 
+  const addFilaLote = (idx, tipo) => {
+    setLoteServicios(prev => prev.map((s, i) => i === idx ? {
+      ...s,
+      [tipo]: [...s[tipo], { id: Date.now(), desc: '', cant: 1, precio: '' }]
+    } : s));
+  };
+  const removeFilaLote = (idx, tipo, filaId) => {
+    setLoteServicios(prev => prev.map((s, i) => i === idx ? {
+      ...s,
+      [tipo]: s[tipo].filter(f => f.id !== filaId)
+    } : s));
+  };
+  const updateFilaLote = (idx, tipo, filaId, field, val) => {
+    setLoteServicios(prev => prev.map((s, i) => i === idx ? {
+      ...s,
+      [tipo]: s[tipo].map(f => f.id === filaId ? { ...f, [field]: val } : f)
+    } : s));
+  };
+
   const calcularTotales = () => {
-    const subtotal = filasConceptos.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0)
-                   + filasMateriales.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
+    let subtotal = 0;
+    if (isUnifiedBatch && loteServicios.length > 0) {
+      subtotal = loteServicios.reduce((accS, s) => {
+        const subC = s.filasConceptos.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
+        const subM = s.filasMateriales.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
+        return accS + subC + subM;
+      }, 0);
+    } else {
+      subtotal = filasConceptos.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0)
+                 + filasMateriales.reduce((acc, f) => acc + (Number(f.cant) * Number(f.precio)), 0);
+    }
     const iva = subtotal * IVA_RATE;
     const subtotalConIva = subtotal + iva;
     const comisionMP = (subtotalConIva * 0.0349 + 4) * 1.16;
@@ -126,10 +185,27 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
       }
 
       if (tab === 'manual') {
-        const conceptData = {
-          servicios: filasConceptos.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio })),
-          materiales: filasMateriales.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio }))
-        };
+        let conceptData;
+        if (isUnifiedBatch && loteServicios.length > 0) {
+          conceptData = {
+            isUnifiedBatch: true,
+            seccionesLote: loteServicios.map(s => ({
+              titulo: s.titulo,
+              servicioId: s.id,
+              conceptos: s.filasConceptos.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio })),
+              materiales: s.filasMateriales.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio }))
+            })),
+            servicios: loteServicios.flatMap(s => s.filasConceptos.map(f => ({ descripcion: `[${s.titulo}] ${f.desc}`, cantidad: f.cant, precio: f.precio }))),
+            materiales: loteServicios.flatMap(s => s.filasMateriales.map(f => ({ descripcion: `[${s.titulo}] ${f.desc}`, cantidad: f.cant, precio: f.precio })))
+          };
+          formData.append('is_unified_batch', 'true');
+          formData.append('related_service_ids', JSON.stringify(loteServicios.map(s => s.id)));
+        } else {
+          conceptData = {
+            servicios: filasConceptos.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio })),
+            materiales: filasMateriales.map(f => ({ descripcion: f.desc, cantidad: f.cant, precio: f.precio }))
+          };
+        }
         formData.append('concept', JSON.stringify(conceptData));
         const { total } = calcularTotales();
         formData.append('estimated_amount', total.toFixed(2));
@@ -343,83 +419,205 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
 
               {tab === 'manual' ? (
                 <div className="manual-form">
-                  <h4 style={{ color: '#f26624', borderBottom: '1px solid #f26624', paddingBottom: '5px', marginBottom: '15px', fontWeight: '800' }}>1. CONCEPTOS DE SERVICIO</h4>
-                  {filasConceptos.map(f => (
-                    <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
-                      <div style={{ width: '100%', marginBottom: '10px' }}>
-                         <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Descripción del Servicio</label>
-                         <input 
-                           placeholder="Ej. Cambio de carbones a máquina..." 
-                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', background: '#fff', color: '#0f172a', fontWeight: '600' }}
-                           value={f.desc}
-                           onChange={(e) => updateFila(setFilasConceptos, f.id, 'desc', e.target.value)}
-                         />
+                  {isUnifiedBatch && loteServicios.length > 0 && (
+                    <div style={{ background: '#1e293b', padding: '16px', borderRadius: '14px', marginBottom: '20px', border: '2px solid #334155' }}>
+                      <div style={{ color: '#f8fafc', fontWeight: '800', fontSize: '0.9rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        📦 COTIZACIÓN UNIFICADA DE LOTE ({loteServicios.length} SERVICIOS)
                       </div>
-                      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
-                         <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Cant.</label>
-                            <input 
-                              type="number" 
-                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'center', background: '#fff', color: '#0f172a', fontWeight: '600' }}
-                              value={f.cant}
-                              onChange={(e) => updateFila(setFilasConceptos, f.id, 'cant', e.target.value)}
-                            />
-                         </div>
-                         <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Precio U. ($)</label>
-                            <input 
-                              type="number" 
-                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'right', background: '#fff', color: '#0f172a', fontWeight: '600' }}
-                              value={f.precio}
-                              onChange={(e) => updateFila(setFilasConceptos, f.id, 'precio', e.target.value)}
-                            />
-                         </div>
-                         <button onClick={() => removeFila(setFilasConceptos, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '42px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
+                      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+                        {loteServicios.map((s, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setActiveTabLote(idx)}
+                            style={{
+                              padding: '8px 16px',
+                              background: activeTabLote === idx ? 'linear-gradient(135deg, #F26522, #ea580c)' : '#334155',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '10px',
+                              fontWeight: activeTabLote === idx ? '800' : '600',
+                              cursor: 'pointer',
+                              whiteSpace: 'nowrap',
+                              fontSize: '0.85rem'
+                            }}
+                          >
+                            Servicio #{idx + 1}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                  ))}
-                  <button onClick={() => addFila(setFilasConceptos)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666', fontWeight: 'bold' }}>
-                    <Plus size={16} /> AGREGAR CONCEPTO
-                  </button>
+                  )}
 
-                  <h4 style={{ color: '#f26624', borderBottom: '1px solid #f26624', paddingBottom: '5px', marginBottom: '15px', fontWeight: '800' }}>2. MATERIALES</h4>
-                  {filasMateriales.map(f => (
-                    <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
-                      <div style={{ width: '100%', marginBottom: '10px' }}>
-                         <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Nombre del Material</label>
-                         <input 
-                           placeholder="Ej. Carbones..." 
-                           style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', background: '#fff', color: '#0f172a', fontWeight: '600' }}
-                           value={f.desc}
-                           onChange={(e) => updateFila(setFilasMateriales, f.id, 'desc', e.target.value)}
-                         />
-                      </div>
-                      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
-                         <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Cant.</label>
-                            <input 
-                              type="number" 
-                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'center', background: '#fff', color: '#0f172a', fontWeight: '600' }}
-                              value={f.cant}
-                              onChange={(e) => updateFila(setFilasMateriales, f.id, 'cant', e.target.value)}
-                            />
-                         </div>
-                         <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Costo U. ($)</label>
-                            <input 
-                              type="number" 
-                              style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'right', background: '#fff', color: '#0f172a', fontWeight: '600' }}
-                              value={f.precio}
-                              onChange={(e) => updateFila(setFilasMateriales, f.id, 'precio', e.target.value)}
-                            />
-                         </div>
-                         <button onClick={() => removeFila(setFilasMateriales, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '42px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
-                      </div>
-                    </div>
-                  ))}
-                  <button onClick={() => addFila(setFilasMateriales)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666', fontWeight: 'bold' }}>
-                    <Plus size={16} /> AGREGAR MATERIAL
-                  </button>
+                  {isUnifiedBatch && loteServicios[activeTabLote] ? (
+                    (() => {
+                      const srv = loteServicios[activeTabLote];
+                      return (
+                        <div key={activeTabLote}>
+                          <div style={{ background: '#f1f5f9', padding: '12px 16px', borderRadius: '10px', marginBottom: '15px', fontWeight: '800', color: '#0f172a', borderLeft: '4px solid #F26522' }}>
+                            Editando Partidas: {srv.titulo}
+                          </div>
+                          <h4 style={{ color: '#f26624', borderBottom: '1px solid #f26624', paddingBottom: '5px', marginBottom: '15px', fontWeight: '800' }}>1. CONCEPTOS ({srv.titulo})</h4>
+                          {srv.filasConceptos.map(f => (
+                            <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
+                              <div style={{ width: '100%', marginBottom: '10px' }}>
+                                 <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Descripción del Servicio</label>
+                                 <input 
+                                   placeholder="Ej. Cambio de carbones..." 
+                                   style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                   value={f.desc}
+                                   onChange={(e) => updateFilaLote(activeTabLote, 'filasConceptos', f.id, 'desc', e.target.value)}
+                                 />
+                              </div>
+                              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
+                                 <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Cant.</label>
+                                    <input 
+                                      type="number" 
+                                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'center', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                      value={f.cant}
+                                      onChange={(e) => updateFilaLote(activeTabLote, 'filasConceptos', f.id, 'cant', e.target.value)}
+                                    />
+                                 </div>
+                                 <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Precio U. ($)</label>
+                                    <input 
+                                      type="number" 
+                                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'right', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                      value={f.precio}
+                                      onChange={(e) => updateFilaLote(activeTabLote, 'filasConceptos', f.id, 'precio', e.target.value)}
+                                    />
+                                 </div>
+                                 <button type="button" onClick={() => removeFilaLote(activeTabLote, 'filasConceptos', f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '42px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
+                              </div>
+                            </div>
+                          ))}
+                          <button type="button" onClick={() => addFilaLote(activeTabLote, 'filasConceptos')} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666', fontWeight: 'bold' }}>
+                            <Plus size={16} /> AGREGAR CONCEPTO A ESTE SERVICIO
+                          </button>
+
+                          <h4 style={{ color: '#f26624', borderBottom: '1px solid #f26624', paddingBottom: '5px', marginBottom: '15px', fontWeight: '800' }}>2. MATERIALES ({srv.titulo})</h4>
+                          {srv.filasMateriales.map(f => (
+                            <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
+                              <div style={{ width: '100%', marginBottom: '10px' }}>
+                                 <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Nombre del Material</label>
+                                 <input 
+                                   placeholder="Ej. Carbones..." 
+                                   style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                   value={f.desc}
+                                   onChange={(e) => updateFilaLote(activeTabLote, 'filasMateriales', f.id, 'desc', e.target.value)}
+                                 />
+                              </div>
+                              <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
+                                 <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Cant.</label>
+                                    <input 
+                                      type="number" 
+                                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'center', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                      value={f.cant}
+                                      onChange={(e) => updateFilaLote(activeTabLote, 'filasMateriales', f.id, 'cant', e.target.value)}
+                                    />
+                                 </div>
+                                 <div style={{ flex: 1 }}>
+                                    <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Costo U. ($)</label>
+                                    <input 
+                                      type="number" 
+                                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'right', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                      value={f.precio}
+                                      onChange={(e) => updateFilaLote(activeTabLote, 'filasMateriales', f.id, 'precio', e.target.value)}
+                                    />
+                                 </div>
+                                 <button type="button" onClick={() => removeFilaLote(activeTabLote, 'filasMateriales', f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '42px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
+                              </div>
+                            </div>
+                          ))}
+                          <button type="button" onClick={() => addFilaLote(activeTabLote, 'filasMateriales')} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666', fontWeight: 'bold' }}>
+                            <Plus size={16} /> AGREGAR MATERIAL A ESTE SERVICIO
+                          </button>
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    <>
+                      <h4 style={{ color: '#f26624', borderBottom: '1px solid #f26624', paddingBottom: '5px', marginBottom: '15px', fontWeight: '800' }}>1. CONCEPTOS DE SERVICIO</h4>
+                      {filasConceptos.map(f => (
+                        <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
+                          <div style={{ width: '100%', marginBottom: '10px' }}>
+                             <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Descripción del Servicio</label>
+                             <input 
+                               placeholder="Ej. Cambio de carbones a máquina..." 
+                               style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                               value={f.desc}
+                               onChange={(e) => updateFila(setFilasConceptos, f.id, 'desc', e.target.value)}
+                             />
+                          </div>
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
+                             <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Cant.</label>
+                                <input 
+                                  type="number" 
+                                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'center', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                  value={f.cant}
+                                  onChange={(e) => updateFila(setFilasConceptos, f.id, 'cant', e.target.value)}
+                                />
+                             </div>
+                             <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Precio U. ($)</label>
+                                <input 
+                                  type="number" 
+                                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'right', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                  value={f.precio}
+                                  onChange={(e) => updateFila(setFilasConceptos, f.id, 'precio', e.target.value)}
+                                />
+                             </div>
+                             <button type="button" onClick={() => removeFila(setFilasConceptos, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '42px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
+                          </div>
+                        </div>
+                      ))}
+                      <button type="button" onClick={() => addFila(setFilasConceptos)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666', fontWeight: 'bold' }}>
+                        <Plus size={16} /> AGREGAR CONCEPTO
+                      </button>
+
+                      <h4 style={{ color: '#f26624', borderBottom: '1px solid #f26624', paddingBottom: '5px', marginBottom: '15px', fontWeight: '800' }}>2. MATERIALES</h4>
+                      {filasMateriales.map(f => (
+                        <div key={f.id} style={{ background: '#f8fafc', padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '15px' }}>
+                          <div style={{ width: '100%', marginBottom: '10px' }}>
+                             <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Nombre del Material</label>
+                             <input 
+                               placeholder="Ej. Carbones..." 
+                               style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                               value={f.desc}
+                               onChange={(e) => updateFila(setFilasMateriales, f.id, 'desc', e.target.value)}
+                             />
+                          </div>
+                          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end', width: '100%' }}>
+                             <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Cant.</label>
+                                <input 
+                                  type="number" 
+                                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'center', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                  value={f.cant}
+                                  onChange={(e) => updateFila(setFilasMateriales, f.id, 'cant', e.target.value)}
+                                />
+                             </div>
+                             <div style={{ flex: 1 }}>
+                                <label style={{ fontSize: '0.78rem', fontWeight: '800', color: '#1e293b', display: 'block', marginBottom: '5px' }}>Costo U. ($)</label>
+                                <input 
+                                  type="number" 
+                                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '2px solid #94a3b8', textAlign: 'right', background: '#fff', color: '#0f172a', fontWeight: '600' }}
+                                  value={f.precio}
+                                  onChange={(e) => updateFila(setFilasMateriales, f.id, 'precio', e.target.value)}
+                                />
+                             </div>
+                             <button type="button" onClick={() => removeFila(setFilasMateriales, f.id)} style={{ padding: '10px 15px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#ef4444', cursor: 'pointer', height: '42px', display: 'flex', alignItems: 'center' }}><Trash2 size={18} /></button>
+                          </div>
+                        </div>
+                      ))}
+                      <button type="button" onClick={() => addFila(setFilasMateriales)} style={{ width: '100%', padding: '8px', background: '#f5f5f5', border: '1px dashed #ccc', borderRadius: '8px', marginBottom: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#666', fontWeight: 'bold' }}>
+                        <Plus size={16} /> AGREGAR MATERIAL
+                      </button>
+                    </>
+                  )}
 
                   <textarea 
                     placeholder="Observaciones para el CLIENTE..."

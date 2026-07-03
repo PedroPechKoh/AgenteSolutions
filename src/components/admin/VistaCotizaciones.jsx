@@ -321,6 +321,69 @@ const VistaCotizaciones = () => {
           return `$${precioAjustado.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         };
 
+        if (detalle.isUnifiedBatch && detalle.seccionesLote) {
+          return (
+            <div className="detalle-parseado">
+              <div style={{ background: '#1e293b', color: '#fff', padding: '12px 16px', borderRadius: '10px', fontWeight: '800', marginBottom: '18px', borderLeft: '4px solid #F26522', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                📦 COTIZACIÓN UNIFICADA DE LOTE ({detalle.seccionesLote.length} SERVICIOS DIVIDIDOS)
+              </div>
+              {detalle.seccionesLote.map((sec, sIdx) => (
+                <div key={sIdx} style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #cbd5e1', marginBottom: '20px' }}>
+                  <h4 style={{ color: '#0f172a', borderBottom: '2px solid #F26522', paddingBottom: '8px', marginBottom: '14px', fontWeight: '800', fontSize: '1.05rem' }}>
+                    {sec.titulo || `Servicio #${sIdx + 1}`}
+                  </h4>
+                  {sec.conceptos && sec.conceptos.filter(c => c.descripcion || c.precio_u || c.precio).length > 0 && (
+                    <div className="detalle-seccion" style={{ marginBottom: '15px' }}>
+                      <h5 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '4px', margin: '0 0 8px 0' }}>Servicios / Conceptos</h5>
+                      <table className="modal-items-table">
+                        <thead>
+                          <tr>
+                            <th>Descripción</th>
+                            <th style={{ textAlign: 'center' }}>Cant.</th>
+                            <th style={{ textAlign: 'center' }}>Precio U.</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sec.conceptos.filter(c => c.descripcion || c.precio_u || c.precio).map((c, i) => (
+                            <tr key={i}>
+                              <td>{c.descripcion}</td>
+                              <td style={{ textAlign: 'center' }}>{c.cantidad || 1}</td>
+                              <td style={{ textAlign: 'center' }}>{fmtPrecio(c.precio_u || c.precio)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                  {sec.materiales && sec.materiales.filter(m => m.nombre || m.descripcion || m.costo_u || m.precio).length > 0 && (
+                    <div className="detalle-seccion">
+                      <h5 style={{ color: '#ff8800', borderBottom: '1px solid #ff8800', paddingBottom: '4px', margin: '0 0 8px 0' }}>Materiales</h5>
+                      <table className="modal-items-table">
+                        <thead>
+                          <tr>
+                            <th>Nombre</th>
+                            <th style={{ textAlign: 'center' }}>Cant.</th>
+                            <th style={{ textAlign: 'center' }}>Costo U.</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sec.materiales.filter(m => m.nombre || m.descripcion || m.costo_u || m.precio).map((m, i) => (
+                            <tr key={i}>
+                              <td>{m.nombre || m.descripcion}</td>
+                              <td style={{ textAlign: 'center' }}>{m.cantidad || 1}</td>
+                              <td style={{ textAlign: 'center' }}>{fmtPrecio(m.costo_u || m.precio)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        }
+
         return (
           <div className="detalle-parseado">
             {/* Conceptos / Servicios */}
@@ -571,6 +634,11 @@ const VistaCotizaciones = () => {
               }
               return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0284c7', fontSize: '0.65rem', fontWeight: 'bold' }}>PENDIENTE</span>;
             })()}
+            {(c.is_unified_batch || (c.related_service_ids && c.related_service_ids.length > 0) || (typeof c.concept === 'string' ? c.concept.includes('isUnifiedBatch') : c.concept?.isUnifiedBatch)) && (
+              <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#1e293b', color: '#fff', border: '1px solid #F26522', fontSize: '0.65rem', fontWeight: '800', marginTop: '2px' }}>
+                📦 UNIFICADA (LOTE)
+              </span>
+            )}
             {c.propiedad_nombre && c.propiedad_nombre !== 'N/A' && (
               <span style={{ fontSize: '0.78rem', color: '#f26624', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                 <Home size={12} /> {c.propiedad_nombre}
