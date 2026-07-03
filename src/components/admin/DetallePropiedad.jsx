@@ -1665,41 +1665,59 @@ const DetallePropiedad = () => {
 
             {trabajoSeleccionado.isBatch && (
               <div style={{ 
-                display: 'flex', 
-                overflowX: 'auto', 
-                background: '#f8fafc', 
-                padding: '15px 15px 0 15px', 
-                borderBottom: '1px solid #e2e8f0',
-                gap: '8px',
-                alignItems: 'flex-end'
+                background: 'linear-gradient(135deg, #1e293b, #0f172a)', 
+                padding: '16px 20px', 
+                borderBottom: '2px solid #334155',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
               }}>
-                {trabajoSeleccionado.batchTasks.map((t, index) => (
-                  <button
-                    key={t.dbId || index}
-                    onClick={() => setActiveBatchTab(index)}
-                    style={{
-                      padding: '10px 18px',
-                      background: activeBatchTab === index ? '#f8fafc' : 'white',
-                      border: '1px solid',
-                      borderColor: activeBatchTab === index ? '#e2e8f0 #e2e8f0 #f8fafc #e2e8f0' : 'transparent',
-                      borderTopLeftRadius: '10px',
-                      borderTopRightRadius: '10px',
-                      fontWeight: activeBatchTab === index ? '800' : '600',
-                      color: activeBatchTab === index ? '#F26522' : '#64748b',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      marginBottom: '-1px',
-                      position: 'relative',
-                      zIndex: activeBatchTab === index ? 1 : 0,
-                      fontSize: '0.85rem',
-                      transition: 'all 0.2s',
-                      outline: 'none',
-                      lineHeight: '1.2'
-                    }}
-                  >
-                    Servicio {index + 1}
-                  </button>
-                ))}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                  <span style={{ color: '#f8fafc', fontWeight: '800', fontSize: '0.85rem', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    ⚡ Servicios incluidos en este lote ({trabajoSeleccionado.batchTasks?.length || 0})
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', background: 'rgba(255,255,255,0.1)', padding: '3px 12px', borderRadius: '12px' }}>
+                    Haz clic para navegar entre servicios
+                  </span>
+                </div>
+                <div style={{ 
+                  display: 'flex', 
+                  overflowX: 'auto', 
+                  gap: '10px',
+                  paddingBottom: '4px'
+                }}>
+                  {trabajoSeleccionado.batchTasks.map((t, index) => {
+                    const isActive = activeBatchTab === index;
+                    return (
+                      <button
+                        key={t.dbId || index}
+                        onClick={() => setActiveBatchTab(index)}
+                        style={{
+                          padding: '10px 18px',
+                          background: isActive ? 'linear-gradient(135deg, #F26522, #ea580c)' : '#f8fafc',
+                          border: isActive ? 'none' : '1px solid #cbd5e1',
+                          borderRadius: '12px',
+                          fontWeight: isActive ? '800' : '700',
+                          color: isActive ? '#ffffff' : '#475569',
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap',
+                          fontSize: '0.92rem',
+                          transition: 'all 0.25s ease',
+                          boxShadow: isActive ? '0 4px 14px rgba(242, 101, 34, 0.45)' : '0 1px 3px rgba(0,0,0,0.05)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          transform: isActive ? 'scale(1.02)' : 'none'
+                        }}
+                      >
+                        <span style={{ background: isActive ? 'rgba(255,255,255,0.25)' : '#e2e8f0', color: isActive ? '#fff' : '#334155', padding: '2px 8px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '800' }}>
+                          #{index + 1}
+                        </span>
+                        <span>Servicio {index + 1}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
