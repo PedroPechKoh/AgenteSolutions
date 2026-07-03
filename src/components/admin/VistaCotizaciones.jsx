@@ -1121,6 +1121,23 @@ const VistaCotizaciones = () => {
                   {/* Sección: Saldo Pendiente del 40% */}
                   {((cotizacionSeleccionada.advance_paid || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo') || cotizacionSeleccionada.cash_amount_type === 'advance') && !cotizacionSeleccionada.remaining_paid && !(cotizacionSeleccionada.cash_requested && !cotizacionSeleccionada.cash_confirmed && cotizacionSeleccionada.cash_amount_type === 'remaining')) && (() => {
                     const montoRestante = parseFloat(cotizacionSeleccionada.remaining_amount) || (calcularMontoFinalNum(cotizacionSeleccionada) * 0.40);
+                    let montoRestanteEf = montoRestante;
+                    try {
+                      let subtotalItems = 0;
+                      const rawConcept = cotizacionSeleccionada.concept || cotizacionSeleccionada.concepto;
+                      const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
+                      if (detalle && typeof detalle === 'object') {
+                        const listado = detalle.conceptos || detalle.servicios || [];
+                        listado.forEach(c => subtotalItems += (parseFloat(c.precio_u || c.precio || 0) * parseFloat(c.cantidad || 1)));
+                        if (detalle.materiales) {
+                          detalle.materiales.forEach(m => subtotalItems += (parseFloat(m.costo_u || m.precio || 0) * parseFloat(m.cantidad || 1)));
+                        }
+                      }
+                      if (subtotalItems > 0) {
+                        montoRestanteEf = subtotalItems * 1.16 * 0.40;
+                      }
+                    } catch(e) {}
+
                     return (
                       <div style={{ width: '100%', marginBottom: '20px', border: '2px solid #ea580c', borderRadius: '14px', overflow: 'hidden' }}>
                         <div style={{ background: 'linear-gradient(135deg, #ea580c, #c2410c)', padding: '12px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white' }}>
@@ -1144,7 +1161,7 @@ const VistaCotizaciones = () => {
                           ) : !esTecnico ? (
                             <button
                               onClick={async () => {
-                                if (!window.confirm(`¿Confirmas que ya recibiste el pago en efectivo del saldo restante por $${montoRestante.toFixed(2)} MXN?`)) return;
+                                if (!window.confirm(`¿Confirmas que ya recibiste el pago en efectivo del saldo restante por $${montoRestanteEf.toFixed(2)} MXN?`)) return;
                                 try {
                                   setProcesando(true);
                                   await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/confirmar-efectivo-restante`);

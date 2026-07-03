@@ -66,6 +66,7 @@ const Pago = ({ cotizacion, onClose }) => {
   const restante = Math.round(total * 0.40 * 100) / 100;
 
   const totalEfectivo = Math.round(calcularMontoEfectivo(cotizacion) * 100) / 100;
+  const anticipoEfectivo = Math.round(totalEfectivo * 0.60 * 100) / 100;
   const restanteEfectivo = cotizacion?.remaining_amount ? parseFloat(cotizacion.remaining_amount) : Math.round(totalEfectivo * 0.40 * 100) / 100;
 
   const yaPayoAnticipo = cotizacion?.advance_paid === true;
@@ -355,13 +356,13 @@ const Pago = ({ cotizacion, onClose }) => {
                         onClick={() => setCashAmountType('advance')}
                         style={{ padding: '12px 10px', borderRadius: '12px', border: `2px solid ${cashAmountType === 'advance' ? '#3b82f6' : '#cbd5e1'}`, background: cashAmountType === 'advance' ? '#eff6ff' : 'white', color: cashAmountType === 'advance' ? '#1e40af' : '#64748b', fontWeight: 700, cursor: 'pointer', transition: '0.2s', textAlign: 'center' }}
                       >
-                        Anticipo (60%)<br /><span style={{ fontSize: '0.95rem', fontWeight: 800, color: cashAmountType === 'advance' ? '#1d4ed8' : '#334155' }}>{fmt(anticipo)}</span>
+                        Anticipo (60%)<br /><span style={{ fontSize: '0.95rem', fontWeight: 800, color: cashAmountType === 'advance' ? '#1d4ed8' : '#334155' }}>{fmt(anticipoEfectivo)}</span>
                       </button>
                       <button
                         onClick={() => setCashAmountType('full')}
                         style={{ padding: '12px 10px', borderRadius: '12px', border: `2px solid ${cashAmountType === 'full' ? '#10b981' : '#cbd5e1'}`, background: cashAmountType === 'full' ? '#ecfdf5' : 'white', color: cashAmountType === 'full' ? '#047857' : '#64748b', fontWeight: 700, cursor: 'pointer', transition: '0.2s', textAlign: 'center' }}
                       >
-                        Total (100%)<br /><span style={{ fontSize: '0.95rem', fontWeight: 800, color: cashAmountType === 'full' ? '#059669' : '#334155' }}>{fmt(total)}</span>
+                        Total (100%)<br /><span style={{ fontSize: '0.95rem', fontWeight: 800, color: cashAmountType === 'full' ? '#059669' : '#334155' }}>{fmt(totalEfectivo)}</span>
                       </button>
                     </div>
                   </div>
