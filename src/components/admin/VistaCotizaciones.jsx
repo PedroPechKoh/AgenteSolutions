@@ -1347,56 +1347,65 @@ const VistaCotizaciones = () => {
             <div className="modal-footer-btns" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   
                   {/* ROW 1: Botones Naranjas Arriba */}
-                  <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
-                    {!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico' && (
+                  {/* SECCIÓN ESPECIAL ADMIN: ACCIONES DE GENERACIÓN / DERIVACIÓN */}
+                  {!esCliente && !esTecnico && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
+                      {cotizacionSeleccionada.created_by_role === 'Técnico' && (
+                        <button 
+                          className="btn-modal-print" 
+                          style={{ background: '#F26522', color: 'white', fontWeight: 'bold', width: '100%', minHeight: '48px', height: 'auto', padding: '12px 16px', whiteSpace: 'normal', lineHeight: '1.3', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minWidth: 'unset' }} 
+                          onClick={() => {
+                            setCotizacionParaAsignar(cotizacionSeleccionada);
+                            setCotizacionSeleccionada(null);
+                            setShowCreateModal(true);
+                          }}
+                        >
+                          🛠️ GENERAR COTIZACIÓN A CLIENTE
+                        </button>
+                      )}
+
+                      {(() => {
+                        const cotHija = cotizaciones.find(c => String(c.parent_id) === String(cotizacionSeleccionada.id));
+                        if (cotHija) {
+                          return (
+                            <button 
+                              className="btn-modal-print" 
+                              style={{ background: '#3b82f6', color: 'white', fontWeight: 'bold', width: '100%', minHeight: '48px', height: 'auto', padding: '12px 16px', whiteSpace: 'normal', lineHeight: '1.3', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minWidth: 'unset' }} 
+                              onClick={() => {
+                                setCotizacionSeleccionada(cotHija);
+                              }}
+                            >
+                              👁️ VER COTIZACIÓN NUEVA O ACTUALIZADA
+                            </button>
+                          );
+                        } else {
+                          return (
+                            <button 
+                              className="btn-modal-print" 
+                              style={{ background: '#3b82f6', color: 'white', fontWeight: 'bold', width: '100%', minHeight: '48px', height: 'auto', padding: '12px 16px', whiteSpace: 'normal', lineHeight: '1.3', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minWidth: 'unset' }} 
+                              onClick={() => {
+                                setCotizacionParaAsignar({ ...cotizacionSeleccionada, isDerived: true });
+                                setCotizacionSeleccionada(null);
+                                setShowCreateModal(true);
+                              }}
+                            >
+                              ➕ GENERAR COTIZACIÓN DERIVADA
+                            </button>
+                          );
+                        }
+                      })()}
+                    </div>
+                  )}
+
+                  {/* ROW: Acciones de Documento (VER PDF) */}
+                  <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginBottom: '10px' }}>
+                    {cotizacionSeleccionada.type !== 'archivo' && (
                       <button 
                         className="btn-modal-print" 
-                        style={{ background: '#F26522', color: 'white', fontWeight: 'bold', flex: 1, textAlign: 'center', minWidth: '200px' }} 
-                        onClick={() => {
-                          setCotizacionParaAsignar(cotizacionSeleccionada);
-                          setCotizacionSeleccionada(null);
-                          setShowCreateModal(true);
-                        }}
+                        style={{ background: '#F26522', color: 'white', border: 'none', width: '100%', minHeight: '45px', height: 'auto', textAlign: 'center', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minWidth: 'unset' }} 
+                        onClick={handleImprimirPDF}
                       >
-                        🛠️ GENERAR COTIZACIÓN A CLIENTE
-                      </button>
-                    )}
-
-                    {(() => {
-                      if (esCliente || esTecnico) return null;
-                      const cotHija = cotizaciones.find(c => String(c.parent_id) === String(cotizacionSeleccionada.id));
-                      if (cotHija) {
-                        return (
-                          <button 
-                            className="btn-modal-print" 
-                            style={{ background: '#3b82f6', color: 'white', fontWeight: 'bold', flex: 1, textAlign: 'center', minWidth: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} 
-                            onClick={() => {
-                              setCotizacionSeleccionada(cotHija);
-                            }}
-                          >
-                            👁️ VER COTIZACIÓN NUEVA O ACTUALIZADA
-                          </button>
-                        );
-                      } else {
-                        return (
-                          <button 
-                            className="btn-modal-print" 
-                            style={{ background: '#3b82f6', color: 'white', fontWeight: 'bold', flex: 1, textAlign: 'center', minWidth: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }} 
-                            onClick={() => {
-                              setCotizacionParaAsignar({ ...cotizacionSeleccionada, isDerived: true });
-                              setCotizacionSeleccionada(null);
-                              setShowCreateModal(true);
-                            }}
-                          >
-                            ➕ GENERAR COTIZACIÓN DERIVADA
-                          </button>
-                        );
-                      }
-                    })()}
-
-                    {cotizacionSeleccionada.type !== 'archivo' && (
-                      <button className="btn-modal-print" style={{ background: '#F26522', color: 'white', border: 'none', flex: 1, textAlign: 'center', fontWeight: 'bold', minWidth: '150px' }} onClick={handleImprimirPDF}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '5px' }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                           <polyline points="14 2 14 8 20 8"></polyline>
                           <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -1406,16 +1415,15 @@ const VistaCotizaciones = () => {
                         VER PDF
                       </button>
                     )}
-                    </div>
-
+                  </div>
 
                   {/* ROW: Validación de Pago (Solo Admin) */}
                   {!esCliente && !esTecnico && cotizacionSeleccionada.status === 'Pago en Revisión' && (
-                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginTop: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginBottom: '10px' }}>
                       {cotizacionSeleccionada.payment_receipt_path && (
                         <button 
                           className="btn-modal-print" 
-                          style={{ background: '#334155', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                          style={{ background: '#334155', color: 'white', flex: 1, textAlign: 'center', minHeight: '45px', height: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: '150px' }} 
                           onClick={() => verPantallaCompleta(cotizacionSeleccionada.payment_receipt_path)}
                         >
                           👁️ VER COMPROBANTE
@@ -1423,7 +1431,7 @@ const VistaCotizaciones = () => {
                       )}
                       <button 
                         className="btn-modal-print" 
-                        style={{ background: '#1b8a5a', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px', fontWeight: 'bold' }} 
+                        style={{ background: '#1b8a5a', color: 'white', flex: 1, textAlign: 'center', minHeight: '45px', height: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 'bold', whiteSpace: 'normal', minWidth: '150px' }} 
                         onClick={handleValidarPago}
                         disabled={procesando}
                       >
@@ -1432,13 +1440,11 @@ const VistaCotizaciones = () => {
                     </div>
                   )}
 
-                  {/* END ROW 1 */}
-
                   {/* Si está aprobada/aceptada, mostrar botón de pagar gigante */}
                   {esCliente && (cotizacionSeleccionada.status === 'Aprobado' || cotizacionSeleccionada.status === 'Aceptada') && (
                     <button 
                       className="btn-modal-print" 
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#009ee3', color: 'white', width: '100%', textAlign: 'center', fontWeight: 'bold', padding: '15px', fontSize: '1.1rem', marginBottom: '10px' }} 
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: '#009ee3', color: 'white', width: '100%', textAlign: 'center', fontWeight: 'bold', padding: '15px', fontSize: '1.1rem', marginBottom: '10px', minHeight: '52px', height: 'auto' }} 
                       onClick={() => setShowPagoModal(true)}
                     >
                       PAGAR CON <img src={mpLogo} alt="MercadoPago" style={{ height: '24px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
@@ -1449,11 +1455,11 @@ const VistaCotizaciones = () => {
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && 
                     (cotizacionSeleccionada.status === 'Pendiente' || cotizacionSeleccionada.status === 'En proceso' || cotizacionSeleccionada.status?.includes('Admin') || cotizacionSeleccionada.status === 'Rechazado') && 
                     !rechazando && (
-                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
                       {cotizacionSeleccionada.status !== 'Rechazado' && (
                         <button 
                           className="btn-modal-print" 
-                          style={{ background: '#c62828', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                          style={{ background: '#c62828', color: 'white', width: '100%', minHeight: '45px', height: 'auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: 'unset', fontWeight: 'bold' }} 
                           onClick={() => setRechazando(true)}
                         >
                           ✕ RECHAZAR
@@ -1463,7 +1469,7 @@ const VistaCotizaciones = () => {
                       {(cotizacionSeleccionada.status !== 'Rechazado' || esCliente) && (
                         <button 
                           className="btn-modal-print" 
-                          style={{ background: '#2e7d32', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                          style={{ background: '#2e7d32', color: 'white', width: '100%', minHeight: '45px', height: 'auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: 'unset', fontWeight: 'bold' }} 
                           onClick={() => {
                             if (cotizacionSeleccionada.status === 'Rechazado') {
                               if (window.confirm('¿Deseas aceptar esta cotización que habías rechazado?')) {
@@ -1482,10 +1488,10 @@ const VistaCotizaciones = () => {
                   )}
 
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && rechazando && (
-                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
                       <button 
                         className="btn-modal-print" 
-                        style={{ background: '#757575', color: 'white', flex: 1, textAlign: 'center', minWidth: '150px' }} 
+                        style={{ background: '#757575', color: 'white', width: '100%', minHeight: '45px', height: 'auto', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: 'unset', fontWeight: 'bold' }} 
                         onClick={() => { setRechazando(false); setMotivoRechazo(''); }}
                       >
                         CANCELAR
@@ -1495,9 +1501,17 @@ const VistaCotizaciones = () => {
                         style={{ 
                           background: '#c62828', 
                           color: 'white', 
-                          flex: 1, 
+                          width: '100%', 
+                          minHeight: '45px', 
+                          height: 'auto',
                           textAlign: 'center', 
-                          minWidth: '150px',
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '8px',
+                          whiteSpace: 'normal',
+                          minWidth: 'unset',
+                          fontWeight: 'bold',
                           opacity: (procesando || !motivoRechazo.trim()) ? 0.5 : 1,
                           cursor: (procesando || !motivoRechazo.trim()) ? 'not-allowed' : 'pointer'
                         }} 
