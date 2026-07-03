@@ -1075,7 +1075,7 @@ const VistaCotizaciones = () => {
                   })()}
 
                   {/* Banner: Comprobante de Pago en Efectivo Confirmado */}
-                  {(cotizacionSeleccionada.cash_confirmed || String(cotizacionSeleccionada.status || '').toLowerCase().includes('efectivo') || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo pagado')) && (() => {
+                  {(cotizacionSeleccionada.cash_confirmed || String(cotizacionSeleccionada.status || '').toLowerCase().includes('pagado (efectivo)') || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo pagado')) && (() => {
                     const formatDate = (dateStr) => {
                       if (!dateStr) return '—';
                       try {
@@ -1119,7 +1119,7 @@ const VistaCotizaciones = () => {
                   })()}
 
                   {/* Sección: Saldo Pendiente del 40% */}
-                  {((cotizacionSeleccionada.advance_paid || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo') || cotizacionSeleccionada.cash_amount_type === 'advance') && !cotizacionSeleccionada.remaining_paid && !(cotizacionSeleccionada.cash_requested && !cotizacionSeleccionada.cash_confirmed && cotizacionSeleccionada.cash_amount_type === 'remaining')) && (() => {
+                  {((cotizacionSeleccionada.advance_paid || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo pagado') || (cotizacionSeleccionada.cash_confirmed && cotizacionSeleccionada.cash_amount_type === 'advance')) && !cotizacionSeleccionada.remaining_paid && !(cotizacionSeleccionada.cash_requested && !cotizacionSeleccionada.cash_confirmed && cotizacionSeleccionada.cash_amount_type === 'remaining')) && (() => {
                     const montoRestante = parseFloat(cotizacionSeleccionada.remaining_amount) || (calcularMontoFinalNum(cotizacionSeleccionada) * 0.40);
                     let montoRestanteEf = montoRestante;
                     try {
