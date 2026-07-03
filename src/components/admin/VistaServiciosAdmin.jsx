@@ -123,6 +123,35 @@ const VistaServiciosAdmin = () => {
     }
   };
 
+  const buscarCotizacionTarea = useCallback((targetTask) => {
+    if (!targetTask || !cotizacionesData || cotizacionesData.length === 0) return null;
+    const targetIds = [];
+    if (targetTask.dbId && !String(targetTask.dbId).startsWith('batch_')) targetIds.push(Number(targetTask.dbId));
+    if (targetTask.id && !String(targetTask.id).startsWith('batch_')) targetIds.push(Number(targetTask.id));
+    if (targetTask.isBatch && targetTask.batchTasks) {
+      targetTask.batchTasks.forEach(bt => {
+        if (bt.dbId) targetIds.push(Number(bt.dbId));
+        if (bt.id) targetIds.push(Number(bt.id));
+      });
+    }
+    if (tareaSeleccionada && tareaSeleccionada.isBatch) {
+      (tareaSeleccionada.batchTasks || []).forEach(bt => {
+        if (bt.dbId) targetIds.push(Number(bt.dbId));
+        if (bt.id) targetIds.push(Number(bt.id));
+      });
+    }
+
+    return cotizacionesData.find(q => {
+      const qWorkOrder = Number(q.work_order_id);
+      const qService = Number(q.service_id);
+      if (targetIds.includes(qWorkOrder) || targetIds.includes(qService)) return true;
+      if (q.related_service_ids && Array.isArray(q.related_service_ids)) {
+        if (q.related_service_ids.some(rid => targetIds.includes(Number(rid)))) return true;
+      }
+      return false;
+    });
+  }, [cotizacionesData, tareaSeleccionada]);
+
   useEffect(() => {
     fetchOrders();
     fetchTecnicos();
@@ -446,7 +475,7 @@ const VistaServiciosAdmin = () => {
                       </span>
                     )}
                     {(() => {
-                      const coti = cotizacionesData.find(q => q.work_order_id === tarea.dbId || q.service_id === tarea.dbId);
+                      const coti = buscarCotizacionTarea(tarea);
                       if (!coti) return null;
                       const badgeText = coti.created_by_role === 'Admin' ? 'CA' : 'CT';
                       const bgColor = coti.created_by_role === 'Admin' ? '#1b8a5a' : '#333';
@@ -830,7 +859,7 @@ const VistaServiciosAdmin = () => {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
                       {(() => {
-                        const cotizacionAsociada = cotizacionesData.find(q => q.work_order_id === activeTask.dbId || q.service_id === activeTask.dbId);
+                        const cotizacionAsociada = buscarCotizacionTarea(activeTask);
                         
                         return (
                           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -1648,7 +1677,7 @@ const VistaServiciosAdmin = () => {
       {showModalCotizacion && tareaSeleccionada && (
         <ModalCrearCotizacion
           workOrderId={tareaSeleccionada.isBatch ? (tareaSeleccionada.batchTasks?.[0]?.dbId || tareaSeleccionada.batchTasks?.[0]?.id || tareaSeleccionada.dbId) : tareaSeleccionada.dbId}
-          cotizacionExistente={cotizacionesData.find(q => q.work_order_id === (tareaSeleccionada.isBatch ? tareaSeleccionada.batchTasks?.[0]?.dbId : tareaSeleccionada.dbId) || q.service_id === tareaSeleccionada.dbId)}
+          cotizacionExistente={buscarCotizacionTarea(tareaSeleccionada)}
           isAdmin={true}
           onClose={() => setShowModalCotizacion(false)}
           onSuccess={() => {
