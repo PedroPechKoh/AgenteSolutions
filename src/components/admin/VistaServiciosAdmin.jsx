@@ -712,7 +712,7 @@ const VistaServiciosAdmin = () => {
                           return (
                             <div 
                               key={t.id} 
-                              onClick={() => toggleTecnicoEquipo(t.id)}
+                              onClick={() => toggleTecnicoEquipo(t.id, activeTask ? activeTask.dbId : null)}
                               style={{
                                 background: isSelected ? '#fff9f5' : 'white',
                                 border: `1px solid ${isSelected ? '#F26522' : '#eee'}`,
