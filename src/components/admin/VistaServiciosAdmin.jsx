@@ -1647,8 +1647,8 @@ const VistaServiciosAdmin = () => {
       
       {showModalCotizacion && tareaSeleccionada && (
         <ModalCrearCotizacion
-          workOrderId={tareaSeleccionada.dbId}
-          cotizacionExistente={cotizacionesData.find(q => q.work_order_id === tareaSeleccionada.dbId || q.service_id === tareaSeleccionada.dbId)}
+          workOrderId={tareaSeleccionada.isBatch ? (tareaSeleccionada.batchTasks?.[0]?.dbId || tareaSeleccionada.batchTasks?.[0]?.id || tareaSeleccionada.dbId) : tareaSeleccionada.dbId}
+          cotizacionExistente={cotizacionesData.find(q => q.work_order_id === (tareaSeleccionada.isBatch ? tareaSeleccionada.batchTasks?.[0]?.dbId : tareaSeleccionada.dbId) || q.service_id === tareaSeleccionada.dbId)}
           isAdmin={true}
           onClose={() => setShowModalCotizacion(false)}
           onSuccess={() => {
