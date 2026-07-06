@@ -170,10 +170,6 @@ const VistaCotizaciones = () => {
     } catch(e) {}
     let base = subtotalItems > 0 ? subtotalItems : parseFloat(cot.total || 0);
     if (base > 0) {
-      const statusLower = String(cot.status || '').toLowerCase();
-      if (cot.cash_requested || statusLower.includes('efectivo')) {
-        return base * 1.16;
-      }
       const iva = base * 0.16;
       const subConIva = base + iva;
       const comisionMP = (subConIva * 0.0349 + 4) * 1.16;
@@ -1190,21 +1186,6 @@ const VistaCotizaciones = () => {
                   {((cotizacionSeleccionada.advance_paid || String(cotizacionSeleccionada.status || '').toLowerCase().includes('anticipo pagado') || (cotizacionSeleccionada.cash_confirmed && cotizacionSeleccionada.cash_amount_type === 'advance')) && !cotizacionSeleccionada.remaining_paid && !(cotizacionSeleccionada.cash_requested && !cotizacionSeleccionada.cash_confirmed && cotizacionSeleccionada.cash_amount_type === 'remaining')) && (() => {
                     const montoRestante = parseFloat(cotizacionSeleccionada.remaining_amount) || (calcularMontoFinalNum(cotizacionSeleccionada) * 0.40);
                     let montoRestanteEf = montoRestante;
-                    try {
-                      let subtotalItems = 0;
-                      const rawConcept = cotizacionSeleccionada.concept || cotizacionSeleccionada.concepto;
-                      const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
-                      if (detalle && typeof detalle === 'object') {
-                        const listado = detalle.conceptos || detalle.servicios || [];
-                        listado.forEach(c => subtotalItems += (parseFloat(c.precio_u || c.precio || 0) * parseFloat(c.cantidad || 1)));
-                        if (detalle.materiales) {
-                          detalle.materiales.forEach(m => subtotalItems += (parseFloat(m.costo_u || m.precio || 0) * parseFloat(m.cantidad || 1)));
-                        }
-                      }
-                      if (subtotalItems > 0) {
-                        montoRestanteEf = subtotalItems * 1.16 * 0.40;
-                      }
-                    } catch(e) {}
 
                     return (
                       <div style={{ width: '100%', marginBottom: '20px', border: '2px solid #ea580c', borderRadius: '14px', overflow: 'hidden' }}>
@@ -1259,22 +1240,7 @@ const VistaCotizaciones = () => {
                     const timingLabel = cotizacionSeleccionada.cash_timing === 'immediate' ? 'de forma INMEDIATA' : 'AL FINALIZAR EL TRABAJO';
                     
                     const calcularMontoEfectivoBanner = (cot) => {
-                      if (!cot) return 0;
-                      let subtotalItems = 0;
-                      try {
-                        const rawConcept = cot.concept || cot.concepto;
-                        const detalle = typeof rawConcept === 'string' ? JSON.parse(rawConcept) : rawConcept;
-                        if (detalle && typeof detalle === 'object') {
-                          const listado = detalle.conceptos || detalle.servicios || [];
-                          listado.forEach(c => subtotalItems += (parseFloat(c.precio_u || c.precio || 0) * parseFloat(c.cantidad || 1)));
-                          if (detalle.materiales) {
-                            detalle.materiales.forEach(m => subtotalItems += (parseFloat(m.costo_u || m.precio || 0) * parseFloat(m.cantidad || 1)));
-                          }
-                        }
-                      } catch(e) {}
-                      let base = subtotalItems > 0 ? subtotalItems : parseFloat(cot.total || cot.estimated_amount || 0);
-                      if (base > 0) return base * 1.16;
-                      return 0;
+                      return calcularMontoFinalNum(cot);
                     };
 
                     const monto = cotizacionSeleccionada.cash_amount_type === 'advance'
