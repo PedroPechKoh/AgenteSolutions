@@ -19,7 +19,9 @@ const ICONS_LIST = [
 
 const CustomizeLogin = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('fondo'); // 'fondo', 'logo', 'sidebar'
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isRoot = user.role_id === 0;
+  const [activeTab, setActiveTab] = useState(isRoot ? 'fondo' : 'logo'); // 'fondo', 'logo', 'sidebar'
   
   // -- ESTADOS TAB: FONDO --
   const [selectedFile, setSelectedFile] = useState(null);
@@ -125,20 +127,21 @@ const CustomizeLogin = () => {
     setStatusMessage("");
 
     try {
-      // 1. Guardar Color
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-background/color`, { color_hex: selectedColor });
+      // 1. Guardar Color e Imagen SOLO si es Root
+      if (isRoot) {
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-background/color`, { color_hex: selectedColor });
 
-      // 2. Guardar Imagen de Fondo
-      if (imageToDelete) {
-        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-background/image`);
-        setImageToDelete(false);
-      } else if (selectedFile) {
-        const formData = new FormData();
-        formData.append("background_image", selectedFile);
-        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-background/image`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        setSelectedFile(null);
+        if (imageToDelete) {
+          await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-background/image`);
+          setImageToDelete(false);
+        } else if (selectedFile) {
+          const formData = new FormData();
+          formData.append("background_image", selectedFile);
+          await axios.post(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-background/image`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          setSelectedFile(null);
+        }
       }
 
       // 3. Guardar Logo
@@ -197,9 +200,11 @@ const CustomizeLogin = () => {
 
           {/* TABS MENU */}
           <div className="tabs-container">
-            <button className={`tab-button ${activeTab === 'fondo' ? 'active' : ''}`} onClick={() => setActiveTab('fondo')}>
-              <Layout size={18} /> Fondo de Inicio
-            </button>
+            {isRoot && (
+              <button className={`tab-button ${activeTab === 'fondo' ? 'active' : ''}`} onClick={() => setActiveTab('fondo')}>
+                <Layout size={18} /> Fondo de Inicio
+              </button>
+            )}
             <button className={`tab-button ${activeTab === 'logo' ? 'active' : ''}`} onClick={() => setActiveTab('logo')}>
               <ImageIcon size={18} /> Logotipo
             </button>
