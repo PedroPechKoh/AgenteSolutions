@@ -219,6 +219,8 @@ const VistaUsuarios = () => {
                     <td data-label="Rol">
                       {u.role_id === 0 ? (
                         <span className="badge-rol root">ROOT</span>
+                      ) : u.role_id === 4 ? (
+                        <span className="badge-rol autonomo">AUTÓNOMO</span>
                       ) : (
                         <select 
                           className={`badge-rol ${u.rol.toLowerCase()} select-rol-inline`}
@@ -228,7 +230,6 @@ const VistaUsuarios = () => {
                           <option value="1">ADMIN</option>
                           <option value="2">TECNICO</option>
                           <option value="3">CLIENTE</option>
-                          <option value="4">AUTONOMO</option>
                         </select>
                       )}
                     </td>
@@ -239,19 +240,27 @@ const VistaUsuarios = () => {
                     </td>
 
                     <td data-label="Acciones" className="actions-cell">
-                      <button 
-                        className={`btn-table-oval ${u.bloqueado ? "is-blocked" : "is-unblocked"}`} 
-                        onClick={() => toggleBloqueo(u.id, u.role_id, u.bloqueado)}
-                      >
-                        {u.bloqueado ? "🔓 OK" : "🔒 Bloq"}
-                      </button>
+                      {u.role_id === 0 || u.role_id === 4 ? (
+                        <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          🔒 Protegido
+                        </span>
+                      ) : (
+                        <>
+                          <button 
+                            className={`btn-table-oval ${u.bloqueado ? "is-blocked" : "is-unblocked"}`} 
+                            onClick={() => toggleBloqueo(u.id, u.role_id, u.bloqueado)}
+                          >
+                            {u.bloqueado ? "🔓 OK" : "🔒 Bloq"}
+                          </button>
 
-                      <button 
-                        className="btn-table-oval-small delete-oval" 
-                        onClick={() => eliminarUsuario(u.id, u.role_id)}
-                      >
-                        🗑️
-                      </button>
+                          <button 
+                            className="btn-table-oval-small delete-oval" 
+                            onClick={() => eliminarUsuario(u.id, u.role_id)}
+                          >
+                            🗑️
+                          </button>
+                        </>
+                      )}
                     </td>
 
                   </tr>
