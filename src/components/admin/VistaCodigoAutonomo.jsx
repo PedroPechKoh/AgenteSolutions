@@ -17,9 +17,24 @@ const VistaCodigoAutonomo = () => {
     const fetchTenantData = async () => {
       setLoading(true);
       try {
+        if (user?.role_id !== 0) {
+          try {
+            const resMy = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/tenants/my-membership-status`);
+            if (resMy.data.success && resMy.data.tenant) {
+              setTenant(resMy.data.tenant);
+              setLoading(false);
+              return;
+            }
+          } catch (err) {
+            console.error('Error al obtener my-membership-status:', err);
+          }
+        }
+
         const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/tenants/public-list`);
-        if (res.data.success && user?.tenant_id) {
-          const myTenant = res.data.tenants.find((t) => t.id === user.tenant_id);
+        if (res.data.success && res.data.tenants) {
+          const myTenant = res.data.tenants.find(
+            (t) => Number(t.id) === Number(user?.tenant_id) || Number(t.owner_user_id) === Number(user?.id)
+          );
           if (myTenant) {
             setTenant(myTenant);
           }
@@ -33,8 +48,9 @@ const VistaCodigoAutonomo = () => {
     fetchTenantData();
   }, [user]);
 
-  const companyCode = tenant?.code || (user?.role_id === 0 ? 'ROOT_GENERAL' : 'AUT_01');
-  const companyName = tenant?.name || (user?.role_id === 0 ? 'Agente Solutions Root' : 'Mi Empresa Autónoma');
+  const isRoot = user?.role_id === 0;
+  const companyCode = tenant?.code || (isRoot ? 'ROOT_GENERAL' : `AUT_${user?.tenant_id ? String(user.tenant_id).padStart(2, '0') : '01'}`);
+  const companyName = tenant?.name || (isRoot ? 'Agente Solutions Root' : 'Mi Empresa Autónoma');
   const registerUrl = `${window.location.origin}/registro?code=${companyCode}`;
 
   const handleCopyCode = () => {
@@ -76,7 +92,7 @@ const VistaCodigoAutonomo = () => {
               <Building2 size={45} color="#FF6600" />
             </div>
 
-            <h2 style={{ fontSize: '2rem', color: '#333', margin: '0 0 10px 0', fontWeight: 'bold' }}>
+            <h2 style={{ fontSize: '2rem', color: '#333', margin: '0 0 10px 0', fontWeight: 'bold', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               {companyName}
             </h2>
             <p style={{ color: '#666', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto 30px auto', lineHeight: '1.6' }}>
@@ -84,11 +100,11 @@ const VistaCodigoAutonomo = () => {
             </p>
 
             {/* TARJETA DEL CÓDIGO */}
-            <div style={{ backgroundColor: '#F9F9F9', border: '2px dashed #FF6600', borderRadius: '16px', padding: '30px', maxWidth: '500px', margin: '0 auto 30px auto' }}>
+            <div style={{ backgroundColor: '#F9F9F9', border: '2px dashed #FF6600', borderRadius: '16px', padding: '30px', maxWidth: '500px', margin: '0 auto 30px auto', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               <span style={{ fontSize: '0.85rem', color: '#888', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 'bold' }}>
                 TU CÓDIGO DE EMPRESA / AUTÓNOMO
               </span>
-              <div style={{ fontSize: '2.8rem', fontWeight: '900', color: '#FF6600', margin: '15px 0', letterSpacing: '2px' }}>
+              <div style={{ fontSize: '2.8rem', fontWeight: '900', color: '#FF6600', margin: '15px 0', letterSpacing: '2px', wordBreak: 'break-all' }}>
                 {companyCode}
               </div>
               <button

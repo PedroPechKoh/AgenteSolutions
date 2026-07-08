@@ -203,20 +203,20 @@ const VistaGestionAutonomos = () => {
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
                     {pendingTenants.map((t) => (
-                      <div key={t.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', borderLeft: '5px solid #FF9800' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
-                          <h4 style={{ margin: 0, fontSize: '1.3rem', color: '#333' }}>{t.name}</h4>
-                          <span style={{ backgroundColor: '#FFF3E0', color: '#E65100', padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                      <div key={t.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', borderLeft: '5px solid #FF9800', overflow: 'hidden', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px', gap: '10px' }}>
+                          <h4 style={{ margin: 0, fontSize: '1.3rem', color: '#333', overflowWrap: 'anywhere' }}>{t.name}</h4>
+                          <span style={{ backgroundColor: '#FFF3E0', color: '#E65100', padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', flexShrink: 0 }}>
                             Pendiente
                           </span>
                         </div>
-                        <p style={{ margin: '8px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Phone size={16} color="#FF6600" /> <strong>Teléfono:</strong> {t.phone || 'N/A'}
+                        <p style={{ margin: '8px 0', color: '#555', display: 'flex', alignItems: 'flex-start', gap: '8px', overflowWrap: 'anywhere' }}>
+                          <Phone size={16} color="#FF6600" style={{ flexShrink: 0, marginTop: '3px' }} /> <span><strong>Teléfono:</strong> {t.phone || 'N/A'}</span>
                         </p>
-                        <p style={{ margin: '8px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Mail size={16} color="#FF6600" /> <strong>Correo:</strong> {t.email || 'N/A'}
+                        <p style={{ margin: '8px 0', color: '#555', display: 'flex', alignItems: 'flex-start', gap: '8px', overflowWrap: 'anywhere' }}>
+                          <Mail size={16} color="#FF6600" style={{ flexShrink: 0, marginTop: '3px' }} /> <span style={{ wordBreak: 'break-all' }}><strong>Correo:</strong> {t.email || 'N/A'}</span>
                         </p>
-                        <p style={{ margin: '8px 0', color: '#555' }}>
+                        <p style={{ margin: '8px 0', color: '#555', overflowWrap: 'anywhere' }}>
                           <strong>Dueño ID:</strong> #{t.owner_user_id || 'N/A'} {t.owner ? `(${t.owner.first_name} ${t.owner.last_name})` : ''}
                         </p>
                         <p style={{ margin: '8px 0', color: '#888', fontSize: '0.85rem' }}>
@@ -264,21 +264,21 @@ const VistaGestionAutonomos = () => {
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
                     {activeTenants.map((t) => (
-                      <div key={t.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', borderLeft: '5px solid #4CAF50' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                          <h4 style={{ margin: 0, fontSize: '1.3rem', color: '#333' }}>{t.name}</h4>
-                          <span style={{ backgroundColor: '#E8F5E9', color: '#2E7D32', padding: '6px 12px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                      <div key={t.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', borderLeft: '5px solid #4CAF50', overflow: 'hidden', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px', gap: '10px' }}>
+                          <h4 style={{ margin: 0, fontSize: '1.3rem', color: '#333', overflowWrap: 'anywhere' }}>{t.name}</h4>
+                          <span style={{ backgroundColor: '#E8F5E9', color: '#2E7D32', padding: '6px 12px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: 'bold', flexShrink: 0 }}>
                             {t.code}
                           </span>
                         </div>
-                        <p style={{ margin: '8px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Phone size={16} color="#FF6600" /> <strong>Teléfono:</strong> {t.phone || 'N/A'}
+                        <p style={{ margin: '8px 0', color: '#555', display: 'flex', alignItems: 'flex-start', gap: '8px', overflowWrap: 'anywhere' }}>
+                          <Phone size={16} color="#FF6600" style={{ flexShrink: 0, marginTop: '3px' }} /> <span><strong>Teléfono:</strong> {t.phone || 'N/A'}</span>
                         </p>
-                        <p style={{ margin: '8px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <Mail size={16} color="#FF6600" /> <strong>Correo:</strong> {t.email || 'N/A'}
+                        <p style={{ margin: '8px 0', color: '#555', display: 'flex', alignItems: 'flex-start', gap: '8px', overflowWrap: 'anywhere' }}>
+                          <Mail size={16} color="#FF6600" style={{ flexShrink: 0, marginTop: '3px' }} /> <span style={{ wordBreak: 'break-all' }}><strong>Correo:</strong> {t.email || 'N/A'}</span>
                         </p>
                         <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#F9F9F9', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px', color: '#555', fontSize: '0.85rem' }}>
-                          <ShieldCheck size={18} color="#4CAF50" />
+                          <ShieldCheck size={18} color="#4CAF50" style={{ flexShrink: 0 }} />
                           <span>Aislamiento de datos activo vía Global Scopes.</span>
                         </div>
                       </div>
