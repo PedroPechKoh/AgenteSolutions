@@ -162,100 +162,106 @@ const ClientRegister = () => {
         }}
       >
         {isPendingApproval ? (
-          <div className="form-section" style={{ maxWidth: "550px", width: "100%", padding: "40px", textAlign: "center", borderRadius: "16px", backgroundColor: "#fff", boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}>
-            <div style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "#FFF3E0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px auto" }}>
-              <Clock size={45} color="#FF6600" />
+          <div className="form-section" style={{ maxWidth: "550px", width: "100%", padding: "40px", textAlign: "center", borderRadius: "20px", backgroundColor: "rgba(20, 20, 20, 0.95)", border: "2px solid #f26522", boxShadow: "0 0 30px rgba(242, 101, 34, 0.3)" }}>
+            <div style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "rgba(242, 101, 34, 0.2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px auto", border: "1px solid #f26522" }}>
+              <Clock size={45} color="#f26522" />
             </div>
-            <h2 style={{ fontSize: "1.8rem", color: "#333", marginBottom: "15px", fontWeight: "bold" }}>
-              ¡Perfil en Revisión!
+            <h2 style={{ fontSize: "2rem", color: "#fff", marginBottom: "15px", fontWeight: "900", fontStyle: "italic" }}>
+              ¡PERFIL EN REVISIÓN!
             </h2>
-            <p style={{ color: "#666", fontSize: "1.05rem", lineHeight: "1.6", marginBottom: "25px" }}>
+            <p style={{ color: "#ddd", fontSize: "1.1rem", lineHeight: "1.6", marginBottom: "25px" }}>
               Tu registro como <strong>Técnico</strong> se ha completado con éxito. Por seguridad, tu perfil está en la sala de espera y debe ser revisado y autorizado por el <strong>Administrador de tu empresa</strong> para poder iniciar sesión.
             </p>
-            <div style={{ padding: "15px", backgroundColor: "#F9F9F9", borderRadius: "8px", marginBottom: "25px", borderLeft: "4px solid #FF6600", textAlign: "left" }}>
-              <p style={{ margin: 0, fontSize: "0.9rem", color: "#555" }}>
-                <strong>Empresa / Código:</strong> {companyCode || "General / Root"}<br />
-                <strong>Estado actual:</strong> <span style={{ color: "#FF6600", fontWeight: "bold" }}>⏳ Pendiente de aprobación</span>
+            <div style={{ padding: "18px", backgroundColor: "rgba(255, 255, 255, 0.05)", borderRadius: "12px", marginBottom: "25px", borderLeft: "4px solid #f26522", textAlign: "left" }}>
+              <p style={{ margin: 0, fontSize: "0.95rem", color: "#eee" }}>
+                <strong style={{ color: "#f26522" }}>Empresa / Código:</strong> {companyCode || "General / Root"}<br />
+                <strong style={{ color: "#f26522" }}>Estado actual:</strong> <span style={{ color: "#4CAF50", fontWeight: "bold" }}>⏳ Pendiente de aprobación</span>
               </p>
             </div>
             <button
               type="button"
               className="btn-login"
               onClick={() => navigate("/")}
-              style={{ width: "100%", padding: "14px", fontSize: "1rem" }}
+              style={{ width: "100%", padding: "15px", fontSize: "1.2rem" }}
             >
-              Volver al Inicio de Sesión
+              VOLVER AL INICIO DE SESIÓN
             </button>
           </div>
         ) : (
           <form
             className="form-section"
             onSubmit={handleRegister}
-            style={{ maxWidth: "680px", width: "100%", padding: "35px", borderRadius: "16px", backgroundColor: "#fff", boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}
+            style={{ maxWidth: "680px", width: "100%", padding: "20px" }}
           >
             <h2
               className="form-title"
-              style={{ fontSize: "1.6rem", marginBottom: "20px", textAlign: "center" }}
+              style={{ fontSize: "1.8rem", marginBottom: "20px", textAlign: "center" }}
             >
               CREAR CUENTA <i className="fas fa-chess-queen-alt"></i>
             </h2>
 
             {/* Selector de Tipo de Cuenta */}
-            <div style={{ display: "flex", gap: "10px", marginBottom: "25px" }}>
+            <div style={{ display: "flex", gap: "15px", marginBottom: "25px", width: "100%" }}>
               <button
                 type="button"
                 onClick={() => setAccountType("client")}
                 style={{
                   flex: 1,
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: accountType === "client" ? "2px solid #FF6600" : "1px solid #ddd",
-                  backgroundColor: accountType === "client" ? "#FFF5EC" : "#f9f9f9",
-                  color: accountType === "client" ? "#FF6600" : "#666",
-                  fontWeight: accountType === "client" ? "bold" : "normal",
+                  padding: "14px",
+                  borderRadius: "50px",
+                  border: accountType === "client" ? "3px solid #f26522" : "3px solid transparent",
+                  backgroundColor: accountType === "client" ? "#f26522" : "#cfd3d8",
+                  color: accountType === "client" ? "#fff" : "#333333",
+                  fontWeight: "900",
+                  fontStyle: "italic",
+                  fontSize: "1.1rem",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "8px",
-                  transition: "all 0.2s"
+                  gap: "10px",
+                  transition: "all 0.3s",
+                  boxShadow: accountType === "client" ? "0 0 15px rgba(242, 101, 34, 0.6)" : "none"
                 }}
               >
-                <UserCheck size={18} /> Soy Cliente
+                <UserCheck size={20} /> SOY CLIENTE
               </button>
               <button
                 type="button"
                 onClick={() => setAccountType("technician")}
                 style={{
                   flex: 1,
-                  padding: "12px",
-                  borderRadius: "8px",
-                  border: accountType === "technician" ? "2px solid #FF6600" : "1px solid #ddd",
-                  backgroundColor: accountType === "technician" ? "#FFF5EC" : "#f9f9f9",
-                  color: accountType === "technician" ? "#FF6600" : "#666",
-                  fontWeight: accountType === "technician" ? "bold" : "normal",
+                  padding: "14px",
+                  borderRadius: "50px",
+                  border: accountType === "technician" ? "3px solid #f26522" : "3px solid transparent",
+                  backgroundColor: accountType === "technician" ? "#f26522" : "#cfd3d8",
+                  color: accountType === "technician" ? "#fff" : "#333333",
+                  fontWeight: "900",
+                  fontStyle: "italic",
+                  fontSize: "1.1rem",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "8px",
-                  transition: "all 0.2s"
+                  gap: "10px",
+                  transition: "all 0.3s",
+                  boxShadow: accountType === "technician" ? "0 0 15px rgba(242, 101, 34, 0.6)" : "none"
                 }}
               >
-                <Briefcase size={18} /> Quiero ser Técnico
+                <Briefcase size={20} /> QUIERO SER TÉCNICO
               </button>
             </div>
 
             {/* Selector de Empresa / Autónomo */}
-            <div className="input-group" style={{ marginBottom: "20px" }}>
-              <Building2 size={20} className="input-icon" />
+            <div className="input-group" style={{ marginBottom: "15px", width: "100%" }}>
+              <Building2 size={22} className="input-icon" />
               <select
                 className="custom-input"
                 value={selectedTenantId}
                 onChange={handleTenantSelect}
-                style={{ paddingLeft: "55px", backgroundColor: "#fff", cursor: "pointer" }}
+                style={{ paddingLeft: "55px", cursor: "pointer" }}
               >
-                <option value="">-- Selecciona tu Empresa o Profesional (Opcional) --</option>
+                <option value="">-- SELECCIONA TU EMPRESA O PROFESIONAL --</option>
                 {tenants.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name} ({t.code})
