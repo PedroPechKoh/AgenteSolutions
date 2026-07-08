@@ -2,9 +2,18 @@ import React from 'react';
 import '../styles/VistaInicioAdmin.css';
 import { useNavigate } from 'react-router-dom';
 import Header from './Shared/Header'; 
+import { useAuth } from '../context/AuthContext';
 
 const VistaInicioAdmin = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const isRoot = user?.role_id === 0;
+  const isAutonomo = user?.role_id === 4;
+
+  let rolTexto = "ADMINISTRADOR";
+  if (isRoot) rolTexto = "ROOT / SUPERADMIN";
+  else if (isAutonomo) rolTexto = "DUEÑO / AUTÓNOMO";
 
   const menuItems = [
     { id: 1, title: 'USUARIOS', icon: '👤',  path: '/usuarios'}, 
@@ -19,13 +28,47 @@ const VistaInicioAdmin = () => {
     { id: 10, title: 'PERSONALIZAR', icon: '🎨', path: '/customize-login' },
   ];
 
+  // Si es Root, agregamos la tarjeta de Gestión de Autónomos
+  if (isRoot) {
+    menuItems.unshift({
+      id: 11,
+      title: 'AUTÓNOMOS Y CARTERA',
+      icon: '🏢',
+      path: '/gestion-autonomos'
+    });
+  }
+
+  // Si es Autónomo o Admin o Root, agregamos Sala de Espera de Técnicos y Código
+  if (isRoot || isAutonomo || user?.role_id === 1) {
+    menuItems.push({
+      id: 12,
+      title: 'SALA DE ESPERA',
+      icon: '⏳',
+      path: '/sala-espera-tecnicos'
+    });
+  }
+
+  if (isAutonomo || isRoot) {
+    menuItems.push({
+      id: 13,
+      title: 'MI CÓDIGO AUT_01',
+      icon: '📲',
+      path: '/mi-codigo-autonomo'
+    });
+    menuItems.push({
+      id: 14,
+      title: '¿NECESITAS AYUDA?',
+      icon: '🤝',
+      path: '/apoyo-autonomo'
+    });
+  }
+
   return (
     <div className="main-container">
       <div className="top-bar-orange"></div>
       <div className="top-bar-black"></div>
 
-      <Header rolTexto="ADMINISTRADOR" />
-
+      <Header rolTexto={rolTexto} />
 
       <div className="admin-grid">
         {menuItems.map((item) => (

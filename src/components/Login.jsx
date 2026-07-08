@@ -23,12 +23,20 @@ const LoginAgente = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   //Variablaes para personalizar el Login
-const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000', appLogo: null });
+  const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000', appLogo: null });
+  const [selectedTenant, setSelectedTenant] = useState(null);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("agente_tenant_selected");
+    if (saved) {
+      try { setSelectedTenant(JSON.parse(saved)); } catch (e) {}
+    }
+  }, []);
 
   // 1. AUTO-LOGIN: Si ya existe sesión, redirigir según el rol
   useEffect(() => {
     if (user) {
-      if (user.role_id === 0) navigate("/VistaRoot");
+      if (user.role_id === 0 || user.role_id === 4) navigate("/VistaRoot"); // Root o Autónomo
       else if (user.role_id === 1) navigate("/VistaAdmin");
       else if (user.role_id === 2) navigate("/VistaTecnico");
       else if (user.role_id === 3) navigate("/propiedades");
@@ -100,6 +108,9 @@ const handleLogin = async (e) => {
       // 5. Las redirecciones se quedan exactamente igual
       if (role_id === 0) {
         setMensaje(`¡Bienvenido ROOT ${first_name}! Entrando al panel principal...`);
+        setTimeout(() => navigate("/VistaRoot"), 1000);
+      } else if (role_id === 4) {
+        setMensaje(`¡Bienvenido AUTÓNOMO ${first_name}! Entrando a tu panel de empresa...`);
         setTimeout(() => navigate("/VistaRoot"), 1000);
       } else if (role_id === 1) {
         setMensaje(`¡Bienvenido ADMIN ${first_name}! Entrando al panel administrativo...`);
@@ -185,6 +196,41 @@ const handleLogin = async (e) => {
       </div>
       
       <form className="form-section" onSubmit={handleLogin}>
+        {selectedTenant && (
+          <div style={{
+            backgroundColor: "#FFF5EC",
+            border: "1px solid #FFCEA2",
+            borderRadius: "10px",
+            padding: "10px 15px",
+            marginBottom: "15px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            fontSize: "0.85rem"
+          }}>
+            <div>
+              <span style={{ color: "#888", display: "block", fontSize: "0.75rem" }}>PORTAL EMPRESARIAL:</span>
+              <strong style={{ color: "#333", fontSize: "0.95rem" }}>🏢 {selectedTenant.name} ({selectedTenant.code})</strong>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.removeItem("agente_tenant_selected");
+                setSelectedTenant(null);
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#FF6600",
+                textDecoration: "underline",
+                cursor: "pointer",
+                fontSize: "0.8rem"
+              }}
+            >
+              Cambiar
+            </button>
+          </div>
+        )}
         <h2 className="form-title">INICIO DE SESIÓN</h2>
 
         <div className="input-group">

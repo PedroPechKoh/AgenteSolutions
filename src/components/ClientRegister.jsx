@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { User, Lock, Eye, EyeOff, Mail, Phone } from "lucide-react";
+import { User, Lock, Eye, EyeOff, Mail, Phone, Building2, Briefcase, UserCheck, Clock, CheckCircle } from "lucide-react";
 import "../styles/LoginAgente.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import Logo4 from "../assets/Logo4.png";
-
-////Comentario
 
 const ClientRegister = () => {
   const [firstName, setFirstName] = useState("");
@@ -15,6 +13,13 @@ const ClientRegister = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Nuevos estados para Multi-Tenant y Rol
+  const [accountType, setAccountType] = useState("client"); // 'client' (3) o 'technician' (2)
+  const [tenants, setTenants] = useState([]);
+  const [selectedTenantId, setSelectedTenantId] = useState("");
+  const [companyCode, setCompanyCode] = useState("");
+  const [isPendingApproval, setIsPendingApproval] = useState(false);
 
   const [isCaptchaValid, setIsCaptchaValid] = useState(false);
   const [message, setMessage] = useState("");
@@ -26,7 +31,7 @@ const ClientRegister = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchSettings = async () => {
+    const fetchSettingsAndTenants = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`);
         if (response.data.success) {
@@ -34,14 +39,44 @@ const ClientRegister = () => {
         }
       } catch (error) {
         console.error("Error al cargar configuraciones visuales:", error);
-        setBackgroundSettings({ imageUrl: null, colorHex: '#000000', appLogo: null });
+      }
+
+      try {
+        const resTenants = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/tenants/public-list`);
+        if (resTenants.data.success) {
+          setTenants(resTenants.data.tenants);
+          // Reemplazar o cargar de localStorage si existe
+          const savedTenant = localStorage.getItem("agente_tenant_selected");
+          if (savedTenant) {
+            const parsed = JSON.parse(savedTenant);
+            setSelectedTenantId(parsed.id || "");
+            setCompanyCode(parsed.code || "");
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar empresas:", error);
       }
     };
-    fetchSettings();
+    fetchSettingsAndTenants();
   }, []);
 
   const handleCaptchaChange = (value) => {
     setIsCaptchaValid(!!value);
+  };
+
+  const handleTenantSelect = (e) => {
+    const id = e.target.value;
+    setSelectedTenantId(id);
+    if (id) {
+      const found = tenants.find((t) => t.id.toString() === id.toString());
+      if (found) {
+        setCompanyCode(found.code);
+        localStorage.setItem("agente_tenant_selected", JSON.stringify(found));
+      }
+    } else {
+      setCompanyCode("");
+      localStorage.removeItem("agente_tenant_selected");
+    }
   };
 
   const handleRegister = async (e) => {
@@ -61,23 +96,31 @@ const ClientRegister = () => {
     setIsLoading(true);
 
     try {
-      // ✅ CORRECCIÓN: Mandamos first_name y last_name en lugar de name
+      const roleId = accountType === "client" ? 3 : 2;
       const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/registro-cliente`,
+        `${import.meta.env.VITE_API_BASE_URL}/registro-usuario`,
         {
           first_name: firstName.trim(),
           last_name: lastName.trim(),
           email,
-          phone,
+          phone_number: phone,
           password,
+          role_id: roleId,
+          company_code: companyCode,
+          tenant_id: selectedTenantId ? parseInt(selectedTenantId) : null,
         }
       );
       
-      setMessage("¡Registro exitoso! Redirigiendo al inicio de sesión...");
+      setIsLoading(false);
 
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
+      if (res.data.status === "pending_approval" || roleId === 2) {
+        setIsPendingApproval(true);
+      } else {
+        setMessage("¡Registro exitoso! Redirigiendo al inicio de sesión...");
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      }
     } catch (error) {
       setIsLoading(false);
       console.error(error.response?.data);
@@ -111,165 +154,258 @@ const ClientRegister = () => {
 
       <div
         style={{
-          height: "100vh",
+          minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          padding: "40px 20px"
         }}
       >
-        <form
-          className="form-section"
-          onSubmit={handleRegister}
-          style={{ maxWidth: "650px", width: "90%", padding: "30px" }}
-        >
-          <h2
-            className="form-title"
-            style={{ fontSize: "1.6rem", marginBottom: "25px" }}
-          >
-            CREAR CUENTA <i className="fas fa-chess-queen-alt"></i>
-          </h2>
-
-          <div className="form-row-responsive">
-            <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
-              <User size={20} className="input-icon" />
-              <input
-                type="text"
-                placeholder="NOMBRE(S)"
-                className="custom-input"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                style={{ paddingLeft: "55px" }}
-                required
-              />
+        {isPendingApproval ? (
+          <div className="form-section" style={{ maxWidth: "550px", width: "100%", padding: "40px", textAlign: "center", borderRadius: "16px", backgroundColor: "#fff", boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}>
+            <div style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "#FFF3E0", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px auto" }}>
+              <Clock size={45} color="#FF6600" />
             </div>
-            <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
-              <input
-                type="text"
-                placeholder="APELLIDOS"
-                className="custom-input"
-                style={{ paddingLeft: "15px" }}
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-row-responsive">
-            <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
-              <Mail size={20} className="input-icon" />
-              <input
-                type="email"
-                placeholder="CORREO ELECTRONICO"
-                className="custom-input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{ paddingLeft: "55px" }}
-                required
-              />
-            </div>
-            <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
-              <Phone size={20} className="input-icon" />
-              <input
-                type="tel"
-                placeholder="TELEFONO"
-                className="custom-input"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                style={{ paddingLeft: "55px" }}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-row-responsive">
-            <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
-              <Lock size={20} className="input-icon" />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="CONTRASEÑA"
-                className="custom-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{ paddingLeft: "55px" }}
-                required
-              />
-              <button
-                type="button"
-                className="toggle-password-btn"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
-              <Lock size={20} className="input-icon" />
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="INGRESA NUEVAMENTE LA CONTRASEÑA"
-                className="custom-input"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                style={{ paddingLeft: "55px" }}
-                required
-              />
-              <button
-                type="button"
-                className="toggle-password-btn"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginBottom: "20px",
-            }}
-          >
-            <ReCAPTCHA
-              sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-              onChange={handleCaptchaChange}
-            />
-          </div>
-
-          <button type="submit" className="btn-login" disabled={isLoading}>
-            {isLoading ? "Creando cuenta..." : "REGISTRAR"}
-          </button>
-
-          {message && (
-            <p
-              className={`msg-box ${message.includes("Error") ? "error" : "success"}`}
-              style={{ marginTop: "15px" }}
-            >
-              {message}
+            <h2 style={{ fontSize: "1.8rem", color: "#333", marginBottom: "15px", fontWeight: "bold" }}>
+              ¡Perfil en Revisión!
+            </h2>
+            <p style={{ color: "#666", fontSize: "1.05rem", lineHeight: "1.6", marginBottom: "25px" }}>
+              Tu registro como <strong>Técnico</strong> se ha completado con éxito. Por seguridad, tu perfil está en la sala de espera y debe ser revisado y autorizado por el <strong>Administrador de tu empresa</strong> para poder iniciar sesión.
             </p>
-          )}
-
-          <div
-            style={{
-              marginTop: "25px",
-              textAlign: "center",
-              fontSize: "0.95rem",
-            }}
-          >
-            <span style={{ color: "#666" }}>¿Ya tienes una cuenta? </span>
-            <span
+            <div style={{ padding: "15px", backgroundColor: "#F9F9F9", borderRadius: "8px", marginBottom: "25px", borderLeft: "4px solid #FF6600", textAlign: "left" }}>
+              <p style={{ margin: 0, fontSize: "0.9rem", color: "#555" }}>
+                <strong>Empresa / Código:</strong> {companyCode || "General / Root"}<br />
+                <strong>Estado actual:</strong> <span style={{ color: "#FF6600", fontWeight: "bold" }}>⏳ Pendiente de aprobación</span>
+              </p>
+            </div>
+            <button
+              type="button"
+              className="btn-login"
               onClick={() => navigate("/")}
+              style={{ width: "100%", padding: "14px", fontSize: "1rem" }}
+            >
+              Volver al Inicio de Sesión
+            </button>
+          </div>
+        ) : (
+          <form
+            className="form-section"
+            onSubmit={handleRegister}
+            style={{ maxWidth: "680px", width: "100%", padding: "35px", borderRadius: "16px", backgroundColor: "#fff", boxShadow: "0 10px 30px rgba(0,0,0,0.15)" }}
+          >
+            <h2
+              className="form-title"
+              style={{ fontSize: "1.6rem", marginBottom: "20px", textAlign: "center" }}
+            >
+              CREAR CUENTA <i className="fas fa-chess-queen-alt"></i>
+            </h2>
+
+            {/* Selector de Tipo de Cuenta */}
+            <div style={{ display: "flex", gap: "10px", marginBottom: "25px" }}>
+              <button
+                type="button"
+                onClick={() => setAccountType("client")}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  borderRadius: "8px",
+                  border: accountType === "client" ? "2px solid #FF6600" : "1px solid #ddd",
+                  backgroundColor: accountType === "client" ? "#FFF5EC" : "#f9f9f9",
+                  color: accountType === "client" ? "#FF6600" : "#666",
+                  fontWeight: accountType === "client" ? "bold" : "normal",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  transition: "all 0.2s"
+                }}
+              >
+                <UserCheck size={18} /> Soy Cliente
+              </button>
+              <button
+                type="button"
+                onClick={() => setAccountType("technician")}
+                style={{
+                  flex: 1,
+                  padding: "12px",
+                  borderRadius: "8px",
+                  border: accountType === "technician" ? "2px solid #FF6600" : "1px solid #ddd",
+                  backgroundColor: accountType === "technician" ? "#FFF5EC" : "#f9f9f9",
+                  color: accountType === "technician" ? "#FF6600" : "#666",
+                  fontWeight: accountType === "technician" ? "bold" : "normal",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  transition: "all 0.2s"
+                }}
+              >
+                <Briefcase size={18} /> Quiero ser Técnico
+              </button>
+            </div>
+
+            {/* Selector de Empresa / Autónomo */}
+            <div className="input-group" style={{ marginBottom: "20px" }}>
+              <Building2 size={20} className="input-icon" />
+              <select
+                className="custom-input"
+                value={selectedTenantId}
+                onChange={handleTenantSelect}
+                style={{ paddingLeft: "55px", backgroundColor: "#fff", cursor: "pointer" }}
+              >
+                <option value="">-- Selecciona tu Empresa o Profesional (Opcional) --</option>
+                {tenants.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} ({t.code})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-row-responsive">
+              <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+                <User size={20} className="input-icon" />
+                <input
+                  type="text"
+                  placeholder="NOMBRE(S)"
+                  className="custom-input"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  style={{ paddingLeft: "55px" }}
+                  required
+                />
+              </div>
+              <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+                <input
+                  type="text"
+                  placeholder="APELLIDOS"
+                  className="custom-input"
+                  style={{ paddingLeft: "15px" }}
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-row-responsive" style={{ marginTop: "15px" }}>
+              <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+                <Mail size={20} className="input-icon" />
+                <input
+                  type="email"
+                  placeholder="CORREO ELECTRONICO"
+                  className="custom-input"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{ paddingLeft: "55px" }}
+                  required
+                />
+              </div>
+              <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+                <Phone size={20} className="input-icon" />
+                <input
+                  type="tel"
+                  placeholder="TELEFONO"
+                  className="custom-input"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  style={{ paddingLeft: "55px" }}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-row-responsive" style={{ marginTop: "15px" }}>
+              <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+                <Lock size={20} className="input-icon" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="CONTRASEÑA"
+                  className="custom-input"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{ paddingLeft: "55px" }}
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-password-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
+                <Lock size={20} className="input-icon" />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="CONFIRMA CONTRASEÑA"
+                  className="custom-input"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  style={{ paddingLeft: "55px" }}
+                  required
+                />
+                <button
+                  type="button"
+                  className="toggle-password-btn"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <div
               style={{
-                color: "#FF6600",
-                cursor: "pointer",
-                fontWeight: "bold",
-                textDecoration: "underline",
+                display: "flex",
+                justifyContent: "center",
+                margin: "20px 0",
               }}
             >
-              Iniciar Sesión
-            </span>
-          </div>
-        </form>
+              <ReCAPTCHA
+                sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+                onChange={handleCaptchaChange}
+              />
+            </div>
+
+            <button type="submit" className="btn-login" disabled={isLoading}>
+              {isLoading ? "Creando cuenta..." : "REGISTRAR"}
+            </button>
+
+            {message && (
+              <p
+                className={`msg-box ${message.includes("Error") ? "error" : "success"}`}
+                style={{ marginTop: "15px" }}
+              >
+                {message}
+              </p>
+            )}
+
+            <div
+              style={{
+                marginTop: "25px",
+                textAlign: "center",
+                fontSize: "0.95rem",
+              }}
+            >
+              <span style={{ color: "#666" }}>¿Ya tienes una cuenta? </span>
+              <span
+                onClick={() => navigate("/")}
+                style={{
+                  color: "#FF6600",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  textDecoration: "underline",
+                }}
+              >
+                Iniciar Sesión
+              </span>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

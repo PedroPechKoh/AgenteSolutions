@@ -33,6 +33,10 @@ import VistaBodeguero from "./components/admin/VistaBodeguero";
 import VistaServiciosAdmin from "./components/admin/VistaServiciosAdmin";
 import VistaReportesGlobal from "./components/admin/VistaReportesGlobal";
 import ReporteTrabajoAdmin from "./components/admin/ReporteTrabajo";
+import VistaGestionAutonomos from "./components/admin/VistaGestionAutonomos";
+import VistaSalaEsperaTecnicos from "./components/admin/VistaSalaEsperaTecnicos";
+import VistaCodigoAutonomo from "./components/admin/VistaCodigoAutonomo";
+import VistaApoyoAutonomo from "./components/admin/VistaApoyoAutonomo";
 
 /* ------RUTAS DE LA VISTA DEL TECNICO ------*/
 import VistaInicioTecnico from "./components/VistaInicioTecnico";
@@ -154,6 +158,10 @@ useEffect(() => {
         <Route path="/dashboard" element={<VistaDashboard />} />
         <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
         <Route path="/usuarios" element={<VistaUsuarios />} />
+        <Route path="/gestion-autonomos" element={<VistaGestionAutonomos />} />
+        <Route path="/sala-espera-tecnicos" element={<VistaSalaEsperaTecnicos />} />
+        <Route path="/mi-codigo-autonomo" element={<VistaCodigoAutonomo />} />
+        <Route path="/apoyo-autonomo" element={<VistaApoyoAutonomo />} />
 
 
         <Route path="/map" element={<Map />} />
