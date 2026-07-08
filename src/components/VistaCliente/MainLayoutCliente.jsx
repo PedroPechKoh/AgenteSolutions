@@ -19,6 +19,34 @@ const MainLayoutCliente = ({ children }) => {
   const [appLogo, setAppLogo] = React.useState(defaultLogo);
   const [sidebarLinks, setSidebarLinks] = React.useState([]);
 
+  // Estados para ayuda y membresía PRO / Autónomo
+  const [showHelpModal, setShowHelpModal] = React.useState(false);
+  const [showProModal, setShowProModal] = React.useState(false);
+  const [proCompanyName, setProCompanyName] = React.useState("");
+  const [proPhone, setProPhone] = React.useState(user?.phone_number || user?.phone || "");
+  const [proEmail, setProEmail] = React.useState(user?.email || "");
+  const [loadingPro, setLoadingPro] = React.useState(false);
+
+  const handleRequestPro = async (e) => {
+    e.preventDefault();
+    if (!proCompanyName.trim()) return alert("Por favor ingresa el nombre de tu Empresa o Negocio.");
+    setLoadingPro(true);
+    try {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/tenants/request-membership`, {
+        company_name: proCompanyName,
+        phone: proPhone,
+        email: proEmail,
+        membership_type: 'autonomo'
+      });
+      alert("¡Solicitud enviada con éxito! El equipo de Root revisará tu cuenta y pronto serás Autónomo / PRO.");
+      setShowProModal(false);
+    } catch (error) {
+      alert(error.response?.data?.message || "Error al solicitar membresía PRO.");
+    } finally {
+      setLoadingPro(false);
+    }
+  };
+
   const { id: urlPropertyId } = useParams();
   
   // Estados para mantener los IDs sincronizados
@@ -136,6 +164,39 @@ const MainLayoutCliente = ({ children }) => {
               </button>
             ))}
           </div>
+
+          {/* 🔥 SECCIÓN INFERIOR: AYUDA Y MEMBRESÍA PRO */}
+          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', paddingTop: '25px' }}>
+            <button 
+              onClick={() => setShowHelpModal(true)}
+              className="tt-nav-btn"
+              style={{ 
+                backgroundColor: '#4a4a4a', 
+                color: '#fff', 
+                border: '1px solid #888',
+                justifyContent: 'center',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+              }}
+            >
+              <span>❓</span> <span>¿Necesitas ayuda?</span>
+            </button>
+
+            <button 
+              onClick={() => setShowProModal(true)}
+              className="tt-nav-btn"
+              style={{ 
+                background: 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)', 
+                color: '#fff', 
+                border: '2px solid #FFF',
+                fontWeight: '900',
+                justifyContent: 'center',
+                textAlign: 'center',
+                boxShadow: '0 4px 15px rgba(255, 102, 0, 0.5)'
+              }}
+            >
+              <span>🚀</span> <span>Cámbiate a PRO</span>
+            </button>
+          </div>
         </aside>
         </>
       )}
@@ -245,6 +306,57 @@ const MainLayoutCliente = ({ children }) => {
         <div className="tt-body">
           {children || <Outlet context={{ searchTerm, setSearchTerm }} />}
         </div>
+
+        {/* 🔥 MODAL DE AYUDA */}
+        {showHelpModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '30px', maxWidth: '400px', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', position: 'relative', textAlign: 'center' }}>
+              <button onClick={() => setShowHelpModal(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#666' }}>✖</button>
+              <h3 style={{ color: '#F26522', marginBottom: '10px', fontSize: '1.4rem', fontWeight: 'bold' }}>🤝 Centro de Ayuda</h3>
+              <p style={{ color: '#555', fontSize: '0.95rem', marginBottom: '25px' }}>¿Necesitas asistencia técnica o soporte con tu cuenta en Agente Solutions? Estamos aquí para ayudarte.</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button onClick={() => window.open('https://wa.me/5219999999999?text=Hola,%20necesito%20ayuda%20en%20Agente%20Solutions', '_blank')} style={{ backgroundColor: '#25D366', color: '#fff', border: 'none', padding: '12px', borderRadius: '15px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  💬 WhatsApp de Soporte
+                </button>
+                <button onClick={() => window.open('mailto:soporte@agentesolutions.com?subject=Soporte%20Cliente', '_blank')} style={{ backgroundColor: '#4a4a4a', color: '#fff', border: 'none', padding: '12px', borderRadius: '15px', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  📧 Correo de Soporte
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 🔥 MODAL CÁMBIATE A PRO / AUTÓNOMO */}
+        {showProModal && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '30px', maxWidth: '450px', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', position: 'relative' }}>
+              <button onClick={() => setShowProModal(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#666' }}>✖</button>
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <h3 style={{ background: 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '1.5rem', fontWeight: '900', marginBottom: '10px' }}>🚀 Cámbiate a Agente Solutions PRO</h3>
+                <p style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.4' }}>Únete como Autónomo o Empresa colaboradora en nuestra plataforma. Gestiona tu propia cartera de propiedades, clientes y técnicos de forma independiente.</p>
+              </div>
+              
+              <form onSubmit={handleRequestPro} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>Nombre de tu Empresa / Negocio *</label>
+                  <input type="text" required placeholder="Ej. Soluciones Inmobiliarias S.A." value={proCompanyName} onChange={(e) => setProCompanyName(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.95rem', outline: 'none' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>Teléfono de Contacto</label>
+                  <input type="text" placeholder="Ej. 9991234567" value={proPhone} onChange={(e) => setProPhone(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.95rem', outline: 'none' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>Correo Electrónico</label>
+                  <input type="email" placeholder="tucorreo@empresa.com" value={proEmail} onChange={(e) => setProEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.95rem', outline: 'none' }} />
+                </div>
+
+                <button type="submit" disabled={loadingPro} style={{ background: 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)', color: '#fff', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '1rem', cursor: loadingPro ? 'not-allowed' : 'pointer', marginTop: '10px', boxShadow: '0 4px 15px rgba(255, 102, 0, 0.4)' }}>
+                  {loadingPro ? 'ENVIANDO SOLICITUD... ⏳' : 'SOLICITAR MEMBRESÍA PRO 🚀'}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

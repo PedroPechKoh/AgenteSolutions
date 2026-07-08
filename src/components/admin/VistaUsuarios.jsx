@@ -7,13 +7,14 @@ import Header from "../Shared/Header";
 import RegisterModal from "../Register";
 import "../../styles/Admin/VistaUsuarios.css";
 
-const MAPA_ROLES = { 0: "ROOT", 1: "ADMIN", 2: "TECNICO", 3: "CLIENTE" };
+const MAPA_ROLES = { 0: "ROOT", 1: "ADMIN", 2: "TECNICO", 3: "CLIENTE", 4: "AUTONOMO" };
 
 const CATEGORIAS = [
   { label: "TODOS", icon: "👥" },
   { label: "CLIENTES", icon: "👤" },
   { label: "TECNICOS", icon: "🛠️" },
   { label: "ADMINS", icon: "💼" },
+  { label: "AUTONOMOS", icon: "🏢" },
   { label: "ROOTS", icon: "🔑" },
 ];
 
@@ -227,6 +228,7 @@ const VistaUsuarios = () => {
                           <option value="1">ADMIN</option>
                           <option value="2">TECNICO</option>
                           <option value="3">CLIENTE</option>
+                          <option value="4">AUTONOMO</option>
                         </select>
                       )}
                     </td>
