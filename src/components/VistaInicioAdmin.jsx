@@ -48,7 +48,7 @@ const VistaInicioAdmin = () => {
     });
   }
 
-  if (isAutonomo || isRoot) {
+  if (isAutonomo) {
     menuItems.push({
       id: 13,
       title: 'MI CÓDIGO AUT_01',
