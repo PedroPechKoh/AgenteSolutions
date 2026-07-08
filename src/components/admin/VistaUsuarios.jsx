@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ChevronLeft } from 'lucide-react';
+import { useAuth } from "../../context/AuthContext";
 import UniversalSearch from "../Shared/UniversalSearch"; 
 import Header from "../Shared/Header"; 
 import RegisterModal from "../Register";
@@ -20,11 +21,14 @@ const CATEGORIAS = [
 
 const VistaUsuarios = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [filtro, setFiltro] = useState("TODOS");
   const [cargando, setCargando] = useState(true);
   const [listaUsuarios, setListaUsuarios] = useState([]);
   const [usuariosFiltrados, setUsuariosFiltrados] = useState([]);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  
+  const isRoot = user?.role_id === 0;
 
   const obtenerUsuarios = async () => {
     try {
@@ -128,7 +132,7 @@ const VistaUsuarios = () => {
           marginBottom: '20px' 
         }}>
           
-          {CATEGORIAS.map((cat) => (
+          {CATEGORIAS.filter((cat) => isRoot || cat.label !== "ROOTS").map((cat) => (
             <div 
               key={cat.label} 
               className={`filter-item ${filtro === cat.label ? "active" : ""}`} 

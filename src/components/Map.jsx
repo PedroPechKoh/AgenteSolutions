@@ -5,6 +5,7 @@ import axios from 'axios';
 import logoAgente from '../assets/Logo_simple.png';
 import Header from './Shared/Header';
 import { ChevronLeft } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const containerStyle = {
   width: '100%',
@@ -19,6 +20,21 @@ const Map = () => {
   const [center, setCenter] = useState({ lat: 20.8822, lng: -89.7468 }); 
   const [miUbicacion, setMiUbicacion] = useState(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const [tenantLogo, setTenantLogo] = useState(null);
+
+  useEffect(() => {
+    try {
+      const savedSettings = localStorage.getItem("dynamic_settings");
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
+        if (parsed.appLogo) setTenantLogo(parsed.appLogo);
+      }
+    } catch (e) {
+      console.error("Error leyendo dynamic_settings para Map:", e);
+    }
+  }, []);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -55,6 +71,8 @@ const Map = () => {
 
   if (!isLoaded) return <div>Cargando el mapa...</div>;
 
+  const isRoot = user?.role_id === 0;
+
   return (
     <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
       
@@ -87,19 +105,22 @@ const Map = () => {
             />
           )}
 
-          {propiedades.map((prop) => (
-            <Marker
-              key={prop.id}
-              position={{ lat: prop.lat, lng: prop.lng }}
-              onClick={() => setMarcadorActivo(prop)}
-              icon={{
-                url: logoAgente, 
-                scaledSize: new window.google.maps.Size(40, 40), 
-                origin: new window.google.maps.Point(0, 0),
-                anchor: new window.google.maps.Point(20, 40)
-              }}
-            />
-          ))}
+          {propiedades.map((prop) => {
+            const pinUrl = prop.tenant_logo_url || (!isRoot && tenantLogo ? tenantLogo : logoAgente);
+            return (
+              <Marker
+                key={prop.id}
+                position={{ lat: prop.lat, lng: prop.lng }}
+                onClick={() => setMarcadorActivo(prop)}
+                icon={{
+                  url: pinUrl, 
+                  scaledSize: new window.google.maps.Size(42, 42), 
+                  origin: new window.google.maps.Point(0, 0),
+                  anchor: new window.google.maps.Point(21, 42)
+                }}
+              />
+            );
+          })}
 
           {marcadorActivo && (
             <InfoWindow
