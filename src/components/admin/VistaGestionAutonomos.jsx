@@ -104,17 +104,17 @@ const VistaGestionAutonomos = () => {
 
       <Header rolTexto="ROOT / GESTIÓN DE AUTÓNOMOS" />
 
-      <div style={{ maxWidth: '1200px', margin: '30px auto', padding: '0 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+      <div style={{ maxWidth: '1200px', margin: '20px auto', padding: '0 12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
           <button
             onClick={() => navigate('/VistaRoot')}
-            style={{ padding: '10px 18px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            style={{ padding: '10px 18px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
           >
             ← Volver al Panel Root
           </button>
           <button
             onClick={fetchData}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: '#FF6600', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 18px', backgroundColor: '#FF6600', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
           >
             <RefreshCw size={18} /> Actualizar
           </button>
@@ -127,11 +127,12 @@ const VistaGestionAutonomos = () => {
         )}
 
         {/* Pestañas de Navegación */}
-        <div style={{ display: 'flex', gap: '15px', marginBottom: '25px', borderBottom: '2px solid #ddd', paddingBottom: '10px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '25px', borderBottom: '2px solid #ddd', paddingBottom: '12px' }}>
           <button
             onClick={() => setActiveTab('pending')}
             style={{
-              padding: '12px 24px',
+              flex: '1 1 200px',
+              padding: '12px 16px',
               backgroundColor: activeTab === 'pending' ? '#FF6600' : '#fff',
               color: activeTab === 'pending' ? '#fff' : '#555',
               border: 'none',
@@ -140,8 +141,11 @@ const VistaGestionAutonomos = () => {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '8px',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              fontSize: '0.9rem',
+              textAlign: 'center'
             }}
           >
             ⏳ Solicitudes Pendientes ({pendingTenants.length})
@@ -149,7 +153,8 @@ const VistaGestionAutonomos = () => {
           <button
             onClick={() => setActiveTab('active')}
             style={{
-              padding: '12px 24px',
+              flex: '1 1 200px',
+              padding: '12px 16px',
               backgroundColor: activeTab === 'active' ? '#FF6600' : '#fff',
               color: activeTab === 'active' ? '#fff' : '#555',
               border: 'none',
@@ -158,8 +163,11 @@ const VistaGestionAutonomos = () => {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '8px',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              fontSize: '0.9rem',
+              textAlign: 'center'
             }}
           >
             🏢 Autónomos Activos ({activeTenants.length})
@@ -167,7 +175,8 @@ const VistaGestionAutonomos = () => {
           <button
             onClick={() => setActiveTab('transfer')}
             style={{
-              padding: '12px 24px',
+              flex: '1 1 200px',
+              padding: '12px 16px',
               backgroundColor: activeTab === 'transfer' ? '#FF6600' : '#fff',
               color: activeTab === 'transfer' ? '#fff' : '#555',
               border: 'none',
@@ -176,8 +185,11 @@ const VistaGestionAutonomos = () => {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'center',
               gap: '8px',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+              fontSize: '0.9rem',
+              textAlign: 'center'
             }}
           >
             🔄 Traspaso de Cartera
@@ -193,19 +205,19 @@ const VistaGestionAutonomos = () => {
             {/* PESTAÑA 1: SOLICITUDES PENDIENTES */}
             {activeTab === 'pending' && (
               <div>
-                <h3 style={{ fontSize: '1.4rem', color: '#333', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '1.3rem', color: '#333', marginBottom: '20px', overflowWrap: 'anywhere' }}>
                   Solicitudes de Membresía por Autorizar
                 </h3>
                 {pendingTenants.length === 0 ? (
-                  <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '12px', textAlign: 'center', color: '#888', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                  <div style={{ backgroundColor: '#fff', padding: '40px 20px', borderRadius: '12px', textAlign: 'center', color: '#888', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                     ✅ No hay solicitudes de membresía pendientes en este momento.
                   </div>
                 ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px' }}>
                     {pendingTenants.map((t) => (
-                      <div key={t.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', borderLeft: '5px solid #FF9800', overflow: 'hidden', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                      <div key={t.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '20px 16px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', borderLeft: '5px solid #FF9800', overflow: 'hidden', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px', gap: '10px' }}>
-                          <h4 style={{ margin: 0, fontSize: '1.3rem', color: '#333', overflowWrap: 'anywhere' }}>{t.name}</h4>
+                          <h4 style={{ margin: 0, fontSize: '1.2rem', color: '#333', overflowWrap: 'anywhere' }}>{t.name}</h4>
                           <span style={{ backgroundColor: '#FFF3E0', color: '#E65100', padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', flexShrink: 0 }}>
                             Pendiente
                           </span>
@@ -238,11 +250,11 @@ const VistaGestionAutonomos = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             gap: '8px',
-                            fontSize: '1rem',
+                            fontSize: '0.95rem',
                             boxShadow: '0 4px 10px rgba(76,175,80,0.3)'
                           }}
                         >
-                          <CheckCircle size={20} /> Autorizar y Asignar AUT_XX
+                          <CheckCircle size={18} /> Autorizar y Asignar AUT_XX
                         </button>
                       </div>
                     ))}
@@ -254,20 +266,20 @@ const VistaGestionAutonomos = () => {
             {/* PESTAÑA 2: AUTÓNOMOS ACTIVOS */}
             {activeTab === 'active' && (
               <div>
-                <h3 style={{ fontSize: '1.4rem', color: '#333', marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '1.3rem', color: '#333', marginBottom: '20px', overflowWrap: 'anywhere' }}>
                   Empresas Autónomas Activas en el Sistema
                 </h3>
                 {activeTenants.length === 0 ? (
-                  <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '12px', textAlign: 'center', color: '#888', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                  <div style={{ backgroundColor: '#fff', padding: '40px 20px', borderRadius: '12px', textAlign: 'center', color: '#888', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
                     No hay empresas activas registradas aún.
                   </div>
                 ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '18px' }}>
                     {activeTenants.map((t) => (
-                      <div key={t.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', borderLeft: '5px solid #4CAF50', overflow: 'hidden', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                      <div key={t.id} style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '20px 16px', boxShadow: '0 4px 15px rgba(0,0,0,0.08)', borderLeft: '5px solid #4CAF50', overflow: 'hidden', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px', gap: '10px' }}>
-                          <h4 style={{ margin: 0, fontSize: '1.3rem', color: '#333', overflowWrap: 'anywhere' }}>{t.name}</h4>
-                          <span style={{ backgroundColor: '#E8F5E9', color: '#2E7D32', padding: '6px 12px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: 'bold', flexShrink: 0 }}>
+                          <h4 style={{ margin: 0, fontSize: '1.2rem', color: '#333', overflowWrap: 'anywhere' }}>{t.name}</h4>
+                          <span style={{ backgroundColor: '#E8F5E9', color: '#2E7D32', padding: '5px 10px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', flexShrink: 0 }}>
                             {t.code}
                           </span>
                         </div>
@@ -290,12 +302,12 @@ const VistaGestionAutonomos = () => {
 
             {/* PESTAÑA 3: TRASPASO DE CARTERA */}
             {activeTab === 'transfer' && (
-              <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '35px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', maxWidth: '750px', margin: '0 auto' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
-                  <ArrowRightLeft size={30} color="#FF6600" />
+              <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '25px 15px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', maxWidth: '750px', margin: '0 auto', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', borderBottom: '2px solid #eee', paddingBottom: '15px', flexWrap: 'wrap' }}>
+                  <ArrowRightLeft size={28} color="#FF6600" style={{ flexShrink: 0 }} />
                   <div>
-                    <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#333' }}>Traspaso de Cartera y Clientes</h3>
-                    <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>Transfiere todos los clientes, técnicos, propiedades y cotizaciones de un Autónomo a otro o al Root.</p>
+                    <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#333' }}>Traspaso de Cartera y Clientes</h3>
+                    <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '0.9rem' }}>Transfiere todos los clientes, técnicos, propiedades y cotizaciones de un Autónomo a otro o al Root.</p>
                   </div>
                 </div>
 

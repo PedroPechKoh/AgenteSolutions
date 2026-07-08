@@ -72,11 +72,11 @@ const VistaCodigoAutonomo = () => {
 
       <Header rolTexto="MI IDENTIFICADOR Y QR AUTÓNOMO" />
 
-      <div style={{ maxWidth: '900px', margin: '30px auto', padding: '0 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+      <div style={{ maxWidth: '900px', margin: '20px auto', padding: '0 12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
           <button
             onClick={() => navigate('/VistaRoot')}
-            style={{ padding: '10px 18px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            style={{ padding: '10px 18px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
           >
             ← Volver al Panel Principal
           </button>
@@ -87,36 +87,36 @@ const VistaCodigoAutonomo = () => {
             Cargando identificador empresarial...
           </div>
         ) : (
-          <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '40px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', textAlign: 'center' }}>
-            <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#FFF3E0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto' }}>
-              <Building2 size={45} color="#FF6600" />
+          <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '25px 15px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', textAlign: 'center', overflow: 'hidden' }}>
+            <div style={{ width: '70px', height: '70px', borderRadius: '50%', backgroundColor: '#FFF3E0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 15px auto' }}>
+              <Building2 size={38} color="#FF6600" />
             </div>
 
-            <h2 style={{ fontSize: '2rem', color: '#333', margin: '0 0 10px 0', fontWeight: 'bold', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+            <h2 style={{ fontSize: '1.6rem', color: '#333', margin: '0 0 10px 0', fontWeight: 'bold', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               {companyName}
             </h2>
-            <p style={{ color: '#666', fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto 30px auto', lineHeight: '1.6' }}>
+            <p style={{ color: '#666', fontSize: '0.95rem', maxWidth: '600px', margin: '0 auto 25px auto', lineHeight: '1.5' }}>
               Este es tu centro de identificación en la plataforma Agente Solutions. Comparte tu código o enlace con tus clientes y especialistas para que se registren en tu empresa.
             </p>
 
             {/* TARJETA DEL CÓDIGO */}
-            <div style={{ backgroundColor: '#F9F9F9', border: '2px dashed #FF6600', borderRadius: '16px', padding: '30px', maxWidth: '500px', margin: '0 auto 30px auto', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
-              <span style={{ fontSize: '0.85rem', color: '#888', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 'bold' }}>
+            <div style={{ backgroundColor: '#F9F9F9', border: '2px dashed #FF6600', borderRadius: '16px', padding: '20px 10px', maxWidth: '500px', margin: '0 auto 25px auto', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+              <span style={{ fontSize: '0.8rem', color: '#888', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>
                 TU CÓDIGO DE EMPRESA / AUTÓNOMO
               </span>
-              <div style={{ fontSize: '2.8rem', fontWeight: '900', color: '#FF6600', margin: '15px 0', letterSpacing: '2px', wordBreak: 'break-all' }}>
+              <div style={{ fontSize: '2.3rem', fontWeight: '900', color: '#FF6600', margin: '12px 0', letterSpacing: '1px', wordBreak: 'break-all' }}>
                 {companyCode}
               </div>
               <button
                 onClick={handleCopyCode}
                 style={{
-                  padding: '12px 24px',
+                  padding: '10px 20px',
                   backgroundColor: copiedCode ? '#4CAF50' : '#333',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '30px',
                   fontWeight: 'bold',
-                  fontSize: '0.95rem',
+                  fontSize: '0.9rem',
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -131,25 +131,25 @@ const VistaCodigoAutonomo = () => {
             </div>
 
             {/* CÓMO FUNCIONA */}
-            <div style={{ textAlign: 'left', backgroundColor: '#FFF5EC', borderRadius: '16px', padding: '25px', marginBottom: '30px', borderLeft: '5px solid #FF6600' }}>
-              <h4 style={{ margin: '0 0 15px 0', color: '#333', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ textAlign: 'left', backgroundColor: '#FFF5EC', borderRadius: '16px', padding: '20px 15px', marginBottom: '25px', borderLeft: '5px solid #FF6600' }}>
+              <h4 style={{ margin: '0 0 15px 0', color: '#333', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <ShieldCheck color="#FF6600" /> ¿Cómo registrar a tu equipo y clientes?
               </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginTop: '15px' }}>
-                <div style={{ backgroundColor: '#fff', padding: '18px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '15px', marginTop: '15px' }}>
+                <div style={{ backgroundColor: '#fff', padding: '15px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FF6600', fontWeight: 'bold', marginBottom: '8px' }}>
-                    <Users size={20} /> 1. Para tus Clientes
+                    <Users size={18} /> 1. Para tus Clientes
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#555', lineHeight: '1.5' }}>
+                  <p style={{ margin: 0, fontSize: '0.88rem', color: '#555', lineHeight: '1.5' }}>
                     Indícales que al crear su cuenta seleccionen <strong>"{companyName}"</strong> en la lista de empresas. Toda su información y cotizaciones quedarán aisladas en tu cartera.
                   </p>
                 </div>
 
-                <div style={{ backgroundColor: '#fff', padding: '18px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                <div style={{ backgroundColor: '#fff', padding: '15px', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#FF6600', fontWeight: 'bold', marginBottom: '8px' }}>
-                    <Briefcase size={20} /> 2. Para tus Técnicos
+                    <Briefcase size={18} /> 2. Para tus Técnicos
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: '#555', lineHeight: '1.5' }}>
+                  <p style={{ margin: 0, fontSize: '0.88rem', color: '#555', lineHeight: '1.5' }}>
                     Al registrarse como Técnico, seleccionarán tu empresa. Entrarán a tu <strong>Sala de Espera</strong> donde tú podrás verificarlos y darles el alta definitiva.
                   </p>
                 </div>
@@ -157,21 +157,21 @@ const VistaCodigoAutonomo = () => {
             </div>
 
             {/* ENLACE DIRECTO */}
-            <div style={{ borderTop: '1px solid #eee', paddingTop: '25px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-              <span style={{ color: '#555', fontWeight: 'bold', fontSize: '1rem' }}>
+            <div style={{ borderTop: '1px solid #eee', paddingTop: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <span style={{ color: '#555', fontWeight: 'bold', fontSize: '0.95rem', textAlign: 'center' }}>
                 🔗 Enlace rápido para invitación en redes y WhatsApp:
               </span>
-              <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '600px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', width: '100%', maxWidth: '600px', justifyContent: 'center' }}>
                 <input
                   type="text"
                   readOnly
                   value={registerUrl}
-                  style={{ flex: 1, padding: '12px 16px', borderRadius: '8px', border: '1px solid #ccc', backgroundColor: '#f9f9f9', color: '#555', fontSize: '0.9rem' }}
+                  style={{ flex: '1 1 200px', padding: '10px 14px', borderRadius: '8px', border: '1px solid #ccc', backgroundColor: '#f9f9f9', color: '#555', fontSize: '0.85rem' }}
                 />
                 <button
                   onClick={handleCopyLink}
                   style={{
-                    padding: '12px 20px',
+                    padding: '10px 18px',
                     backgroundColor: copiedLink ? '#4CAF50' : '#FF6600',
                     color: '#fff',
                     border: 'none',
@@ -181,7 +181,8 @@ const VistaCodigoAutonomo = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    fontSize: '0.9rem'
                   }}
                 >
                   {copiedLink ? <Check size={18} /> : <Share2 size={18} />}
