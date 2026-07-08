@@ -208,116 +208,74 @@ const ClientRegister = () => {
             </h2>
 
             {/* Selector de Tipo de Cuenta */}
-            <div style={{ display: "flex", gap: "10px", marginBottom: "25px", width: "100%", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: "15px", marginBottom: "25px", width: "100%" }}>
               <button
                 type="button"
                 onClick={() => setAccountType("client")}
                 style={{
                   flex: 1,
-                  minWidth: "140px",
-                  padding: "12px 10px",
+                  padding: "14px",
                   borderRadius: "50px",
                   border: accountType === "client" ? "3px solid #f26522" : "3px solid transparent",
                   backgroundColor: accountType === "client" ? "#f26522" : "#cfd3d8",
                   color: accountType === "client" ? "#fff" : "#333333",
                   fontWeight: "900",
                   fontStyle: "italic",
-                  fontSize: "0.95rem",
+                  fontSize: "1.05rem",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "8px",
+                  gap: "10px",
                   transition: "all 0.3s",
                   boxShadow: accountType === "client" ? "0 0 15px rgba(242, 101, 34, 0.6)" : "none"
                 }}
               >
-                <UserCheck size={18} /> SOY CLIENTE
+                <UserCheck size={20} /> SOY CLIENTE
               </button>
               <button
                 type="button"
                 onClick={() => setAccountType("technician")}
                 style={{
                   flex: 1,
-                  minWidth: "140px",
-                  padding: "12px 10px",
+                  padding: "14px",
                   borderRadius: "50px",
                   border: accountType === "technician" ? "3px solid #f26522" : "3px solid transparent",
                   backgroundColor: accountType === "technician" ? "#f26522" : "#cfd3d8",
                   color: accountType === "technician" ? "#fff" : "#333333",
                   fontWeight: "900",
                   fontStyle: "italic",
-                  fontSize: "0.95rem",
+                  fontSize: "1.05rem",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "8px",
+                  gap: "10px",
                   transition: "all 0.3s",
                   boxShadow: accountType === "technician" ? "0 0 15px rgba(242, 101, 34, 0.6)" : "none"
                 }}
               >
-                <Briefcase size={18} /> SOY TÉCNICO
-              </button>
-              <button
-                type="button"
-                onClick={() => setAccountType("autonomo")}
-                style={{
-                  flex: 1,
-                  minWidth: "160px",
-                  padding: "12px 10px",
-                  borderRadius: "50px",
-                  border: accountType === "autonomo" ? "3px solid #f26522" : "3px solid transparent",
-                  backgroundColor: accountType === "autonomo" ? "#f26522" : "#cfd3d8",
-                  color: accountType === "autonomo" ? "#fff" : "#333333",
-                  fontWeight: "900",
-                  fontStyle: "italic",
-                  fontSize: "0.95rem",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  transition: "all 0.3s",
-                  boxShadow: accountType === "autonomo" ? "0 0 15px rgba(242, 101, 34, 0.6)" : "none"
-                }}
-              >
-                <Building2 size={18} /> SOY EMPRESA / AUTÓNOMO
+                <Briefcase size={20} /> SOY TÉCNICO
               </button>
             </div>
 
             {/* Selector de Empresa / Autónomo */}
-            {accountType === "autonomo" ? (
-              <div className="input-group" style={{ marginBottom: "15px", width: "100%" }}>
-                <Building2 size={22} className="input-icon" style={{ color: "#f26522" }} />
-                <input
-                  type="text"
-                  placeholder="NOMBRE DE TU EMPRESA O NEGOCIO *"
-                  className="custom-input"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  style={{ paddingLeft: "55px", border: "2px solid #f26522" }}
-                  required
-                />
-              </div>
-            ) : (
-              <div className="input-group" style={{ marginBottom: "15px", width: "100%" }}>
-                <Building2 size={22} className="input-icon" />
-                <select
-                  className="custom-input"
-                  value={selectedTenantId}
-                  onChange={handleTenantSelect}
-                  style={{ paddingLeft: "55px", cursor: "pointer" }}
-                >
-                  <option value="">🏢 AGENTE SOLUTIONS (EMPRESA OFICIAL / ROOT)</option>
-                  {tenants.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      🏢 {t.name} ({t.code})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            <div className="input-group" style={{ marginBottom: "15px", width: "100%" }}>
+              <Building2 size={22} className="input-icon" />
+              <select
+                className="custom-input"
+                value={selectedTenantId}
+                onChange={handleTenantSelect}
+                style={{ paddingLeft: "55px", cursor: "pointer" }}
+              >
+                <option value="">🏢 AGENTE SOLUTIONS (EMPRESA OFICIAL / ROOT)</option>
+                {tenants.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    🏢 {t.name} ({t.code})
+                  </option>
+                ))}
+              </select>
+            </div>
 
             <div className="form-row-responsive">
               <div className="input-group" style={{ flex: 1, marginBottom: 0 }}>
