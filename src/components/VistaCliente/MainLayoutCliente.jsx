@@ -26,20 +26,23 @@ const MainLayoutCliente = ({ children }) => {
   const [proPhone, setProPhone] = React.useState(user?.phone_number || user?.phone || "");
   const [proEmail, setProEmail] = React.useState(user?.email || "");
   const [loadingPro, setLoadingPro] = React.useState(false);
+  const [pendingProTenant, setPendingProTenant] = React.useState(null);
+  const [isEditingPendingPro, setIsEditingPendingPro] = React.useState(false);
 
   const handleRequestPro = async (e) => {
     e.preventDefault();
     if (!proCompanyName.trim()) return alert("Por favor ingresa el nombre de tu Empresa o Negocio.");
     setLoadingPro(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/tenants/request-membership`, {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/tenants/request-membership`, {
         company_name: proCompanyName,
         phone: proPhone,
         email: proEmail,
         membership_type: 'autonomo'
       });
-      alert("¡Solicitud enviada con éxito! El equipo de Root revisará tu cuenta y pronto serás Autónomo / PRO.");
-      setShowProModal(false);
+      alert(isEditingPendingPro ? "¡Solicitud actualizada con éxito! Sigue en proceso de verificación." : "¡Solicitud enviada con éxito! El equipo de Root revisará tu cuenta y pronto serás Autónomo / PRO.");
+      setPendingProTenant(res.data.tenant || { name: proCompanyName, phone: proPhone, email: proEmail, status: 'pending_approval' });
+      setIsEditingPendingPro(false);
     } catch (error) {
       alert(error.response?.data?.message || "Error al solicitar membresía PRO.");
     } finally {
@@ -63,6 +66,22 @@ const MainLayoutCliente = ({ children }) => {
       const resLinks = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/sidebar-links`);
       if (resLinks.data.success && resLinks.data.links) {
         setSidebarLinks(resLinks.data.links);
+      }
+
+      if (user) {
+        try {
+          const resStatus = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/tenants/my-membership-status`);
+          if (resStatus.data.success && resStatus.data.has_pending) {
+            setPendingProTenant(resStatus.data.tenant);
+            if (resStatus.data.tenant?.name) setProCompanyName(resStatus.data.tenant.name);
+            if (resStatus.data.tenant?.phone) setProPhone(resStatus.data.tenant.phone);
+            if (resStatus.data.tenant?.email) setProEmail(resStatus.data.tenant.email);
+          } else {
+            setPendingProTenant(null);
+          }
+        } catch (err) {
+          console.error("Error fetching my membership status:", err);
+        }
       }
     } catch (error) {
       console.error("Error fetching dynamic sidebar settings", error);
@@ -182,19 +201,26 @@ const MainLayoutCliente = ({ children }) => {
             </button>
 
             <button 
-              onClick={() => setShowProModal(true)}
+              onClick={() => {
+                setIsEditingPendingPro(false);
+                setShowProModal(true);
+              }}
               className="tt-nav-btn"
               style={{ 
-                background: 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)', 
+                background: pendingProTenant 
+                  ? 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' 
+                  : 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)', 
                 color: '#fff', 
                 border: '2px solid #FFF',
                 fontWeight: '900',
                 justifyContent: 'center',
                 textAlign: 'center',
-                boxShadow: '0 4px 15px rgba(255, 102, 0, 0.5)'
+                boxShadow: pendingProTenant 
+                  ? '0 4px 15px rgba(59, 130, 246, 0.5)' 
+                  : '0 4px 15px rgba(255, 102, 0, 0.5)'
               }}
             >
-              <span>🚀</span> <span>Cámbiate a PRO</span>
+              <span>{pendingProTenant ? '⏳' : '🚀'}</span> <span>{pendingProTenant ? 'En Proceso PRO' : 'Cámbiate a PRO'}</span>
             </button>
           </div>
         </aside>
@@ -329,31 +355,80 @@ const MainLayoutCliente = ({ children }) => {
         {/* 🔥 MODAL CÁMBIATE A PRO / AUTÓNOMO */}
         {showProModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '30px', maxWidth: '450px', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', position: 'relative' }}>
+            <div style={{ backgroundColor: '#fff', borderRadius: '20px', padding: '30px', maxWidth: '480px', width: '100%', boxShadow: '0 10px 30px rgba(0,0,0,0.3)', position: 'relative' }}>
               <button onClick={() => setShowProModal(false)} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem', color: '#666' }}>✖</button>
-              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <h3 style={{ background: 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '1.5rem', fontWeight: '900', marginBottom: '10px' }}>🚀 Cámbiate a Agente Solutions PRO</h3>
-                <p style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.4' }}>Únete como Autónomo o Empresa colaboradora en nuestra plataforma. Gestiona tu propia cartera de propiedades, clientes y técnicos de forma independiente.</p>
-              </div>
               
-              <form onSubmit={handleRequestPro} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>Nombre de tu Empresa / Negocio *</label>
-                  <input type="text" required placeholder="Ej. Soluciones Inmobiliarias S.A." value={proCompanyName} onChange={(e) => setProCompanyName(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.95rem', outline: 'none' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>Teléfono de Contacto</label>
-                  <input type="text" placeholder="Ej. 9991234567" value={proPhone} onChange={(e) => setProPhone(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.95rem', outline: 'none' }} />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>Correo Electrónico</label>
-                  <input type="email" placeholder="tucorreo@empresa.com" value={proEmail} onChange={(e) => setProEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.95rem', outline: 'none' }} />
-                </div>
+              {pendingProTenant && !isEditingPendingPro ? (
+                <div style={{ textAlign: 'center', padding: '10px 0' }}>
+                  <div style={{ fontSize: '3.5rem', marginBottom: '15px' }}>⏳</div>
+                  <h3 style={{ color: '#1e3a8a', fontSize: '1.5rem', fontWeight: '900', marginBottom: '12px' }}>
+                    ¡En Proceso de Aprobación!
+                  </h3>
+                  <div style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '14px', padding: '18px', marginBottom: '20px', textAlign: 'left' }}>
+                    <p style={{ color: '#0369a1', fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px 0' }}>
+                      Hola <strong>{user?.first_name || 'Cliente'}</strong>, ya hemos registrado y recibido tu solicitud para convertirte en <strong>Autónomo PRO</strong> con tu empresa/negocio:
+                    </p>
+                    <div style={{ backgroundColor: '#fff', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e0f2fe', fontWeight: 'bold', color: '#1e3a8a', fontSize: '1.05rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      🏢 {pendingProTenant.name || proCompanyName}
+                    </div>
+                    <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0, lineHeight: '1.4' }}>
+                      🔒 Un administrador del equipo <strong>Root</strong> está verificando tu cuenta e información. En cuanto sea aprobada, tu sesión se actualizará automáticamente y tendrás acceso completo a las herramientas independientes.
+                    </p>
+                  </div>
 
-                <button type="submit" disabled={loadingPro} style={{ background: 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)', color: '#fff', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '1rem', cursor: loadingPro ? 'not-allowed' : 'pointer', marginTop: '10px', boxShadow: '0 4px 15px rgba(255, 102, 0, 0.4)' }}>
-                  {loadingPro ? 'ENVIANDO SOLICITUD... ⏳' : 'SOLICITAR MEMBRESÍA PRO 🚀'}
-                </button>
-              </form>
+                  <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    <button 
+                      onClick={() => setIsEditingPendingPro(true)} 
+                      style={{ backgroundColor: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '12px 20px', borderRadius: '12px', fontWeight: 'bold', fontSize: '0.9rem', cursor: 'pointer' }}
+                    >
+                      ✏️ Modificar datos
+                    </button>
+                    <button 
+                      onClick={() => setShowProModal(false)} 
+                      style={{ background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', color: '#fff', border: 'none', padding: '12px 25px', borderRadius: '12px', fontWeight: 'bold', fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 4px 12px rgba(30, 58, 138, 0.3)' }}
+                    >
+                      ✔ Entendido
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                    <h3 style={{ background: isEditingPendingPro ? 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' : 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontSize: '1.5rem', fontWeight: '900', marginBottom: '10px' }}>
+                      {isEditingPendingPro ? '✏️ Modificar Solicitud PRO' : '🚀 Cámbiate a Agente Solutions PRO'}
+                    </h3>
+                    <p style={{ color: '#555', fontSize: '0.9rem', lineHeight: '1.4' }}>
+                      {isEditingPendingPro ? 'Actualiza el nombre de tu empresa, teléfono o correo si deseas corregir la solicitud en curso.' : 'Únete como Autónomo o Empresa colaboradora en nuestra plataforma. Gestiona tu propia cartera de propiedades, clientes y técnicos de forma independiente.'}
+                    </p>
+                  </div>
+                  
+                  <form onSubmit={handleRequestPro} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>Nombre de tu Empresa / Negocio *</label>
+                      <input type="text" required placeholder="Ej. Soluciones Inmobiliarias S.A." value={proCompanyName} onChange={(e) => setProCompanyName(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.95rem', outline: 'none' }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>Teléfono de Contacto</label>
+                      <input type="text" placeholder="Ej. 9991234567" value={proPhone} onChange={(e) => setProPhone(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.95rem', outline: 'none' }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#333', marginBottom: '5px' }}>Correo Electrónico</label>
+                      <input type="email" placeholder="tucorreo@empresa.com" value={proEmail} onChange={(e) => setProEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ccc', fontSize: '0.95rem', outline: 'none' }} />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                      {isEditingPendingPro && (
+                        <button type="button" onClick={() => setIsEditingPendingPro(false)} style={{ backgroundColor: '#f1f5f9', color: '#64748b', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: 'bold', fontSize: '0.95rem', cursor: 'pointer', width: '40%' }}>
+                          Cancelar
+                        </button>
+                      )}
+                      <button type="submit" disabled={loadingPro} style={{ background: isEditingPendingPro ? 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)' : 'linear-gradient(135deg, #FF6600 0%, #FF9900 100%)', color: '#fff', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', fontSize: '1rem', cursor: loadingPro ? 'not-allowed' : 'pointer', width: isEditingPendingPro ? '60%' : '100%', boxShadow: isEditingPendingPro ? '0 4px 15px rgba(30, 58, 138, 0.4)' : '0 4px 15px rgba(255, 102, 0, 0.4)' }}>
+                        {loadingPro ? 'ENVIANDO... ⏳' : isEditingPendingPro ? 'GUARDAR CAMBIOS 💾' : 'SOLICITAR MEMBRESÍA PRO 🚀'}
+                      </button>
+                    </div>
+                  </form>
+                </>
+              )}
             </div>
           </div>
         )}
