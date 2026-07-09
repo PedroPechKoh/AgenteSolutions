@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { User, Lock, Mail, Phone, Eye, EyeOff, Shield, X } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
+
+  const { user } = useAuth();
+  const isRoot = user?.role_id === 0;
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -12,7 +16,9 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     phone_number: '',
     password: '',
     confirmPassword: '',
-    role_id: 1 
+    role_id: 1,
+    company_name: '',
+    company_code: ''
   });
   
   const [mensaje, setMensaje] = useState('');
@@ -22,10 +28,18 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({
+    const { name, value } = e.target;
+    let newFormData = {
       ...formData,
-      [e.target.name]: e.target.value
-    });
+      [name]: name === 'role_id' ? parseInt(value) : value
+    };
+
+    if (name === 'role_id' && parseInt(value) === 4 && !formData.company_code) {
+      const randomCode = 'AUT_' + Math.floor(100 + Math.random() * 900);
+      newFormData.company_code = randomCode;
+    }
+
+    setFormData(newFormData);
   };
 
   const handleRegistro = async (e) => {
@@ -42,7 +56,13 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     setIsLoading(true);
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/registro-usuario`, formData);
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/registro-usuario`, {
+        ...formData,
+        from_admin: true
+      }, { headers });
       
       setMensaje(`¡Éxito! Usuario ${res.data.user.first_name} registrado.`);
       setTipoMensaje('success');
@@ -55,7 +75,9 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           phone_number: '',
           password: '',
           confirmPassword: '',
-          role_id: 1
+          role_id: 1,
+          company_name: '',
+          company_code: ''
         });
         setIsLoading(false);
         if (onSuccess) onSuccess();
@@ -368,11 +390,48 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
               data-1p-ignore="true"
               data-bitwarden-ignore="true"
             >
+              {isRoot && <option value={0}>ROOT (Nivel 0)</option>}
               <option value={1}>ADMINISTRADOR (Nivel 1)</option>
               <option value={2}>TÉCNICO / VENDEDOR (Nivel 2)</option>
               <option value={3}>CLIENTE (Nivel 3)</option>
+              <option value={4}>AUTÓNOMO (Nivel 4)</option>
             </select>
           </div>
+
+          {parseInt(formData.role_id) === 4 && (
+            <div style={{ background: '#fff7ed', border: '1px solid #fdba74', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
+              <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#c2410c', textTransform: 'uppercase', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                🏢 Datos de Empresa para Autónomo
+              </div>
+              <div className="input-group" style={{ marginBottom: "12px" }}>
+                <input 
+                  type="text" 
+                  name="company_name" 
+                  placeholder="NOMBRE DE LA EMPRESA / NEGOCIO" 
+                  className="custom-input"
+                  style={{ paddingLeft: '15px' }}
+                  value={formData.company_name || ''} 
+                  onChange={handleChange} 
+                  required={parseInt(formData.role_id) === 4} 
+                />
+              </div>
+              <div className="input-group" style={{ margin: 0 }}>
+                <input 
+                  type="text" 
+                  name="company_code" 
+                  placeholder="CÓDIGO PERSONALIZADO (ej. AUT_101)" 
+                  className="custom-input"
+                  style={{ paddingLeft: '15px' }}
+                  value={formData.company_code || ''} 
+                  onChange={handleChange} 
+                  required={parseInt(formData.role_id) === 4} 
+                />
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#9a3412', marginTop: '8px', fontWeight: 'bold' }}>
+                * El código de empresa se autogenera, pero puedes personalizarlo.
+              </div>
+            </div>
+          )}
 
           <button type="submit" className="btn-registrar" disabled={isLoading}>
             {isLoading ? "REGISTRANDO..." : "REGISTRAR"}

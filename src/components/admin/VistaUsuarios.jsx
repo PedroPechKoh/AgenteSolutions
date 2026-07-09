@@ -244,7 +244,7 @@ const VistaUsuarios = () => {
                     </td>
 
                     <td data-label="Acciones" className="actions-cell">
-                      {u.role_id === 0 || u.role_id === 4 ? (
+                      {u.role_id === 0 || (u.role_id === 4 && !isRoot) ? (
                         <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
                           🔒 Protegido
                         </span>
@@ -260,6 +260,7 @@ const VistaUsuarios = () => {
                           <button 
                             className="btn-table-oval-small delete-oval" 
                             onClick={() => eliminarUsuario(u.id, u.role_id)}
+                            title="Eliminar usuario"
                           >
                             🗑️
                           </button>
