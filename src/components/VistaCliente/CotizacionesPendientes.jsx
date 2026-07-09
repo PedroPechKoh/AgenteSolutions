@@ -154,8 +154,9 @@ const CotizacionesPendientes = () => {
                   <span>Esta vista es solo una demostración visual del frontend.</span>
                 </div>
                 <div className="modal-actions-row">
-                  <button className="btn-accept-final">Aceptar cotización</button>
-                  <button className="btn-requote-final">Recotizar de nuevo</button>
+                  <button className="btn-accept-final">
+                    {cotizacionSeleccionada.vencida ? 'Recotizar de nuevo' : 'Aceptar cotización'}
+                  </button>
                 </div>
                 {cotizacionSeleccionada.vencida && (
                   <div className="modal-expired-note">
