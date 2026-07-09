@@ -182,6 +182,7 @@ useEffect(() => {
 
       {/* Rutas del cliente con Sidebar */}
         <Route path="/Cotizaciones" element={<MainLayoutCliente><Cotizaciones /></MainLayoutCliente>} />
+        <Route path="/cotizaciones-pendientes" element={<MainLayoutCliente><Cotizaciones /></MainLayoutCliente>} />
         <Route path="/Pago" element={<MainLayoutCliente><Pago /></MainLayoutCliente>} />
         <Route path="/SOSView" element={<MainLayoutCliente><SOSView /></MainLayoutCliente>} />
         <Route path="/propiedad/:id/tablero" element={<DetallePropiedadadmin />} />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import "../../styles/Cliente/LayoutCliente.css";
-import { User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X, Search, Facebook, Instagram, Twitter, Youtube, Phone, Mail, Globe, MapPin, Link as LinkIcon } from 'lucide-react';
+import { User, ArrowLeft, Home, Bell, LayoutGrid, FileText, ChevronLeft, LayoutDashboard, Menu, X, Search, Facebook, Instagram, Twitter, Youtube, Phone, Mail, Globe, MapPin, Link as LinkIcon, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../Shared/NotificationBell';
 import defaultLogo from "../../assets/Logo4.png";
@@ -269,8 +269,28 @@ const MainLayoutCliente = ({ children }) => {
           )}
           
           <div className="header-right-group" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <div className="header-actions-wrapper">
-               <NotificationBell />
+            <div className="header-actions-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => navigate('/cotizaciones-pendientes')}
+                title="Cotizaciones pendientes"
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  border: '1px solid #e5e7eb',
+                  backgroundColor: '#fff',
+                  color: '#f26624',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                }}
+              >
+                <ShoppingCart size={20} />
+              </button>
+              <NotificationBell />
             </div>
             
             <div className="user-profile-info" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
