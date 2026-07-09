@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   CheckCircle, XCircle, Clock, MessageSquare, 
-  ChevronRight, Copy, UploadCloud, ShieldCheck, Percent, CreditCard 
+  ChevronRight, Copy, UploadCloud, ShieldCheck, CreditCard 
 } from 'lucide-react';
 import '../../styles/Cliente/Cotizaciones.css';
 
@@ -11,45 +12,49 @@ const Cotizaciones = () => {
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
   const [pasoPago, setPasoPago] = useState(0); 
   const [motivoFeedback, setMotivoFeedback] = useState(''); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Datos maestros con estados y porcentajes de pago
-  const [cotizacionesData] = useState([
-    { 
-      id: 'COT-204', 
-      cliente: 'Residencial del Parque', 
-      fecha: '18 Mar 2026', 
-      total: 4500.00, 
-      estado: 'nuevas',
-      pagadoPorcentaje: 0,
-      conceptos: [
-        { desc: 'Mantenimiento de transformadores', cant: 1, precio: 3000, subtotal: 3000 },
-        { desc: 'Cableado de alta tensión', cant: 5, precio: 300, subtotal: 1500 },
-      ]
-    },
-    { 
-      id: 'COT-150', 
-      cliente: 'Hotel Mérida Central', 
-      fecha: '12 Mar 2026', 
-      total: 12800.00, 
-      estado: 'aceptadas',
-      pagadoPorcentaje: 60, 
-      conceptos: [{ desc: 'Instalación de tablero industrial', cant: 1, precio: 12800, subtotal: 12800 }],
-      comentarioCliente: 'Anticipo del 60% recibido. Pendiente liquidación.'
-    },
-    { 
-      id: 'COT-098', 
-      cliente: 'Plaza Altabrisa', 
-      fecha: '05 Mar 2026', 
-      total: 3200.00, 
-      estado: 'rechazadas',
-      pagadoPorcentaje: 0,
-      conceptos: [{ desc: 'Reparación de cortocircuito', cant: 1, precio: 3200, subtotal: 3200 }],
-      comentarioCliente: 'Presupuesto fuera de rango.'
-    }
-  ]);
+  const [cotizacionesData, setCotizacionesData] = useState([]);
 
-  const cotizacionesFiltradas = cotizacionesData.filter(cot => cot.estado === tabActivo);
+  useEffect(() => {
+    const fetchCotizaciones = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+        const res = await axios.get(`${API_URL}/cotizaciones`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (Array.isArray(res.data)) {
+          setCotizacionesData(res.data);
+        } else if (res.data && Array.isArray(res.data.quotes || res.data.data)) {
+          setCotizacionesData(res.data.quotes || res.data.data);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.warn("Usando datos locales o vacíos por error en red:", err);
+        setError(null);
+        setLoading(false);
+      }
+    };
+    fetchCotizaciones();
+  }, []);
+
+  const cotizacionesFiltradas = cotizacionesData.filter(cot => {
+    const statusLower = String(cot.status || cot.estado || '').toLowerCase();
+    if (tabActivo === 'nuevas') {
+      return statusLower === 'nuevas' || statusLower.includes('pendien') || !statusLower;
+    }
+    if (tabActivo === 'aceptadas') {
+      return statusLower === 'aceptadas' || statusLower.includes('aprob') || statusLower.includes('procesada') || statusLower.includes('pagad');
+    }
+    if (tabActivo === 'rechazadas') {
+      return statusLower === 'rechazadas' || statusLower.includes('rechaz') || statusLower.includes('cancel');
+    }
+    return false;
+  });
 
   const abrirModal = (cot) => {
     setCotizacionSeleccionada(cot);
@@ -64,14 +69,119 @@ const Cotizaciones = () => {
   };
 
   const handleFinalizarPago = () => {
-    // Al usar motivoFeedback aquí, el error de ESLint desaparece
     console.log(`Enviando comprobante para ${cotizacionSeleccionada.id}. Nota: ${motivoFeedback}`);
     alert("Comprobante enviado con éxito.");
     navigate('/'); 
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
+    return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(amount || 0));
+  };
+
+  const getConceptoText = (cot) => {
+    if (!cot) return 'Esperando respuesta de Agente Solutions.';
+    const raw = cot.concept || cot.concepto;
+    if (!raw) return cot.observations || 'Esperando respuesta de Agente Solutions.';
+    if (typeof raw === 'string') {
+      if (raw.trim().startsWith('{') || raw.trim().startsWith('[')) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            const arr = parsed.conceptos || parsed.servicios || parsed.seccionesLote || [];
+            if (Array.isArray(arr) && arr.length > 0) {
+              const descs = arr.map(x => x.descripcion || x.titulo || x.desc || 'Servicio').filter(Boolean);
+              if (descs.length > 0) return descs.join(', ');
+            }
+          }
+        } catch {
+          // ignore parsing error
+        }
+      }
+      return raw;
+    }
+    if (typeof raw === 'object') {
+      const arr = raw.conceptos || raw.servicios || raw.seccionesLote || [];
+      if (Array.isArray(arr) && arr.length > 0) {
+        const descs = arr.map(x => x.descripcion || x.titulo || x.desc || 'Servicio').filter(Boolean);
+        if (descs.length > 0) return descs.join(', ');
+      }
+      return cot.observations || 'Cotización detallada con servicios y materiales.';
+    }
+    return cot.observations || 'Esperando respuesta de Agente Solutions.';
+  };
+
+  const renderDetalleConceptoModal = (cot) => {
+    if (!cot) return null;
+    let detalle = cot.concept || cot.concepto;
+    if (typeof detalle === 'string' && (detalle.trim().startsWith('{') || detalle.trim().startsWith('['))) {
+      try { 
+        detalle = JSON.parse(detalle); 
+      } catch {
+        // ignore parsing error
+      }
+    }
+    if (!detalle || typeof detalle !== 'object') {
+      return (
+        <div className="excel-row">
+          <span>Concepto</span>
+          <span>{typeof detalle === 'string' ? detalle : 'Cotización asignada'}</span>
+        </div>
+      );
+    }
+    const listaServicios = detalle.conceptos || detalle.servicios || [];
+    const listaMateriales = detalle.materiales || [];
+
+    return (
+      <div style={{ margin: '15px 0', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
+        {listaServicios.length > 0 && (
+          <div style={{ marginBottom: '14px' }}>
+            <h4 style={{ margin: '0 0 8px 0', color: '#f26522', fontSize: '0.95rem', fontWeight: 'bold' }}>Servicios / Conceptos</h4>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+              <thead>
+                <tr style={{ background: '#f1f5f9', color: '#475569', textAlign: 'left' }}>
+                  <th style={{ padding: '6px 8px' }}>Descripción</th>
+                  <th style={{ padding: '6px 8px', textAlign: 'center' }}>Cant.</th>
+                  <th style={{ padding: '6px 8px', textAlign: 'right' }}>Precio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listaServicios.map((s, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '6px 8px' }}>{s.descripcion || s.desc || 'Servicio'}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'center' }}>{s.cantidad || s.cant || 1}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: '600' }}>{formatCurrency(s.precio_u || s.precio || 0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {listaMateriales.length > 0 && (
+          <div>
+            <h4 style={{ margin: '0 0 8px 0', color: '#f26522', fontSize: '0.95rem', fontWeight: 'bold' }}>Materiales Incluidos</h4>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+              <thead>
+                <tr style={{ background: '#f1f5f9', color: '#475569', textAlign: 'left' }}>
+                  <th style={{ padding: '6px 8px' }}>Nombre</th>
+                  <th style={{ padding: '6px 8px', textAlign: 'center' }}>Cant.</th>
+                  <th style={{ padding: '6px 8px', textAlign: 'right' }}>Costo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listaMateriales.map((m, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '6px 8px' }}>{m.nombre || m.descripcion || m.desc || 'Material'}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'center' }}>{m.cantidad || m.cant || 1}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: '600' }}>{formatCurrency(m.costo_u || m.precio || 0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -88,76 +198,101 @@ const Cotizaciones = () => {
         </div>
       </header>
 
-      <div className="quotes-scroll-area">
-        {cotizacionesFiltradas.length > 0 ? (
-          cotizacionesFiltradas.map((cot) => (
-            <div key={cot.id} className={`quote-card-item card-${cot.estado}`} onClick={() => abrirModal(cot)}>
-              <div className="quote-card-left">
-                <div className="quote-card-icon">
-                  {cot.estado === 'nuevas' && <Clock size={20} />}
-                  {cot.estado === 'aceptadas' && <CheckCircle size={20} />}
-                  {cot.estado === 'rechazadas' && <XCircle size={20} />}
+      {loading ? (
+        <div className="empty-state">Cargando cotizaciones...</div>
+      ) : error ? (
+        <div className="empty-state">{error}</div>
+      ) : (
+        <div className="quotes-scroll-area">
+          {cotizacionesFiltradas.length > 0 ? (
+            cotizacionesFiltradas.map((cot) => (
+              <div key={cot.id} className={`quote-card-item card-${cot.estado || 'nuevas'}`} onClick={() => abrirModal(cot)}>
+                <div className="quote-card-left">
+                  <div className="quote-card-icon">
+                    {(cot.estado === 'nuevas' || !cot.estado) && <Clock size={20} />}
+                    {cot.estado === 'aceptadas' && <CheckCircle size={20} />}
+                    {cot.estado === 'rechazadas' && <XCircle size={20} />}
+                  </div>
+                  <div className="quote-card-info">
+                    <h4>{cot.propiedad_nombre || cot.cliente || 'Cotización pendiente'}</h4>
+                    <span>{cot.folio || `#${cot.id}`} • {cot.fecha || 'Sin fecha'}</span>
+                    <p>{getConceptoText(cot)}</p>
+                  </div>
                 </div>
-                <div className="quote-card-info">
-                  <h4>{cot.cliente}</h4>
-                  <span>{cot.id} • {cot.fecha}</span>
+                <div className="quote-card-right">
+                  <div className="price-tag-group">
+                    <strong>{formatCurrency(cot.total)}</strong>
+                    {cot.estado === 'aceptadas' && cot.pagadoPorcentaje === 60 ? (
+                      <span className="partial-badge">ANTICIPO 60% PAGADO</span>
+                    ) : (
+                      <span className="partial-badge">{(cot.estado || 'PENDIENTE').toUpperCase()}</span>
+                    )}
+                  </div>
+                  <ChevronRight size={18} />
                 </div>
               </div>
-              <div className="quote-card-right">
-                <div className="price-tag-group">
-                  <strong>{formatCurrency(cot.total)}</strong>
-                  {cot.estado === 'aceptadas' && cot.pagadoPorcentaje === 60 && <span className="partial-badge">ANTICIPO 60% PAGADO</span>}
-                </div>
-                <ChevronRight size={18} />
-              </div>
-            </div>
-          ))
-        ) : <div className="empty-state">No hay registros aquí.</div>}
-      </div>
+            ))
+          ) : (
+            <div className="empty-state">No tienes cotizaciones en esta sección.</div>
+          )}
+        </div>
+      )}
 
       {cotizacionSeleccionada && (
         <div className="modal-overlay" onClick={cerrarModal}>
-          <div className="modal-content-wrapper" onClick={e => e.stopPropagation()}>
-            
+          <div className="modal-content-wrapper" onClick={(e) => e.stopPropagation()}>
             {pasoPago === 0 ? (
               <div className="modal-excel-view">
-                <header className={`modal-excel-header h-${cotizacionSeleccionada.estado}`}>
+                <header className={`modal-excel-header h-${cotizacionSeleccionada.estado || 'nuevas'}`}>
                   <div className="header-top-info">
-                    <span className="badge-status">{cotizacionSeleccionada.estado.toUpperCase()}</span>
+                    <span className="badge-status">{(cotizacionSeleccionada.estado || 'NUEVA').toUpperCase()}</span>
                     <button className="close-modal-btn" onClick={cerrarModal}>&times;</button>
                   </div>
-                  <h3>{cotizacionSeleccionada.cliente}</h3>
+                  <h3>{cotizacionSeleccionada.propiedad_nombre || cotizacionSeleccionada.cliente || 'Cotización pendiente'}</h3>
                 </header>
                 <div className="modal-excel-body">
                   <div className="excel-table-container">
                     <div className="excel-table-header">
-                      <span>DESCRIPCIÓN</span><span>CANT.</span><span>UNITARIO</span><span>SUBTOTAL</span>
+                      <span>DETALLE</span>
+                      <span>VALOR</span>
                     </div>
-                    {cotizacionSeleccionada.conceptos.map((item, i) => (
-                      <div key={i} className="excel-row">
-                        <span>{item.desc}</span><span>{item.cant}</span><span>{formatCurrency(item.precio)}</span><span>{formatCurrency(item.subtotal)}</span>
-                      </div>
-                    ))}
-                    <div className="excel-total-row">
-                      <span>TOTAL DEL SERVICIO</span><strong>{formatCurrency(cotizacionSeleccionada.total)}</strong>
+                    <div className="excel-row">
+                      <span>Folio</span>
+                      <span>{cotizacionSeleccionada.folio || `#${cotizacionSeleccionada.id}`}</span>
                     </div>
-                    
-                    {cotizacionSeleccionada.estado === 'nuevas' && (
+                    <div className="excel-row">
+                      <span>Fecha</span>
+                      <span>{cotizacionSeleccionada.fecha || 'Sin fecha'}</span>
+                    </div>
+                    <div className="excel-row">
+                      <span>Importe Total</span>
+                      <span>{formatCurrency(cotizacionSeleccionada.total)}</span>
+                    </div>
+                    <div className="excel-row">
+                      <span>Observaciones</span>
+                      <span>{typeof cotizacionSeleccionada.observations === 'object' ? JSON.stringify(cotizacionSeleccionada.observations) : (cotizacionSeleccionada.observations || 'Esperando respuesta de Agente Solutions.')}</span>
+                    </div>
+
+                    {(cotizacionSeleccionada.estado === 'nuevas' || !cotizacionSeleccionada.estado) && (
                       <div className="excel-advance-highlight">
                         <span>Anticipo requerido para iniciar (60%)</span>
-                        <strong>{formatCurrency(cotizacionSeleccionada.total * 0.6)}</strong>
+                        <strong>{formatCurrency(Number(cotizacionSeleccionada.total || 0) * 0.6)}</strong>
                       </div>
                     )}
                     {cotizacionSeleccionada.estado === 'aceptadas' && cotizacionSeleccionada.pagadoPorcentaje === 60 && (
                       <div className="excel-pending-highlight">
                         <span>Monto pendiente por liquidar (40%)</span>
-                        <strong>{formatCurrency(cotizacionSeleccionada.total * 0.4)}</strong>
+                        <strong>{formatCurrency(Number(cotizacionSeleccionada.total || 0) * 0.4)}</strong>
                       </div>
                     )}
                   </div>
 
-                  <div className="feedback-section">
-                    <label><MessageSquare size={14} /> Observaciones / Comentarios:</label>
+                  {renderDetalleConceptoModal(cotizacionSeleccionada)}
+
+                  <div className="feedback-section" style={{ marginTop: '15px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                      <MessageSquare size={14} /> Observaciones / Comentarios:
+                    </label>
                     <textarea 
                       className="modal-textarea"
                       value={motivoFeedback} 
@@ -166,8 +301,8 @@ const Cotizaciones = () => {
                     />
                   </div>
 
-                  <div className="modal-actions-dynamic">
-                    {cotizacionSeleccionada.estado === 'nuevas' && (
+                  <div className="modal-actions-dynamic" style={{ marginTop: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    {(cotizacionSeleccionada.estado === 'nuevas' || !cotizacionSeleccionada.estado) && (
                       <>
                         <button className="btn-reject-final" onClick={cerrarModal}>RECHAZAR</button>
                         <button className="btn-accept-final" onClick={() => setPasoPago(1)}>PAGAR ANTICIPO (60%)</button>
@@ -179,7 +314,9 @@ const Cotizaciones = () => {
                       </button>
                     )}
                     {cotizacionSeleccionada.estado === 'rechazadas' && (
-                      <div className="status-banner-error">ESTA COTIZACIÓN FUE RECHAZADA</div>
+                      <div className="status-banner-error" style={{ width: '100%', textAlign: 'center', padding: '10px', background: '#fee2e2', color: '#ef4444', borderRadius: '8px', fontWeight: 'bold' }}>
+                        ESTA COTIZACIÓN FUE RECHAZADA
+                      </div>
                     )}
                   </div>
                 </div>
@@ -200,8 +337,8 @@ const Cotizaciones = () => {
                     </div>
                     <div className="monto-valor">
                       {cotizacionSeleccionada.pagadoPorcentaje === 60 
-                        ? formatCurrency(cotizacionSeleccionada.total * 0.4) 
-                        : formatCurrency(cotizacionSeleccionada.total * 0.6)}
+                        ? formatCurrency(Number(cotizacionSeleccionada.total || 0) * 0.4) 
+                        : formatCurrency(Number(cotizacionSeleccionada.total || 0) * 0.6)}
                     </div>
                   </div>
                 </div>

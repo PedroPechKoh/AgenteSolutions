@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Plus, Clock, CheckCircle2, X, UserCircle, Calendar, 
+  Plus, Clock, CheckCircle2, Circle, X, UserCircle, Calendar, 
   ArrowLeft, Camera, Layout, FileText, Maximize2, AlertTriangle, ChevronLeft, Timer, Settings
 } from 'lucide-react';
 import Header from '../Shared/Header';

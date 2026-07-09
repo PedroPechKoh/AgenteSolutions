@@ -1971,7 +1971,7 @@ const DetallePropiedad = () => {
           try {
             const detalle = typeof conceptoStr === 'string' ? JSON.parse(conceptoStr) : conceptoStr;
             
-            if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.materiales || detalle.herramientas_basicas)) {
+            if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.servicios || detalle.materiales || detalle.herramientas_basicas || detalle.seccionesLote)) {
               return (
                 <div className="detalle-parseado">
                   {/* Conceptos / Servicios */}
@@ -2069,7 +2069,7 @@ const DetallePropiedad = () => {
               </thead>
               <tbody>
                 <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                  <td style={{ padding: '10px' }}>{conceptoStr || cotRaw.concept || cotizacionDetail.producto}</td>
+                  <td style={{ padding: '10px' }}>{typeof conceptoStr === 'object' ? (JSON.stringify(conceptoStr, null, 2) || 'Cotización') : (conceptoStr || (typeof cotRaw.concept === 'object' ? JSON.stringify(cotRaw.concept, null, 2) : cotRaw.concept) || cotizacionDetail.producto)}</td>
                   <td style={{ textAlign: 'right', fontWeight: 'bold', padding: '10px' }}>
                     ${parseFloat(cotRaw.total || 0).toLocaleString('es-MX')}
                   </td>
