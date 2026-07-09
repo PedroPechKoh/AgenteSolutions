@@ -7,7 +7,7 @@
 .cart-header { background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%); padding: 22px 26px; border-radius: 24px; border: 1px solid #ffe4d1; box-shadow: 0 10px 30px rgba(242, 102, 36, 0.08); }
 .cart-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
 .cart-summary-pill { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: #f26624; color: white; font-weight: 700; font-size: 0.85rem; }
-.cart-list { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; flex: 1; padding-right: 8px; }
+.cart-list { display: flex; flex-direction: column; gap: 16px; overflow-y: auto; flex: 1; padding-right: 8px; padding-bottom: 100px; }
 .cart-list::-webkit-scrollbar { width: 6px; }
 .cart-list::-webkit-scrollbar-track { background: transparent; }
 .cart-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
