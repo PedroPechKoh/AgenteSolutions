@@ -181,7 +181,7 @@ const ClientRegister = () => {
             </p>
             <div style={{ padding: '18px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '12px', marginBottom: '25px', borderLeft: '4px solid #f26522', textAlign: 'left', maxWidth: '500px', margin: '0 auto 25px auto' }}>
               <p style={{ margin: 0, fontSize: '0.95rem', color: '#eee', overflowWrap: 'anywhere' }}>
-                <strong style={{ color: '#f26522' }}>Empresa / Código:</strong> {companyCode || 'General / Root'}<br />
+                <strong style={{ color: '#f26522' }}>Empresa / Código:</strong> {companyCode || 'Agente Solutions (Empresa Oficial)'}<br />
                 <strong style={{ color: '#f26522' }}>Estado actual:</strong> <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>⏳ Pendiente de aprobación</span>
               </p>
             </div>
@@ -277,7 +277,7 @@ const ClientRegister = () => {
                 onChange={handleTenantSelect}
                 style={{ width: '100%', padding: '14px 15px 14px 50px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.95rem', cursor: 'pointer', boxSizing: 'border-box' }}
               >
-                <option value="">🏢 AGENTE SOLUTIONS (EMPRESA OFICIAL / ROOT)</option>
+                <option value="">🏢 AGENTE SOLUTIONS (EMPRESA OFICIAL)</option>
                 {tenants.map((t) => (
                   <option key={t.id} value={t.id}>
                     🏢 {t.name} ({t.code})

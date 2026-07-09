@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../Shared/Header';
 import { useNavigate } from 'react-router-dom';
-import { UserCheck, Clock, Phone, Mail, RefreshCw, CheckCircle, AlertCircle, ShieldAlert } from 'lucide-react';
+import { UserCheck, Clock, Phone, Mail, RefreshCw, CheckCircle, AlertCircle, Eye, X, MessageSquare, Building2, Calendar, User } from 'lucide-react';
 
 const VistaSalaEsperaTecnicos = () => {
   const [pendingTechs, setPendingTechs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
+  const [selectedTechDetails, setSelectedTechDetails] = useState(null);
   const navigate = useNavigate();
 
   const fetchPendingTechs = async () => {
@@ -39,12 +40,18 @@ const VistaSalaEsperaTecnicos = () => {
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/tenants/approve-technician/${userId}`);
       if (res.data.success) {
         alert('✅ ' + res.data.message);
+        setSelectedTechDetails(null);
         fetchPendingTechs();
       }
     } catch (error) {
       console.error('Error al aprobar técnico:', error);
       alert('Error: ' + (error.response?.data?.error || error.message));
     }
+  };
+
+  const cleanPhone = (phone) => {
+    if (!phone) return '';
+    return phone.replace(/[^0-9]/g, '');
   };
 
   return (
@@ -55,7 +62,7 @@ const VistaSalaEsperaTecnicos = () => {
       <Header rolTexto="SALA DE ESPERA DE TÉCNICOS" />
 
       <div style={{ maxWidth: '1100px', margin: '30px auto', padding: '0 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px', flexWrap: 'wrap', gap: '15px' }}>
           <button
             onClick={() => navigate('/VistaRoot')}
             style={{ padding: '10px 18px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
@@ -71,11 +78,11 @@ const VistaSalaEsperaTecnicos = () => {
         </div>
 
         <div style={{ backgroundColor: '#FFF3E0', borderRadius: '12px', padding: '20px', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '15px', borderLeft: '5px solid #FF9800' }}>
-          <Clock size={35} color="#FF6600" />
+          <Clock size={35} color="#FF6600" style={{ flexShrink: 0 }} />
           <div>
             <h4 style={{ margin: 0, color: '#333', fontSize: '1.1rem' }}>SALA DE ESPERA Y APROBACIÓN DE TÉCNICOS</h4>
             <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '0.95rem' }}>
-              Aquí aparecen los especialistas que se han registrado seleccionando tu empresa (código <strong>AUT_XX</strong>). Por seguridad, su acceso está restringido hasta que tú los autorices haciendo clic en "Aceptar y Dar de Alta".
+              Aquí aparecen los especialistas que se han registrado seleccionando tu empresa (código <strong>AUT_XX</strong>). Por seguridad, su acceso está restringido hasta que tú los autorices haciendo clic en "Aceptar y Dar de Alta" o revises sus detalles.
             </p>
           </div>
         </div>
@@ -104,21 +111,21 @@ const VistaSalaEsperaTecnicos = () => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '15px' }}>
                     <div>
                       <span style={{ fontSize: '0.75rem', color: '#888', textTransform: 'uppercase', letterSpacing: '1px' }}>SOLICITANTE #ID-{tech.id}</span>
-                      <h4 style={{ margin: '4px 0 0 0', fontSize: '1.3rem', color: '#333' }}>
+                      <h4 style={{ margin: '4px 0 0 0', fontSize: '1.3rem', color: '#333', overflowWrap: 'anywhere' }}>
                         {tech.first_name} {tech.last_name}
                       </h4>
                     </div>
-                    <span style={{ backgroundColor: '#FFF5EC', color: '#FF6600', padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                    <span style={{ backgroundColor: '#FFF5EC', color: '#FF6600', padding: '4px 10px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', flexShrink: 0 }}>
                       ⏳ En Espera
                     </span>
                   </div>
 
                   <div style={{ margin: '15px 0', padding: '12px', backgroundColor: '#F9F9F9', borderRadius: '8px' }}>
-                    <p style={{ margin: '6px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem' }}>
-                      <Phone size={16} color="#FF6600" /> {tech.phone_number || 'Sin teléfono'}
+                    <p style={{ margin: '6px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', overflowWrap: 'anywhere' }}>
+                      <Phone size={16} color="#FF6600" style={{ flexShrink: 0 }} /> <span>{tech.phone_number || 'Sin teléfono'}</span>
                     </p>
-                    <p style={{ margin: '6px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem' }}>
-                      <Mail size={16} color="#FF6600" /> {tech.email}
+                    <p style={{ margin: '6px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', overflowWrap: 'anywhere' }}>
+                      <Mail size={16} color="#FF6600" style={{ flexShrink: 0 }} /> <span style={{ wordBreak: 'break-all' }}>{tech.email}</span>
                     </p>
                     <p style={{ margin: '6px 0', color: '#888', fontSize: '0.85rem' }}>
                       <strong>Fecha registro:</strong> {new Date(tech.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -126,33 +133,306 @@ const VistaSalaEsperaTecnicos = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handleApproveTech(tech.id)}
-                  style={{
-                    width: '100%',
-                    padding: '14px',
-                    backgroundColor: '#4CAF50',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '10px',
-                    fontWeight: 'bold',
-                    fontSize: '1rem',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 12px rgba(76,175,80,0.3)',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  <CheckCircle size={20} /> Aceptar y Dar de Alta
-                </button>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '15px', flexWrap: 'wrap' }}>
+                  <button
+                    onClick={() => setSelectedTechDetails(tech)}
+                    style={{
+                      flex: '1 1 140px',
+                      padding: '12px 10px',
+                      backgroundColor: '#E3F2FD',
+                      color: '#1565C0',
+                      border: '1px solid #90CAF9',
+                      borderRadius: '10px',
+                      fontWeight: 'bold',
+                      fontSize: '0.95rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <Eye size={18} /> Ver Detalles
+                  </button>
+
+                  <button
+                    onClick={() => handleApproveTech(tech.id)}
+                    style={{
+                      flex: '1.5 1 170px',
+                      padding: '12px 10px',
+                      backgroundColor: '#4CAF50',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '10px',
+                      fontWeight: 'bold',
+                      fontSize: '0.95rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      boxShadow: '0 4px 12px rgba(76,175,80,0.3)',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <CheckCircle size={18} /> Aceptar y Dar de Alta
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* MODAL DE DETALLE DEL TÉCNICO REGISTRADO */}
+      {selectedTechDetails && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1100,
+            padding: '20px',
+            overflowY: 'auto'
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedTechDetails(null);
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: '20px',
+              maxWidth: '600px',
+              width: '100%',
+              padding: '30px',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.4)',
+              position: 'relative',
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }}
+          >
+            {/* Botón Cerrar */}
+            <button
+              onClick={() => setSelectedTechDetails(null)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: '#f0f0f0',
+                border: 'none',
+                borderRadius: '50%',
+                width: '38px',
+                height: '38px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#555'
+              }}
+            >
+              <X size={22} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px', borderBottom: '2px solid #eee', paddingBottom: '15px' }}>
+              <div style={{ width: '54px', height: '54px', borderRadius: '50%', backgroundColor: '#FFF5EC', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #FF6600', flexShrink: 0 }}>
+                <User size={30} color="#FF6600" />
+              </div>
+              <div>
+                <span style={{ fontSize: '0.8rem', color: '#888', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  SOLICITUD DE REGISTRO #ID-{selectedTechDetails.id}
+                </span>
+                <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#333', overflowWrap: 'anywhere' }}>
+                  {selectedTechDetails.first_name} {selectedTechDetails.last_name}
+                </h3>
+              </div>
+            </div>
+
+            {/* SECCIÓN 1: DATOS REGISTRADOS */}
+            <div style={{ backgroundColor: '#F8F9FA', borderRadius: '14px', padding: '20px', marginBottom: '22px', border: '1px solid #E9ECEF' }}>
+              <h4 style={{ margin: '0 0 15px 0', fontSize: '1.05rem', color: '#333', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                📋 Datos del Solicitante
+              </h4>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '15px' }}>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>NOMBRE COMPLETO</label>
+                  <p style={{ margin: 0, color: '#222', fontWeight: 'bold', fontSize: '1rem', overflowWrap: 'anywhere' }}>
+                    {selectedTechDetails.first_name} {selectedTechDetails.last_name}
+                  </p>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>ROL SOLICITADO</label>
+                  <p style={{ margin: 0, color: '#E65100', fontWeight: 'bold', fontSize: '1rem' }}>
+                    🧑‍🔧 Técnico Especialista
+                  </p>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>CORREO ELECTRÓNICO</label>
+                  <p style={{ margin: 0, color: '#222', fontSize: '0.95rem', wordBreak: 'break-all' }}>
+                    {selectedTechDetails.email}
+                  </p>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>TELÉFONO DE CONTACTO</label>
+                  <p style={{ margin: 0, color: '#222', fontWeight: 'bold', fontSize: '1rem' }}>
+                    {selectedTechDetails.phone_number || 'No registrado'}
+                  </p>
+                </div>
+
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>EMPRESA / TENANT DESTINO</label>
+                  <p style={{ margin: 0, color: '#333', fontWeight: 'bold', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Building2 size={18} color="#FF6600" />
+                    {selectedTechDetails.tenant
+                      ? `${selectedTechDetails.tenant.name} (${selectedTechDetails.tenant.code})`
+                      : 'Agente Solutions (Empresa Oficial)'}
+                  </p>
+                </div>
+
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>FECHA Y HORA DE SOLICITUD</label>
+                  <p style={{ margin: 0, color: '#666', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Calendar size={16} />
+                    {new Date(selectedTechDetails.created_at).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'medium' })}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* SECCIÓN 2: ACCIONES DE CONTACTO RÁPIDO */}
+            <div style={{ marginBottom: '25px' }}>
+              <label style={{ fontSize: '0.85rem', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '10px', textTransform: 'uppercase' }}>
+                💬 Contactar con el Solicitante (Antes de Aprobar)
+              </label>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {selectedTechDetails.phone_number && (
+                  <>
+                    <a
+                      href={`https://wa.me/521${cleanPhone(selectedTechDetails.phone_number)}?text=${encodeURIComponent(
+                        `¡Hola ${selectedTechDetails.first_name}! Te contactamos de Agente Solutions respecto a tu solicitud de registro como Técnico.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        flex: '1 1 160px',
+                        padding: '12px 14px',
+                        backgroundColor: '#E8F5E9',
+                        color: '#2E7D32',
+                        border: '1px solid #A5D6A7',
+                        borderRadius: '10px',
+                        textDecoration: 'none',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      <MessageSquare size={18} /> WhatsApp
+                    </a>
+
+                    <a
+                      href={`tel:${selectedTechDetails.phone_number}`}
+                      style={{
+                        flex: '1 1 140px',
+                        padding: '12px 14px',
+                        backgroundColor: '#FFF3E0',
+                        color: '#E65100',
+                        border: '1px solid #FFCC80',
+                        borderRadius: '10px',
+                        textDecoration: 'none',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        fontSize: '0.95rem'
+                      }}
+                    >
+                      <Phone size={18} /> Llamar
+                    </a>
+                  </>
+                )}
+
+                <a
+                  href={`mailto:${selectedTechDetails.email}?subject=Solicitud de Registro Técnico - Agente Solutions&body=${encodeURIComponent(
+                    `Hola ${selectedTechDetails.first_name},\n\nHemos recibido tu solicitud de registro en la sala de espera.`
+                  )}`}
+                  style={{
+                    flex: '1 1 160px',
+                    padding: '12px 14px',
+                    backgroundColor: '#E3F2FD',
+                    color: '#1565C0',
+                    border: '1px solid #90CAF9',
+                    borderRadius: '10px',
+                    textDecoration: 'none',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    fontSize: '0.95rem'
+                  }}
+                >
+                  <Mail size={18} /> Enviar Correo
+                </a>
+              </div>
+            </div>
+
+            {/* SECCIÓN 3: BOTÓN DE DAR DE ALTA */}
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => setSelectedTechDetails(null)}
+                style={{
+                  flex: '1',
+                  padding: '14px',
+                  backgroundColor: '#eee',
+                  color: '#444',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: 'bold',
+                  fontSize: '1rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Cerrar
+              </button>
+
+              <button
+                onClick={() => handleApproveTech(selectedTechDetails.id)}
+                style={{
+                  flex: '2',
+                  padding: '14px',
+                  backgroundColor: '#4CAF50',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: 'bold',
+                  fontSize: '1.05rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 6px 15px rgba(76,175,80,0.35)'
+                }}
+              >
+                <CheckCircle size={20} /> Aceptar y Dar de Alta Ahora
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
