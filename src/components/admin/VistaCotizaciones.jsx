@@ -288,7 +288,7 @@ const VistaCotizaciones = () => {
     try {
       const detalle = typeof conceptoStr === 'string' ? JSON.parse(conceptoStr) : conceptoStr;
       
-      if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.materiales || detalle.herramientas_basicas)) {
+      if (detalle && typeof detalle === 'object' && (detalle.conceptos || detalle.servicios || detalle.materiales || detalle.herramientas_basicas || detalle.seccionesLote)) {
         
         // ── Factor de precio para el Cliente ──────────────────────────────────
         // El Admin ingresa precios base (sin IVA ni comisión MP).
@@ -449,7 +449,7 @@ const VistaCotizaciones = () => {
         </thead>
         <tbody>
           <tr>
-            <td>{conceptoStr}</td>
+            <td>{typeof conceptoStr === 'object' ? (JSON.stringify(conceptoStr, null, 2) || 'Cotización') : (conceptoStr || 'Cotización')}</td>
             <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
               ${calcularMontoFinalNum(cotizacionSeleccionada).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </td>

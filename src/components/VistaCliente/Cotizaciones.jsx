@@ -48,6 +48,106 @@ const Cotizaciones = () => {
     return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(amount || 0));
   };
 
+  const getConceptoText = (cot) => {
+    if (!cot) return 'Esperando respuesta de Agente Solutions.';
+    const raw = cot.concept || cot.concepto;
+    if (!raw) return cot.observations || 'Esperando respuesta de Agente Solutions.';
+    if (typeof raw === 'string') {
+      if (raw.trim().startsWith('{') || raw.trim().startsWith('[')) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            const arr = parsed.conceptos || parsed.servicios || parsed.seccionesLote || [];
+            if (Array.isArray(arr) && arr.length > 0) {
+              const descs = arr.map(x => x.descripcion || x.titulo || x.desc || 'Servicio').filter(Boolean);
+              if (descs.length > 0) return descs.join(', ');
+            }
+          }
+        } catch(e) {}
+      }
+      return raw;
+    }
+    if (typeof raw === 'object') {
+      const arr = raw.conceptos || raw.servicios || raw.seccionesLote || [];
+      if (Array.isArray(arr) && arr.length > 0) {
+        const descs = arr.map(x => x.descripcion || x.titulo || x.desc || 'Servicio').filter(Boolean);
+        if (descs.length > 0) return descs.join(', ');
+      }
+      return cot.observations || 'Cotización detallada con servicios y materiales.';
+    }
+    return cot.observations || 'Esperando respuesta de Agente Solutions.';
+  };
+
+  const renderDetalleConceptoModal = (cot) => {
+    if (!cot) return null;
+    let detalle = cot.concept || cot.concepto;
+    if (typeof detalle === 'string' && (detalle.trim().startsWith('{') || detalle.trim().startsWith('['))) {
+      try { detalle = JSON.parse(detalle); } catch(e) {}
+    }
+    if (!detalle || typeof detalle !== 'object') {
+      return (
+        <div className="excel-row">
+          <span>Concepto</span>
+          <span>{typeof detalle === 'string' ? detalle : 'Cotización asignada'}</span>
+        </div>
+      );
+    }
+    const listaServicios = detalle.conceptos || detalle.servicios || [];
+    const listaMateriales = detalle.materiales || [];
+
+    return (
+      <div style={{ margin: '15px 0', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
+        {listaServicios.length > 0 && (
+          <div style={{ marginBottom: '14px' }}>
+            <h4 style={{ margin: '0 0 8px 0', color: '#f26522', fontSize: '0.95rem', fontWeight: 'bold' }}>Servicios / Conceptos</h4>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+              <thead>
+                <tr style={{ background: '#f1f5f9', color: '#475569', textAlign: 'left' }}>
+                  <th style={{ padding: '6px 8px' }}>Descripción</th>
+                  <th style={{ padding: '6px 8px', textAlign: 'center' }}>Cant.</th>
+                  <th style={{ padding: '6px 8px', textAlign: 'right' }}>Precio</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listaServicios.map((s, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '6px 8px' }}>{s.descripcion || s.desc || 'Servicio'}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'center' }}>{s.cantidad || s.cant || 1}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: '600' }}>{formatCurrency(s.precio_u || s.precio || 0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {listaMateriales.length > 0 && (
+          <div>
+            <h4 style={{ margin: '0 0 8px 0', color: '#f26522', fontSize: '0.95rem', fontWeight: 'bold' }}>Materiales Incluidos</h4>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+              <thead>
+                <tr style={{ background: '#f1f5f9', color: '#475569', textAlign: 'left' }}>
+                  <th style={{ padding: '6px 8px' }}>Nombre</th>
+                  <th style={{ padding: '6px 8px', textAlign: 'center' }}>Cant.</th>
+                  <th style={{ padding: '6px 8px', textAlign: 'right' }}>Costo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {listaMateriales.map((m, idx) => (
+                  <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '6px 8px' }}>{m.nombre || m.descripcion || m.desc || 'Material'}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'center' }}>{m.cantidad || m.cant || 1}</td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: '600' }}>{formatCurrency(m.costo_u || m.precio || 0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="quotes-view-container">
       <header className="quotes-main-header">
@@ -73,7 +173,7 @@ const Cotizaciones = () => {
                   <div className="quote-card-info">
                     <h4>{cot.propiedad_nombre || cot.cliente || 'Cotización pendiente'}</h4>
                     <span>{cot.folio || `#${cot.id}`} • {cot.fecha || 'Sin fecha'}</span>
-                    <p>{cot.concept || cot.observations || 'Esperando respuesta de Agente Solutions.'}</p>
+                    <p>{getConceptoText(cot)}</p>
                   </div>
                 </div>
                 <div className="quote-card-right">
@@ -122,9 +222,11 @@ const Cotizaciones = () => {
                   </div>
                   <div className="excel-row">
                     <span>Observaciones</span>
-                    <span>{cotizacionSeleccionada.observations || 'Esperando respuesta de Agente Solutions.'}</span>
+                    <span>{typeof cotizacionSeleccionada.observations === 'object' ? JSON.stringify(cotizacionSeleccionada.observations) : (cotizacionSeleccionada.observations || 'Esperando respuesta de Agente Solutions.')}</span>
                   </div>
                 </div>
+
+                {renderDetalleConceptoModal(cotizacionSeleccionada)}
 
                 <div className="excel-advance-highlight">
                   <span>Tu cotización sigue pendiente de aprobación o rechazo.</span>
