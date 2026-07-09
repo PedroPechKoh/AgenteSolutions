@@ -67,11 +67,32 @@ const VistaServiciosAdmin = () => {
         estado = 'unassigned';
       }
       
+      let equipoAfectado = 'No especificado';
+      let problemaDetalle = item.description || 'Sin descripción especificada';
+      if (item.description && item.description.includes('[EQUIPO AFECTADO]:')) {
+        const parts = item.description.split('[EQUIPO AFECTADO]:');
+        problemaDetalle = parts[0].trim() || 'Falla reportada en el equipo';
+        equipoAfectado = parts[1].trim();
+      } else if (item.item_affected || item.equipo_afectado || item.affected_item || item.equipment) {
+        equipoAfectado = item.item_affected || item.equipo_afectado || item.affected_item || item.equipment;
+      }
+
+      const fechaHoraSolicitud = item.created_at 
+        ? new Date(item.created_at).toLocaleString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })
+        : 'Desconocida';
+
       return {
         dbId: item.id,
         titulo: `${item.zone} - ${item.equipment || 'General'}`,
         propiedad: item.property ? (item.property.nombre_propiedad || item.property.address) : 'Sin Propiedad',
-        cliente: item.property?.client?.name || 'Desconocido',
+        direccionPropiedad: item.property?.address || item.property?.direccion || 'Dirección no especificada',
+        cliente: item.property?.client?.name || item.property?.client?.propietario || 'Desconocido',
+        telefonoCliente: item.property?.client?.phone || item.property?.telefono || item.telefono_cliente || 'No registrado',
+        tipoPropiedad: item.property?.tipo_propiedad || item.property?.type || 'Propiedad',
+        equipoAfectado: equipoAfectado,
+        problemaDetalle: problemaDetalle,
+        fechaHoraSolicitud: fechaHoraSolicitud,
+        zonaHabitacion: item.zone || 'General',
         prioridad: item.priority === 'Urgente' ? 'SOS' : 'Normal',
         fechaFin: new Date(item.updated_at).toLocaleDateString(),
         fechaSolicitud: new Date(item.created_at).toLocaleDateString(),
@@ -936,13 +957,76 @@ const VistaServiciosAdmin = () => {
                   </div>
                 ) : (
                   <div className="bitacora-view">
-                    <div className="bitacora-section">
-                      <h6 className="section-label"><Layout size={14} /> ESTATUS ACTUAL</h6>
-                      <div className="checklist-minimal">
-                        <div className="check-row done"><CheckCircle2 size={16}/> Registro de solicitud</div>
-                        <div className={`check-row ${activeTask.estado === 'progress' ? 'current' : activeTask.estado === 'done' ? 'done' : ''}`}>
-                          {activeTask.estado === 'done' ? <CheckCircle2 size={16}/> : <Clock size={16}/>} 
-                          Ejecución en sitio
+                    <div className="bitacora-section" style={{ background: '#ffffff', padding: '18px', borderRadius: '14px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', marginBottom: '20px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '2px solid #f1f5f9', paddingBottom: '12px', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                        <h6 className="section-label" style={{ margin: 0, fontSize: '0.85rem', color: '#F26522', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase' }}>
+                          <FileText size={18} color="#F26522" /> DETALLES COMPLETOS DE LA SOLICITUD / SERVICIO
+                        </h6>
+                        <span style={{ fontSize: '0.75rem', fontWeight: '800', background: '#f1f5f9', color: '#475569', padding: '4px 10px', borderRadius: '20px' }}>
+                          WKF-ORD-{activeTask.dbId}
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '14px', marginBottom: '16px' }}>
+                        <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '10px', borderLeft: '4px solid #3b82f6' }}>
+                          <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <Calendar size={14} color="#3b82f6" /> FECHA Y HORA DE SOLICITUD
+                          </div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#1e293b' }}>
+                            {activeTask.fechaHoraSolicitud || activeTask.fechaInicio}
+                          </div>
+                          {activeTask.scheduledAt && (
+                            <div style={{ fontSize: '0.75rem', color: '#3b82f6', marginTop: '3px', fontWeight: '600' }}>
+                              📅 Visita programada: {new Date(activeTask.scheduledAt).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })}
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '10px', borderLeft: '4px solid #10b981' }}>
+                          <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <UserCircle size={14} color="#10b981" /> CLIENTE QUE SOLICITA
+                          </div>
+                          <div style={{ fontSize: '0.92rem', fontWeight: '800', color: '#1e293b' }}>
+                            {activeTask.cliente}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                            Tel: {activeTask.telefonoCliente || 'No registrado'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', borderLeft: '4px solid #8b5cf6', marginBottom: '16px' }}>
+                        <div style={{ fontSize: '0.7rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <Layout size={14} color="#8b5cf6" /> PROPIEDAD Y UBICACIÓN
+                        </div>
+                        <div style={{ fontSize: '0.95rem', fontWeight: '800', color: '#1e293b' }}>
+                          {activeTask.propiedad}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#475569', marginTop: '3px' }}>
+                          📍 {activeTask.direccionPropiedad || 'Sin dirección detallada'} ({activeTask.tipoPropiedad || 'Propiedad'})
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '14px' }}>
+                        <div style={{ background: '#fff7ed', padding: '14px', borderRadius: '10px', border: '1px solid #ffedd5', borderLeft: '4px solid #f97316' }}>
+                          <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#c2410c', textTransform: 'uppercase', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <AlertTriangle size={15} color="#f97316" /> DETALLES DEL PROBLEMA / FALLA
+                          </div>
+                          <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#7c2d12', whiteSpace: 'pre-line', lineHeight: '1.4' }}>
+                            {activeTask.problemaDetalle || activeTask.descripcion || 'Sin descripción'}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: '#9a3412', marginTop: '8px', fontWeight: '600' }}>
+                            Habitación/Zona: {activeTask.zonaHabitacion || 'General'}
+                          </div>
+                        </div>
+
+                        <div style={{ background: '#fef2f2', padding: '14px', borderRadius: '10px', border: '1px solid #fee2e2', borderLeft: '4px solid #ef4444' }}>
+                          <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#b91c1c', textTransform: 'uppercase', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <Settings size={15} color="#ef4444" /> EQUIPO O COMPONENTE AFECTADO
+                          </div>
+                          <div style={{ fontSize: '1.05rem', fontWeight: '800', color: '#991b1b', lineHeight: '1.3' }}>
+                            {activeTask.equipoAfectado || 'No especificado (Revisión general)'}
+                          </div>
                         </div>
                       </div>
                     </div>
