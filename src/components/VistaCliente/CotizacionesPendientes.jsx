@@ -14,6 +14,7 @@ const CotizacionesPendientes = () => {
       total: 4500,
       estado: 'Pendiente de aprobación',
       descripcion: 'Servicio programado para revisión general.',
+      vencida: true,
     },
     {
       id: 2,
@@ -23,6 +24,7 @@ const CotizacionesPendientes = () => {
       total: 12800,
       estado: 'Esperando respuesta',
       descripcion: 'Incluye mano de obra y materiales.',
+      vencida: false,
     },
     {
       id: 3,
@@ -45,35 +47,47 @@ const CotizacionesPendientes = () => {
         <div className="header-titles">
           <div className="cart-title-row">
             <ShoppingBag size={24} color="#f26624" />
-            <h2>Carrito de cotizaciones</h2>
+            <div>
+              <h2>Carrito de cotizaciones</h2>
+              <p>Vista previa estática de las cotizaciones en espera.</p>
+            </div>
           </div>
-          <p>Vista previa estática de las cotizaciones en espera.</p>
         </div>
         <div className="cart-summary-pill">
           <Sparkles size={16} />
-          3 pendientes
+          {cotizacionesEstatica.length} pendientes
         </div>
       </header>
 
       <div className="quotes-scroll-area cart-list">
         {cotizacionesEstatica.map((cot) => (
           <div key={cot.id} className="quote-card-item cart-card" onClick={() => setCotizacionSeleccionada(cot)}>
-            <div className="quote-card-left">
+            <div className="card-content-left">
               <div className="quote-card-icon cart-icon">
                 <Clock size={20} />
               </div>
               <div className="quote-card-info">
-                <h4>{cot.titulo}</h4>
-                <span>{cot.folio} • {cot.fecha}</span>
-                <p>{cot.descripcion}</p>
+                <div className="quote-card-topline">
+                  <h4>{cot.titulo}</h4>
+                  <span className="quote-status-label">{cot.estado}</span>
+                </div>
+                <p className="quote-description">{cot.descripcion}</p>
+                <div className="quote-meta-row">
+                  <span className="quote-meta-pill">{cot.folio}</span>
+                  <span className="quote-meta-pill">{cot.fecha}</span>
+                </div>
               </div>
             </div>
-            <div className="quote-card-right">
-              <div className="price-tag-group">
+
+            <div className="quote-card-right cart-card-actions">
+              <div className="quote-total-box">
+                <span>Total</span>
                 <strong>{formatCurrency(cot.total)}</strong>
-                <span className="partial-badge">{cot.estado}</span>
               </div>
-              <ChevronRight size={18} />
+              <div className="action-buttons-row">
+                <button className="btn-preview">Ver detalle</button>
+                <button className="btn-disabled">Próximamente</button>
+              </div>
             </div>
           </div>
         ))}
@@ -91,6 +105,28 @@ const CotizacionesPendientes = () => {
                 <h3>{cotizacionSeleccionada.titulo}</h3>
               </header>
               <div className="modal-excel-body">
+                <div className="modal-detail-box">
+                  <h4>Detalles de la cotización</h4>
+                  <p>
+                    Esta cotización incluye: inspección técnica, sustitución de componentes
+                    menores, pruebas de funcionamiento y reporte final con recomendaciones.
+                  </p>
+                  <div className="detail-summary-row">
+                    <div>
+                      <strong>Servicio</strong>
+                      <p>Revisión de bobinas y estado de aislamiento.</p>
+                    </div>
+                    <div>
+                      <strong>Tiempo estimado</strong>
+                      <p>3 días hábiles</p>
+                    </div>
+                    <div>
+                      <strong>Condición</strong>
+                      <p>{cotizacionSeleccionada.vencida ? 'Vencida > 15 días' : 'En tiempo de espera'}</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="excel-table-container">
                   <div className="excel-table-header">
                     <span>DETALLE</span>
@@ -117,6 +153,15 @@ const CotizacionesPendientes = () => {
                 <div className="excel-advance-highlight">
                   <span>Esta vista es solo una demostración visual del frontend.</span>
                 </div>
+                <div className="modal-actions-row">
+                  <button className="btn-accept-final">Aceptar cotización</button>
+                  <button className="btn-requote-final">Recotizar de nuevo</button>
+                </div>
+                {cotizacionSeleccionada.vencida && (
+                  <div className="modal-expired-note">
+                    La cotización ya venció los 15 días de espera, el administrador necesita recotizar nuevamente.
+                  </div>
+                )}
               </div>
             </div>
           </div>

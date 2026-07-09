@@ -4,13 +4,44 @@
 .header-titles h2 { font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 0; }
 .header-titles p { color: #64748b; font-size: 0.85rem; margin-top: 4px; }
 
-.cart-header { background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%); padding: 20px 24px; border-radius: 20px; border: 1px solid #ffe4d1; box-shadow: 0 8px 25px rgba(242, 102, 36, 0.08); }
-.cart-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-.cart-summary-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: #f26624; color: white; font-weight: 700; font-size: 0.8rem; }
-.cart-list { display: flex; flex-direction: column; gap: 10px; }
-.cart-card { padding: 18px 20px; border-radius: 16px; border: 1px solid #f2d5c1; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04); }
-.cart-card:hover { transform: translateY(-2px); border-color: #f26624; }
+.cart-header { background: linear-gradient(135deg, #fff7ed 0%, #ffffff 100%); padding: 22px 26px; border-radius: 24px; border: 1px solid #ffe4d1; box-shadow: 0 10px 30px rgba(242, 102, 36, 0.08); }
+.cart-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.cart-summary-pill { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: 999px; background: #f26624; color: white; font-weight: 700; font-size: 0.85rem; }
+.cart-list { display: flex; flex-direction: column; gap: 16px; }
+.cart-card { padding: 22px 24px; border-radius: 22px; border: 1px solid #e8edf4; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06); transition: transform 0.2s ease, border-color 0.2s ease; }
+.cart-card:hover { transform: translateY(-3px); border-color: #f29a5b; }
 .cart-icon { background: #fff4eb; color: #f26624; }
+.card-content-left { display: flex; gap: 18px; align-items: flex-start; max-width: 65%; }
+.quote-card-topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.quote-status-label { padding: 6px 11px; border-radius: 999px; background: #dcfce7; color: #166534; font-size: 0.75rem; font-weight: 700; }
+.quote-description { margin: 0 0 12px; color: #475569; font-size: 0.95rem; line-height: 1.5; }
+.quote-meta-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.quote-meta-pill { padding: 6px 10px; border-radius: 999px; background: #f8fafc; color: #475569; font-size: 0.78rem; }
+.quote-card-right { display: flex; flex-direction: column; gap: 14px; align-items: flex-end; justify-content: space-between; }
+.quote-total-box { background: #f8fafc; padding: 12px 16px; border-radius: 14px; text-align: right; color: #0f172a; }
+.quote-total-box span { display: block; font-size: 0.75rem; color: #64748b; margin-bottom: 6px; }
+.quote-total-box strong { font-size: 1.2rem; }
+.action-buttons-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-preview, .btn-disabled { border: none; border-radius: 12px; padding: 10px 14px; font-weight: 700; font-size: 0.82rem; cursor: pointer; }
+.btn-preview { background: #f26624; color: white; }
+.btn-disabled { background: #e2e8f0; color: #64748b; cursor: default; }
+.modal-content-wrapper { background: white; border-radius: 28px; overflow: hidden; width: 100%; max-width: 900px; }
+.modal-excel-header { background: #0f172a; padding: 25px; color: white; }
+.modal-excel-body { padding: 30px; }
+.modal-detail-box { background: #f8fafc; border-radius: 18px; padding: 22px; margin-bottom: 20px; }
+.modal-detail-box h4 { margin: 0 0 10px; font-size: 1rem; color: #0f172a; }
+.modal-detail-box p { margin: 0 0 16px; color: #475569; line-height: 1.6; }
+.detail-summary-row { display: grid; grid-template-columns: repeat(3, minmax(140px, 1fr)); gap: 14px; }
+.detail-summary-row div { background: white; border-radius: 14px; padding: 14px; border: 1px solid #e2e8f0; }
+.detail-summary-row strong { display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
+.detail-summary-row p { margin: 0; font-size: 0.9rem; color: #0f172a; }
+.excel-table-container { border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; margin-bottom: 20px; }
+.excel-table-header { display: grid; grid-template-columns: 1.5fr 1fr; background: #f8fafc; padding: 14px 16px; font-weight: 900; font-size: 0.75rem; color: #475569; border-bottom: 1px solid #e2e8f0; }
+.excel-row { display: grid; grid-template-columns: 1.5fr 1fr; padding: 14px 16px; font-size: 0.95rem; border-bottom: 1px solid #f1f5f9; color: #0f172a; }
+.excel-advance-highlight { display: flex; justify-content: flex-start; padding: 18px 20px; background: #fff7ed; color: #f97316; font-weight: 900; border-radius: 0 0 16px 16px; }
+.modal-actions-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.btn-requote-final { background: #e2e8f0; color: #0f172a; border: none; padding: 16px 18px; border-radius: 14px; font-weight: 800; cursor: pointer; }
+.modal-expired-note { margin-top: 16px; padding: 16px 18px; background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 14px; font-weight: 700; }
 
 .quotes-tabs-row { display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; }
 .tab-btn { border: none; padding: 10px 18px; border-radius: 9px; font-weight: 800; color: #64748b; background: transparent; cursor: pointer; font-size: 0.7rem; transition: 0.2s; }
