@@ -25,7 +25,7 @@ const ModalCrearCotizacion = ({
 
   useEffect(() => {
     if (cotizacionExistente) {
-      setModoConsulta(!isAdmin); // Si es admin, puede editar
+      setModoConsulta(true); // Al abrir inicialmente, mostrar en modo consulta con opción a editar
       if (cotizacionExistente.type === 'manual') {
         const parsed = typeof cotizacionExistente.concept === 'string' 
           ? JSON.parse(cotizacionExistente.concept) 
@@ -87,7 +87,7 @@ const ModalCrearCotizacion = ({
       }
 
       let res;
-      if (cotizacionExistente && isAdmin) {
+      if (cotizacionExistente && cotizacionExistente.id) {
         res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionExistente.id}/update`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
@@ -359,7 +359,16 @@ const ModalCrearCotizacion = ({
             </div>
             <div className="tp-q-footer-actions">
               {modoConsulta ? (
-                <button className="tp-q-btn-cancel-new" onClick={onClose}>CERRAR</button>
+                <>
+                  <button className="tp-q-btn-cancel-new" onClick={onClose}>CERRAR</button>
+                  <button 
+                    className="tp-q-btn-save-new" 
+                    style={{ background: '#3b82f6', color: 'white', border: 'none' }}
+                    onClick={() => setModoConsulta(false)}
+                  >
+                    ✏️ EDITAR COTIZACIÓN
+                  </button>
+                </>
               ) : (
                 <>
                   <button className="tp-q-btn-cancel-new" onClick={onClose}>CANCELAR</button>
@@ -368,7 +377,7 @@ const ModalCrearCotizacion = ({
                     onClick={enviarCotizacion}
                     disabled={enviandoCotizacion || cotizacionEnviada}
                   >
-                    {enviandoCotizacion ? "ENVIANDO..." : cotizacionEnviada ? "¡ENVIADO!" : (cotizacionExistente && isAdmin ? "ACTUALIZAR COTIZACIÓN" : "GUARDAR COTIZACIÓN")}
+                    {enviandoCotizacion ? "ENVIANDO..." : cotizacionEnviada ? "¡ENVIADO!" : (cotizacionExistente && cotizacionExistente.id ? "ACTUALIZAR COTIZACIÓN" : "GUARDAR COTIZACIÓN")}
                   </button>
                 </>
               )}

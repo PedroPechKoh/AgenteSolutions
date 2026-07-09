@@ -12,6 +12,7 @@ import {
   User, Wrench, Truck, Layout, Home, Phone, MapPin
 } from 'lucide-react';
 import CreateQuotationModal from "./CreateQuotationModal";
+import ModalCrearCotizacion from "../Shared/ModalCrearCotizacion";
 import UniversalSearch from "../Shared/UniversalSearch";
 import Pago from "../VistaCliente/Pago";
 import mpLogo from "../../assets/Mercado-Pago.png";
@@ -21,6 +22,7 @@ const VistaCotizaciones = () => {
   const location = useLocation();
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [cotizacionParaAsignar, setCotizacionParaAsignar] = useState(null);
+  const [cotizacionParaEditarTecnico, setCotizacionParaEditarTecnico] = useState(null);
   const [cotizaciones, setCotizaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
 
@@ -913,21 +915,25 @@ const VistaCotizaciones = () => {
 
                   return (
                     <div className="modal-total-section" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: '15px', background: '#f8fafc', borderTop: '2px solid #e2e8f0', marginTop: '20px' }}>
-                      {subtotalItems > 0 ? (
+                      {esTecnico ? (
+                        <h3 style={{ margin: 0, fontSize: '1.3rem', color: '#1e293b' }}>
+                          TOTAL DEL TRABAJO: ${(subtotalItems > 0 ? subtotalItems : parseFloat(cotizacionSeleccionada.total || 0)).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </h3>
+                      ) : subtotalItems > 0 ? (
                         <>
-                          {!esCliente && (
+                          {!esCliente && !esTecnico && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '8px', color: '#64748b' }}>
                               <span>Subtotal:</span>
                               <span style={{ fontWeight: 'bold' }}>${subtotalItems.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
-                          {!esCliente && (
+                          {!esCliente && !esTecnico && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '8px', color: '#64748b' }}>
                               <span>IVA (16%):</span>
                               <span style={{ fontWeight: 'bold' }}>${iva.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                             </div>
                           )}
-                          {!esCliente && (
+                          {!esCliente && !esTecnico && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '300px', marginBottom: '12px', color: '#009ee3', alignItems: 'center' }}>
                               <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <img src={mpLogo} alt="MP" style={{ height: '14px', objectFit: 'contain' }} /> Comisión (T. Oficial):
@@ -1489,6 +1495,19 @@ const VistaCotizaciones = () => {
                     </div>
                   )}
 
+                  {esTecnico && (
+                    <button 
+                      className="btn-modal-print" 
+                      style={{ background: '#3b82f6', color: 'white', width: '100%', minHeight: '45px', height: 'auto', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 'bold', marginBottom: '8px' }} 
+                      onClick={() => {
+                        setCotizacionParaEditarTecnico(cotizacionSeleccionada);
+                        setCotizacionSeleccionada(null);
+                      }}
+                    >
+                      ✏️ EDITAR MI COTIZACIÓN
+                    </button>
+                  )}
+
                   <button className="btn-modal-close" style={{ width: '100%', textAlign: 'center', marginTop: '5px' }} onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>CERRAR</button>
             </div>
           </div>
@@ -1521,6 +1540,18 @@ const VistaCotizaciones = () => {
           onSuccess={() => {
             setShowCreateModal(false);
             setCotizacionParaAsignar(null);
+            cargarCotizaciones();
+          }}
+        />
+      )}
+
+      {cotizacionParaEditarTecnico && (
+        <ModalCrearCotizacion 
+          cotizacionExistente={cotizacionParaEditarTecnico}
+          isAdmin={false}
+          onClose={() => setCotizacionParaEditarTecnico(null)}
+          onSuccess={() => {
+            setCotizacionParaEditarTecnico(null);
             cargarCotizaciones();
           }}
         />
