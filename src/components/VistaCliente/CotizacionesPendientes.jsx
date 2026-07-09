@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, ChevronRight, BadgeCheck, CircleDollarSign } from 'lucide-react';
+import { Clock, ChevronRight, ShoppingBag, Sparkles } from 'lucide-react';
 import '../../styles/Cliente/Cotizaciones.css';
 
 const CotizacionesPendientes = () => {
@@ -41,18 +41,25 @@ const CotizacionesPendientes = () => {
 
   return (
     <div className="quotes-view-container">
-      <header className="quotes-main-header">
+      <header className="quotes-main-header cart-header">
         <div className="header-titles">
-          <h2>Carrito de cotizaciones</h2>
+          <div className="cart-title-row">
+            <ShoppingBag size={24} color="#f26624" />
+            <h2>Carrito de cotizaciones</h2>
+          </div>
           <p>Vista previa estática de las cotizaciones en espera.</p>
+        </div>
+        <div className="cart-summary-pill">
+          <Sparkles size={16} />
+          3 pendientes
         </div>
       </header>
 
-      <div className="quotes-scroll-area">
+      <div className="quotes-scroll-area cart-list">
         {cotizacionesEstatica.map((cot) => (
-          <div key={cot.id} className="quote-card-item card-nuevas" onClick={() => setCotizacionSeleccionada(cot)}>
+          <div key={cot.id} className="quote-card-item cart-card" onClick={() => setCotizacionSeleccionada(cot)}>
             <div className="quote-card-left">
-              <div className="quote-card-icon">
+              <div className="quote-card-icon cart-icon">
                 <Clock size={20} />
               </div>
               <div className="quote-card-info">
