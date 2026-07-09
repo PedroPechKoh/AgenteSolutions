@@ -153,10 +153,11 @@ const ClientRegister = () => {
         padding: '30px 15px',
         boxSizing: 'border-box',
         overflowY: 'auto',
+        overflowX: 'hidden',
         fontFamily: '"Arial Black", sans-serif'
       }} 
     >
-      <div style={{ maxWidth: '720px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ maxWidth: '720px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
         
         {/* LOGO SUPERIOR LIMPIO (Sin overlaps ni scale absoluto) */}
         <div style={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -197,8 +198,10 @@ const ClientRegister = () => {
         ) : (
           <form
             onSubmit={handleRegister}
+            className="register-card"
             style={{
               width: '100%',
+              maxWidth: '650px',
               padding: '35px 25px',
               borderRadius: '24px',
               backgroundColor: 'rgba(25, 25, 25, 0.94)',
@@ -207,7 +210,8 @@ const ClientRegister = () => {
               display: 'flex',
               flexDirection: 'column',
               gap: '18px',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              margin: '0 auto'
             }}
           >
             <h2
@@ -217,12 +221,12 @@ const ClientRegister = () => {
             </h2>
 
             {/* Selector de Tipo de Cuenta */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', width: '100%' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', width: '100%' }}>
               <button
                 type="button"
                 onClick={() => setAccountType('client')}
                 style={{
-                  flex: '1 1 200px',
+                  width: '100%',
                   padding: '14px 10px',
                   borderRadius: '50px',
                   border: accountType === 'client' ? '3px solid #f26522' : '3px solid transparent',
@@ -230,7 +234,7 @@ const ClientRegister = () => {
                   color: accountType === 'client' ? '#fff' : '#333333',
                   fontWeight: '900',
                   fontStyle: 'italic',
-                  fontSize: '1rem',
+                  fontSize: '0.95rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -240,13 +244,13 @@ const ClientRegister = () => {
                   boxShadow: accountType === 'client' ? '0 0 15px rgba(242, 101, 34, 0.6)' : 'none'
                 }}
               >
-                <UserCheck size={20} /> SOY CLIENTE
+                <UserCheck size={20} style={{ flexShrink: 0 }} /> SOY CLIENTE
               </button>
               <button
                 type="button"
                 onClick={() => setAccountType('technician')}
                 style={{
-                  flex: '1 1 200px',
+                  width: '100%',
                   padding: '14px 10px',
                   borderRadius: '50px',
                   border: accountType === 'technician' ? '3px solid #f26522' : '3px solid transparent',
@@ -254,7 +258,7 @@ const ClientRegister = () => {
                   color: accountType === 'technician' ? '#fff' : '#333333',
                   fontWeight: '900',
                   fontStyle: 'italic',
-                  fontSize: '1rem',
+                  fontSize: '0.95rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -264,13 +268,13 @@ const ClientRegister = () => {
                   boxShadow: accountType === 'technician' ? '0 0 15px rgba(242, 101, 34, 0.6)' : 'none'
                 }}
               >
-                <Briefcase size={20} /> SOY TÉCNICO
+                <Briefcase size={20} style={{ flexShrink: 0 }} /> SOY TÉCNICO
               </button>
             </div>
 
             {/* Selector de Empresa / Autónomo */}
-            <div className="input-group" style={{ position: 'relative', width: '100%' }}>
-              <Building2 size={20} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#333', zIndex: 2 }} />
+            <div className="input-group">
+              <Building2 size={20} className="input-icon" />
               <select
                 className="custom-input"
                 value={selectedTenantId}
@@ -286,9 +290,9 @@ const ClientRegister = () => {
               </select>
             </div>
 
-            <div className="form-row-responsive" style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', width: '100%' }}>
-              <div className="input-group" style={{ flex: '1 1 240px', position: 'relative' }}>
-                <User size={20} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#333', zIndex: 2 }} />
+            <div className="form-row-responsive">
+              <div className="input-group">
+                <User size={20} className="input-icon" />
                 <input
                   type="text"
                   placeholder="NOMBRE(S)"
@@ -299,7 +303,7 @@ const ClientRegister = () => {
                   required
                 />
               </div>
-              <div className="input-group" style={{ flex: '1 1 240px', position: 'relative' }}>
+              <div className="input-group">
                 <input
                   type="text"
                   placeholder="APELLIDOS"
@@ -312,9 +316,9 @@ const ClientRegister = () => {
               </div>
             </div>
 
-            <div className="form-row-responsive" style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', width: '100%' }}>
-              <div className="input-group" style={{ flex: '1 1 240px', position: 'relative' }}>
-                <Mail size={20} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#333', zIndex: 2 }} />
+            <div className="form-row-responsive">
+              <div className="input-group">
+                <Mail size={20} className="input-icon" />
                 <input
                   type="email"
                   placeholder="CORREO ELECTRÓNICO"
@@ -325,8 +329,8 @@ const ClientRegister = () => {
                   required
                 />
               </div>
-              <div className="input-group" style={{ flex: '1 1 240px', position: 'relative' }}>
-                <Phone size={20} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#333', zIndex: 2 }} />
+              <div className="input-group">
+                <Phone size={20} className="input-icon" />
                 <input
                   type="tel"
                   placeholder="TELÉFONO"
@@ -339,9 +343,9 @@ const ClientRegister = () => {
               </div>
             </div>
 
-            <div className="form-row-responsive" style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', width: '100%' }}>
-              <div className="input-group" style={{ flex: '1 1 240px', position: 'relative' }}>
-                <Lock size={20} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#333', zIndex: 2 }} />
+            <div className="form-row-responsive">
+              <div className="input-group">
+                <Lock size={20} className="input-icon" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="CONTRASEÑA"
@@ -359,8 +363,8 @@ const ClientRegister = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              <div className="input-group" style={{ flex: '1 1 240px', position: 'relative' }}>
-                <Lock size={20} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', color: '#333', zIndex: 2 }} />
+              <div className="input-group">
+                <Lock size={20} className="input-icon" />
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="CONFIRMA CONTRASEÑA"

@@ -284,20 +284,39 @@
 
 /* Clase auxiliar para forms responsivos */
 .form-row-responsive {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  width: 100%;
 }
 
 @media (max-width: 600px) {
   .form-row-responsive {
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 12px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    width: 100% !important;
+    margin-bottom: 0 !important;
   }
   
-  .form-row-responsive > div {
-    margin-bottom: 0 !important;
+  .form-row-responsive > div,
+  .form-row-responsive .input-group {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+  }
+
+  .register-card {
+    padding: 24px 16px !important;
+    border-radius: 20px !important;
+    width: 100% !important;
+  }
+
+  .register-card .custom-input {
+    width: 100% !important;
+    font-size: 0.95rem !important;
+    padding-top: 13px !important;
+    padding-bottom: 13px !important;
   }
 }
 
