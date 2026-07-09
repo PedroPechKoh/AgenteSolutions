@@ -275,20 +275,19 @@ const MainLayoutCliente = ({ children }) => {
                 onClick={() => navigate('/cotizaciones-pendientes')}
                 title="Cotizaciones pendientes"
                 style={{
-                  width: '44px',
-                  height: '44px',
+                  width: '54px',
+                  height: '54px',
                   borderRadius: '50%',
-                  border: 'none',
-                  backgroundColor: '#f26624',
-                  color: '#fff',
+                  border: '2px solid #f26624',
+                  backgroundColor: 'transparent',
+                  color: '#f26624',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(242, 102, 36, 0.3)'
+                  cursor: 'pointer'
                 }}
               >
-                <ShoppingCart size={24} strokeWidth={2.5} />
+                <ShoppingCart size={28} strokeWidth={2.5} />
               </button>
               <NotificationBell />
             </div>
