@@ -29,6 +29,10 @@ const TrabajoPropiedad = () => {
   // --- ESTADOS PARA CONSULTA DE LEVANTAMIENTO ---
   const [modalSurveyVisible, setModalSurveyVisible] = useState(false);
   const [surveyData, setSurveyData] = useState([]);
+  const [surveyDataCompleto, setSurveyDataCompleto] = useState([]);
+  const [surveyDataFiltradoEquipo, setSurveyDataFiltradoEquipo] = useState([]);
+  const [modoFiltroEquipo, setModoFiltroEquipo] = useState(false);
+  const [equipoAfectadoNombre, setEquipoAfectadoNombre] = useState('');
   const [cargandoSurvey, setCargandoSurvey] = useState(false);
   const [areaActivaSurvey, setAreaActivaSurvey] = useState(null);
   const [verEvidencias, setVerEvidencias] = useState(false);
@@ -200,9 +204,114 @@ const TrabajoPropiedad = () => {
         }
       }
 
-      setSurveyData(rawSurvey);
-      if (rawSurvey.length > 0) {
-        setAreaActivaSurvey(rawSurvey[0].id);
+      const surveyZonaOrTotal = rawSurvey;
+      setSurveyDataCompleto(surveyZonaOrTotal);
+
+      // 2. FILTRADO POR EQUIPO / COMPONENTE AFECTADO
+      let eqNombre = null;
+      if (data?.descripcion && data.descripcion.includes('[EQUIPO AFECTADO]:')) {
+        const parts = data.descripcion.split('[EQUIPO AFECTADO]:');
+        eqNombre = parts[1]?.trim();
+      } else if (data?.item_affected || data?.equipo_afectado || data?.affected_item || data?.equipo) {
+        eqNombre = data.item_affected || data.equipo_afectado || data.affected_item || data.equipo;
+      }
+
+      if (eqNombre && typeof eqNombre === 'string' && eqNombre.trim() !== '') {
+        const eqClean = eqNombre.trim();
+        setEquipoAfectadoNombre(eqClean);
+        const eqNorm = normalizeStr(eqClean);
+
+        const filtrarCategoriasYSubareas = (areasList) => {
+          let areasConEquipo = [];
+          for (let area of areasList) {
+            let areaClone = JSON.parse(JSON.stringify(area));
+            let subareasFiltradas = [];
+            let categoriasFiltradasArea = {};
+            let hayItemsEnArea = false;
+
+            if (areaClone.subareas && areaClone.subareas.length > 0) {
+              for (let sub of areaClone.subareas) {
+                let catsFiltradasSub = {};
+                let hayItemsEnSub = false;
+                if (sub.categories) {
+                  for (let [catName, items] of Object.entries(sub.categories)) {
+                    const itemsMatched = (items || []).filter(it => {
+                      const subCat = normalizeStr(it.sub_category);
+                      const marca = normalizeStr(it.brand);
+                      const mod = normalizeStr(it.model_or_color);
+                      const completo = `${subCat} (${marca}) ${mod}`.trim();
+                      return subCat === eqNorm || 
+                             eqNorm.includes(subCat) || 
+                             subCat.includes(eqNorm) ||
+                             completo.includes(eqNorm) ||
+                             eqNorm.includes(completo);
+                    });
+                    if (itemsMatched.length > 0) {
+                      catsFiltradasSub[catName] = itemsMatched;
+                      hayItemsEnSub = true;
+                    }
+                  }
+                }
+                if (hayItemsEnSub) {
+                  sub.categories = catsFiltradasSub;
+                  subareasFiltradas.push(sub);
+                  hayItemsEnArea = true;
+                }
+              }
+            } else if (areaClone.categories) {
+              for (let [catName, items] of Object.entries(areaClone.categories)) {
+                const itemsMatched = (items || []).filter(it => {
+                  const subCat = normalizeStr(it.sub_category);
+                  const marca = normalizeStr(it.brand);
+                  const mod = normalizeStr(it.model_or_color);
+                  const completo = `${subCat} (${marca}) ${mod}`.trim();
+                  return subCat === eqNorm || 
+                         eqNorm.includes(subCat) || 
+                         subCat.includes(eqNorm) ||
+                         completo.includes(eqNorm) ||
+                         eqNorm.includes(completo);
+                });
+                if (itemsMatched.length > 0) {
+                  categoriasFiltradasArea[catName] = itemsMatched;
+                  hayItemsEnArea = true;
+                }
+              }
+            }
+
+            if (hayItemsEnArea) {
+              if (subareasFiltradas.length > 0) {
+                areaClone.subareas = subareasFiltradas;
+              } else {
+                areaClone.categories = categoriasFiltradasArea;
+              }
+              areasConEquipo.push(areaClone);
+            }
+          }
+          return areasConEquipo;
+        };
+
+        let surveyPorEquipo = filtrarCategoriasYSubareas(surveyZonaOrTotal);
+        if (surveyPorEquipo.length === 0) {
+          surveyPorEquipo = filtrarCategoriasYSubareas(response.data);
+        }
+
+        if (surveyPorEquipo.length > 0) {
+          setSurveyDataFiltradoEquipo(surveyPorEquipo);
+          setSurveyData(surveyPorEquipo);
+          setAreaActivaSurvey(surveyPorEquipo[0].id);
+          setModoFiltroEquipo(true);
+        } else {
+          setSurveyDataFiltradoEquipo([]);
+          setSurveyData(surveyZonaOrTotal);
+          if (surveyZonaOrTotal.length > 0) setAreaActivaSurvey(surveyZonaOrTotal[0].id);
+          setModoFiltroEquipo(false);
+        }
+      } else {
+        setEquipoAfectadoNombre('');
+        setSurveyDataFiltradoEquipo([]);
+        setSurveyData(surveyZonaOrTotal);
+        if (surveyZonaOrTotal.length > 0) setAreaActivaSurvey(surveyZonaOrTotal[0].id);
+        setModoFiltroEquipo(false);
       }
     } catch (error) {
       console.error("Error cargando inventario:", error);
@@ -617,6 +726,47 @@ const TrabajoPropiedad = () => {
                 </div>
                 <button className="tp-close-survey-btn" onClick={() => setModalSurveyVisible(false)}>✕</button>
               </div>
+
+              {equipoAfectadoNombre && surveyDataFiltradoEquipo.length > 0 && (
+                <div style={{ background: '#fff7ed', border: '1px solid #fdba74', padding: '12px 18px', borderRadius: '10px', margin: '15px 20px 5px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '1.3rem' }}>🎯</span>
+                    <div>
+                      <div style={{ fontSize: '0.75rem', color: '#c2410c', fontWeight: 'bold', letterSpacing: '0.5px' }}>FILTRADO POR EQUIPO REPORTADO DAÑADO</div>
+                      <div style={{ fontSize: '1.05rem', color: '#9a3412', fontWeight: '800' }}>{equipoAfectadoNombre}</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (modoFiltroEquipo) {
+                        setSurveyData(surveyDataCompleto);
+                        if (surveyDataCompleto.length > 0) setAreaActivaSurvey(surveyDataCompleto[0].id);
+                        setModoFiltroEquipo(false);
+                      } else {
+                        setSurveyData(surveyDataFiltradoEquipo);
+                        if (surveyDataFiltradoEquipo.length > 0) setAreaActivaSurvey(surveyDataFiltradoEquipo[0].id);
+                        setModoFiltroEquipo(true);
+                      }
+                    }}
+                    style={{
+                      background: modoFiltroEquipo ? '#334155' : '#F26522',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 14px',
+                      borderRadius: '6px',
+                      fontWeight: 'bold',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {modoFiltroEquipo ? '👁️ Ver Todo el Levantamiento' : '🎯 Solo Ver Equipo Dañado'}
+                  </button>
+                </div>
+              )}
 
               <div className="tp-survey-body">
                 {cargandoSurvey ? (
