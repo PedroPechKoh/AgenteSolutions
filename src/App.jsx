@@ -58,6 +58,7 @@ import VistaDetalleTecnico from "./components/admin/VistaDetalleTecnico";
 import axios from "axios";
 import TrabajosAsignados from "./components/VistasTecnico/TrabajosAsignados";
 import Cotizaciones from "./components/VistaCliente/Cotizaciones";
+import CotizacionesPendientes from "./components/VistaCliente/CotizacionesPendientes";
 
 import Pago from "./components/VistaCliente/Pago";
 import SOSView from "./components/VistaCliente/SOSView";
@@ -182,7 +183,7 @@ useEffect(() => {
 
       {/* Rutas del cliente con Sidebar */}
         <Route path="/Cotizaciones" element={<MainLayoutCliente><Cotizaciones /></MainLayoutCliente>} />
-        <Route path="/cotizaciones-pendientes" element={<MainLayoutCliente><Cotizaciones /></MainLayoutCliente>} />
+        <Route path="/cotizaciones-pendientes" element={<MainLayoutCliente><CotizacionesPendientes /></MainLayoutCliente>} />
         <Route path="/Pago" element={<MainLayoutCliente><Pago /></MainLayoutCliente>} />
         <Route path="/SOSView" element={<MainLayoutCliente><SOSView /></MainLayoutCliente>} />
         <Route path="/propiedad/:id/tablero" element={<DetallePropiedadadmin />} />
