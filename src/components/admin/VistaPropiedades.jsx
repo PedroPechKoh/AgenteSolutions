@@ -23,6 +23,7 @@ const VistaPropiedades = () => {
   const [propiedadesFiltradas, setPropiedadesFiltradas] = useState([]);
   const [subInfo, setSubInfo] = useState(null);
   const [mostrarModalCompraEspacios, setMostrarModalCompraEspacios] = useState(false);
+  const [pestanaOrigen, setPestanaOrigen] = useState("AGENTE_SOLUTIONS");
 
   const [mostrarModalServicio, setMostrarModalServicio] = useState(false);
   const [propiedadSeleccionada, setPropiedadSeleccionada] = useState(null);
@@ -93,6 +94,10 @@ const VistaPropiedades = () => {
   const isPersonalOrAutonomo = user?.role_id === 5 || user?.role_id === 4;
   const isLimitReached = isPersonalOrAutonomo && (currentCount >= maxAllowed);
 
+  const isRootOrAgenteAdmin = user?.role_id === 1 || user?.role_id === 0 || (user?.role_id === 2 && (!user?.tenant_id || user?.tenant_id === 1));
+  const countAgenteSolutions = listaPropiedades.filter(p => !p.tenant_id || p.tenant_id === 1).length;
+  const countAutonomos = listaPropiedades.filter(p => p.tenant_id && p.tenant_id !== 1).length;
+
   // Lógica de filtrado manual combinando categoría y búsqueda del sidebar
   useEffect(() => {
     const termino = searchTerm.toLowerCase();
@@ -104,14 +109,24 @@ const VistaPropiedades = () => {
       // 2. Filtro por búsqueda de texto
       const coincideBusqueda = 
         (item.nombre_propiedad || '').toLowerCase().includes(termino) ||
-        (item.address || '').toLowerCase().includes(termino) ||
+        (item.address || item.direccion || '').toLowerCase().includes(termino) ||
         (item.curp || '').toLowerCase().includes(termino); // Usamos CURP como folio si aplica
 
-      return coincideCategoria && coincideBusqueda;
+      // 3. Filtro por Pestaña de Origen (Solo si es Admin / Root de Agente Solutions)
+      let coincideOrigen = true;
+      if (isRootOrAgenteAdmin) {
+        if (pestanaOrigen === "AGENTE_SOLUTIONS") {
+          coincideOrigen = !item.tenant_id || item.tenant_id === 1;
+        } else if (pestanaOrigen === "AUTONOMOS") {
+          coincideOrigen = item.tenant_id && item.tenant_id !== 1;
+        }
+      }
+
+      return coincideCategoria && coincideBusqueda && coincideOrigen;
     });
 
     setPropiedadesFiltradas(filtrados);
-  }, [searchTerm, listaPropiedades, categoria]);
+  }, [searchTerm, listaPropiedades, categoria, pestanaOrigen]);
 
   const eliminarPropiedad = async (propiedad) => {
     const { id, nombre_propiedad } = propiedad;
@@ -344,6 +359,58 @@ const VistaPropiedades = () => {
            </div>
         )}
 
+        {isRootOrAgenteAdmin && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '18px', flexWrap: 'wrap', padding: '0 10px' }}>
+            <button
+              onClick={() => { setPestanaOrigen("AGENTE_SOLUTIONS"); setCategoria("TODAS"); }}
+              style={{
+                padding: '11px 22px', borderRadius: '50px', fontWeight: 900, fontSize: '0.88rem',
+                border: pestanaOrigen === "AGENTE_SOLUTIONS" ? '2px solid #FF6600' : '2px solid #334155',
+                background: pestanaOrigen === "AGENTE_SOLUTIONS" ? 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)' : '#1e293b',
+                color: '#fff', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px',
+                boxShadow: pestanaOrigen === "AGENTE_SOLUTIONS" ? '0 6px 20px rgba(255,102,0,0.4)' : 'none'
+              }}
+            >
+              <span>🛡️ AGENTE SOLUTIONS</span>
+              <span style={{ background: pestanaOrigen === "AGENTE_SOLUTIONS" ? 'rgba(0,0,0,0.25)' : '#334155', padding: '2px 9px', borderRadius: '20px', fontSize: '0.8rem' }}>
+                {countAgenteSolutions}
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setPestanaOrigen("AUTONOMOS"); setCategoria("TODAS"); }}
+              style={{
+                padding: '11px 22px', borderRadius: '50px', fontWeight: 900, fontSize: '0.88rem',
+                border: pestanaOrigen === "AUTONOMOS" ? '2px solid #3b82f6' : '2px solid #334155',
+                background: pestanaOrigen === "AUTONOMOS" ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : '#1e293b',
+                color: '#fff', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px',
+                boxShadow: pestanaOrigen === "AUTONOMOS" ? '0 6px 20px rgba(37,99,235,0.4)' : 'none'
+              }}
+            >
+              <span>🏢 AUTÓNOMOS & EMPRESAS</span>
+              <span style={{ background: pestanaOrigen === "AUTONOMOS" ? 'rgba(0,0,0,0.25)' : '#334155', padding: '2px 9px', borderRadius: '20px', fontSize: '0.8rem' }}>
+                {countAutonomos}
+              </span>
+            </button>
+
+            <button
+              onClick={() => { setPestanaOrigen("TODOS"); setCategoria("TODAS"); }}
+              style={{
+                padding: '11px 22px', borderRadius: '50px', fontWeight: 900, fontSize: '0.88rem',
+                border: pestanaOrigen === "TODOS" ? '2px solid #10b981' : '2px solid #334155',
+                background: pestanaOrigen === "TODOS" ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)' : '#1e293b',
+                color: '#fff', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '8px',
+                boxShadow: pestanaOrigen === "TODOS" ? '0 6px 20px rgba(16,185,129,0.4)' : 'none'
+              }}
+            >
+              <span>🌐 TODAS EN SISTEMA</span>
+              <span style={{ background: pestanaOrigen === "TODOS" ? 'rgba(0,0,0,0.25)' : '#334155', padding: '2px 9px', borderRadius: '20px', fontSize: '0.8rem' }}>
+                {listaPropiedades.length}
+              </span>
+            </button>
+          </div>
+        )}
+
         {!isClient && (
           <div className="categories-row-container">
             <div className="categories-row">
@@ -369,6 +436,12 @@ const VistaPropiedades = () => {
             propiedadesFiltradas.map((p) => (
               <div key={p.id} className="property-card" style={{ position: 'relative' }}>
                 
+                {p.tenant_id && p.tenant_id !== 1 && (
+                  <div style={{ position: 'absolute', top: 10, right: 10, background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', color: 'white', padding: '5px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: 'bold', zIndex: 10, display: 'flex', alignItems: 'center', gap: '5px', boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+                    🏢 {p.tenant_name || p.propietario || 'Autónomo'}
+                  </div>
+                )}
+
                 {p.is_shared_with_me && (
                   <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(242, 101, 34, 0.9)', color: 'white', padding: '5px 10px', borderRadius: '5px', fontSize: '0.8rem', fontWeight: 'bold', zIndex: 10, display: 'flex', alignItems: 'center', gap: '5px' }}>
                     🤝 COMPARTIDA CONTIGO
