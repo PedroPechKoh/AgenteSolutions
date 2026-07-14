@@ -394,28 +394,35 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
               <option value={1}>ADMINISTRADOR (Nivel 1)</option>
               <option value={2}>TÉCNICO / VENDEDOR (Nivel 2)</option>
               <option value={3}>CLIENTE (Nivel 3)</option>
-              <option value={4}>AUTÓNOMO EMPRESARIAL ($999 - Nivel 4)</option>
-              <option value={5}>AUTÓNOMO PERSONAL ($499 - Nivel 5)</option>
+              <option value={4}>AUTÓNOMO EMPRESARIAL ($935/m | 6 meses gratis - Nivel 4)</option>
+              <option value={5}>AUTÓNOMO PERSONAL ($299/m | 6 meses gratis - Nivel 5)</option>
             </select>
           </div>
 
           {(parseInt(formData.role_id) === 4 || parseInt(formData.role_id) === 5) && (
             <div style={{ background: '#fff7ed', border: '1px solid #fdba74', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
               <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#c2410c', textTransform: 'uppercase', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                🏢 Datos para Autónomo ({parseInt(formData.role_id) === 5 ? 'Personal' : 'Empresarial'})
+                🏢 Datos para Autónomo ({parseInt(formData.role_id) === 5 ? 'Personal ($299/m tras 6 meses gratis)' : 'Empresarial ($935/m tras 6 meses gratis)'})
               </div>
-              <div className="input-group" style={{ marginBottom: "12px" }}>
-                <input 
-                  type="text" 
-                  name="company_name" 
-                  placeholder={parseInt(formData.role_id) === 5 ? "NOMBRE DEL PROPIETARIO / NEGOCIO" : "NOMBRE DE LA EMPRESA / NEGOCIO"} 
-                  className="custom-input"
-                  style={{ paddingLeft: '15px' }}
-                  value={formData.company_name || ''} 
-                  onChange={handleChange} 
-                  required
-                />
-              </div>
+              {parseInt(formData.role_id) === 4 && (
+                <div className="input-group" style={{ marginBottom: "12px" }}>
+                  <input 
+                    type="text" 
+                    name="company_name" 
+                    placeholder="NOMBRE DE LA EMPRESA / NEGOCIO" 
+                    className="custom-input"
+                    style={{ paddingLeft: '15px' }}
+                    value={formData.company_name || ''} 
+                    onChange={handleChange} 
+                    required
+                  />
+                </div>
+              )}
+              {parseInt(formData.role_id) === 5 && (
+                <div style={{ fontSize: '0.78rem', color: '#854d0e', fontStyle: 'italic', marginBottom: '12px' }}>
+                  ℹ️ El Propietario Personal no requiere nombre de empresa aquí; gestionará y nombrará sus propiedades directamente en su panel al iniciar sesión.
+                </div>
+              )}
               <div className="input-group" style={{ margin: 0 }}>
                 <input 
                   type="text" 

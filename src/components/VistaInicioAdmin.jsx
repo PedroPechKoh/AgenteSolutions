@@ -5,6 +5,34 @@ import Header from './Shared/Header';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
+const LiveCountdown = ({ targetDate, fallbackDays }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    if (!targetDate) return;
+    const calculateTime = () => {
+      const end = new Date(targetDate).getTime();
+      const now = Date.now();
+      const diff = end - now;
+      if (diff <= 0) {
+        setTimeLeft('¡PRUEBA VENCIDA!');
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimeLeft(`${days}d : ${hours < 10 ? '0' + hours : hours}h : ${mins < 10 ? '0' + mins : mins}m : ${secs < 10 ? '0' + secs : secs}s`);
+    };
+    calculateTime();
+    const timer = setInterval(calculateTime, 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  if (!targetDate) return <span>⏳ {fallbackDays ?? 180} días restantes</span>;
+  return <span style={{ fontFamily: 'monospace', fontSize: '0.95rem', letterSpacing: '0.5px', color: '#4ADE80' }}>⏱️ {timeLeft || `${fallbackDays} días restantes`}</span>;
+};
+
 const VistaInicioAdmin = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -36,11 +64,14 @@ const VistaInicioAdmin = () => {
     { id: 4, title: 'REPORTES', icon: '📸', path: '/reportes-globales' },
     { id: 5, title: 'COTIZACIONES', icon: '🧾' , path: '/vista-cotizaciones'},
     { id: 6, title: 'SERVICIOS', icon: '🔧', path: '/tablero-servicios' },
-    { id: 7, title: 'BODEGA', icon: '🏭', path: '/bodeguero' },
     { id: 8, title: 'PRODUCTOS', icon: '📦', path: '/vista-producto' },
     { id: 9, title: 'DASHBOARD', icon: '📊',  path: '/dashboard'},
     { id: 10, title: 'PERSONALIZAR', icon: '🎨', path: '/customize-login' },
   ];
+
+  if (!isPersonal) {
+    menuItems.splice(6, 0, { id: 7, title: 'BODEGA', icon: '🏭', path: '/bodeguero' });
+  }
 
   if (isRoot) {
     menuItems.unshift({
@@ -85,13 +116,13 @@ const VistaInicioAdmin = () => {
 
       {(isAutonomo || user?.role_id === 2) && subInfo && (
         <div style={{
-          maxWidth: '1150px', margin: '20px auto 10px auto', padding: '18px 24px',
-          background: 'rgba(242,101,34,0.09)', border: '2px solid rgba(242,101,34,0.45)',
+          maxWidth: '1150px', margin: '20px auto 10px auto', padding: '20px 26px',
+          background: '#111827', border: '2px solid #FF6600',
           borderRadius: '18px', display: 'flex', flexWrap: 'wrap', alignItems: 'center',
-          justifyContent: 'space-between', gap: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.35)'
+          justifyContent: 'space-between', gap: '18px', boxShadow: '0 12px 35px rgba(0,0,0,0.5)'
         }}>
           <div>
-            <span style={{ color: '#f26522', fontWeight: 900, fontStyle: 'italic', fontSize: '1rem', display: 'block', marginBottom: '6px', letterSpacing: '0.5px' }}>
+            <span style={{ color: '#FF6600', fontWeight: 900, fontStyle: 'italic', fontSize: '1.08rem', display: 'block', marginBottom: '8px', letterSpacing: '0.6px' }}>
               {user?.role_id === 2
                 ? '🛠️ TÉCNICO EXTERNO | 1 AÑO DE PRUEBA GRATIS ($99 MXN/mes tras prueba)'
                 : subInfo?.tenant?.membership_type === 'autonomo_fundador'
@@ -100,20 +131,20 @@ const VistaInicioAdmin = () => {
                     ? '👑 PLAN PERSONAL | 6 MESES GRATIS ($299 MXN/mes tras prueba)'
                     : '🏢 PLAN EMPRESARIAL | 6 MESES GRATIS ($935 MXN/mes tras prueba)'}
             </span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', color: '#ddd', fontSize: '0.88rem', alignItems: 'center' }}>
-              <span>
-                📅 Vence: <strong style={{ color: '#fff' }}>{subInfo.subscription_expires_at ? new Date(subInfo.subscription_expires_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Indefinido'}</strong>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', color: '#F3F4F6', fontSize: '0.9rem', alignItems: 'center' }}>
+              <span style={{ background: 'rgba(255,255,255,0.08)', padding: '5px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.18)' }}>
+                📅 Vence: <strong style={{ color: '#FFFFFF' }}>{subInfo.subscription_expires_at ? new Date(subInfo.subscription_expires_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Indefinido'}</strong>
               </span>
               {isAutonomo && (
-                <span style={{ background: 'rgba(255,255,255,0.07)', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  🏠 Propiedades: <strong style={{ color: (subInfo.properties_count >= (subInfo.max_properties + subInfo.extra_properties_count)) ? '#ff6b6b' : '#69db7c' }}>
+                <span style={{ background: 'rgba(255,255,255,0.08)', padding: '5px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.18)' }}>
+                  🏠 Propiedades: <strong style={{ color: (subInfo.properties_count >= (subInfo.max_properties + subInfo.extra_properties_count)) ? '#F87171' : '#4ADE80' }}>
                     {subInfo.properties_count ?? 0} / {(subInfo.max_properties ?? 3) + (subInfo.extra_properties_count ?? 0)}
                   </strong>
                 </span>
               )}
               {isEmpresa && (
-                <span style={{ background: 'rgba(255,255,255,0.07)', padding: '4px 10px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  👥 Clientes: <strong style={{ color: (subInfo.clients_count >= (subInfo.max_clients ?? 30)) ? '#ff6b6b' : '#69db7c' }}>
+                <span style={{ background: 'rgba(255,255,255,0.08)', padding: '5px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.18)' }}>
+                  👥 Clientes: <strong style={{ color: (subInfo.clients_count >= (subInfo.max_clients ?? 30)) ? '#F87171' : '#4ADE80' }}>
                     {subInfo.clients_count ?? 0} / {subInfo.max_clients ?? 30}
                   </strong>
                 </span>
@@ -121,22 +152,22 @@ const VistaInicioAdmin = () => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-            <div style={{ background: (subInfo.days_remaining <= 30) ? 'rgba(239,68,68,0.2)' : 'rgba(34,197,94,0.18)', border: `1px solid ${(subInfo.days_remaining <= 30) ? '#ef4444' : '#22c55e'}`, color: (subInfo.days_remaining <= 30) ? '#ef4444' : '#22c55e', padding: '6px 16px', borderRadius: '50px', fontWeight: 'bold', fontSize: '0.85rem' }}>
-              ⏳ {subInfo.days_remaining ?? 180} días restantes
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(0,0,0,0.45)', border: `2px solid ${(subInfo.days_remaining <= 30) ? '#F87171' : '#4ADE80'}`, padding: '8px 18px', borderRadius: '50px', fontWeight: 'bold' }}>
+              <LiveCountdown targetDate={subInfo.subscription_expires_at} fallbackDays={subInfo.days_remaining} />
             </div>
 
             {isPersonal && (
               <button onClick={() => navigate(`/activacion-cuenta?tenant_id=${subInfo.tenant?.id}&type=extra_property`)}
                 title="Adquiere cupo para +1 propiedad por $79.99 MXN"
-                style={{ padding: '8px 16px', borderRadius: '50px', border: '1px solid #69db7c', background: 'rgba(105,219,124,0.15)', color: '#69db7c', fontWeight: 900, cursor: 'pointer', fontSize: '0.82rem', transition: 'all 0.2s' }}>
+                style={{ padding: '10px 18px', borderRadius: '50px', border: '2px solid #FF6600', background: '#FF6600', color: '#FFFFFF', fontWeight: 900, cursor: 'pointer', fontSize: '0.86rem', boxShadow: '0 4px 15px rgba(255,102,0,0.5)', transition: 'all 0.2s' }}>
                 ➕ COMPRAR PROPIEDAD EXTRA ($79.99)
               </button>
             )}
 
             {(subInfo.days_remaining <= 45 || user?.role_id === 2) && (
               <button onClick={() => navigate(`/activacion-cuenta?${user?.role_id === 2 ? `user_id=${user.id}&type=technician` : `tenant_id=${subInfo.tenant?.id}`}`)}
-                style={{ padding: '8px 18px', borderRadius: '50px', border: 'none', background: '#f26522', color: '#fff', fontWeight: 900, cursor: 'pointer', fontSize: '0.82rem', boxShadow: '0 4px 12px rgba(242,101,34,0.4)' }}>
+                style={{ padding: '10px 20px', borderRadius: '50px', border: 'none', background: '#3B82F6', color: '#FFFFFF', fontWeight: 900, cursor: 'pointer', fontSize: '0.86rem', boxShadow: '0 4px 15px rgba(59,130,246,0.5)' }}>
                 🔄 RENOVAR / ACTIVAR
               </button>
             )}

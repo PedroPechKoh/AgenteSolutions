@@ -34,8 +34,15 @@ const VistaUsuarios = () => {
     try {
       const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/usuarios`);
       const isPersonal = user?.role_id === 5;
+      const isEmpresa  = user?.role_id === 4;
       const formateados = data
-        .filter(u => !(isPersonal && u.role_id === 3)) // Autónomo personal no gestiona clientes
+        .filter(u => {
+          if (isRoot) return true;
+          if (isPersonal) return u.role_id === 2; // Autónomo Personal solo ve Técnicos
+          if (isEmpresa) return u.role_id === 2 || u.role_id === 3; // Autónomo Empresa ve Clientes y Técnicos
+          if (user?.role_id === 1) return u.role_id !== 0 && u.role_id !== 4 && u.role_id !== 5;
+          return true;
+        })
         .map((u) => ({
           id: u.id,
           nombre: `${u.first_name} ${u.last_name || ""}`.trim(),
@@ -137,6 +144,7 @@ const VistaUsuarios = () => {
           
           {CATEGORIAS.filter((cat) => {
             if (!isRoot && cat.label === "ROOTS") return false;
+            if (!isRoot && user?.role_id !== 1 && (cat.label === "ADMINS" || cat.label === "AUTONOMOS")) return false;
             if (user?.role_id === 5 && cat.label === "CLIENTES") return false; // Autónomo Personal no tiene clientes
             return true;
           }).map((cat) => (
@@ -150,21 +158,23 @@ const VistaUsuarios = () => {
             </div>
           ))}
 
-         <div 
-  className="filter-item" 
-  onClick={() => navigate("/map")}
-  style={{ backgroundColor: "#fff4e6", border: "1px solid #FF6600", margin: 0, width: "100%" }}
->
-  <span className="icon-box">🗺️</span> VER MAPA
-</div>
+          <div 
+            className="filter-item" 
+            onClick={() => navigate("/map")}
+            style={{ backgroundColor: "#fff4e6", border: "1px solid #FF6600", margin: 0, width: "100%" }}
+          >
+            <span className="icon-box">🗺️</span> VER MAPA
+          </div>
 
-<div 
-  className="filter-item" 
-  onClick={() => setShowRegisterModal(true)}
-  style={{ backgroundColor: "#fff4e6", border: "1px solid #FF6600", margin: 0, width: "100%" }}
->
-  <span className="icon-box">📝</span> REGISTRAR
-</div>
+          {user?.role_id !== 5 && (
+            <div 
+              className="filter-item" 
+              onClick={() => setShowRegisterModal(true)}
+              style={{ backgroundColor: "#fff4e6", border: "1px solid #FF6600", margin: 0, width: "100%" }}
+            >
+              <span className="icon-box">📝</span> REGISTRAR
+            </div>
+          )}
         </div>
 
         <UniversalSearch 
