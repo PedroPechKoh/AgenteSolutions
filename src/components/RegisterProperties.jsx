@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
 import Swal from "sweetalert2";
+import ModalCompraEspacios from "./Shared/ModalCompraEspacios";
 import {
   Home,
   MapPin,
@@ -42,6 +43,8 @@ const libraries = ["places"];
 
 const RegisterProperties = () => {
   const navigate = useNavigate(); 
+  const [mostrarModalCompraEspacios, setMostrarModalCompraEspacios] = useState(false);
+  const [subInfo, setSubInfo] = useState(null);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData;
@@ -53,6 +56,7 @@ const RegisterProperties = () => {
       .then(r => {
         if (r.data.success) {
           const sub = r.data;
+          setSubInfo(sub);
           const maxAllowed = (sub.max_properties ?? 3) + (sub.extra_properties_count ?? 0);
           if (sub.properties_count >= maxAllowed) {
             Swal.fire({
@@ -66,7 +70,7 @@ const RegisterProperties = () => {
               cancelButtonText: 'Regresar a Propiedades'
             }).then((result) => {
               if (result.isConfirmed) {
-                navigate(`/activacion-cuenta?tenant_id=${sub.tenant?.id}&type=extra_property`);
+                setMostrarModalCompraEspacios(true);
               } else {
                 navigate('/propiedades');
               }
@@ -838,6 +842,13 @@ const RegisterProperties = () => {
           </div>
         </div>
       )}
+
+      <ModalCompraEspacios
+        isOpen={mostrarModalCompraEspacios}
+        onClose={() => setMostrarModalCompraEspacios(false)}
+        tenantId={subInfo?.tenant?.id || 1}
+        userId={JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData?.id}
+      />
     </div>
   );
 };

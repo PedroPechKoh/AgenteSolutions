@@ -4,6 +4,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import UniversalSearch from "../Shared/UniversalSearch"; 
 import Header from "../Shared/Header"; 
+import ModalCompraEspacios from "../Shared/ModalCompraEspacios";
 import "../../styles/Admin/VistaPropiedades.css";
 import { X, CheckCircle, User, AlertTriangle, ListChecks, Clock, CheckCircle2, LayoutDashboard, ChevronLeft } from "lucide-react";
 
@@ -21,6 +22,7 @@ const VistaPropiedades = () => {
   const [listaPropiedades, setListaPropiedades] = useState([]);
   const [propiedadesFiltradas, setPropiedadesFiltradas] = useState([]);
   const [subInfo, setSubInfo] = useState(null);
+  const [mostrarModalCompraEspacios, setMostrarModalCompraEspacios] = useState(false);
 
   const [mostrarModalServicio, setMostrarModalServicio] = useState(false);
   const [propiedadSeleccionada, setPropiedadSeleccionada] = useState(null);
@@ -281,7 +283,7 @@ const VistaPropiedades = () => {
               {isLimitReached ? (
                 <button 
                   className="pc-add-btn" 
-                  onClick={() => navigate(`/activacion-cuenta?tenant_id=${subInfo?.tenant?.id}&type=extra_property`)}
+                  onClick={() => setMostrarModalCompraEspacios(true)}
                   style={{ background: 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)', border: '2px solid #FF6600', boxShadow: '0 4px 15px rgba(255,102,0,0.5)' }}
                 >
                   <span>🔒</span> COMPRAR ESPACIO PROPIEDAD ($79.99)
@@ -319,7 +321,7 @@ const VistaPropiedades = () => {
                     +
                   </button>
                   <button
-                    onClick={() => navigate(`/activacion-cuenta?tenant_id=${subInfo?.tenant?.id}&type=extra_property`)}
+                    onClick={() => setMostrarModalCompraEspacios(true)}
                     style={{
                       padding: '12px 20px', borderRadius: '50px', border: '2px solid #FF6600',
                       background: 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)', color: '#FFFFFF',
@@ -797,6 +799,13 @@ const VistaPropiedades = () => {
           </div>
         </div>
       )}
+
+      <ModalCompraEspacios
+        isOpen={mostrarModalCompraEspacios}
+        onClose={() => setMostrarModalCompraEspacios(false)}
+        tenantId={subInfo?.tenant?.id || user?.tenant_id || 1}
+        userId={user?.id}
+      />
     </div>
   );
 };
