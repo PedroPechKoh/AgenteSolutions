@@ -17,6 +17,7 @@ const ActivacionCuenta = () => {
   const [prefData, setPrefData]   = useState(null);
   const [error, setError]         = useState('');
   const [planOption, setPlanOption] = useState('monthly'); // 'monthly' vs 'annual'
+  const [extraQuantity, setExtraQuantity] = useState(1);
   const [bgSettings, setBgSettings] = useState({ colorHex: '#0f0f0f', imageUrl: null, appLogo: null });
 
   useEffect(() => {
@@ -36,7 +37,7 @@ const ActivacionCuenta = () => {
       const targetId = tenantId || userId || 1;
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/mercadopago/subscription/${targetId}`,
-        { plan_option: planOption, type: typeParam, user_id: userId },
+        { plan_option: planOption, type: typeParam, user_id: userId, quantity: extraQuantity },
         { headers: { Origin: origin } }
       );
       setPrefData(res.data);
@@ -122,33 +123,52 @@ const ActivacionCuenta = () => {
             </p>
           </>
         ) : isExtraProperty ? (
-          /* ─── COMPRA PROPIEDAD EXTRA (+1) ─── */
+          /* ─── COMPRA PROPIEDAD EXTRA (+N) ─── */
           <>
             <div style={{ width: 72, height: 72, borderRadius: '50%', background: 'rgba(242,101,34,0.15)', border: '2px solid #f26522', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto' }}>
               <CreditCard size={38} color="#f26522" />
             </div>
             <h2 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 900, fontStyle: 'italic', margin: '0 0 8px 0' }}>
-              🏠 AMPLIACIÓN DE PORTAFOLIO (+1)
+              🏠 AMPLIACIÓN DE PORTAFOLIO (+{extraQuantity})
             </h2>
             <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '1rem', margin: '0 0 16px 0' }}>
-              Adquiere 1 Propiedad Extra en tu Plan Personal
+              Adquiere Espacios para Propiedades en tu Plan Personal
             </p>
             <p style={{ color: '#aaa', fontSize: '0.9rem', lineHeight: 1.7, marginBottom: 20 }}>
-              Has alcanzado el límite actual de propiedades en tu cuenta. Para agregar una nueva propiedad y seguir gestionando órdenes y técnicos, realiza el pago único o adicional por propiedad.
+              Selecciona cuántos espacios de propiedad deseas agregar a tu cuenta. Cada espacio adicional tiene un costo único de <strong>$79.99 MXN</strong>.
             </p>
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '18px', marginBottom: 24, textAlign: 'left' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#eee', fontSize: '1.05rem', fontWeight: 'bold' }}>
-                <span>Costo de 1 Propiedad Extra:</span>
-                <span style={{ color: '#5cb85c' }}>$79.99 MXN</span>
+
+            {/* ─── SELECTOR DE CANTIDAD ─── */}
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '18px', marginBottom: 24, textAlign: 'center' }}>
+              <label style={{ color: '#ccc', fontSize: '0.88rem', fontWeight: 'bold', display: 'block', marginBottom: 12 }}>
+                ¿Cuántos espacios de propiedad necesitas?
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 18, marginBottom: 16 }}>
+                <button 
+                  type="button" 
+                  onClick={() => setExtraQuantity(Math.max(1, extraQuantity - 1))}
+                  style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid #f26522', background: 'rgba(242,101,34,0.2)', color: '#fff', fontWeight: 'bold', fontSize: '1.4rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >-</button>
+                <span style={{ fontSize: '1.9rem', fontWeight: 900, color: '#f26522', minWidth: '45px', display: 'inline-block' }}>{extraQuantity}</span>
+                <button 
+                  type="button" 
+                  onClick={() => setExtraQuantity(extraQuantity + 1)}
+                  style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid #f26522', background: 'rgba(242,101,34,0.2)', color: '#fff', fontWeight: 'bold', fontSize: '1.4rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >+</button>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#eee', fontSize: '1.1rem', fontWeight: 'bold', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 14 }}>
+                <span>Total a Pagar ({extraQuantity} {extraQuantity === 1 ? 'espacio' : 'espacios'}):</span>
+                <span style={{ color: '#5cb85c' }}>${(79.99 * extraQuantity).toFixed(2)} MXN</span>
               </div>
             </div>
+
             {error && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: 14 }}>{error}</p>}
             <button onClick={handlePagar} disabled={loading}
               style={{ width: '100%', padding: '16px', borderRadius: '50px', border: 'none', backgroundColor: '#f26522', color: '#fff', fontWeight: 900, fontSize: '1.1rem', cursor: loading ? 'not-allowed' : 'pointer', letterSpacing: 1, boxShadow: '0 8px 24px rgba(242,101,34,0.4)', transition: 'transform 0.2s' }}
               onMouseOver={e => !loading && (e.currentTarget.style.transform = 'scale(1.02)')}
               onMouseOut={e => (e.currentTarget.style.transform = 'scale(1)')}
             >
-              {loading ? 'GENERANDO ENLACE...' : '💳 PAGAR $79.99 CON MERCADOPAGO'}
+              {loading ? 'GENERANDO ENLACE...' : `💳 PAGAR ${(79.99 * extraQuantity).toFixed(2)} CON MERCADOPAGO`}
             </button>
           </>
         ) : isTechnician ? (

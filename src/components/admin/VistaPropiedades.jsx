@@ -20,6 +20,7 @@ const VistaPropiedades = () => {
   const [cargando, setCargando] = useState(true);
   const [listaPropiedades, setListaPropiedades] = useState([]);
   const [propiedadesFiltradas, setPropiedadesFiltradas] = useState([]);
+  const [subInfo, setSubInfo] = useState(null);
 
   const [mostrarModalServicio, setMostrarModalServicio] = useState(false);
   const [propiedadSeleccionada, setPropiedadSeleccionada] = useState(null);
@@ -70,12 +71,25 @@ const VistaPropiedades = () => {
 
       setListaPropiedades(propsRes.data);
       setGlobalStats(statsRes.data);
+
+      if (user?.role_id === 4 || user?.role_id === 5) {
+        axios.get(`${import.meta.env.VITE_API_BASE_URL}/tenant/subscription-status`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(r => { if (r.data.success) setSubInfo(r.data); })
+          .catch(() => {});
+      }
     } catch (error) {
       console.error("Error al cargar datos:", error);
     } finally {
       setCargando(false);
     }
   };
+
+  const maxAllowed = (subInfo?.max_properties ?? 3) + (subInfo?.extra_properties_count ?? 0);
+  const currentCount = subInfo?.properties_count ?? listaPropiedades.length;
+  const isPersonalOrAutonomo = user?.role_id === 5 || user?.role_id === 4;
+  const isLimitReached = isPersonalOrAutonomo && (currentCount >= maxAllowed);
 
   // Lógica de filtrado manual combinando categoría y búsqueda del sidebar
   useEffect(() => {
@@ -264,16 +278,26 @@ const VistaPropiedades = () => {
             </div>
             
             <div className="pc-dashboard-actions">
-              <button className="pc-add-btn" onClick={() => navigate("/registro-propiedades")}>
-                 <span>+</span> AGREGAR PROPIEDAD
-              </button>
+              {isLimitReached ? (
+                <button 
+                  className="pc-add-btn" 
+                  onClick={() => navigate(`/activacion-cuenta?tenant_id=${subInfo?.tenant?.id}&type=extra_property`)}
+                  style={{ background: 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)', border: '2px solid #FF6600', boxShadow: '0 4px 15px rgba(255,102,0,0.5)' }}
+                >
+                  <span>🔒</span> COMPRAR ESPACIO PROPIEDAD ($79.99)
+                </button>
+              ) : (
+                <button className="pc-add-btn" onClick={() => navigate("/registro-propiedades")}>
+                   <span>+</span> AGREGAR PROPIEDAD
+                </button>
+              )}
             </div>
           </div>
         )}
 
-        {/* Solo para Admin: Buscador y Botón Circular */}
+        {/* Solo para Admin / Autónomo: Buscador y Botón Circular */}
         {!isClient && (
-           <div className="search-header-flex">
+           <div className="search-header-flex" style={{ flexWrap: 'wrap', gap: '14px' }}>
               <div className="search-container-center">
                 <UniversalSearch
                   type="PROPIEDADES"
@@ -283,13 +307,38 @@ const VistaPropiedades = () => {
                   placeholder="PROPIEDADES"
                 />
               </div>
-              <button
-                className="btn-add-circle"
-                onClick={() => navigate("/registro-propiedades")}
-                title="NUEVA PROPIEDAD"
-              >
-                +
-              </button>
+
+              {isLimitReached ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <button
+                    className="btn-add-circle"
+                    disabled
+                    style={{ backgroundColor: '#64748b', borderColor: '#475569', cursor: 'not-allowed', opacity: 0.5 }}
+                    title="Límite de propiedades alcanzado"
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={() => navigate(`/activacion-cuenta?tenant_id=${subInfo?.tenant?.id}&type=extra_property`)}
+                    style={{
+                      padding: '12px 20px', borderRadius: '50px', border: '2px solid #FF6600',
+                      background: 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)', color: '#FFFFFF',
+                      fontWeight: 900, cursor: 'pointer', fontSize: '0.88rem',
+                      boxShadow: '0 6px 20px rgba(255,102,0,0.5)', display: 'flex', alignItems: 'center', gap: '8px'
+                    }}
+                  >
+                    🔒 REQUIERE NUEVA PROPIEDAD: COMPRAR ESPACIO ($79.99 c/u)
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="btn-add-circle"
+                  onClick={() => navigate("/registro-propiedades")}
+                  title="NUEVA PROPIEDAD"
+                >
+                  +
+                </button>
+              )}
            </div>
         )}
 

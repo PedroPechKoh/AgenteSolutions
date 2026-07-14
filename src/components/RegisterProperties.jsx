@@ -1,5 +1,6 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
+import Swal from "sweetalert2";
 import {
   Home,
   MapPin,
@@ -41,6 +42,40 @@ const libraries = ["places"];
 
 const RegisterProperties = () => {
   const navigate = useNavigate(); 
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData;
+    if (user?.role_id === 4 || user?.role_id === 5) {
+      const token = localStorage.getItem('agente_token');
+      axios.get(`${import.meta.env.VITE_API_BASE_URL}/tenant/subscription-status`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(r => {
+        if (r.data.success) {
+          const sub = r.data;
+          const maxAllowed = (sub.max_properties ?? 3) + (sub.extra_properties_count ?? 0);
+          if (sub.properties_count >= maxAllowed) {
+            Swal.fire({
+              title: '🔒 LÍMITE ALCANZADO',
+              text: `Has registrado ${sub.properties_count} de ${maxAllowed} propiedades permitidas en tu plan. Para agregar una nueva propiedad, adquiere un espacio extra por $79.99 MXN c/u.`,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#FF6600',
+              cancelButtonColor: '#64748b',
+              confirmButtonText: '➕ COMPRAR ESPACIOS ($79.99)',
+              cancelButtonText: 'Regresar a Propiedades'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                navigate(`/activacion-cuenta?tenant_id=${sub.tenant?.id}&type=extra_property`);
+              } else {
+                navigate('/propiedades');
+              }
+            });
+          }
+        }
+      }).catch(() => {});
+    }
+  }, [navigate]); 
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
