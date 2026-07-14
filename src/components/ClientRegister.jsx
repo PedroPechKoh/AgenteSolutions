@@ -60,16 +60,17 @@ const ClientRegister = () => {
 
     if (password !== confirmPassword) { setMessage("Error: Las contraseñas no coinciden."); return; }
     if (!isCaptchaValid) { setMessage("Error: Por favor verifica que no eres un robot."); return; }
-    if (accountType === "owner" && !companyName.trim() && !firstName.trim()) {
-      setMessage("Error: Por favor ingresa tu nombre o el nombre de tu propiedad/negocio."); return;
+    if ((accountType === "owner" || accountType === "owner_business") && !companyName.trim() && !firstName.trim()) {
+      setMessage("Error: Por favor ingresa el nombre de tu negocio/empresa."); return;
     }
 
     setIsLoading(true);
 
-    const roleMap = { client: 3, technician: 2, owner: 5 };
+    const roleMap = { client: 3, technician: 2, owner: 5, owner_personal: 5, owner_business: 4 };
     const roleId  = roleMap[accountType] ?? 3;
 
     try {
+      const isAutonomoAccount = (roleId === 5 || roleId === 4);
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/registro-usuario`, {
         first_name:   firstName.trim(),
         last_name:    lastName.trim(),
@@ -77,8 +78,8 @@ const ClientRegister = () => {
         phone_number: phone,
         password,
         role_id:      roleId,
-        company_code: accountType !== 'owner' ? companyCode.trim() || null : null,
-        company_name: accountType === 'owner' ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null
+        company_code: !isAutonomoAccount ? companyCode.trim() || null : null,
+        company_name: isAutonomoAccount ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null
       });
 
       setIsLoading(false);
@@ -188,27 +189,31 @@ const ClientRegister = () => {
             </h2>
 
             {/* ─── Selector de tipo de cuenta ─── */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', width: '100%' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', width: '100%' }}>
               {[
-                { key: 'client',     icon: '👤', label: 'SOY CLIENTE',      sub: 'Contrato servicios' },
-                { key: 'technician', icon: '🛠️', label: 'SOY TÉCNICO',      sub: 'Presto servicios' },
-                { key: 'owner',      icon: '🏠', label: 'SOY PROPIETARIO',  sub: 'Gestiono mis propiedades' },
-              ].map(({ key, icon, label, sub }) => (
-                <button key={key} type="button" onClick={() => setAccountType(key)}
-                  style={{
-                    padding: '12px 8px', borderRadius: '16px', cursor: 'pointer',
-                    border: accountType === key ? '2px solid #f26522' : '2px solid rgba(255,255,255,0.08)',
-                    backgroundColor: accountType === key ? 'rgba(242,101,34,0.18)' : 'rgba(255,255,255,0.04)',
-                    color: accountType === key ? '#f26522' : '#bbb',
-                    fontWeight: 900, fontStyle: 'italic', fontSize: '0.78rem', textAlign: 'center',
-                    transition: 'all 0.25s', boxShadow: accountType === key ? '0 0 14px rgba(242,101,34,0.3)' : 'none'
-                  }}
-                >
-                  <div style={{ fontSize: '1.6rem', marginBottom: 4 }}>{icon}</div>
-                  <div>{label}</div>
-                  <div style={{ fontWeight: 'normal', fontStyle: 'normal', fontSize: '0.68rem', color: accountType === key ? '#f9a97e' : '#777', marginTop: 2 }}>{sub}</div>
-                </button>
-              ))}
+                { key: 'client',         icon: '👤', label: 'SOY CLIENTE',         sub: 'Contrato servicios' },
+                { key: 'technician',     icon: '🛠️', label: 'SOY TÉCNICO',         sub: 'Presto servicios' },
+                { key: 'owner_personal', icon: '🏠', label: 'PROPIETARIO PERSONAL', sub: '3 Propiedades ($299/m)' },
+                { key: 'owner_business', icon: '🏢', label: 'AUTÓNOMO EMPRESA',    sub: '30 Clientes ($935/m)' },
+              ].map(({ key, icon, label, sub }) => {
+                const isSelected = accountType === key || (key === 'owner_personal' && accountType === 'owner');
+                return (
+                  <button key={key} type="button" onClick={() => setAccountType(key)}
+                    style={{
+                      padding: '12px 6px', borderRadius: '16px', cursor: 'pointer',
+                      border: isSelected ? '2px solid #f26522' : '2px solid rgba(255,255,255,0.08)',
+                      backgroundColor: isSelected ? 'rgba(242,101,34,0.18)' : 'rgba(255,255,255,0.04)',
+                      color: isSelected ? '#f26522' : '#bbb',
+                      fontWeight: 900, fontStyle: 'italic', fontSize: '0.76rem', textAlign: 'center',
+                      transition: 'all 0.25s', boxShadow: isSelected ? '0 0 14px rgba(242,101,34,0.3)' : 'none'
+                    }}
+                  >
+                    <div style={{ fontSize: '1.6rem', marginBottom: 4 }}>{icon}</div>
+                    <div style={{ lineHeight: 1.2 }}>{label}</div>
+                    <div style={{ fontWeight: 'normal', fontStyle: 'normal', fontSize: '0.67rem', color: isSelected ? '#f9a97e' : '#777', marginTop: 3 }}>{sub}</div>
+                  </button>
+                );
+              })}
             </div>
 
             {/* ─── Panel de beneficios dinámico ─── */}
@@ -222,7 +227,6 @@ const ClientRegister = () => {
                   <li>✅ Historial completo por propiedad</li>
                   <li style={{ color: '#5cb85c' }}>🆓 Registro completamente gratuito</li>
                 </ul>
-                {/* Campo de código de empresa (opcional) */}
                 <div style={{ marginTop: 14 }}>
                   <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>🔑 ¿Tienes un código de empresa? <span style={{ color: '#555' }}>(Opcional)</span></label>
                   <input type="text" placeholder="Ej: AUT_E_001 — déjalo vacío para Agente Solutions"
@@ -253,19 +257,37 @@ const ClientRegister = () => {
               </div>
             )}
 
-            {accountType === 'owner' && (
+            {(accountType === 'owner' || accountType === 'owner_personal') && (
               <div style={{ background: 'rgba(242,101,34,0.07)', border: '1px solid rgba(242,101,34,0.25)', borderRadius: 14, padding: '14px 18px', width: '100%', boxSizing: 'border-box' }}>
-                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>🏠 Propietario — ¿Qué incluye?</p>
+                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>👑 Propietario Personal — ¿Qué incluye?</p>
                 <ul style={{ margin: 0, paddingLeft: 18, color: '#ccc', fontSize: '0.82rem', lineHeight: 1.8 }}>
                   <li style={{ color: '#5cb85c', fontWeight: 'bold', fontSize: '0.88rem' }}>🎁 ¡INCLUYE 6 MESES GRATIS DE PRUEBA!</li>
-                  <li>✅ Registra hasta <strong>3 propiedades</strong> *(+$79.99 por extra)*</li>
-                  <li>✅ Agrega tus técnicos propios sin límite</li>
-                  <li>✅ Dashboard de administración y cotizaciones</li>
+                  <li>✅ Registra hasta <strong>3 propiedades</strong> *(+$79.99 por propiedad extra)*</li>
+                  <li>✅ Agrega tus técnicos e ingenieros propios sin límite</li>
+                  <li>✅ Dashboard de administración, cotizaciones y evidencias</li>
                   <li style={{ color: '#f9a97e' }}>💳 Después de 6 meses: <strong>$299 MXN/mes</strong> o <strong>$3,229/año (-10%)</strong></li>
                 </ul>
+                <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: 8, borderLeft: '3px solid #f26522' }}>
+                  <p style={{ margin: 0, fontSize: '0.76rem', color: '#bbb', fontStyle: 'italic' }}>
+                    ℹ️ No requieres ingresar el nombre de la propiedad aquí; lo harás directamente en tu panel al iniciar sesión.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {accountType === 'owner_business' && (
+              <div style={{ background: 'rgba(242,101,34,0.1)', border: '1px solid rgba(242,101,34,0.35)', borderRadius: 14, padding: '14px 18px', width: '100%', boxSizing: 'border-box' }}>
+                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>🏢 Autónomo Empresarial — ¿Qué incluye?</p>
+                <ul style={{ margin: 0, paddingLeft: 18, color: '#ccc', fontSize: '0.82rem', lineHeight: 1.8 }}>
+                  <li style={{ color: '#5cb85c', fontWeight: 'bold', fontSize: '0.88rem' }}>🎁 ¡INCLUYE 6 MESES GRATIS DE PRUEBA!</li>
+                  <li>✅ Administra hasta <strong>30 clientes / propiedades</strong></li>
+                  <li>✅ Agrega técnicos y colaboradores sin límite de usuarios</li>
+                  <li>✅ Gestión de portafolio, cotizaciones en línea y reportes en vivo</li>
+                  <li style={{ color: '#f9a97e' }}>💳 Después de 6 meses: <strong>$935 MXN/mes</strong> o <strong>$10,200/año</strong></li>
+                </ul>
                 <div style={{ marginTop: 14 }}>
-                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>🏢 Nombre de tu negocio / empresa <span style={{ color: '#555' }}>(Opcional)</span></label>
-                  <input type="text" placeholder="Ej: Mis Propiedades CDMX — o déjalo vacío"
+                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>🏢 Nombre de tu Empresa / Negocio Inmobiliario <span style={{ color: '#555' }}>(Opcional)</span></label>
+                  <input type="text" placeholder="Ej: Inmobiliaria & Mantenimiento CDMX — o déjalo vacío"
                     value={companyName} onChange={e => setCompanyName(e.target.value)}
                     style={{ width: '100%', padding: '10px 14px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.83rem', boxSizing: 'border-box' }}
                   />
