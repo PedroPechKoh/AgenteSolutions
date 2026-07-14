@@ -36,7 +36,7 @@ const LoginAgente = () => {
   // 1. AUTO-LOGIN: Si ya existe sesión, redirigir según el rol
   useEffect(() => {
     if (user) {
-      if (user.role_id === 0 || user.role_id === 4) navigate("/VistaRoot"); // Root o Autónomo
+      if (user.role_id === 0 || user.role_id === 4 || user.role_id === 5) navigate("/VistaRoot"); // Root o Autónomo
       else if (user.role_id === 1) navigate("/VistaAdmin");
       else if (user.role_id === 2) navigate("/VistaTecnico");
       else if (user.role_id === 3) navigate("/propiedades");
@@ -109,8 +109,9 @@ const handleLogin = async (e) => {
       if (role_id === 0) {
         setMensaje(`¡Bienvenido ROOT ${first_name}! Entrando al panel principal...`);
         setTimeout(() => navigate("/VistaRoot"), 1000);
-      } else if (role_id === 4) {
-        setMensaje(`¡Bienvenido AUTÓNOMO ${first_name}! Entrando a tu panel de empresa...`);
+      } else if (role_id === 4 || role_id === 5) {
+        const typeLabel = role_id === 5 ? 'AUTÓNOMO PERSONAL' : 'AUTÓNOMO EMPRESARIAL';
+        setMensaje(`¡Bienvenido ${typeLabel} ${first_name}! Entrando a tu panel...`);
         setTimeout(() => navigate("/VistaRoot"), 1000);
       } else if (role_id === 1) {
         setMensaje(`¡Bienvenido ADMIN ${first_name}! Entrando al panel administrativo...`);
@@ -130,6 +131,10 @@ const handleLogin = async (e) => {
       
       if (error.response) {
         if (error.response.status === 403) {
+          if (error.response.data?.blocked && error.response.data?.tenant_id) {
+            navigate(`/activacion-cuenta?tenant_id=${error.response.data.tenant_id}`);
+            return;
+          }
           setMensaje(`Error: ${error.response.data.error || 'Acceso denegado.'}`);
         } else if (error.response.status === 401) {
           setMensaje(`Error: ${error.response.data.message || 'Credenciales incorrectas.'}`);

@@ -14,11 +14,9 @@ const ClientRegister = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Nuevos estados para Multi-Tenant y Rol
-  const [accountType, setAccountType] = useState("client"); // 'client' (3), 'technician' (2), o 'autonomo' (4)
+  // 'client' (3), 'technician' (2), 'owner' (5)
+  const [accountType, setAccountType] = useState("client");
   const [companyName, setCompanyName] = useState("");
-  const [tenants, setTenants] = useState([]);
-  const [selectedTenantId, setSelectedTenantId] = useState("");
   const [companyCode, setCompanyCode] = useState("");
   const [isPendingApproval, setIsPendingApproval] = useState(false);
 
@@ -32,33 +30,9 @@ const ClientRegister = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchSettingsAndTenants = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`);
-        if (response.data.success) {
-          setBackgroundSettings(response.data.settings);
-        }
-      } catch (error) {
-        console.error("Error al cargar configuraciones visuales:", error);
-      }
-
-      try {
-        const resTenants = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/tenants/public-list`);
-        if (resTenants.data.success) {
-          setTenants(resTenants.data.tenants);
-          // Reemplazar o cargar de localStorage si existe
-          const savedTenant = localStorage.getItem("agente_tenant_selected");
-          if (savedTenant) {
-            const parsed = JSON.parse(savedTenant);
-            setSelectedTenantId(parsed.id || "");
-            setCompanyCode(parsed.code || "");
-          }
-        }
-      } catch (error) {
-        console.error("Error al cargar empresas:", error);
-      }
-    };
-    fetchSettingsAndTenants();
+    axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`)
+      .then(r => { if (r.data.success) setBackgroundSettings(r.data.settings); })
+      .catch(() => {});
   }, []);
 
   const handleCaptchaChange = (value) => {
@@ -84,54 +58,47 @@ const ClientRegister = () => {
     e.preventDefault();
     setMessage("");
 
-    if (password !== confirmPassword) {
-      setMessage("Error: Las contraseñas no coinciden.");
-      return;
-    }
-
-    if (!isCaptchaValid) {
-      setMessage("Error: Por favor verifica que no eres un robot.");
-      return;
-    }
-
-    if (accountType === "autonomo" && !companyName.trim()) {
-      setMessage("Error: Por favor ingresa el nombre de tu Empresa o Negocio.");
-      return;
+    if (password !== confirmPassword) { setMessage("Error: Las contraseñas no coinciden."); return; }
+    if (!isCaptchaValid) { setMessage("Error: Por favor verifica que no eres un robot."); return; }
+    if (accountType === "owner" && !companyName.trim() && !firstName.trim()) {
+      setMessage("Error: Por favor ingresa tu nombre o el nombre de tu propiedad/negocio."); return;
     }
 
     setIsLoading(true);
 
+    const roleMap = { client: 3, technician: 2, owner: 5 };
+    const roleId  = roleMap[accountType] ?? 3;
+
     try {
-      const roleId = accountType === "autonomo" ? 4 : (accountType === "client" ? 3 : 2);
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/registro-usuario`,
-        {
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          email,
-          phone_number: phone,
-          password,
-          role_id: roleId,
-          company_code: companyCode,
-          tenant_id: selectedTenantId ? parseInt(selectedTenantId) : null,
-          company_name: accountType === "autonomo" ? companyName.trim() : null
-        }
-      );
-      
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/registro-usuario`, {
+        first_name:   firstName.trim(),
+        last_name:    lastName.trim(),
+        email,
+        phone_number: phone,
+        password,
+        role_id:      roleId,
+        company_code: accountType !== 'owner' ? companyCode.trim() || null : null,
+        company_name: accountType === 'owner' ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null
+      });
+
       setIsLoading(false);
 
-      if (res.data.status === "pending_approval" || roleId === 2) {
+      if (res.data.status === 'pending_payment') {
+        // Autónomo: redirigir a pantalla de pago
+        navigate(`/activacion-cuenta?tenant_id=${res.data.tenant_id}`);
+      } else if (res.data.status === 'pending_approval' || roleId === 2) {
         setIsPendingApproval(true);
+      } else if (roleId === 5 || roleId === 4) {
+        setMessage('🎉 ¡Registro exitoso con 6 MESES GRATIS activos! Redirigiendo para iniciar sesión...');
+        setTimeout(() => navigate('/'), 2200);
       } else {
-        setMessage(accountType === "autonomo" ? "¡Solicitud de Empresa enviada! Redirigiendo al portal..." : "¡Registro exitoso! Redirigiendo al inicio de sesión...");
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
+        setMessage('¡Registro exitoso! Redirigiendo al inicio de sesión...');
+        setTimeout(() => navigate('/'), 2000);
       }
     } catch (error) {
       setIsLoading(false);
-      console.error(error.response?.data);
-      alert("Error del servidor: " + (error.response?.data?.error || error.response?.data?.message || "Error desconocido"));
+      const msg = error.response?.data?.errors ? Object.values(error.response.data.errors).flat().join(' ') : (error.response?.data?.message || 'Error del servidor.');
+      setMessage('Error: ' + msg);
     }
   };
 
@@ -220,75 +187,92 @@ const ClientRegister = () => {
               CREAR CUENTA <i className="fas fa-chess-queen-alt"></i>
             </h2>
 
-            {/* Selector de Tipo de Cuenta */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', width: '100%' }}>
-              <button
-                type="button"
-                onClick={() => setAccountType('client')}
-                style={{
-                  width: '100%',
-                  padding: '14px 10px',
-                  borderRadius: '50px',
-                  border: accountType === 'client' ? '3px solid #f26522' : '3px solid transparent',
-                  backgroundColor: accountType === 'client' ? '#f26522' : '#cfd3d8',
-                  color: accountType === 'client' ? '#fff' : '#333333',
-                  fontWeight: '900',
-                  fontStyle: 'italic',
-                  fontSize: '0.95rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  transition: 'all 0.3s',
-                  boxShadow: accountType === 'client' ? '0 0 15px rgba(242, 101, 34, 0.6)' : 'none'
-                }}
-              >
-                <UserCheck size={20} style={{ flexShrink: 0 }} /> SOY CLIENTE
-              </button>
-              <button
-                type="button"
-                onClick={() => setAccountType('technician')}
-                style={{
-                  width: '100%',
-                  padding: '14px 10px',
-                  borderRadius: '50px',
-                  border: accountType === 'technician' ? '3px solid #f26522' : '3px solid transparent',
-                  backgroundColor: accountType === 'technician' ? '#f26522' : '#cfd3d8',
-                  color: accountType === 'technician' ? '#fff' : '#333333',
-                  fontWeight: '900',
-                  fontStyle: 'italic',
-                  fontSize: '0.95rem',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  transition: 'all 0.3s',
-                  boxShadow: accountType === 'technician' ? '0 0 15px rgba(242, 101, 34, 0.6)' : 'none'
-                }}
-              >
-                <Briefcase size={20} style={{ flexShrink: 0 }} /> SOY TÉCNICO
-              </button>
+            {/* ─── Selector de tipo de cuenta ─── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', width: '100%' }}>
+              {[
+                { key: 'client',     icon: '👤', label: 'SOY CLIENTE',      sub: 'Contrato servicios' },
+                { key: 'technician', icon: '🛠️', label: 'SOY TÉCNICO',      sub: 'Presto servicios' },
+                { key: 'owner',      icon: '🏠', label: 'SOY PROPIETARIO',  sub: 'Gestiono mis propiedades' },
+              ].map(({ key, icon, label, sub }) => (
+                <button key={key} type="button" onClick={() => setAccountType(key)}
+                  style={{
+                    padding: '12px 8px', borderRadius: '16px', cursor: 'pointer',
+                    border: accountType === key ? '2px solid #f26522' : '2px solid rgba(255,255,255,0.08)',
+                    backgroundColor: accountType === key ? 'rgba(242,101,34,0.18)' : 'rgba(255,255,255,0.04)',
+                    color: accountType === key ? '#f26522' : '#bbb',
+                    fontWeight: 900, fontStyle: 'italic', fontSize: '0.78rem', textAlign: 'center',
+                    transition: 'all 0.25s', boxShadow: accountType === key ? '0 0 14px rgba(242,101,34,0.3)' : 'none'
+                  }}
+                >
+                  <div style={{ fontSize: '1.6rem', marginBottom: 4 }}>{icon}</div>
+                  <div>{label}</div>
+                  <div style={{ fontWeight: 'normal', fontStyle: 'normal', fontSize: '0.68rem', color: accountType === key ? '#f9a97e' : '#777', marginTop: 2 }}>{sub}</div>
+                </button>
+              ))}
             </div>
 
-            {/* Selector de Empresa / Autónomo */}
-            <div className="input-group">
-              <Building2 size={20} className="input-icon" />
-              <select
-                className="custom-input"
-                value={selectedTenantId}
-                onChange={handleTenantSelect}
-                style={{ width: '100%', padding: '14px 15px 14px 50px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.95rem', cursor: 'pointer', boxSizing: 'border-box' }}
-              >
-                <option value="">🏢 AGENTE SOLUTIONS (EMPRESA OFICIAL)</option>
-                {tenants.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    🏢 {t.name} ({t.code})
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* ─── Panel de beneficios dinámico ─── */}
+            {accountType === 'client' && (
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 14, padding: '14px 18px', width: '100%', boxSizing: 'border-box' }}>
+                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>👤 Cliente — ¿Qué incluye?</p>
+                <ul style={{ margin: 0, paddingLeft: 18, color: '#ccc', fontSize: '0.82rem', lineHeight: 1.8 }}>
+                  <li>✅ Solicita servicios de mantenimiento</li>
+                  <li>✅ Sigue el estado de tus órdenes en vivo</li>
+                  <li>✅ Recibe y aprueba cotizaciones</li>
+                  <li>✅ Historial completo por propiedad</li>
+                  <li style={{ color: '#5cb85c' }}>🆓 Registro completamente gratuito</li>
+                </ul>
+                {/* Campo de código de empresa (opcional) */}
+                <div style={{ marginTop: 14 }}>
+                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>🔑 ¿Tienes un código de empresa? <span style={{ color: '#555' }}>(Opcional)</span></label>
+                  <input type="text" placeholder="Ej: AUT_E_001 — déjalo vacío para Agente Solutions"
+                    value={companyCode} onChange={e => setCompanyCode(e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.83rem', boxSizing: 'border-box' }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {accountType === 'technician' && (
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 14, padding: '14px 18px', width: '100%', boxSizing: 'border-box' }}>
+                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>🛠️ Técnico — ¿Qué incluye?</p>
+                <ul style={{ margin: 0, paddingLeft: 18, color: '#ccc', fontSize: '0.82rem', lineHeight: 1.8 }}>
+                  <li style={{ color: '#5cb85c', fontWeight: 'bold' }}>🎁 ¡INCLUYE 1 AÑO (12 MESES) GRATIS DE PRUEBA!</li>
+                  <li>✅ Recibe y gestiona órdenes de trabajo</li>
+                  <li>✅ Genera cotizaciones y reportes fotográficos</li>
+                  <li>✅ Cuota después de 1 año: <strong>$99 MXN/mes</strong> *(exento si eres de Agente Solutions)*</li>
+                  <li style={{ color: '#aaa' }}>⏳ Tu perfil será aprobado por tu empresa o Root</li>
+                </ul>
+                <div style={{ marginTop: 14 }}>
+                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>🔑 Código de tu empresa <span style={{ color: '#f26522' }}>*</span></label>
+                  <input type="text" placeholder="Ingresa el código que te dio tu empresa"
+                    value={companyCode} onChange={e => setCompanyCode(e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.83rem', boxSizing: 'border-box' }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {accountType === 'owner' && (
+              <div style={{ background: 'rgba(242,101,34,0.07)', border: '1px solid rgba(242,101,34,0.25)', borderRadius: 14, padding: '14px 18px', width: '100%', boxSizing: 'border-box' }}>
+                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>🏠 Propietario — ¿Qué incluye?</p>
+                <ul style={{ margin: 0, paddingLeft: 18, color: '#ccc', fontSize: '0.82rem', lineHeight: 1.8 }}>
+                  <li style={{ color: '#5cb85c', fontWeight: 'bold', fontSize: '0.88rem' }}>🎁 ¡INCLUYE 6 MESES GRATIS DE PRUEBA!</li>
+                  <li>✅ Registra hasta <strong>3 propiedades</strong> *(+$79.99 por extra)*</li>
+                  <li>✅ Agrega tus técnicos propios sin límite</li>
+                  <li>✅ Dashboard de administración y cotizaciones</li>
+                  <li style={{ color: '#f9a97e' }}>💳 Después de 6 meses: <strong>$299 MXN/mes</strong> o <strong>$3,229/año (-10%)</strong></li>
+                </ul>
+                <div style={{ marginTop: 14 }}>
+                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>🏢 Nombre de tu negocio / empresa <span style={{ color: '#555' }}>(Opcional)</span></label>
+                  <input type="text" placeholder="Ej: Mis Propiedades CDMX — o déjalo vacío"
+                    value={companyName} onChange={e => setCompanyName(e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.83rem', boxSizing: 'border-box' }}
+                  />
+                </div>
+              </div>
+            )}
+
 
             <div className="form-row-responsive">
               <div className="input-group">

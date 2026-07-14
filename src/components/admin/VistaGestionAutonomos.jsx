@@ -17,6 +17,43 @@ const VistaGestionAutonomos = () => {
   const [suspendOld, setSuspendOld] = useState(false);
   const [transfering, setTransfering] = useState(false);
 
+  const [editingPlanTenant, setEditingPlanTenant] = useState(null);
+  const [planForm, setPlanForm] = useState({
+    membership_type: 'autonomo_empresarial',
+    subscription_amount: '',
+    max_properties: 30,
+    extra_properties_count: 0,
+    max_clients: 30,
+    subscription_expires_at: ''
+  });
+
+  const handleOpenPlanModal = (t) => {
+    setEditingPlanTenant(t);
+    setPlanForm({
+      membership_type: t.membership_type || 'autonomo_empresarial',
+      subscription_amount: t.subscription_amount || 935.00,
+      max_properties: t.max_properties ?? 30,
+      extra_properties_count: t.extra_properties_count ?? 0,
+      max_clients: t.max_clients ?? 30,
+      subscription_expires_at: t.subscription_expires_at ? t.subscription_expires_at.split(' ')[0] : ''
+    });
+  };
+
+  const handleSavePlan = async (e) => {
+    e.preventDefault();
+    if (!editingPlanTenant) return;
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/tenants/${editingPlanTenant.id}/update-subscription-plan`, planForm);
+      if (res.data.success) {
+        alert('✅ ' + res.data.message);
+        setEditingPlanTenant(null);
+        fetchData();
+      }
+    } catch (error) {
+      alert('Error: ' + (error.response?.data?.error || error.message));
+    }
+  };
+
   const navigate = useNavigate();
 
   const fetchData = async () => {
@@ -289,10 +326,20 @@ const VistaGestionAutonomos = () => {
                         <p style={{ margin: '8px 0', color: '#555', display: 'flex', alignItems: 'flex-start', gap: '8px', overflowWrap: 'anywhere' }}>
                           <Mail size={16} color="#FF6600" style={{ flexShrink: 0, marginTop: '3px' }} /> <span style={{ wordBreak: 'break-all' }}><strong>Correo:</strong> {t.email || 'N/A'}</span>
                         </p>
-                        <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#F9F9F9', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px', color: '#555', fontSize: '0.85rem' }}>
-                          <ShieldCheck size={18} color="#4CAF50" style={{ flexShrink: 0 }} />
-                          <span>Aislamiento de datos activo vía Global Scopes.</span>
+                        <div style={{ marginTop: '12px', padding: '10px', backgroundColor: '#fff3e0', borderRadius: '8px', fontSize: '0.86rem', borderLeft: '4px solid #FF6600' }}>
+                          <div style={{ fontWeight: 'bold', color: '#d84a00', marginBottom: '4px', textTransform: 'uppercase' }}>
+                            👑 {t.membership_type === 'autonomo_fundador' ? 'Plan Fundador ($659/m)' : t.membership_type === 'autonomo_personal' ? 'Plan Personal ($299/m)' : 'Plan Empresarial ($935/m)'}
+                          </div>
+                          <div style={{ color: '#555' }}>🏠 Propiedades: <strong>{t.max_properties ?? 3}</strong> (+{t.extra_properties_count ?? 0} extras)</div>
+                          <div style={{ color: '#555' }}>👥 Clientes: <strong>{t.max_clients ?? 30}</strong></div>
+                          <div style={{ color: '#555' }}>📅 Vence: <strong>{t.subscription_expires_at ? new Date(t.subscription_expires_at).toLocaleDateString('es-ES') : 'Indefinido'}</strong></div>
                         </div>
+                        <button
+                          onClick={() => handleOpenPlanModal(t)}
+                          style={{ width: '100%', marginTop: '12px', padding: '10px', backgroundColor: '#333', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.85rem' }}
+                        >
+                          ⚙️ Configurar Plan, Fechas y Límites
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -389,6 +436,81 @@ const VistaGestionAutonomos = () => {
               </div>
             )}
           </>
+        )}
+
+        {/* MODAL CONFIGURACIÓN DE PLAN Y LÍMITES */}
+        {editingPlanTenant && (
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '15px', boxSizing: 'border-box' }}>
+            <div style={{ backgroundColor: '#fff', borderRadius: '18px', padding: '28px', maxWidth: '520px', width: '100%', boxShadow: '0 15px 35px rgba(0,0,0,0.4)', maxHeight: '90vh', overflowY: 'auto' }}>
+              <h3 style={{ margin: '0 0 16px 0', color: '#333', fontSize: '1.3rem' }}>⚙️ Configurar Plan para: {editingPlanTenant.name}</h3>
+              <form onSubmit={handleSavePlan}>
+                <div style={{ marginBottom: '14px' }}>
+                  <label style={{ display: 'block', fontWeight: 'bold', fontSize: '0.88rem', color: '#555', marginBottom: '6px' }}>Tipo de Membresía / Plan:</label>
+                  <select
+                    value={planForm.membership_type}
+                    onChange={e => {
+                      const type = e.target.value;
+                      let amount = 935.00;
+                      let props = 30;
+                      let clients = 30;
+                      if (type === 'autonomo_fundador') { amount = 659.00; props = 9999; clients = 9999; }
+                      else if (type === 'autonomo_personal') { amount = 299.00; props = 3; clients = 9999; }
+                      setPlanForm({ ...planForm, membership_type: type, subscription_amount: amount, max_properties: props, max_clients: clients });
+                    }}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', fontSize: '0.92rem', fontWeight: 'bold' }}
+                  >
+                    <option value="autonomo_personal">👑 Plan Personal ($299/m | 3 propiedades)</option>
+                    <option value="autonomo_empresarial">🏢 Plan Empresarial ($935/m | 30 clientes)</option>
+                    <option value="autonomo_fundador">🌟 Plan Fundador ($659/m | Ilimitado | $3,600 complet. año)</option>
+                  </select>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 'bold', fontSize: '0.85rem', color: '#555', marginBottom: '6px' }}>Límite Propiedades:</label>
+                    <input type="number" value={planForm.max_properties} onChange={e => setPlanForm({ ...planForm, max_properties: parseInt(e.target.value) || 0 })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 'bold', fontSize: '0.85rem', color: '#555', marginBottom: '6px' }}>Propiedades Extra (+1):</label>
+                    <input type="number" value={planForm.extra_properties_count} onChange={e => setPlanForm({ ...planForm, extra_properties_count: parseInt(e.target.value) || 0 })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 'bold', fontSize: '0.85rem', color: '#555', marginBottom: '6px' }}>Límite Clientes:</label>
+                    <input type="number" value={planForm.max_clients} onChange={e => setPlanForm({ ...planForm, max_clients: parseInt(e.target.value) || 0 })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: 'bold', fontSize: '0.85rem', color: '#555', marginBottom: '6px' }}>Cuota Mensual ($ MXN):</label>
+                    <input type="number" step="0.01" value={planForm.subscription_amount} onChange={e => setPlanForm({ ...planForm, subscription_amount: parseFloat(e.target.value) || 0 })}
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc' }} />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{ display: 'block', fontWeight: 'bold', fontSize: '0.88rem', color: '#555', marginBottom: '6px' }}>📅 Fecha de Vencimiento / Próximo Pago:</label>
+                  <input type="date" value={planForm.subscription_expires_at} onChange={e => setPlanForm({ ...planForm, subscription_expires_at: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ccc', fontWeight: 'bold' }} />
+                  <span style={{ fontSize: '0.78rem', color: '#888' }}>* Puedes ampliar o reducir el periodo de prueba o fecha límite de pago aquí.</span>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                  <button type="button" onClick={() => setEditingPlanTenant(null)}
+                    style={{ padding: '10px 18px', borderRadius: '8px', border: 'none', background: '#e0e0e0', color: '#333', fontWeight: 'bold', cursor: 'pointer' }}>
+                    Cancelar
+                  </button>
+                  <button type="submit"
+                    style={{ padding: '10px 22px', borderRadius: '8px', border: 'none', background: '#FF6600', color: '#fff', fontWeight: 900, cursor: 'pointer' }}>
+                    💾 GUARDAR CAMBIOS
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </div>
     </div>

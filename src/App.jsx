@@ -9,6 +9,7 @@ import VistaInicioAdmin from "./components/VistaInicioAdmin";
 import Profile from "./components/Shared/Profile";
 import Map from "./components/Map";
 import RegistroCliente from "./components/ClientRegister";
+import ActivacionCuenta from "./components/ActivacionCuenta";
 import CustomizeLogin from "./components/CustomizeLogin";
 import AssignServiceForm from "./components/AssignServiceForm";
 import VistaNotificaciones from "./components/Shared/VistaNotificaciones"; 
@@ -105,6 +106,7 @@ useEffect(() => {
     <Routes>
       <Route path="/" element={<LoginAgente />} />
       <Route path="/registro-cliente" element={<RegistroCliente />} />
+      <Route path="/activacion-cuenta" element={<ActivacionCuenta />} />
 
       {/* RUTA COMPARTIDA PROPIEDADES */}
       <Route path="/propiedades" element={

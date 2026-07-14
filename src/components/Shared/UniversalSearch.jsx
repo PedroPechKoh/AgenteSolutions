@@ -11,8 +11,14 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
       let coincideFiltro = true;
       
       if (type === 'USUARIOS') {
-        const rolBuscado = filtroActual === "ROOTS" ? "ROOT" : filtroActual.replace("S", "");
-        coincideFiltro = filtroActual === "TODOS" || item.rol === rolBuscado;
+        if (filtroActual === "TODOS") {
+          coincideFiltro = true;
+        } else if (filtroActual === "AUTONOMOS") {
+          coincideFiltro = item.role_id === 4 || item.role_id === 5 || (typeof item.rol === 'string' && item.rol.includes("AUTONOMO"));
+        } else {
+          const rolBuscado = filtroActual === "ROOTS" ? "ROOT" : filtroActual.replace("S", "");
+          coincideFiltro = item.rol === rolBuscado;
+        }
         
       } else if (type === 'PROPIEDADES') {
         coincideFiltro = filtroActual === "TODAS" || item.tipo === filtroActual;

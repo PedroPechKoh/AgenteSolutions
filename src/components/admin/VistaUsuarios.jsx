@@ -8,7 +8,7 @@ import Header from "../Shared/Header";
 import RegisterModal from "../Register";
 import "../../styles/Admin/VistaUsuarios.css";
 
-const MAPA_ROLES = { 0: "ROOT", 1: "ADMIN", 2: "TECNICO", 3: "CLIENTE", 4: "AUTONOMO" };
+const MAPA_ROLES = { 0: "ROOT", 1: "ADMIN", 2: "TECNICO", 3: "CLIENTE", 4: "AUTONOMO EMP.", 5: "AUTONOMO PER." };
 
 const CATEGORIAS = [
   { label: "TODOS", icon: "👥" },
@@ -33,17 +33,20 @@ const VistaUsuarios = () => {
   const obtenerUsuarios = async () => {
     try {
       const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/usuarios`);
-      const formateados = data.map((u) => ({
-        id: u.id,
-        nombre: `${u.first_name} ${u.last_name || ""}`.trim(),
-        correo: u.email,
-        rol: MAPA_ROLES[u.role_id] || "DESCONOCIDO",
-        role_id: u.role_id,
-        estado: u.is_active ? "Activo" : "Inactivo",
-        bloqueado: u.is_active === 0,
-        profile_picture_url: u.profile_picture_url,
-        telefono: u.phone_number || "",
-      }));
+      const isPersonal = user?.role_id === 5;
+      const formateados = data
+        .filter(u => !(isPersonal && u.role_id === 3)) // Autónomo personal no gestiona clientes
+        .map((u) => ({
+          id: u.id,
+          nombre: `${u.first_name} ${u.last_name || ""}`.trim(),
+          correo: u.email,
+          rol: MAPA_ROLES[u.role_id] || "DESCONOCIDO",
+          role_id: u.role_id,
+          estado: u.is_active ? "Activo" : "Inactivo",
+          bloqueado: u.is_active === 0,
+          profile_picture_url: u.profile_picture_url,
+          telefono: u.phone_number || "",
+        }));
       setListaUsuarios(formateados);
     } catch (error) {
       console.error("Error al cargar los usuarios:", error);
@@ -132,7 +135,11 @@ const VistaUsuarios = () => {
           marginBottom: '20px' 
         }}>
           
-          {CATEGORIAS.filter((cat) => isRoot || cat.label !== "ROOTS").map((cat) => (
+          {CATEGORIAS.filter((cat) => {
+            if (!isRoot && cat.label === "ROOTS") return false;
+            if (user?.role_id === 5 && cat.label === "CLIENTES") return false; // Autónomo Personal no tiene clientes
+            return true;
+          }).map((cat) => (
             <div 
               key={cat.label} 
               className={`filter-item ${filtro === cat.label ? "active" : ""}`} 
@@ -223,16 +230,31 @@ const VistaUsuarios = () => {
                     <td data-label="Rol">
                       {u.role_id === 0 ? (
                         <span className="badge-rol root">ROOT</span>
-                      ) : u.role_id === 4 ? (
-                        <span className="badge-rol autonomo">AUTÓNOMO</span>
-                      ) : (
+                      ) : isRoot ? (
                         <select 
-                          className={`badge-rol ${u.rol.toLowerCase()} select-rol-inline`}
+                          className={`badge-rol select-rol-inline`}
+                          style={{ backgroundColor: u.role_id === 4 || u.role_id === 5 ? '#f26522' : '#3b82f6', color: '#fff', fontWeight: 'bold' }}
                           value={u.role_id}
                           onChange={(e) => cambiarRol(u.id, parseInt(e.target.value), u.nombre)}
                         >
                           <option value="1">ADMIN</option>
-                          <option value="2">TECNICO</option>
+                          <option value="2">TÉCNICO</option>
+                          <option value="3">CLIENTE</option>
+                          <option value="4">AUT. EMPRESARIAL ($999)</option>
+                          <option value="5">AUT. PERSONAL ($499)</option>
+                        </select>
+                      ) : u.role_id === 4 ? (
+                        <span className="badge-rol autonomo">AUT. EMPRESARIAL</span>
+                      ) : u.role_id === 5 ? (
+                        <span className="badge-rol autonomo">AUT. PERSONAL</span>
+                      ) : (
+                        <select 
+                          className={`badge-rol ${typeof u.rol === 'string' ? u.rol.toLowerCase() : ''} select-rol-inline`}
+                          value={u.role_id}
+                          onChange={(e) => cambiarRol(u.id, parseInt(e.target.value), u.nombre)}
+                        >
+                          <option value="1">ADMIN</option>
+                          <option value="2">TÉCNICO</option>
                           <option value="3">CLIENTE</option>
                         </select>
                       )}
@@ -244,7 +266,7 @@ const VistaUsuarios = () => {
                     </td>
 
                     <td data-label="Acciones" className="actions-cell">
-                      {u.role_id === 0 || (u.role_id === 4 && !isRoot) ? (
+                      {u.role_id === 0 || ((u.role_id === 4 || u.role_id === 5) && !isRoot) ? (
                         <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
                           🔒 Protegido
                         </span>
