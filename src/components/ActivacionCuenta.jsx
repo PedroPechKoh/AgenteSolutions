@@ -37,7 +37,7 @@ const ActivacionCuenta = () => {
       const targetId = tenantId || userId || 1;
       const res = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/mercadopago/subscription/${targetId}`,
-        { plan_option: planOption, type: typeParam, user_id: userId, quantity: extraQuantity },
+        { plan_option: planOption, type: typeParam, ...(userId ? { user_id: userId } : {}), quantity: extraQuantity },
         { headers: { Origin: origin } }
       );
       setPrefData(res.data);
