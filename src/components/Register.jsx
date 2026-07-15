@@ -27,7 +27,6 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
-  const [showForm, setShowForm] = useState(true); // show by default for existing behavior
   const gridRef = useRef(null);
   const cardRefs = useRef({});
 
@@ -52,6 +51,14 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         'Recibe y aprueba cotizaciones',
         'Historial por propiedad',
       ],
+      details: [
+        'Solicita técnicos certificados',
+        'Aproba cotizaciones en la app',
+        'Sigue tu orden en tiempo real',
+        'Historial por propiedad',
+        'Registro 100% gratuito'
+      ],
+      note: 'Registro gratis para clientes con seguimiento en vivo y historial por propiedad.',
       cta: 'Registrarme',
       color: '#F26522'
     },
@@ -61,6 +68,14 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       subtitle: 'Presto servicios',
       price: 'Perfil',
       features: ['Recibe órdenes', 'Administra tu agenda', 'Calificaciones y perfil'],
+      details: [
+        '12 meses gratis de prueba',
+        'Perfil visible a clientes',
+        'Gestiona órdenes y agenda',
+        'Envía cotizaciones desde la app',
+        'Especialidades y código de empresa'
+      ],
+      note: '12 meses gratis y perfil profesional para captar clientes y gestionar órdenes.',
       cta: 'Suscribirme',
       color: '#6B7280'
     },
@@ -70,6 +85,14 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       subtitle: '3 Propiedades',
       price: '$299/m',
       features: ['Añade propiedades', 'Historial completo', 'Administración simple'],
+      details: [
+        '6 meses gratis de prueba',
+        'Registra hasta 3 propiedades',
+        'Invita técnicos propios',
+        'Dashboard de administración',
+        'Pago $299 MXN/mes después'
+      ],
+      note: '6 meses gratis para propietarios personales con control de hasta 3 propiedades.',
       cta: 'Suscribirme',
       color: '#1F6FEB'
     },
@@ -79,6 +102,14 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       subtitle: '30 Clientes',
       price: '$935/m',
       features: ['Gestiona clientes', 'Reportes', 'Panel empresarial'],
+      details: [
+        '6 meses gratis de prueba',
+        'Administra hasta 30 clientes',
+        'Usuarios y técnicos sin límite',
+        'Reportes y cotizaciones en línea',
+        'Pago $935 MXN/mes después'
+      ],
+      note: '6 meses gratis para empresas con clientes ilimitados y reportes inteligentes.',
       cta: 'Suscribirme',
       color: '#0F766E'
     }
@@ -324,9 +355,6 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         .modal-overlay .card-front, .modal-overlay .card-back{ position: relative; width:100%; height:100%; }
 
         /* Form show/hide animation */
-        .modal-overlay .register-form.hidden { opacity: 0; max-height: 0; overflow: hidden; transform: translateY(10px); transition: all 0.35s ease; }
-        .modal-overlay .register-form.visible { opacity: 1; max-height: 2000px; transform: translateY(0); transition: all 0.45s cubic-bezier(.2,.9,.2,1); }
-
         .modal-overlay .toggle-password-btn {
           position: absolute;
           right: 15px;
@@ -422,33 +450,43 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
                 style={{ borderTop: `4px solid ${p.color}`, boxShadow: selectedRole === p.id ? `0 18px 40px rgba(0,0,0,0.6), 0 6px 18px ${p.color}33` : undefined }}
               >
                 <div className="card-inner" style={{ transition: 'transform 0.6s', transformStyle: 'preserve-3d', position: 'relative' }}>
-                  <div className="card-front" style={{ backfaceVisibility: 'hidden' }} onClick={() => { setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); centerCard(cardRefs.current[p.id]); }}>
+                  <div className="card-front" style={{ backfaceVisibility: 'hidden' }} onClick={() => { setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); centerCard(cardRefs.current[p.id]); }}>
                     <div className="plan-head">
                       <div className="plan-title">{p.title}</div>
                       <div className="plan-sub">{p.subtitle}</div>
                     </div>
                     <div className="plan-price">{p.price}</div>
+                    <div style={{ fontSize: '0.82rem', color: '#d9d9d9', marginTop: '6px', minHeight: '44px' }}>{p.note}</div>
                     <ul className="plan-features">
                       {p.features.map((f, i) => (<li key={i}>{f}</li>))}
                     </ul>
                     <div style={{ width: '100%' }}>
-                      <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(false); centerCard(cardRefs.current[p.id]); setFlippedRole(p.id); }}>{p.cta}</button>
+                      <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); centerCard(cardRefs.current[p.id]); setFlippedRole(p.id); }}>{p.cta}</button>
                     </div>
                   </div>
 
-                  <div className="card-back" style={{ position: 'absolute', top:0, left:0, width:'100%', height:'100%', padding:'12px', boxSizing:'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
+                  <div className="card-back" style={{ position: 'absolute', top:0, left:0, width:'100%', height:'100%', padding:'12px', boxSizing:'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', overflowY: 'auto' }}>
                     <div style={{ color: '#ffd9b8', fontWeight: 900, marginBottom: 6 }}>{p.title} — ¿Qué incluye?</div>
                     <ul style={{ color: '#dcdcdc', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: 8 }}>
-                      {p.features.map((f,i)=>(<li key={i}>• {f}</li>))}
+                      {p.details.map((f,i)=>(<li key={i}>• {f}</li>))}
                     </ul>
+                    <div style={{ color: '#d9d9d9', fontSize: '0.85rem', marginBottom: 12 }}>{p.note}</div>
                     <form onSubmit={handleRegistro} style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                      <input name="first_name" required placeholder="NOMBRE(S)" value={formData.first_name} onChange={handleChange} style={{ padding:'8px 10px', borderRadius:20 }} />
-                      <input name="last_name" required placeholder="APELLIDOS" value={formData.last_name} onChange={handleChange} style={{ padding:'8px 10px', borderRadius:20 }} />
-                      <input name="email" required type="email" placeholder="CORREO" value={formData.email} onChange={handleChange} style={{ padding:'8px 10px', borderRadius:20 }} />
-                      <input name="password" required type="password" placeholder="CONTRASEÑA" value={formData.password} onChange={handleChange} style={{ padding:'8px 10px', borderRadius:20 }} />
+                      <input name="first_name" required placeholder="NOMBRE(S)" value={formData.first_name} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
+                      <input name="last_name" required placeholder="APELLIDOS" value={formData.last_name} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
+                      <input name="email" required type="email" placeholder="CORREO" value={formData.email} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
+                      <input name="phone_number" required type="tel" placeholder="TELÉFONO" value={formData.phone_number} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
+                      <input name="password" required type="password" placeholder="CONTRASEÑA" value={formData.password} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
+                      <input name="confirmPassword" required type="password" placeholder="CONFIRMA CONTRASEÑA" value={formData.confirmPassword} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
+                      {(p.id === 3 || p.id === 2) && (
+                        <input name="company_code" value={formData.company_code} onChange={handleChange} placeholder="Código de empresa (Opcional)" type="text" style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
+                      )}
+                      {p.id === 4 && (
+                        <input name="company_name" value={formData.company_name} onChange={handleChange} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
+                      )}
                       <div style={{ display:'flex', gap:8 }}>
                         <button type="submit" className="plan-cta" style={{ flex:1 }}>{isLoading ? '...' : 'Registrar'}</button>
-                        <button type="button" onClick={() => { setFlippedRole(null); setShowForm(true); }} style={{ padding:'8px 10px', borderRadius:20, background:'#333', color:'#fff' }}>Cancelar</button>
+                        <button type="button" onClick={() => { setFlippedRole(null); }} style={{ padding:'8px 10px', borderRadius:20, background:'#333', color:'#fff' }}>Cancelar</button>
                       </div>
                     </form>
                   </div>
@@ -457,166 +495,6 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
             );
           })}
         </div>
-
-        <form onSubmit={handleRegistro} className={`register-form ${showForm ? 'visible' : 'hidden'}`}>
-          <h2 className="form-title">REGISTRAR USUARIO</h2>
-
-          <div className="form-row-responsive">
-            <div className="input-group">
-              <User size={20} className="input-icon" />
-              <input 
-                type="text" name="first_name" placeholder="NOMBRE(S)" 
-                className="custom-input"
-                value={formData.first_name} onChange={handleChange} required
-                autoComplete="off"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-bitwarden-ignore="true"
-              />
-            </div>
-            <div className="input-group">
-              <input 
-                type="text" name="last_name" placeholder="APELLIDOS" 
-                className="custom-input no-icon-input"
-                value={formData.last_name} onChange={handleChange} required
-                autoComplete="off"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-bitwarden-ignore="true"
-              />
-            </div>
-          </div>
-
-          <div className="form-row-responsive">
-            <div className="input-group">
-              <Mail size={20} className="input-icon" />
-              <input 
-                type="email" name="email" placeholder="CORREO ELECTRÓNICO" 
-                className="custom-input"
-                value={formData.email} onChange={handleChange} required
-                autoComplete="off"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-bitwarden-ignore="true"
-              />
-            </div>
-            <div className="input-group">
-              <Phone size={20} className="input-icon" />
-              <input 
-                type="tel" name="phone_number" placeholder="TELÉFONO" 
-                className="custom-input"
-                value={formData.phone_number} onChange={handleChange} required
-                autoComplete="off"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-bitwarden-ignore="true"
-              />
-            </div>
-          </div>
-
-          <div className="form-row-responsive">
-            <div className="input-group">
-              <Lock size={20} className="input-icon" />
-              <input 
-                type={showPassword ? "text" : "password"} name="password" placeholder="CONTRASEÑA (Min. 6)" 
-                className="custom-input"
-                value={formData.password} onChange={handleChange} required minLength="6"
-                autoComplete="new-password"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-bitwarden-ignore="true"
-              />
-              <button type="button" className="toggle-password-btn" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            <div className="input-group">
-              <Lock size={20} className="input-icon" />
-              <input 
-                type={showConfirmPassword ? "text" : "password"} name="confirmPassword" placeholder="CONFIRMAR CONTRASEÑA" 
-                className="custom-input"
-                value={formData.confirmPassword} onChange={handleChange} required minLength="6"
-                autoComplete="new-password"
-                data-lpignore="true"
-                data-1p-ignore="true"
-                data-bitwarden-ignore="true"
-              />
-              <button type="button" className="toggle-password-btn" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <div className="input-group" style={{ marginBottom: "20px", display: 'none' }}>
-            <Shield size={20} className="input-icon" />
-            <select 
-              name="role_id" className="custom-select"
-              value={formData.role_id} onChange={handleChange} required
-              data-lpignore="true"
-              data-1p-ignore="true"
-              data-bitwarden-ignore="true"
-            >
-              {isRoot && <option value={0}>ROOT (Nivel 0)</option>}
-              <option value={1}>ADMINISTRADOR (Nivel 1)</option>
-              <option value={2}>TÉCNICO / VENDEDOR (Nivel 2)</option>
-              <option value={3}>CLIENTE (Nivel 3)</option>
-              <option value={4}>AUTÓNOMO EMPRESARIAL ($935/m | 6 meses gratis - Nivel 4)</option>
-              <option value={5}>AUTÓNOMO PERSONAL ($299/m | 6 meses gratis - Nivel 5)</option>
-            </select>
-          </div>
-
-          {(parseInt(formData.role_id) === 4 || parseInt(formData.role_id) === 5) && (
-            <div style={{ background: '#fff7ed', border: '1px solid #fdba74', padding: '16px', borderRadius: '12px', marginBottom: '20px' }}>
-              <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#c2410c', textTransform: 'uppercase', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                🏢 Datos para Autónomo ({parseInt(formData.role_id) === 5 ? 'Personal ($299/m tras 6 meses gratis)' : 'Empresarial ($935/m tras 6 meses gratis)'})
-              </div>
-              {parseInt(formData.role_id) === 4 && (
-                <div className="input-group" style={{ marginBottom: "12px" }}>
-                  <input 
-                    type="text" 
-                    name="company_name" 
-                    placeholder="NOMBRE DE LA EMPRESA / NEGOCIO" 
-                    className="custom-input"
-                    style={{ paddingLeft: '15px' }}
-                    value={formData.company_name || ''} 
-                    onChange={handleChange} 
-                    required
-                  />
-                </div>
-              )}
-              {parseInt(formData.role_id) === 5 && (
-                <div style={{ fontSize: '0.78rem', color: '#854d0e', fontStyle: 'italic', marginBottom: '12px' }}>
-                  ℹ️ El Propietario Personal no requiere nombre de empresa aquí; gestionará y nombrará sus propiedades directamente en su panel al iniciar sesión.
-                </div>
-              )}
-              <div className="input-group" style={{ margin: 0 }}>
-                <input 
-                  type="text" 
-                  name="company_code" 
-                  placeholder={parseInt(formData.role_id) === 5 ? "CÓDIGO PERSONALIZADO (ej. AUT_P_101)" : "CÓDIGO PERSONALIZADO (ej. AUT_E_101)"} 
-                  className="custom-input"
-                  style={{ paddingLeft: '15px' }}
-                  value={formData.company_code || ''} 
-                  onChange={handleChange} 
-                  required
-                />
-              </div>
-              <div style={{ fontSize: '0.7rem', color: '#9a3412', marginTop: '8px', fontWeight: 'bold' }}>
-                * El código de empresa se autogenera si se deja vacío, o puedes personalizarlo.
-              </div>
-            </div>
-          )}
-
-          <button type="submit" className="btn-registrar" disabled={isLoading}>
-            {isLoading ? "REGISTRANDO..." : "REGISTRAR"}
-          </button>
-
-          {mensaje && (
-            <p className={`msg-box ${tipoMensaje}`}>
-              {mensaje}
-            </p>
-          )}
-        </form>
       </div>
     </div>
   );

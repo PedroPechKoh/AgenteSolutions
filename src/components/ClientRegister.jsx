@@ -43,7 +43,6 @@ const ClientRegister = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000', appLogo: null });
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [showForm, setShowForm] = useState(true);
   const gridRef = useRef(null);
   const cardRefs = useRef({});
   const [flipped, setFlipped] = useState(null);
@@ -57,10 +56,46 @@ const ClientRegister = () => {
   };
 
   const plans = [
-    { key: 'client', label: 'SOY CLIENTE', sub: 'Contrata servicios', features: ['Solicita servicios', 'Sigue órdenes', 'Recibe cotizaciones', 'Historial por propiedad'], cta: 'Registrarme', color: '#F26522' },
-    { key: 'technician', label: 'SOY TÉCNICO', sub: 'Presto servicios', features: ['Recibe órdenes', 'Agenda', 'Genera cotizaciones'], cta: 'Suscribirme', color: '#6B7280' },
-    { key: 'owner_personal', label: 'PROPIETARIO PERSONAL', sub: '3 Propiedades', features: ['Registra propiedades', 'Dashboard', 'Soporte'], cta: 'Suscribirme', color: '#1F6FEB' },
-    { key: 'owner_business', label: 'AUTÓNOMO EMPRESA', sub: '30 Clientes', features: ['Gestiona clientes', 'Reportes', 'Usuarios ilimitados'], cta: 'Suscribirme', color: '#0F766E' }
+    {
+      key: 'client',
+      label: 'SOY CLIENTE',
+      sub: 'Contrata servicios',
+      note: 'Solicitud gratis + seguimiento completo de órdenes y propiedades',
+      features: ['Solicita servicios', 'Sigue órdenes', 'Recibe cotizaciones', 'Historial por propiedad'],
+      details: ['Solicita técnicos certificados', 'Aproba cotizaciones en la app', 'Sigue tu orden en tiempo real', 'Historial por propiedad', 'Registro 100% gratuito'],
+      cta: 'Registrarme',
+      color: '#F26522'
+    },
+    {
+      key: 'technician',
+      label: 'SOY TÉCNICO',
+      sub: 'Presto servicios',
+      note: '1 año gratis de prueba + perfil profesional visible',
+      features: ['Recibe órdenes', 'Agenda tu trabajo', 'Genera reportes'],
+      details: ['12 meses gratis de prueba', 'Perfil visible a clientes', 'Gestiona órdenes y agenda', 'Envía cotizaciones desde la app', 'Especialidades y código de empresa'],
+      cta: 'Suscribirme',
+      color: '#6B7280'
+    },
+    {
+      key: 'owner_personal',
+      label: 'PROPIETARIO PERSONAL',
+      sub: '3 Propiedades',
+      note: '6 meses gratis y control total de tu portafolio',
+      features: ['Registra propiedades', 'Dashboard administrativo', 'Soporte dedicado'],
+      details: ['6 meses gratis de prueba', 'Registra hasta 3 propiedades', 'Invita técnicos propios', 'Dashboard de administración', 'Pago $299 MXN/mes después'],
+      cta: 'Suscribirme',
+      color: '#1F6FEB'
+    },
+    {
+      key: 'owner_business',
+      label: 'AUTÓNOMO EMPRESA',
+      sub: '30 Clientes',
+      note: 'Gestión empresarial con 6 meses gratis y usuarios ilimitados',
+      features: ['Gestiona clientes', 'Reportes avanzados', 'Usuarios ilimitados'],
+      details: ['6 meses gratis de prueba', 'Administra hasta 30 clientes', 'Usuarios y técnicos sin límite', 'Reportes y cotizaciones en línea', 'Pago $935 MXN/mes después'],
+      cta: 'Suscribirme',
+      color: '#0F766E'
+    }
   ];
 
   const navigate = useNavigate();
@@ -201,8 +236,7 @@ const ClientRegister = () => {
             </button>
           </div>
         ) : (
-          <form
-            onSubmit={handleRegister}
+          <div
             className="register-card"
             style={{
               width: '100%',
@@ -228,12 +262,13 @@ const ClientRegister = () => {
             {/* ─── Selector de tipo de cuenta (tarjetas) ─── */}
             <style>{`
               .plan-grid { display:flex; gap:12px; width:100%; overflow-x:auto; padding-bottom:6px; }
-              .plan-card { flex:0 0 180px; width:180px; height:260px; background:linear-gradient(180deg,#0f0f0f,#131313); border-radius:12px; padding:16px; color:#fff; border:1px solid rgba(255,255,255,0.04); box-shadow:0 6px 12px rgba(0,0,0,0.5); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; perspective: 1200px; position: relative; }
+              .plan-card { flex:0 0 180px; width:180px; min-height:320px; background:linear-gradient(180deg,#0f0f0f,#131313); border-radius:12px; padding:16px; color:#fff; border:1px solid rgba(255,255,255,0.04); box-shadow:0 6px 12px rgba(0,0,0,0.5); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; perspective: 1200px; position: relative; }
               .plan-card:not(.active){ transform: scale(.96) translateY(4px); opacity: .95 }
               .plan-card.active{ transform: translateY(-16px) scale(1.06); z-index:20; }
               .plan-card .card-inner{ transition: transform 0.6s cubic-bezier(.2,.9,.2,1); transform-style: preserve-3d; position: relative; }
               .plan-card.flip .card-inner{ transform: rotateY(180deg); }
-              .card-front, .card-back{ position: relative; width:100%; height:100%; }
+              .card-front, .card-back{ position: relative; width:100%; min-height:260px; }
+              .card-back{ overflow-y:auto; }
               .plan-title{ font-weight:900; font-size:1rem }
               .plan-sub{ font-size:.74rem; color:#cfcfcf }
               .plan-features{ margin-top:10px; padding-left:14px; font-size:.78rem; color:#bfcfc0; max-height:84px; overflow:hidden }
@@ -252,30 +287,39 @@ const ClientRegister = () => {
                     style={{ borderTop: `4px solid ${p.color}` }}
                   >
                     <div className="card-inner" style={{ transition: 'transform 0.6s', transformStyle: 'preserve-3d', position: 'relative' }}>
-                      <div className="card-front" style={{ backfaceVisibility: 'hidden' }} onClick={() => { setAccountType(p.key); setSelectedPlan(p.key); setShowForm(true); centerCard(cardRefs.current[p.key]); }}>
+                      <div className="card-front" style={{ backfaceVisibility: 'hidden' }} onClick={() => { setAccountType(p.key); setSelectedPlan(p.key); centerCard(cardRefs.current[p.key]); }}>
                         <div>
                           <div className="plan-title">{p.label}</div>
                           <div className="plan-sub">{p.sub}</div>
                           <ul className="plan-features">{p.features.map((f,i)=>(<li key={i}>{f}</li>))}</ul>
                         </div>
                         <div style={{ width: '100%' }}>
-                          <button type="button" className="plan-cta" onClick={(ev)=>{ ev.stopPropagation(); setAccountType(p.key); setSelectedPlan(p.key); setShowForm(true); centerCard(cardRefs.current[p.key]); setFlipped(p.key); }}>{p.cta}</button>
+                          <button type="button" className="plan-cta" onClick={(ev)=>{ ev.stopPropagation(); setAccountType(p.key); setSelectedPlan(p.key); centerCard(cardRefs.current[p.key]); setFlipped(p.key); }}>{p.cta}</button>
                         </div>
                       </div>
 
                       <div className="card-back" style={{ position: 'absolute', top:0, left:0, width:'100%', height:'100%', padding:'16px', boxSizing:'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
                         <div style={{ color: '#f9f9f9', fontWeight: 800, marginBottom: 8 }}>{p.label} — ¿Qué incluye?</div>
                         <ul style={{ color: '#e6e6e6', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: 8 }}>
-                          {p.features.map((f,i)=> (<li key={i}>• {f}</li>))}
+                          {p.details.map((f,i)=> (<li key={i}>• {f}</li>))}
                         </ul>
-                        <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <input required value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '8px 10px', borderRadius: 20 }} />
-                          <input required value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '8px 10px', borderRadius: 20 }} />
-                          <input required value={email} onChange={e=>setEmail(e.target.value)} placeholder="CORREO" type="email" style={{ padding: '8px 10px', borderRadius: 20 }} />
-                          <input required value={password} onChange={e=>setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '8px 10px', borderRadius: 20 }} />
+                        <div style={{ color: '#d9d9d9', fontSize: '0.85rem', marginBottom: 12 }}>{p.note}</div>
+                        <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: '100%', overflowY: 'auto' }}>
+                          <input required value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                          <input required value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                          <input required value={email} onChange={e=>setEmail(e.target.value)} placeholder="CORREO" type="email" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                          <input required value={phone} onChange={e=>setPhone(e.target.value)} placeholder="TELÉFONO" type="tel" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                          <input required value={password} onChange={e=>setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                          <input required value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder="CONFIRMAR CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                          {(p.key === 'client' || p.key === 'technician') && (
+                            <input value={companyCode} onChange={e=>setCompanyCode(e.target.value)} placeholder="Código de empresa (Opcional)" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                          )}
+                          {p.key === 'owner_business' && (
+                            <input value={companyName} onChange={e=>setCompanyName(e.target.value)} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                          )}
                           <div style={{ display:'flex', gap:8 }}>
-                            <button type="submit" disabled={isLoading} style={{ flex:1, padding: '8px 10px', borderRadius: 20, background: '#f26522', color:'#fff', fontWeight:800 }}>{isLoading? '...' : 'Registrar'}</button>
-                            <button type="button" onClick={(ev)=>{ ev.stopPropagation(); setFlipped(null); setShowForm(true); }} style={{ padding: '8px 10px', borderRadius: 20, background: '#333', color:'#fff' }}>Cancelar</button>
+                            <button type="submit" disabled={isLoading} style={{ flex:1, padding: '10px 14px', borderRadius: 20, background: '#f26522', color:'#fff', fontWeight:800 }}>{isLoading? '...' : 'Registrar'}</button>
+                            <button type="button" onClick={(ev)=>{ ev.stopPropagation(); setFlipped(null); }} style={{ padding: '10px 14px', borderRadius: 20, background: '#333', color:'#fff' }}>Cancelar</button>
                           </div>
                         </form>
                       </div>
@@ -285,276 +329,36 @@ const ClientRegister = () => {
               })}
             </div>
 
-            {/* ─── Panel de beneficios dinámico ─── */}
-            {accountType === 'client' && (
-              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 14, padding: '14px 18px', width: '100%', boxSizing: 'border-box' }}>
-                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>👤 Cliente — ¿Qué incluye?</p>
-                <ul style={{ margin: 0, paddingLeft: 18, color: '#ccc', fontSize: '0.82rem', lineHeight: 1.8 }}>
-                  <li>✅ Solicita servicios de mantenimiento</li>
-                  <li>✅ Sigue el estado de tus órdenes en vivo</li>
-                  <li>✅ Recibe y aprueba cotizaciones</li>
-                  <li>✅ Historial completo por propiedad</li>
-                  <li style={{ color: '#5cb85c' }}>🆓 Registro completamente gratuito</li>
-                </ul>
-                <div style={{ marginTop: 14 }}>
-                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>🔑 ¿Tienes un código de empresa? <span style={{ color: '#555' }}>(Opcional)</span></label>
-                  <input type="text" placeholder="Ej: AUT_E_001 — déjalo vacío para Agente Solutions"
-                    value={companyCode} onChange={e => setCompanyCode(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.83rem', boxSizing: 'border-box' }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {accountType === 'technician' && (
-              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: 14, padding: '14px 18px', width: '100%', boxSizing: 'border-box' }}>
-                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>🛠️ Técnico — ¿Qué incluye?</p>
-                <ul style={{ margin: 0, paddingLeft: 18, color: '#ccc', fontSize: '0.82rem', lineHeight: 1.8 }}>
-                  <li style={{ color: '#5cb85c', fontWeight: 'bold' }}>🎁 ¡INCLUYE 1 AÑO (12 MESES) GRATIS DE PRUEBA!</li>
-                  <li>✅ Recibe y gestiona órdenes de trabajo</li>
-                  <li>✅ Genera cotizaciones y reportes fotográficos</li>
-                  <li>✅ Cuota después de 1 año: <strong>$99 MXN/mes</strong> *(exento si eres de Agente Solutions)*</li>
-                  <li style={{ color: '#aaa' }}>⏳ Tu perfil será aprobado por tu empresa o por Root</li>
-                </ul>
-                <div style={{ marginTop: 14 }}>
-                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>
-                    🔑 Código de tu empresa <span style={{ color: '#aaa', fontWeight: 'normal' }}>(Opcional — déjalo vacío para ir a Agente Solutions)</span>
-                  </label>
-                  <input type="text" placeholder="Ej: AUT_E_001 — o vacío si eres de Agente Solutions"
-                    value={companyCode} onChange={e => setCompanyCode(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.83rem', boxSizing: 'border-box' }}
-                  />
-                </div>
-
-                <div style={{ marginTop: 16 }}>
-                  <label style={{ color: '#f26522', fontSize: '0.78rem', display: 'block', marginBottom: 8, fontWeight: 'bold' }}>
-                    🛠️ SELECCIONA TUS ESPECIALIDADES <span style={{ color: '#aaa', fontWeight: 'normal' }}>(Elige una o más)</span>:
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '180px', overflowY: 'auto', padding: '4px' }}>
-                    {ESPECIALIDADES_CATALOGO.map(spec => {
-                      const isSelected = selectedSpecialties.includes(spec.name);
-                      return (
-                        <button
-                          key={spec.id}
-                          type="button"
-                          onClick={() => {
-                            if (isSelected) {
-                              if (selectedSpecialties.length > 1) {
-                                setSelectedSpecialties(prev => prev.filter(s => s !== spec.name));
-                              }
-                            } else {
-                              setSelectedSpecialties(prev => [...prev, spec.name]);
-                            }
-                          }}
-                          style={{
-                            padding: '6px 12px', borderRadius: '20px', cursor: 'pointer',
-                            border: isSelected ? '1px solid #FF6600' : '1px solid rgba(255,255,255,0.15)',
-                            background: isSelected ? 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)' : 'rgba(255,255,255,0.06)',
-                            color: isSelected ? '#fff' : '#ccc',
-                            fontWeight: isSelected ? 'bold' : 'normal', fontSize: '0.75rem',
-                            display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.2s'
-                          }}
-                        >
-                          <span>{spec.icon}</span> <span>{spec.name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {(accountType === 'owner' || accountType === 'owner_personal') && (
-              <div style={{ background: 'rgba(242,101,34,0.07)', border: '1px solid rgba(242,101,34,0.25)', borderRadius: 14, padding: '14px 18px', width: '100%', boxSizing: 'border-box' }}>
-                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>👑 Propietario Personal — ¿Qué incluye?</p>
-                <ul style={{ margin: 0, paddingLeft: 18, color: '#ccc', fontSize: '0.82rem', lineHeight: 1.8 }}>
-                  <li style={{ color: '#5cb85c', fontWeight: 'bold', fontSize: '0.88rem' }}>🎁 ¡INCLUYE 6 MESES GRATIS DE PRUEBA!</li>
-                  <li>✅ Registra hasta <strong>3 propiedades</strong> *(+$79.99 por propiedad extra)*</li>
-                  <li>✅ Agrega tus técnicos e ingenieros propios sin límite</li>
-                  <li>✅ Dashboard de administración, cotizaciones y evidencias</li>
-                  <li style={{ color: '#f9a97e' }}>💳 Después de 6 meses: <strong>$299 MXN/mes</strong> o <strong>$3,229/año (-10%)</strong></li>
-                </ul>
-                <div style={{ marginTop: 12, padding: '8px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: 8, borderLeft: '3px solid #f26522' }}>
-                  <p style={{ margin: 0, fontSize: '0.76rem', color: '#bbb', fontStyle: 'italic' }}>
-                    ℹ️ No requieres ingresar el nombre de la propiedad aquí; lo harás directamente en tu panel al iniciar sesión.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {accountType === 'owner_business' && (
-              <div style={{ background: 'rgba(242,101,34,0.1)', border: '1px solid rgba(242,101,34,0.35)', borderRadius: 14, padding: '14px 18px', width: '100%', boxSizing: 'border-box' }}>
-                <p style={{ color: '#f26522', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', margin: '0 0 8px 0' }}>🏢 Autónomo Empresarial — ¿Qué incluye?</p>
-                <ul style={{ margin: 0, paddingLeft: 18, color: '#ccc', fontSize: '0.82rem', lineHeight: 1.8 }}>
-                  <li style={{ color: '#5cb85c', fontWeight: 'bold', fontSize: '0.88rem' }}>🎁 ¡INCLUYE 6 MESES GRATIS DE PRUEBA!</li>
-                  <li>✅ Administra hasta <strong>30 clientes / propiedades</strong></li>
-                  <li>✅ Agrega técnicos y colaboradores sin límite de usuarios</li>
-                  <li>✅ Gestión de portafolio, cotizaciones en línea y reportes en vivo</li>
-                  <li style={{ color: '#f9a97e' }}>💳 Después de 6 meses: <strong>$935 MXN/mes</strong> o <strong>$10,200/año</strong></li>
-                </ul>
-                <div style={{ marginTop: 14 }}>
-                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>🏢 Nombre de tu Empresa / Negocio Inmobiliario <span style={{ color: '#555' }}>(Opcional)</span></label>
-                  <input type="text" placeholder="Ej: Inmobiliaria & Mantenimiento CDMX — o déjalo vacío"
-                    value={companyName} onChange={e => setCompanyName(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.83rem', boxSizing: 'border-box' }}
-                  />
-                </div>
-              </div>
-            )}
-
-
-            <div className="form-row-responsive">
-              <div className="input-group">
-                <User size={20} className="input-icon" />
-                <input
-                  type="text"
-                  placeholder="NOMBRE(S)"
-                  className="custom-input"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  style={{ width: '100%', padding: '14px 15px 14px 50px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                  required
-                />
-              </div>
-              <div className="input-group">
-                <input
-                  type="text"
-                  placeholder="APELLIDOS"
-                  className="custom-input"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  style={{ width: '100%', padding: '14px 20px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-row-responsive">
-              <div className="input-group">
-                <Mail size={20} className="input-icon" />
-                <input
-                  type="email"
-                  placeholder="CORREO ELECTRÓNICO"
-                  className="custom-input"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ width: '100%', padding: '14px 15px 14px 50px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                  required
-                />
-              </div>
-              <div className="input-group">
-                <Phone size={20} className="input-icon" />
-                <input
-                  type="tel"
-                  placeholder="TELÉFONO"
-                  className="custom-input"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  style={{ width: '100%', padding: '14px 15px 14px 50px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-row-responsive">
-              <div className="input-group">
-                <Lock size={20} className="input-icon" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="CONTRASEÑA"
-                  className="custom-input"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{ width: '100%', padding: '14px 45px 14px 50px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#333', zIndex: 2 }}
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+              {message && (
+                <p
+                  style={{
+                    width: '100%',
+                    margin: 0,
+                    padding: '14px',
+                    borderRadius: '18px',
+                    backgroundColor: message.includes('Error') ? 'rgba(244, 67, 54, 0.16)' : 'rgba(76, 175, 80, 0.16)',
+                    color: message.includes('Error') ? '#ff6b6b' : '#69db7c',
+                    border: message.includes('Error') ? '1px solid rgba(244, 67, 54, 0.35)' : '1px solid rgba(76, 175, 80, 0.35)',
+                    textAlign: 'center',
+                    fontWeight: '700'
+                  }}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-              <div className="input-group">
-                <Lock size={20} className="input-icon" />
-                <input
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="CONFIRMA CONTRASEÑA"
-                  className="custom-input"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  style={{ width: '100%', padding: '14px 45px 14px 50px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.95rem', boxSizing: 'border-box' }}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#333', zIndex: 2 }}
+                  {message}
+                </p>
+              )}
+
+              <div style={{ fontSize: '0.95rem', textAlign: 'center' }}>
+                <span style={{ color: '#aaa' }}>¿Ya tienes una cuenta? </span>
+                <span
+                  onClick={() => navigate('/')}
+                  style={{ color: '#f26522', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline' }}
                 >
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+                  Iniciar Sesión
+                </span>
               </div>
             </div>
-
-            <div style={{ display: 'flex', justifyItems: 'center', justifyContent: 'center', margin: '10px 0', width: '100%', overflowX: 'auto' }}>
-              <ReCAPTCHA
-                sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-                onChange={handleCaptchaChange}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                width: '100%',
-                padding: '16px',
-                borderRadius: '50px',
-                border: 'none',
-                backgroundColor: '#f26522',
-                color: '#fff',
-                fontWeight: '900',
-                fontSize: '1.15rem',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                boxShadow: '0 8px 20px rgba(242, 101, 34, 0.4)',
-                transition: 'transform 0.2s, background-color 0.2s',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}
-              onMouseOver={(e) => !isLoading && (e.currentTarget.style.transform = 'scale(1.02)')}
-              onMouseOut={(e) => !isLoading && (e.currentTarget.style.transform = 'scale(1)')}
-            >
-              {isLoading ? 'Creando cuenta...' : 'REGISTRAR'}
-            </button>
-
-            {message && (
-              <p
-                style={{
-                  margin: '10px 0 0 0',
-                  padding: '12px',
-                  borderRadius: '12px',
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  backgroundColor: message.includes('Error') ? 'rgba(244, 67, 54, 0.15)' : 'rgba(76, 175, 80, 0.15)',
-                  color: message.includes('Error') ? '#ff6b6b' : '#69db7c',
-                  border: message.includes('Error') ? '1px solid #f44336' : '1px solid #4CAF50'
-                }}
-              >
-                {message}
-              </p>
-            )}
-
-            <div style={{ marginTop: '15px', textAlign: 'center', fontSize: '0.95rem' }}>
-              <span style={{ color: '#aaa' }}>¿Ya tienes una cuenta? </span>
-              <span
-                onClick={() => navigate('/')}
-                style={{ color: '#f26522', cursor: 'pointer', fontWeight: 'bold', textDecoration: 'underline' }}
-              >
-                Iniciar Sesión
-              </span>
-            </div>
-          </form>
+          </div>
         )}
       </div>
     </div>
