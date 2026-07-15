@@ -240,8 +240,8 @@ const ClientRegister = () => {
             className="register-card"
             style={{
               width: '100%',
-              maxWidth: '760px',
-              minHeight: '760px',
+              maxWidth: '1000px',
+              minHeight: '1440px',
               padding: '45px 40px',
               borderRadius: '26px',
               backgroundColor: 'rgba(10, 10, 10, 0.95)',
