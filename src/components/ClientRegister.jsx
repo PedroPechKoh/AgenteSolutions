@@ -227,9 +227,12 @@ const ClientRegister = () => {
             {/* ─── Selector de tipo de cuenta (tarjetas) ─── */}
             <style>{`
               .plan-grid { display:flex; gap:12px; width:100%; overflow-x:auto; padding-bottom:6px; }
-              .plan-card { flex:0 0 180px; width:180px; height:260px; background:linear-gradient(180deg,#0f0f0f,#131313); border-radius:12px; padding:16px; color:#fff; border:1px solid rgba(255,255,255,0.04); box-shadow:0 6px 12px rgba(0,0,0,0.5); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; }
+              .plan-card { flex:0 0 180px; width:180px; height:260px; background:linear-gradient(180deg,#0f0f0f,#131313); border-radius:12px; padding:16px; color:#fff; border:1px solid rgba(255,255,255,0.04); box-shadow:0 6px 12px rgba(0,0,0,0.5); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; perspective: 1200px; position: relative; }
               .plan-card:not(.active){ transform: scale(.96) translateY(4px); opacity: .95 }
               .plan-card.active{ transform: translateY(-16px) scale(1.06); z-index:20; }
+              .plan-card .card-inner{ transition: transform 0.6s cubic-bezier(.2,.9,.2,1); transform-style: preserve-3d; position: relative; }
+              .plan-card.flip .card-inner{ transform: rotateY(180deg); }
+              .card-front, .card-back{ position: relative; width:100%; height:100%; }
               .plan-title{ font-weight:900; font-size:1rem }
               .plan-sub{ font-size:.74rem; color:#cfcfcf }
               .plan-features{ margin-top:10px; padding-left:14px; font-size:.78rem; color:#bfcfc0; max-height:84px; overflow:hidden }
@@ -237,18 +240,48 @@ const ClientRegister = () => {
               @media(max-width:600px){ .plan-card{ width:150px; height:240px; flex:0 0 150px } }
             `}</style>
             <div ref={gridRef} className={`plan-grid ${selectedPlan ? 'focused' : ''}`}>
-              {plans.map(p => (
-                <div ref={el => cardRefs.current[p.key] = el} key={p.key} className={`plan-card ${selectedPlan === p.key ? 'active' : ''}`} onClick={() => { setAccountType(p.key); setSelectedPlan(p.key); setShowForm(true); centerCard(cardRefs.current[p.key]); }} style={{ borderTop: `4px solid ${p.color}` }}>
-                  <div>
-                    <div className="plan-title">{p.label}</div>
-                    <div className="plan-sub">{p.sub}</div>
-                    <ul className="plan-features">{p.features.map((f,i)=>(<li key={i}>{f}</li>))}</ul>
+              {plans.map(p => {
+                const isActive = selectedPlan === p.key;
+                const isFlipped = flipped === p.key;
+                return (
+                  <div
+                    key={p.key}
+                    ref={el => cardRefs.current[p.key] = el}
+                    className={`plan-card ${isActive ? 'active' : ''} ${isFlipped ? 'flip' : ''}`}
+                    style={{ borderTop: `4px solid ${p.color}` }}
+                  >
+                    <div className="card-inner" style={{ transition: 'transform 0.6s', transformStyle: 'preserve-3d', position: 'relative' }}>
+                      <div className="card-front" style={{ backfaceVisibility: 'hidden' }} onClick={() => { setAccountType(p.key); setSelectedPlan(p.key); setShowForm(true); centerCard(cardRefs.current[p.key]); }}>
+                        <div>
+                          <div className="plan-title">{p.label}</div>
+                          <div className="plan-sub">{p.sub}</div>
+                          <ul className="plan-features">{p.features.map((f,i)=>(<li key={i}>{f}</li>))}</ul>
+                        </div>
+                        <div style={{ width: '100%' }}>
+                          <button type="button" className="plan-cta" onClick={(ev)=>{ ev.stopPropagation(); setAccountType(p.key); setSelectedPlan(p.key); setShowForm(true); centerCard(cardRefs.current[p.key]); setFlipped(p.key); }}>{p.cta}</button>
+                        </div>
+                      </div>
+
+                      <div className="card-back" style={{ position: 'absolute', top:0, left:0, width:'100%', height:'100%', padding:'16px', boxSizing:'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
+                        <div style={{ color: '#f9f9f9', fontWeight: 800, marginBottom: 8 }}>{p.label} — ¿Qué incluye?</div>
+                        <ul style={{ color: '#e6e6e6', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: 8 }}>
+                          {p.features.map((f,i)=> (<li key={i}>• {f}</li>))}
+                        </ul>
+                        <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          <input required value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '8px 10px', borderRadius: 20 }} />
+                          <input required value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '8px 10px', borderRadius: 20 }} />
+                          <input required value={email} onChange={e=>setEmail(e.target.value)} placeholder="CORREO" type="email" style={{ padding: '8px 10px', borderRadius: 20 }} />
+                          <input required value={password} onChange={e=>setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '8px 10px', borderRadius: 20 }} />
+                          <div style={{ display:'flex', gap:8 }}>
+                            <button type="submit" disabled={isLoading} style={{ flex:1, padding: '8px 10px', borderRadius: 20, background: '#f26522', color:'#fff', fontWeight:800 }}>{isLoading? '...' : 'Registrar'}</button>
+                            <button type="button" onClick={(ev)=>{ ev.stopPropagation(); setFlipped(null); setShowForm(true); }} style={{ padding: '8px 10px', borderRadius: 20, background: '#333', color:'#fff' }}>Cancelar</button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ width: '100%' }}>
-                    <button type="button" className="plan-cta" onClick={(ev)=>{ ev.stopPropagation(); setAccountType(p.key); setSelectedPlan(p.key); setShowForm(true); centerCard(cardRefs.current[p.key]); }}>{p.cta}</button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* ─── Panel de beneficios dinámico ─── */}

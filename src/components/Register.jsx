@@ -38,6 +38,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     const offset = Math.max(0, card.offsetLeft - (container.clientWidth - card.clientWidth) / 2);
     container.scrollTo({ left: offset, behavior: 'smooth' });
   };
+  const [flippedRole, setFlippedRole] = useState(null);
 
   const plans = [
     {
@@ -299,6 +300,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           flex-direction: column;
           justify-content: space-between;
           align-items: flex-start;
+          perspective: 1200px;
+          position: relative;
         }
         .modal-overlay .plan-card:not(.active) {
           transform: scale(0.96) translateY(4px);
@@ -316,6 +319,9 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         .modal-overlay .plan-features li { margin-bottom: 6px; }
         .modal-overlay .plan-cta { margin-top: 8px; width: 100%; padding: 10px 12px; border-radius: 28px; border: none; background: #F26522; color: #fff; font-weight: 800; cursor: pointer; }
         .modal-overlay .plan-grid.focused .plan-card:not(.active) { transform: scale(0.82) translateY(18px); opacity: 0.28; pointer-events: none; filter: blur(0.8px); }
+        .modal-overlay .plan-card .card-inner{ transition: transform 0.6s cubic-bezier(.2,.9,.2,1); transform-style: preserve-3d; position: relative; }
+        .modal-overlay .plan-card.flip .card-inner{ transform: rotateY(180deg); }
+        .modal-overlay .card-front, .modal-overlay .card-back{ position: relative; width:100%; height:100%; }
 
         /* Form show/hide animation */
         .modal-overlay .register-form.hidden { opacity: 0; max-height: 0; overflow: hidden; transform: translateY(10px); transition: all 0.35s ease; }
@@ -405,27 +411,51 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
 
         {/* Subscription / Plan cards */}
         <div ref={gridRef} className={`plan-grid ${selectedRole ? 'focused' : ''}`}>
-          {plans.map((p) => (
-            <div
-              ref={el => cardRefs.current[p.id] = el}
-              key={p.id}
-              className={`plan-card ${selectedRole === p.id ? 'active' : ''}`}
-              onClick={() => { setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); centerCard(cardRefs.current[p.id]); }}
-              style={{ borderTop: `4px solid ${p.color}`, boxShadow: selectedRole === p.id ? `0 18px 40px rgba(0,0,0,0.6), 0 6px 18px ${p.color}33` : undefined }}
-            >
-              <div className="plan-head">
-                <div className="plan-title">{p.title}</div>
-                <div className="plan-sub">{p.subtitle}</div>
+          {plans.map((p) => {
+            const isActive = selectedRole === p.id;
+            const isFlipped = flippedRole === p.id;
+            return (
+              <div
+                key={p.id}
+                ref={el => cardRefs.current[p.id] = el}
+                className={`plan-card ${isActive ? 'active' : ''} ${isFlipped ? 'flip' : ''}`}
+                style={{ borderTop: `4px solid ${p.color}`, boxShadow: selectedRole === p.id ? `0 18px 40px rgba(0,0,0,0.6), 0 6px 18px ${p.color}33` : undefined }}
+              >
+                <div className="card-inner" style={{ transition: 'transform 0.6s', transformStyle: 'preserve-3d', position: 'relative' }}>
+                  <div className="card-front" style={{ backfaceVisibility: 'hidden' }} onClick={() => { setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); centerCard(cardRefs.current[p.id]); }}>
+                    <div className="plan-head">
+                      <div className="plan-title">{p.title}</div>
+                      <div className="plan-sub">{p.subtitle}</div>
+                    </div>
+                    <div className="plan-price">{p.price}</div>
+                    <ul className="plan-features">
+                      {p.features.map((f, i) => (<li key={i}>{f}</li>))}
+                    </ul>
+                    <div style={{ width: '100%' }}>
+                      <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(false); centerCard(cardRefs.current[p.id]); setFlippedRole(p.id); }}>{p.cta}</button>
+                    </div>
+                  </div>
+
+                  <div className="card-back" style={{ position: 'absolute', top:0, left:0, width:'100%', height:'100%', padding:'12px', boxSizing:'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
+                    <div style={{ color: '#ffd9b8', fontWeight: 900, marginBottom: 6 }}>{p.title} — ¿Qué incluye?</div>
+                    <ul style={{ color: '#dcdcdc', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: 8 }}>
+                      {p.features.map((f,i)=>(<li key={i}>• {f}</li>))}
+                    </ul>
+                    <form onSubmit={handleRegistro} style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                      <input name="first_name" required placeholder="NOMBRE(S)" value={formData.first_name} onChange={handleChange} style={{ padding:'8px 10px', borderRadius:20 }} />
+                      <input name="last_name" required placeholder="APELLIDOS" value={formData.last_name} onChange={handleChange} style={{ padding:'8px 10px', borderRadius:20 }} />
+                      <input name="email" required type="email" placeholder="CORREO" value={formData.email} onChange={handleChange} style={{ padding:'8px 10px', borderRadius:20 }} />
+                      <input name="password" required type="password" placeholder="CONTRASEÑA" value={formData.password} onChange={handleChange} style={{ padding:'8px 10px', borderRadius:20 }} />
+                      <div style={{ display:'flex', gap:8 }}>
+                        <button type="submit" className="plan-cta" style={{ flex:1 }}>{isLoading ? '...' : 'Registrar'}</button>
+                        <button type="button" onClick={() => { setFlippedRole(null); setShowForm(true); }} style={{ padding:'8px 10px', borderRadius:20, background:'#333', color:'#fff' }}>Cancelar</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
               </div>
-              <div className="plan-price">{p.price}</div>
-              <ul className="plan-features">
-                {p.features.map((f, i) => (<li key={i}>{f}</li>))}
-              </ul>
-              <div style={{ width: '100%' }}>
-                <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); centerCard(cardRefs.current[p.id]); }}>{p.cta}</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <form onSubmit={handleRegistro} className={`register-form ${showForm ? 'visible' : 'hidden'}`}>
