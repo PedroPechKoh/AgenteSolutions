@@ -240,12 +240,12 @@ const ClientRegister = () => {
             className="register-card"
             style={{
               width: '100%',
-              maxWidth: '650px',
+              maxWidth: '1160px',
               padding: '35px 25px',
               borderRadius: '24px',
-              backgroundColor: 'rgba(25, 25, 25, 0.94)',
-              border: '1px solid rgba(242, 101, 34, 0.4)',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.65)',
+              backgroundColor: 'rgba(10, 10, 10, 0.95)',
+              border: '1px solid rgba(242, 101, 34, 0.25)',
+              boxShadow: '0 28px 70px rgba(0, 0, 0, 0.55)',
               display: 'flex',
               flexDirection: 'column',
               gap: '18px',
@@ -261,19 +261,25 @@ const ClientRegister = () => {
 
             {/* ─── Selector de tipo de cuenta (tarjetas) ─── */}
             <style>{`
-              .plan-grid { display:flex; gap:12px; width:100%; overflow-x:auto; padding-bottom:6px; }
-              .plan-card { flex:0 0 180px; width:180px; min-height:320px; background:linear-gradient(180deg,#0f0f0f,#131313); border-radius:12px; padding:16px; color:#fff; border:1px solid rgba(255,255,255,0.04); box-shadow:0 6px 12px rgba(0,0,0,0.5); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; perspective: 1200px; position: relative; }
+              .plan-grid { display:flex; gap:16px; width:100%; overflow-x:auto; padding-bottom:6px; justify-content:flex-start; }
+              .plan-card { flex:0 0 260px; width:260px; min-height:420px; background:#f6f6f6; border-radius:20px; padding:20px; color:#111; border:1px solid rgba(0,0,0,0.12); box-shadow:0 18px 45px rgba(0,0,0,0.18); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; perspective: 1200px; position: relative; background-image: linear-gradient(180deg, #ffffff 0%, #f4f4f4 100%); }
               .plan-card:not(.active){ transform: scale(.96) translateY(4px); opacity: .95 }
-              .plan-card.active{ transform: translateY(-16px) scale(1.06); z-index:20; }
+              .plan-card.active{ transform: translateY(-14px) scale(1.03); z-index:20; }
               .plan-card .card-inner{ transition: transform 0.6s cubic-bezier(.2,.9,.2,1); transform-style: preserve-3d; position: relative; }
               .plan-card.flip .card-inner{ transform: rotateY(180deg); }
-              .card-front, .card-back{ position: relative; width:100%; min-height:260px; }
+              .card-front, .card-back{ position: relative; width:100%; min-height:360px; }
               .card-back{ overflow-y:auto; }
-              .plan-title{ font-weight:900; font-size:1rem }
-              .plan-sub{ font-size:.74rem; color:#cfcfcf }
-              .plan-features{ margin-top:10px; padding-left:14px; font-size:.78rem; color:#bfcfc0; max-height:84px; overflow:hidden }
-              .plan-cta{ margin-top:8px; width:100%; padding:10px 12px; border-radius:28px; border:none; background:#F26522; color:#fff; font-weight:800; cursor:pointer }
-              @media(max-width:600px){ .plan-card{ width:150px; height:240px; flex:0 0 150px } }
+              .plan-title{ font-weight:900; font-size:1.1rem; color:#111 }
+              .plan-sub{ font-size:.82rem; color:#555; margin-top:4px }
+              .plan-features{ margin-top:12px; padding-left:16px; font-size:.86rem; color:#333; max-height:110px; overflow:hidden }
+              .plan-features li{ margin-bottom:8px }
+              .plan-cta{ margin-top:12px; width:100%; padding:12px 14px; border-radius:32px; border:none; background:#f26522; color:#111; font-weight:900; cursor:pointer; box-shadow:0 10px 18px rgba(242,101,34,0.24); }
+              .card-back { background: #fff; border-radius: 18px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03); }
+              .card-back h3 { margin: 0 0 12px 0; color: #111; }
+              .card-back p { color: #444; }
+              @media(max-width:1000px){ .plan-card { width:220px; flex:0 0 220px; min-height:400px; } }
+              @media(max-width:780px){ .plan-grid { justify-content:center; gap:14px; } .plan-card { width:220px; flex:0 0 220px; min-height:420px; } }
+              @media(max-width:640px){ .plan-card { width:100%; flex:1 0 auto; min-height:380px; } .plan-grid { display:block; } }
             `}</style>
             <div ref={gridRef} className={`plan-grid ${selectedPlan ? 'focused' : ''}`}>
               {plans.map(p => {
@@ -284,7 +290,7 @@ const ClientRegister = () => {
                     key={p.key}
                     ref={el => cardRefs.current[p.key] = el}
                     className={`plan-card ${isActive ? 'active' : ''} ${isFlipped ? 'flip' : ''}`}
-                    style={{ borderTop: `4px solid ${p.color}` }}
+                    style={{ borderTop: `4px solid ${p.color}`, color: '#111' }}
                   >
                     <div className="card-inner" style={{ transition: 'transform 0.6s', transformStyle: 'preserve-3d', position: 'relative' }}>
                       <div className="card-front" style={{ backfaceVisibility: 'hidden' }} onClick={() => { setAccountType(p.key); setSelectedPlan(p.key); centerCard(cardRefs.current[p.key]); }}>
@@ -299,11 +305,11 @@ const ClientRegister = () => {
                       </div>
 
                       <div className="card-back" style={{ position: 'absolute', top:0, left:0, width:'100%', height:'100%', padding:'16px', boxSizing:'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
-                        <div style={{ color: '#f9f9f9', fontWeight: 800, marginBottom: 8 }}>{p.label} — ¿Qué incluye?</div>
-                        <ul style={{ color: '#e6e6e6', fontSize: '0.85rem', lineHeight: 1.6, marginBottom: 8 }}>
-                          {p.details.map((f,i)=> (<li key={i}>• {f}</li>))}
+                        <div style={{ color: '#111', fontWeight: 800, marginBottom: 10, fontSize: '1rem' }}>{p.label} — ¿Qué incluye?</div>
+                        <ul style={{ color: '#333', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: 10, paddingLeft: '16px' }}>
+                          {p.details.map((f,i)=> (<li key={i} style={{ marginBottom: '8px' }}>• {f}</li>))}
                         </ul>
-                        <div style={{ color: '#d9d9d9', fontSize: '0.85rem', marginBottom: 12 }}>{p.note}</div>
+                        <div style={{ color: '#444', fontSize: '0.88rem', marginBottom: 14 }}>{p.note}</div>
                         <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: '100%', overflowY: 'auto' }}>
                           <input required value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
                           <input required value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
