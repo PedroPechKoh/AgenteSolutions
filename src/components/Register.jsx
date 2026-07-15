@@ -41,7 +41,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         'Recibe y aprueba cotizaciones',
         'Historial por propiedad',
       ],
-      cta: 'Registrarme'
+      cta: 'Registrarme',
+      color: '#F26522'
     },
     {
       id: 2,
@@ -49,7 +50,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       subtitle: 'Presto servicios',
       price: 'Perfil',
       features: ['Recibe órdenes', 'Administra tu agenda', 'Calificaciones y perfil'],
-      cta: 'Suscribirme'
+      cta: 'Suscribirme',
+      color: '#6B7280'
     },
     {
       id: 5,
@@ -57,7 +59,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       subtitle: '3 Propiedades',
       price: '$299/m',
       features: ['Añade propiedades', 'Historial completo', 'Administración simple'],
-      cta: 'Suscribirme'
+      cta: 'Suscribirme',
+      color: '#1F6FEB'
     },
     {
       id: 4,
@@ -65,7 +68,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       subtitle: '30 Clientes',
       price: '$935/m',
       features: ['Gestiona clientes', 'Reportes', 'Panel empresarial'],
-      cta: 'Suscribirme'
+      cta: 'Suscribirme',
+      color: '#0F766E'
     }
   ];
 
@@ -257,28 +261,34 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         /* Subscription / plan cards styles */
         .modal-overlay .plan-grid {
           display: flex;
-          gap: 12px;
+          gap: 14px;
           margin: 0 auto 18px;
           justify-content: space-between;
           flex-wrap: nowrap;
           transition: all 0.45s cubic-bezier(.2,.9,.2,1);
+          overflow-x: auto;
+          padding-bottom: 6px;
         }
         .modal-overlay .plan-grid.focused {
           justify-content: center;
         }
         .modal-overlay .plan-card {
-          flex: 1 1 160px;
-          min-width: 140px;
-          max-width: 220px;
-          background: linear-gradient(180deg,#0e0e0e,#141414);
+          flex: 0 0 180px;
+          width: 180px;
+          height: 260px;
+          background: linear-gradient(180deg,#0f0f0f,#131313);
           border-radius: 12px;
-          padding: 14px;
+          padding: 18px;
           color: #fff;
           border: 1px solid rgba(255,255,255,0.04);
           box-shadow: 0 6px 12px rgba(0,0,0,0.5);
           cursor: pointer;
           transition: transform 0.45s cubic-bezier(.2,.9,.2,1), opacity 0.35s ease, box-shadow 0.35s;
           transform-origin: center;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: flex-start;
         }
         .modal-overlay .plan-card:not(.active) {
           transform: scale(0.96) translateY(4px);
@@ -287,16 +297,15 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         .modal-overlay .plan-card.active {
           transform: translateY(-18px) scale(1.06);
           z-index: 30;
-          box-shadow: 0 18px 40px rgba(0,0,0,0.6), 0 6px 18px rgba(242,101,34,0.12);
-          border-color: rgba(242,101,34,0.22);
+          box-shadow: 0 18px 40px rgba(0,0,0,0.6), 0 6px 18px rgba(0,0,0,0.12);
         }
-        .modal-overlay .plan-head .plan-title { font-weight: 900; font-size: 0.92rem; color: #ffd9b8; }
+        .modal-overlay .plan-head .plan-title { font-weight: 900; font-size: 0.98rem; color: #fff; }
         .modal-overlay .plan-sub { font-size: 0.74rem; color: #cfcfcf; margin-top: 4px; }
-        .modal-overlay .plan-price { margin-top: 10px; font-weight: 900; color: #fff; padding: 6px 10px; border-radius: 8px; display: inline-block; background: rgba(255,255,255,0.02); }
-        .modal-overlay .plan-features { margin-top: 12px; padding-left: 18px; font-size: 0.78rem; color: #bfcfc0; }
+        .modal-overlay .plan-price { margin-top: 6px; font-weight: 900; color: #fff; padding: 8px 12px; border-radius: 8px; display: inline-block; background: rgba(255,255,255,0.02); font-size: 0.95rem; }
+        .modal-overlay .plan-features { margin-top: 10px; padding-left: 14px; font-size: 0.78rem; color: #bfcfc0; max-height: 84px; overflow: hidden; }
         .modal-overlay .plan-features li { margin-bottom: 6px; }
-        .modal-overlay .plan-cta { margin-top: 12px; width: 100%; padding: 10px 12px; border-radius: 30px; border: none; background: #F26522; color: #fff; font-weight: 800; cursor: pointer; }
-        .modal-overlay .plan-grid.focused .plan-card:not(.active) { transform: scale(0.86) translateY(12px); opacity: 0.32; pointer-events: none; filter: blur(0.6px); }
+        .modal-overlay .plan-cta { margin-top: 8px; width: 100%; padding: 10px 12px; border-radius: 28px; border: none; background: #F26522; color: #fff; font-weight: 800; cursor: pointer; }
+        .modal-overlay .plan-grid.focused .plan-card:not(.active) { transform: scale(0.82) translateY(18px); opacity: 0.28; pointer-events: none; filter: blur(0.8px); }
 
         /* Form show/hide animation */
         .modal-overlay .register-form.hidden { opacity: 0; max-height: 0; overflow: hidden; transform: translateY(10px); transition: all 0.35s ease; }
@@ -374,6 +383,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           .modal-overlay .input-icon {
             left: 14px;
           }
+          .modal-overlay .plan-grid { gap: 10px; }
+          .modal-overlay .plan-card { width: 150px; height: 240px; flex: 0 0 150px; }
         }
       `}</style>
 
@@ -385,11 +396,12 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         {/* Subscription / Plan cards */}
         <div className={`plan-grid ${selectedRole ? 'focused' : ''}`}>
           {plans.map((p) => (
-            <div key={p.id} className={`plan-card ${selectedRole === p.id ? 'active' : ''}`} onClick={() => {
-              setFormData({ ...formData, role_id: p.id });
-              setSelectedRole(p.id);
-              setShowForm(true);
-            }}>
+            <div
+              key={p.id}
+              className={`plan-card ${selectedRole === p.id ? 'active' : ''}`}
+              onClick={() => { setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); }}
+              style={{ borderTop: `4px solid ${p.color}`, boxShadow: selectedRole === p.id ? `0 18px 40px rgba(0,0,0,0.6), 0 6px 18px ${p.color}33` : undefined }}
+            >
               <div className="plan-head">
                 <div className="plan-title">{p.title}</div>
                 <div className="plan-sub">{p.subtitle}</div>
@@ -398,7 +410,9 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
               <ul className="plan-features">
                 {p.features.map((f, i) => (<li key={i}>{f}</li>))}
               </ul>
-              <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); }}>{p.cta}</button>
+              <div style={{ width: '100%' }}>
+                <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); }}>{p.cta}</button>
+              </div>
             </div>
           ))}
         </div>
