@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { User, Lock, Mail, Phone, Eye, EyeOff, Shield, X } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +28,16 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
   const [showForm, setShowForm] = useState(true); // show by default for existing behavior
+  const gridRef = useRef(null);
+  const cardRefs = useRef({});
+
+  const centerCard = (cardEl) => {
+    if (!cardEl || !gridRef.current) return;
+    const container = gridRef.current;
+    const card = cardEl;
+    const offset = Math.max(0, card.offsetLeft - (container.clientWidth - card.clientWidth) / 2);
+    container.scrollTo({ left: offset, behavior: 'smooth' });
+  };
 
   const plans = [
     {
@@ -394,12 +404,13 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         </button>
 
         {/* Subscription / Plan cards */}
-        <div className={`plan-grid ${selectedRole ? 'focused' : ''}`}>
+        <div ref={gridRef} className={`plan-grid ${selectedRole ? 'focused' : ''}`}>
           {plans.map((p) => (
             <div
+              ref={el => cardRefs.current[p.id] = el}
               key={p.id}
               className={`plan-card ${selectedRole === p.id ? 'active' : ''}`}
-              onClick={() => { setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); }}
+              onClick={() => { setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); centerCard(cardRefs.current[p.id]); }}
               style={{ borderTop: `4px solid ${p.color}`, boxShadow: selectedRole === p.id ? `0 18px 40px rgba(0,0,0,0.6), 0 6px 18px ${p.color}33` : undefined }}
             >
               <div className="plan-head">
@@ -411,7 +422,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
                 {p.features.map((f, i) => (<li key={i}>{f}</li>))}
               </ul>
               <div style={{ width: '100%' }}>
-                <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); }}>{p.cta}</button>
+                <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); centerCard(cardRefs.current[p.id]); }}>{p.cta}</button>
               </div>
             </div>
           ))}

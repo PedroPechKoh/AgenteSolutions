@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { User, Lock, Eye, EyeOff, Mail, Phone, Building2, Briefcase, UserCheck, Clock, CheckCircle } from "lucide-react";
 import "../styles/LoginAgente.css";
 import axios from "axios";
@@ -42,6 +42,25 @@ const ClientRegister = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000', appLogo: null });
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [showForm, setShowForm] = useState(true);
+  const gridRef = useRef(null);
+  const cardRefs = useRef({});
+
+  const centerCard = (cardEl) => {
+    if (!cardEl || !gridRef.current) return;
+    const container = gridRef.current;
+    const card = cardEl;
+    const offset = Math.max(0, card.offsetLeft - (container.clientWidth - card.clientWidth) / 2);
+    container.scrollTo({ left: offset, behavior: 'smooth' });
+  };
+
+  const plans = [
+    { key: 'client', label: 'SOY CLIENTE', sub: 'Contrata servicios', features: ['Solicita servicios', 'Sigue órdenes', 'Recibe cotizaciones', 'Historial por propiedad'], cta: 'Registrarme', color: '#F26522' },
+    { key: 'technician', label: 'SOY TÉCNICO', sub: 'Presto servicios', features: ['Recibe órdenes', 'Agenda', 'Genera cotizaciones'], cta: 'Suscribirme', color: '#6B7280' },
+    { key: 'owner_personal', label: 'PROPIETARIO PERSONAL', sub: '3 Propiedades', features: ['Registra propiedades', 'Dashboard', 'Soporte'], cta: 'Suscribirme', color: '#1F6FEB' },
+    { key: 'owner_business', label: 'AUTÓNOMO EMPRESA', sub: '30 Clientes', features: ['Gestiona clientes', 'Reportes', 'Usuarios ilimitados'], cta: 'Suscribirme', color: '#0F766E' }
+  ];
 
   const navigate = useNavigate();
 
@@ -205,32 +224,31 @@ const ClientRegister = () => {
               CREAR CUENTA <i className="fas fa-chess-queen-alt"></i>
             </h2>
 
-            {/* ─── Selector de tipo de cuenta ─── */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', width: '100%' }}>
-              {[
-                { key: 'client',         icon: '👤', label: 'SOY CLIENTE',         sub: 'Contrato servicios' },
-                { key: 'technician',     icon: '🛠️', label: 'SOY TÉCNICO',         sub: 'Presto servicios' },
-                { key: 'owner_personal', icon: '🏠', label: 'PROPIETARIO PERSONAL', sub: '3 Propiedades ($299/m)' },
-                { key: 'owner_business', icon: '🏢', label: 'AUTÓNOMO EMPRESA',    sub: '30 Clientes ($935/m)' },
-              ].map(({ key, icon, label, sub }) => {
-                const isSelected = accountType === key || (key === 'owner_personal' && accountType === 'owner');
-                return (
-                  <button key={key} type="button" onClick={() => setAccountType(key)}
-                    style={{
-                      padding: '12px 6px', borderRadius: '16px', cursor: 'pointer',
-                      border: isSelected ? '2px solid #f26522' : '2px solid rgba(255,255,255,0.08)',
-                      backgroundColor: isSelected ? 'rgba(242,101,34,0.18)' : 'rgba(255,255,255,0.04)',
-                      color: isSelected ? '#f26522' : '#bbb',
-                      fontWeight: 900, fontStyle: 'italic', fontSize: '0.76rem', textAlign: 'center',
-                      transition: 'all 0.25s', boxShadow: isSelected ? '0 0 14px rgba(242,101,34,0.3)' : 'none'
-                    }}
-                  >
-                    <div style={{ fontSize: '1.6rem', marginBottom: 4 }}>{icon}</div>
-                    <div style={{ lineHeight: 1.2 }}>{label}</div>
-                    <div style={{ fontWeight: 'normal', fontStyle: 'normal', fontSize: '0.67rem', color: isSelected ? '#f9a97e' : '#777', marginTop: 3 }}>{sub}</div>
-                  </button>
-                );
-              })}
+            {/* ─── Selector de tipo de cuenta (tarjetas) ─── */}
+            <style>{`
+              .plan-grid { display:flex; gap:12px; width:100%; overflow-x:auto; padding-bottom:6px; }
+              .plan-card { flex:0 0 180px; width:180px; height:260px; background:linear-gradient(180deg,#0f0f0f,#131313); border-radius:12px; padding:16px; color:#fff; border:1px solid rgba(255,255,255,0.04); box-shadow:0 6px 12px rgba(0,0,0,0.5); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; }
+              .plan-card:not(.active){ transform: scale(.96) translateY(4px); opacity: .95 }
+              .plan-card.active{ transform: translateY(-16px) scale(1.06); z-index:20; }
+              .plan-title{ font-weight:900; font-size:1rem }
+              .plan-sub{ font-size:.74rem; color:#cfcfcf }
+              .plan-features{ margin-top:10px; padding-left:14px; font-size:.78rem; color:#bfcfc0; max-height:84px; overflow:hidden }
+              .plan-cta{ margin-top:8px; width:100%; padding:10px 12px; border-radius:28px; border:none; background:#F26522; color:#fff; font-weight:800; cursor:pointer }
+              @media(max-width:600px){ .plan-card{ width:150px; height:240px; flex:0 0 150px } }
+            `}</style>
+            <div ref={gridRef} className={`plan-grid ${selectedPlan ? 'focused' : ''}`}>
+              {plans.map(p => (
+                <div ref={el => cardRefs.current[p.key] = el} key={p.key} className={`plan-card ${selectedPlan === p.key ? 'active' : ''}`} onClick={() => { setAccountType(p.key); setSelectedPlan(p.key); setShowForm(true); centerCard(cardRefs.current[p.key]); }} style={{ borderTop: `4px solid ${p.color}` }}>
+                  <div>
+                    <div className="plan-title">{p.label}</div>
+                    <div className="plan-sub">{p.sub}</div>
+                    <ul className="plan-features">{p.features.map((f,i)=>(<li key={i}>{f}</li>))}</ul>
+                  </div>
+                  <div style={{ width: '100%' }}>
+                    <button type="button" className="plan-cta" onClick={(ev)=>{ ev.stopPropagation(); setAccountType(p.key); setSelectedPlan(p.key); setShowForm(true); centerCard(cardRefs.current[p.key]); }}>{p.cta}</button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* ─── Panel de beneficios dinámico ─── */}
