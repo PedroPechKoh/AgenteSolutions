@@ -26,6 +26,48 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [showForm, setShowForm] = useState(true); // show by default for existing behavior
+
+  const plans = [
+    {
+      id: 3,
+      title: 'SOY CLIENTE',
+      subtitle: 'Contrata servicios',
+      price: 'GRATIS',
+      features: [
+        'Solicita servicios de mantenimiento',
+        'Sigue el estado de tus órdenes',
+        'Recibe y aprueba cotizaciones',
+        'Historial por propiedad',
+      ],
+      cta: 'Registrarme'
+    },
+    {
+      id: 2,
+      title: 'SOY TÉCNICO',
+      subtitle: 'Presto servicios',
+      price: 'Perfil',
+      features: ['Recibe órdenes', 'Administra tu agenda', 'Calificaciones y perfil'],
+      cta: 'Suscribirme'
+    },
+    {
+      id: 5,
+      title: 'PROPIETARIO PERSONAL',
+      subtitle: '3 Propiedades',
+      price: '$299/m',
+      features: ['Añade propiedades', 'Historial completo', 'Administración simple'],
+      cta: 'Suscribirme'
+    },
+    {
+      id: 4,
+      title: 'AUTÓNOMO EMPRESA',
+      subtitle: '30 Clientes',
+      price: '$935/m',
+      features: ['Gestiona clientes', 'Reportes', 'Panel empresarial'],
+      cta: 'Suscribirme'
+    }
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -212,6 +254,54 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23F26522' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
         }
 
+        /* Subscription / plan cards styles */
+        .modal-overlay .plan-grid {
+          display: flex;
+          gap: 12px;
+          margin: 0 auto 18px;
+          justify-content: space-between;
+          flex-wrap: nowrap;
+          transition: all 0.45s cubic-bezier(.2,.9,.2,1);
+        }
+        .modal-overlay .plan-grid.focused {
+          justify-content: center;
+        }
+        .modal-overlay .plan-card {
+          flex: 1 1 160px;
+          min-width: 140px;
+          max-width: 220px;
+          background: linear-gradient(180deg,#0e0e0e,#141414);
+          border-radius: 12px;
+          padding: 14px;
+          color: #fff;
+          border: 1px solid rgba(255,255,255,0.04);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+          cursor: pointer;
+          transition: transform 0.45s cubic-bezier(.2,.9,.2,1), opacity 0.35s ease, box-shadow 0.35s;
+          transform-origin: center;
+        }
+        .modal-overlay .plan-card:not(.active) {
+          transform: scale(0.96) translateY(4px);
+          opacity: 0.9;
+        }
+        .modal-overlay .plan-card.active {
+          transform: translateY(-18px) scale(1.06);
+          z-index: 30;
+          box-shadow: 0 18px 40px rgba(0,0,0,0.6), 0 6px 18px rgba(242,101,34,0.12);
+          border-color: rgba(242,101,34,0.22);
+        }
+        .modal-overlay .plan-head .plan-title { font-weight: 900; font-size: 0.92rem; color: #ffd9b8; }
+        .modal-overlay .plan-sub { font-size: 0.74rem; color: #cfcfcf; margin-top: 4px; }
+        .modal-overlay .plan-price { margin-top: 10px; font-weight: 900; color: #fff; padding: 6px 10px; border-radius: 8px; display: inline-block; background: rgba(255,255,255,0.02); }
+        .modal-overlay .plan-features { margin-top: 12px; padding-left: 18px; font-size: 0.78rem; color: #bfcfc0; }
+        .modal-overlay .plan-features li { margin-bottom: 6px; }
+        .modal-overlay .plan-cta { margin-top: 12px; width: 100%; padding: 10px 12px; border-radius: 30px; border: none; background: #F26522; color: #fff; font-weight: 800; cursor: pointer; }
+        .modal-overlay .plan-grid.focused .plan-card:not(.active) { transform: scale(0.86) translateY(12px); opacity: 0.32; pointer-events: none; filter: blur(0.6px); }
+
+        /* Form show/hide animation */
+        .modal-overlay .register-form.hidden { opacity: 0; max-height: 0; overflow: hidden; transform: translateY(10px); transition: all 0.35s ease; }
+        .modal-overlay .register-form.visible { opacity: 1; max-height: 2000px; transform: translateY(0); transition: all 0.45s cubic-bezier(.2,.9,.2,1); }
+
         .modal-overlay .toggle-password-btn {
           position: absolute;
           right: 15px;
@@ -292,7 +382,28 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           <X size={28} />
         </button>
 
-        <form onSubmit={handleRegistro}>
+        {/* Subscription / Plan cards */}
+        <div className={`plan-grid ${selectedRole ? 'focused' : ''}`}>
+          {plans.map((p) => (
+            <div key={p.id} className={`plan-card ${selectedRole === p.id ? 'active' : ''}`} onClick={() => {
+              setFormData({ ...formData, role_id: p.id });
+              setSelectedRole(p.id);
+              setShowForm(true);
+            }}>
+              <div className="plan-head">
+                <div className="plan-title">{p.title}</div>
+                <div className="plan-sub">{p.subtitle}</div>
+              </div>
+              <div className="plan-price">{p.price}</div>
+              <ul className="plan-features">
+                {p.features.map((f, i) => (<li key={i}>{f}</li>))}
+              </ul>
+              <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); setShowForm(true); }}>{p.cta}</button>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={handleRegistro} className={`register-form ${showForm ? 'visible' : 'hidden'}`}>
           <h2 className="form-title">REGISTRAR USUARIO</h2>
 
           <div className="form-row-responsive">
@@ -381,7 +492,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
             </div>
           </div>
 
-          <div className="input-group" style={{ marginBottom: "20px" }}>
+          <div className="input-group" style={{ marginBottom: "20px", display: 'none' }}>
             <Shield size={20} className="input-icon" />
             <select 
               name="role_id" className="custom-select"
