@@ -239,8 +239,8 @@ const ClientRegister = () => {
           <div
             className="register-card"
             style={{
-              width: '100px',
-              maxWidth: '1440px',
+              width: '100%',
+              maxWidth: '760px',
               minHeight: '760px',
               padding: '45px 40px',
               borderRadius: '26px',
