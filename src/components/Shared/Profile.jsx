@@ -328,10 +328,10 @@ const Profile = () => {
               })()}
 
               {user?.role_id !== 0 && (
-                <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #EEEEEE', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-                  <div>
-                    <h4 style={{ color: '#EF4444', margin: '0 0 5px 0', fontSize: '0.95rem', fontWeight: 'bold' }}>¿Deseas eliminar tu cuenta?</h4>
-                    <p style={{ margin: 0, color: '#64748B', fontSize: '0.82rem' }}>Al eliminar tu cuenta se desactivará tu perfil y dejarás de tener acceso al sistema.</p>
+                <div style={{ marginTop: '35px', paddingTop: '25px', paddingBottom: '30px', borderTop: '1px solid #EEEEEE', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                  <div style={{ flex: '1 1 300px' }}>
+                    <h4 style={{ color: '#EF4444', margin: '0 0 6px 0', fontSize: '1.05rem', fontWeight: 'bold' }}>¿Deseas eliminar tu cuenta?</h4>
+                    <p style={{ margin: 0, color: '#64748B', fontSize: '0.88rem', lineHeight: '1.4' }}>Al eliminar tu cuenta se desactivará tu perfil y dejarás de tener acceso al sistema.</p>
                   </div>
                   <button
                     type="button"
@@ -341,18 +341,20 @@ const Profile = () => {
                       setIsDeleteModalOpen(true);
                     }}
                     style={{
-                      padding: '8px 18px',
+                      padding: '10px 22px',
                       borderRadius: '8px',
                       border: '1.5px solid #EF4444',
                       background: '#FEF2F2',
                       color: '#EF4444',
                       fontWeight: 'bold',
-                      fontSize: '0.85rem',
+                      fontSize: '0.9rem',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      transition: 'all 0.2s'
+                      gap: '8px',
+                      transition: 'all 0.2s',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0
                     }}
                   >
                     🗑️ Eliminar mi Cuenta

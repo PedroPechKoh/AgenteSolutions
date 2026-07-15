@@ -13,11 +13,12 @@ html, body {
 
 .profile-page-scrollable-content {
   flex: 1; 
-  padding: 20px; /* Reducido para que pegue arriba al quitar el header */
+  padding: 20px 20px 80px 20px; /* Margen inferior extra para que nunca corte la tarjeta al hacer scroll */
   display: flex;
   justify-content: center;
   align-items: flex-start;
   background-color: #f5f5f5; 
+  box-sizing: border-box;
 }
 
 .profile-card {
@@ -29,7 +30,7 @@ html, body {
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
   overflow: hidden; 
   border: 2px solid #e0e0e0;
-  margin-bottom: 20px; 
+  margin-bottom: 50px; 
 }
 
 .profile-banner {
@@ -114,7 +115,7 @@ html, body {
 }
 
 .profile-content {
-  padding: 0 40px 40px 40px;
+  padding: 0 40px 70px 40px;
   position: relative;
 }
 
