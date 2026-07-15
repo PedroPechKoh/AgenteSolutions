@@ -287,7 +287,7 @@ const Profile = () => {
                           const specObj = ESPECIALIDADES_CATALOGO.find(item => item.name === specName) || (typeof s === 'object' ? s : null);
                           const icon = specObj ? (specObj.icon || '⚡') : '⚡';
                           return (
-                            <span key={idx} style={{ padding: '6px 14px', borderRadius: '20px', background: 'rgba(255,102,0,0.18)', border: '1px solid #ff6600', color: '#fff', fontSize: '0.82rem', fontWeight: 'bold' }}>
+                            <span key={idx} style={{ padding: '6px 14px', borderRadius: '20px', background: '#FFF3E6', border: '1.5px solid #FF6600', color: '#D94E00', fontSize: '0.85rem', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                               {icon} {specName}
                             </span>
                           );
@@ -363,7 +363,7 @@ const Profile = () => {
             {user?.role_id === 2 && (
               <div className="form-group" style={{ marginTop: '15px' }}>
                 <label style={{ color: '#ff6600', fontWeight: 'bold' }}>🛠️ Editar Mis Especialidades:</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '160px', overflowY: 'auto', padding: '6px', background: 'rgba(0,0,0,0.2)', borderRadius: '10px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '160px', overflowY: 'auto', padding: '10px', background: '#F0F2F5', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
                   {ESPECIALIDADES_CATALOGO.map(spec => {
                     const isSelected = selectedSpecialties.includes(spec.name);
                     return (
@@ -380,12 +380,13 @@ const Profile = () => {
                           }
                         }}
                         style={{
-                          padding: '6px 12px', borderRadius: '20px', cursor: 'pointer',
-                          border: isSelected ? '1px solid #FF6600' : '1px solid rgba(255,255,255,0.15)',
-                          background: isSelected ? 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)' : 'rgba(255,255,255,0.06)',
-                          color: isSelected ? '#fff' : '#ccc',
-                          fontWeight: isSelected ? 'bold' : 'normal', fontSize: '0.75rem',
-                          display: 'flex', alignItems: 'center', gap: '5px'
+                          padding: '6px 14px', borderRadius: '20px', cursor: 'pointer',
+                          border: isSelected ? '1.5px solid #FF6600' : '1px solid #CBD5E1',
+                          background: isSelected ? 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)' : '#FFFFFF',
+                          color: isSelected ? '#FFFFFF' : '#334155',
+                          fontWeight: isSelected ? 'bold' : '600', fontSize: '0.8rem',
+                          display: 'flex', alignItems: 'center', gap: '6px',
+                          boxShadow: isSelected ? '0 2px 6px rgba(255,102,0,0.3)' : '0 1px 2px rgba(0,0,0,0.05)'
                         }}
                       >
                         <span>{spec.icon}</span> <span>{spec.name}</span>

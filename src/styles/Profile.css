@@ -437,40 +437,52 @@ html, body {
 }
 
 .modal-content {
-  background-color: #F8F9FA; 
-  padding: 30px;
-  border-radius: 15px; 
-  width: 90%;
-  max-width: 600px; 
+  background-color: #FFFFFF; 
+  padding: 26px 30px;
+  border-radius: 16px; 
+  width: 92%;
+  max-width: 620px; 
+  max-height: 88vh;
+  overflow-y: auto;
   position: relative;
-  box-shadow: 0 15px 50px rgba(0,0,0,0.3); 
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35); 
   border-top: 6px solid #FF6600; 
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
 }
 
 .modal-title {
   margin-top: 0;
-  color: #ffffff; 
-  font-weight: bold;
+  color: #1F2937; 
+  font-weight: 800;
   font-size: 1.5rem;
-  margin-bottom: 25px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #EEEEEE;
+  margin-bottom: 22px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #F1F5F9;
 }
 
 .btn-close-modal {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #888888;
+  top: 18px;
+  right: 18px;
+  background: #F1F5F9;
+  border: 1px solid #CBD5E1;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #334155;
   cursor: pointer;
-  transition: color 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  transition: all 0.2s;
 }
 .btn-close-modal:hover {
-  color: #555555;
+  background: #E2E8F0;
+  color: #0F172A;
+  transform: scale(1.08);
 }
 
 .edit-profile-form {
@@ -494,7 +506,7 @@ html, body {
 .form-group label {
   font-size: 0.85rem;
   font-weight: bold;
-  color: #ffffff; 
+  color: #475569; 
   text-transform: uppercase; 
 }
 
@@ -520,21 +532,24 @@ html, body {
   gap: 15px;
   margin-top: 20px;
   padding-top: 15px;
+  padding-bottom: 5px;
   border-top: 1px solid #EEEEEE; 
 }
 
 .btn-cancel {
-  background-color: #ee0d0d; 
-  color: #FFFFFF; 
-  border: none;
-  padding: 10px 25px;
+  background-color: #F1F5F9; 
+  color: #334155; 
+  border: 1px solid #CBD5E1;
+  padding: 10px 24px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.2s;
+  font-size: 0.95rem;
+  transition: all 0.2s;
 }
 .btn-cancel:hover {
-  background-color: #BFC9CA; 
+  background-color: #E2E8F0; 
+  color: #0F172A;
 }
 
 .btn-save {
