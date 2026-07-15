@@ -49,6 +49,7 @@ const VistaUsuarios = () => {
           correo: u.email,
           rol: MAPA_ROLES[u.role_id] || "DESCONOCIDO",
           role_id: u.role_id,
+          approval_status: u.approval_status,
           estado: u.is_active ? "Activo" : "Inactivo",
           bloqueado: u.is_active === 0,
           profile_picture_url: u.profile_picture_url,
@@ -271,8 +272,16 @@ const VistaUsuarios = () => {
                     </td>
 
                     <td data-label="Estado">
-                      <span className={`status-dot ${u.bloqueado ? "status-off" : "status-on"}`} />
-                      {u.bloqueado ? "Inactivo" : u.estado}
+                      {u.approval_status === 'deleted_by_user' ? (
+                        <span style={{ background: '#FEF2F2', color: '#EF4444', border: '1px solid #F87171', padding: '4px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                          🔴 Eliminado por Usuario
+                        </span>
+                      ) : (
+                        <>
+                          <span className={`status-dot ${u.bloqueado ? "status-off" : "status-on"}`} />
+                          {u.bloqueado ? "Inactivo" : u.estado}
+                        </>
+                      )}
                     </td>
 
                     <td data-label="Acciones" className="actions-cell">

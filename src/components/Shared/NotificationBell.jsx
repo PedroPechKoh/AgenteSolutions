@@ -90,7 +90,9 @@ const NotificationBell = () => {
         url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
       } else if (type === 'new_work_order' || type === 'work_order_assigned' || type === 'work_order_rescheduled') {
         url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
-      } else if (type === 'work_order_cancelled_client') { const propId = notification.data.property_id; url = propId ? `/propiedad/${propId}/tablero` : '/propiedades'; } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
+      } else if (type === 'work_order_cancelled_client') { const propId = notification.data.property_id; url = propId ? `/propiedad/${propId}/tablero` : '/propiedades'; } else if (type === 'user_account_deleted') {
+        url = notification.data.url || (notification.data.role_id === 2 ? '/vista-tecnicos' : '/usuarios');
+      } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
         url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
       }
 

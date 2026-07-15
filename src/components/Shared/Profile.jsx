@@ -22,7 +22,7 @@ const ESPECIALIDADES_CATALOGO = [
 ];
 
 const Profile = () => {
-  const { user, loginGlobal } = useAuth();
+  const { user, loginGlobal, logoutGlobal } = useAuth();
   const navigate = useNavigate();
 
   const cameraRef = useRef(null);
@@ -32,6 +32,33 @@ const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
   const [selectedSpecialties, setSelectedSpecialties] = useState([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  const handleConfirmDeleteAccount = async () => {
+    if (deleteConfirmEmail !== user?.email) {
+      setDeleteError("El correo no coincide con tu usuario.");
+      return;
+    }
+    setDeletingAccount(true);
+    setDeleteError('');
+    try {
+      const token = localStorage.getItem("agente_token");
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/users/delete-my-account`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      logoutGlobal();
+      navigate('/login');
+    } catch (error) {
+      console.error("Error al eliminar cuenta:", error);
+      setDeleteError(error.response?.data?.error || "No se pudo eliminar tu cuenta. Por favor contacta a soporte.");
+      setDeletingAccount(false);
+    }
+  };
 
   const openPhotoMenu = (type) => {
     uploadTargetRef.current = type;
@@ -299,10 +326,116 @@ const Profile = () => {
                   </div>
                 );
               })()}
+
+              {user?.role_id !== 0 && (
+                <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #EEEEEE', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+                  <div>
+                    <h4 style={{ color: '#EF4444', margin: '0 0 5px 0', fontSize: '0.95rem', fontWeight: 'bold' }}>¿Deseas eliminar tu cuenta?</h4>
+                    <p style={{ margin: 0, color: '#64748B', fontSize: '0.82rem' }}>Al eliminar tu cuenta se desactivará tu perfil y dejarás de tener acceso al sistema.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeleteConfirmEmail('');
+                      setDeleteError('');
+                      setIsDeleteModalOpen(true);
+                    }}
+                    style={{
+                      padding: '8px 18px',
+                      borderRadius: '8px',
+                      border: '1.5px solid #EF4444',
+                      background: '#FEF2F2',
+                      color: '#EF4444',
+                      fontWeight: 'bold',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    🗑️ Eliminar mi Cuenta
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {isDeleteModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', borderTop: '6px solid #EF4444' }}>
+            <button className="btn-close-modal" onClick={() => setIsDeleteModalOpen(false)}>&times;</button>
+            <h3 className="modal-title" style={{ color: '#EF4444', borderBottom: '2px solid #FEF2F2' }}>⚠️ Eliminar Cuenta</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <p style={{ margin: 0, color: '#334155', fontSize: '0.92rem', lineHeight: '1.5' }}>
+                Estás a punto de solicitar la eliminación y desactivación de tu cuenta en <strong>Agente Solutions</strong>. 
+                Dejarás de tener acceso inmediato al sistema y tus propiedades/datos dejarán de estar visibles al público.
+              </p>
+              <div style={{ background: '#FFF7ED', border: '1px solid #FDBA74', padding: '12px', borderRadius: '8px' }}>
+                <p style={{ margin: 0, color: '#9A3412', fontSize: '0.82rem' }}>
+                  💡 <em>Si en el futuro deseas recuperar tu acceso, historial o solicitar el respaldo de tus datos, deberás comunicarte con nuestro equipo de Soporte Técnico.</em>
+                </p>
+              </div>
+              <div style={{ marginTop: '5px' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: '#475569', marginBottom: '6px' }}>
+                  Para confirmar, escribe tu correo electrónico (<strong>{user?.email}</strong>):
+                </label>
+                <input
+                  type="text"
+                  placeholder={user?.email || 'Escribe tu correo...'}
+                  value={deleteConfirmEmail}
+                  onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #CBD5E1',
+                    fontSize: '0.95rem',
+                    color: '#0F172A',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              {deleteError && (
+                <div style={{ color: '#EF4444', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                  {deleteError}
+                </div>
+              )}
+              <div className="modal-actions" style={{ marginTop: '10px', paddingTop: '15px' }}>
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  disabled={deletingAccount}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteAccount}
+                  disabled={deletingAccount || deleteConfirmEmail !== user?.email}
+                  style={{
+                    padding: '10px 22px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: (deleteConfirmEmail === user?.email && !deletingAccount) ? '#EF4444' : '#E2E8F0',
+                    color: (deleteConfirmEmail === user?.email && !deletingAccount) ? '#FFFFFF' : '#94A3B8',
+                    fontWeight: 'bold',
+                    fontSize: '0.95rem',
+                    cursor: (deleteConfirmEmail === user?.email && !deletingAccount) ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {deletingAccount ? 'Eliminando...' : 'Sí, Eliminar mi Cuenta'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isPhotoMenuOpen && (
         <div className="modal-overlay" onClick={() => setIsPhotoMenuOpen(false)}>
@@ -397,9 +530,36 @@ const Profile = () => {
               </div>
             )}
 
-            <div className="modal-actions">
-              <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-              <button type="submit" className="btn-save">Guardar Cambios</button>
+            <div className="modal-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                {user?.role_id !== 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setDeleteConfirmEmail('');
+                      setDeleteError('');
+                      setIsDeleteModalOpen(true);
+                    }}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      border: '1px solid #EF4444',
+                      background: 'transparent',
+                      color: '#EF4444',
+                      fontWeight: 'bold',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🗑️ Eliminar Cuenta
+                  </button>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                <button type="submit" className="btn-save">Guardar Cambios</button>
+              </div>
             </div>
           </form>
         </div>

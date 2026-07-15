@@ -127,6 +127,8 @@ const VistaNotificaciones = () => {
                         }
                       } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned' || type === 'work_order_assigned' || type === 'work_order_rescheduled') {
                         url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
+                      } else if (type === 'user_account_deleted') {
+                        url = n.data.url || (n.data.role_id === 2 ? '/vista-tecnicos' : '/usuarios');
                       } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
                         url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
                       }
