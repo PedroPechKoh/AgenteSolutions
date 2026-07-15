@@ -55,6 +55,27 @@ const Profile = () => {
     birth_date: ''
   });
 
+  useEffect(() => {
+    if (user?.role_id === 2 && user?.id) {
+      const fetchMySpecialties = async () => {
+        try {
+          const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/users/u_${user.id}/specialties`);
+          if (res.data?.success && res.data?.specialties) {
+            const specsArray = res.data.specialties;
+            const specsNames = specsArray.map(s => typeof s === 'string' ? s : s.name);
+            setSelectedSpecialties(specsNames);
+            if (loginGlobal && JSON.stringify(user.specialties || []) !== JSON.stringify(specsArray)) {
+              loginGlobal({ ...user, specialties: specsArray });
+            }
+          }
+        } catch (err) {
+          console.error("Error cargando especialidades del técnico:", err);
+        }
+      };
+      fetchMySpecialties();
+    }
+  }, [user?.id, user?.role_id]);
+
   const obtenerNombreRol = (roleId) => {
     switch(roleId) {
       case 0: return 'Usuario Root';
@@ -81,7 +102,9 @@ const Profile = () => {
       birth_date: user?.birth_date || ''
     });
     if (user?.role_id === 2) {
-      const specs = user?.specialties ? user.specialties.map(s => typeof s === 'string' ? s : s.name) : ["Electricidad"];
+      const specs = (user?.specialties && user.specialties.length > 0)
+        ? user.specialties.map(s => typeof s === 'string' ? s : s.name)
+        : (selectedSpecialties.length > 0 ? selectedSpecialties : ["Electricidad"]);
       setSelectedSpecialties(specs);
     }
     setIsModalOpen(true);
@@ -250,22 +273,32 @@ const Profile = () => {
                 <div className="data-grid-item"><label>Miembro desde</label><p>{formatearFecha(user?.created_at)}</p></div>
               </div>
 
-              {user?.role_id === 2 && (
-                <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                  <h4 style={{ color: '#ff6600', marginBottom: '10px', fontSize: '0.9rem', textTransform: 'uppercase' }}>🛠️ Especialidades Registradas</h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {user?.specialties && user.specialties.length > 0 ? (
-                      user.specialties.map((s, idx) => (
-                        <span key={idx} style={{ padding: '6px 14px', borderRadius: '20px', background: 'rgba(255,102,0,0.18)', border: '1px solid #ff6600', color: '#fff', fontSize: '0.82rem', fontWeight: 'bold' }}>
-                          {typeof s === 'string' ? s : `${s.icon || '⚡'} ${s.name}`}
-                        </span>
-                      ))
-                    ) : (
-                      <span style={{ color: '#aaa', fontStyle: 'italic', fontSize: '0.85rem' }}>No has seleccionado especialidades. HAZ CLIC EN EDITAR DATOS para agregar.</span>
-                    )}
+              {user?.role_id === 2 && (() => {
+                const displaySpecs = (user?.specialties && user.specialties.length > 0)
+                  ? user.specialties
+                  : (selectedSpecialties.length > 0 ? selectedSpecialties : null);
+                return (
+                  <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                    <h4 style={{ color: '#ff6600', marginBottom: '10px', fontSize: '0.9rem', textTransform: 'uppercase' }}>🛠️ Especialidades Registradas</h4>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {displaySpecs ? (
+                        displaySpecs.map((s, idx) => {
+                          const specName = typeof s === 'string' ? s : s.name;
+                          const specObj = ESPECIALIDADES_CATALOGO.find(item => item.name === specName) || (typeof s === 'object' ? s : null);
+                          const icon = specObj ? (specObj.icon || '⚡') : '⚡';
+                          return (
+                            <span key={idx} style={{ padding: '6px 14px', borderRadius: '20px', background: 'rgba(255,102,0,0.18)', border: '1px solid #ff6600', color: '#fff', fontSize: '0.82rem', fontWeight: 'bold' }}>
+                              {icon} {specName}
+                            </span>
+                          );
+                        })
+                      ) : (
+                        <span style={{ color: '#aaa', fontStyle: 'italic', fontSize: '0.85rem' }}>No has seleccionado especialidades. HAZ CLIC EN EDITAR DATOS para agregar.</span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         </div>
