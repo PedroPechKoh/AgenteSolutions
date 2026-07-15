@@ -197,8 +197,7 @@ const ClientRegister = () => {
         fontFamily: '"Arial Black", sans-serif'
       }} 
     >
-      <div style={{ maxWidth: '720px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
-        
+<div style={{ maxWidth: '1440px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>        
         {/* LOGO SUPERIOR LIMPIO (Sin overlaps ni scale absoluto) */}
         <div style={{ marginBottom: '20px', textAlign: 'center' }}>
           <img
@@ -238,21 +237,21 @@ const ClientRegister = () => {
         ) : (
           <div
             className="register-card"
-           style={{
-  width: '100%',
-  maxWidth: '1000px',
-  minHeight: '1440px', 
-  padding: '45px 40px',
-  borderRadius: '26px',
-  backgroundColor: 'rgba(10, 10, 10, 0.95)',
-  border: '1px solid rgba(242, 101, 34, 0.25)',
-  boxShadow: '0 32px 90px rgba(0, 0, 0, 0.55)',
-  display: 'flex',
-  flexDirection: 'row', /* <-- ¡Aquí está la magia! */
-  gap: '20px',
-  boxSizing: 'border-box',
-  margin: '0 auto'
-}}
+style={{
+    width: '100%',
+    maxWidth: '1440px', // Ampliamos para que las tarjetas tengan espacio
+    minHeight: 'auto', // 'auto' evita que quede un espacio negro gigante abajo
+    padding: '45px 40px',
+    borderRadius: '26px',
+    backgroundColor: 'rgba(10, 10, 10, 0.95)',
+    border: '1px solid rgba(242, 101, 34, 0.25)',
+    boxShadow: '0 32px 90px rgba(0, 0, 0, 0.55)',
+    display: 'flex',
+    flexDirection: 'column', // Lo regresamos a column para que el título quede arriba
+    gap: '40px', // Un poco más de espacio entre el título y las tarjetas
+    boxSizing: 'border-box',
+    margin: '0 auto'
+  }}
           >
             <h2
               style={{ color: 'white', fontStyle: 'italic', fontSize: '1.8rem', letterSpacing: '1.5px', margin: '0 0 10px 0', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', textAlign: 'center', fontWeight: '900' }}
@@ -262,7 +261,14 @@ const ClientRegister = () => {
 
             {/* ─── Selector de tipo de cuenta (tarjetas) ─── */}
             <style>{`
-              .plan-grid { display:flex; flex-wrap:wrap; gap:22px; width:100%; justify-content:center; align-items:flex-start; padding-bottom:6px; }
+              .plan-grid { display: flex; 
+  flex-wrap: nowrap; /* Evita que las tarjetas se caigan a la siguiente fila */
+  overflow-x: auto; /* Permite deslizar hacia los lados en celulares */
+  gap: 22px; 
+  width: 100%; 
+  justify-content: flex-start; /* Alinea estrictamente de izquierda a derecha */
+  align-items: flex-start; 
+  padding-bottom: 20px; }
               .plan-card { flex:0 0 320px; width:320px; min-height:500px; background:#f6f6f6; border-radius:24px; padding:24px; color:#111; border:1px solid rgba(0,0,0,0.12); box-shadow:0 22px 55px rgba(0,0,0,0.2); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; perspective: 1200px; position: relative; background-image: linear-gradient(180deg, #ffffff 0%, #f4f4f4 100%); }
               .plan-card:not(.active){ transform: scale(.96) translateY(4px); opacity: .95 }
               .plan-card.active{ transform: translateY(-14px) scale(1.02); z-index:20; }
