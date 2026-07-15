@@ -46,6 +46,7 @@ const ClientRegister = () => {
   const [showForm, setShowForm] = useState(true);
   const gridRef = useRef(null);
   const cardRefs = useRef({});
+  const [flipped, setFlipped] = useState(null);
 
   const centerCard = (cardEl) => {
     if (!cardEl || !gridRef.current) return;
