@@ -238,21 +238,21 @@ const ClientRegister = () => {
         ) : (
           <div
             className="register-card"
-            style={{
-              width: '100%',
-              maxWidth: '1000px',
-              minHeight: '1440px',
-              padding: '45px 40px',
-              borderRadius: '26px',
-              backgroundColor: 'rgba(10, 10, 10, 0.95)',
-              border: '1px solid rgba(242, 101, 34, 0.25)',
-              boxShadow: '0 32px 90px rgba(0, 0, 0, 0.55)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-              boxSizing: 'border-box',
-              margin: '0 auto'
-            }}
+           style={{
+  width: '100%',
+  maxWidth: '1000px',
+  minHeight: '1440px', 
+  padding: '45px 40px',
+  borderRadius: '26px',
+  backgroundColor: 'rgba(10, 10, 10, 0.95)',
+  border: '1px solid rgba(242, 101, 34, 0.25)',
+  boxShadow: '0 32px 90px rgba(0, 0, 0, 0.55)',
+  display: 'flex',
+  flexDirection: 'row', /* <-- ¡Aquí está la magia! */
+  gap: '20px',
+  boxSizing: 'border-box',
+  margin: '0 auto'
+}}
           >
             <h2
               style={{ color: 'white', fontStyle: 'italic', fontSize: '1.8rem', letterSpacing: '1.5px', margin: '0 0 10px 0', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', textAlign: 'center', fontWeight: '900' }}
