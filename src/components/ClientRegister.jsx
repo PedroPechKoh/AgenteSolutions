@@ -240,15 +240,16 @@ const ClientRegister = () => {
             className="register-card"
             style={{
               width: '100%',
-              maxWidth: '1160px',
-              padding: '35px 25px',
-              borderRadius: '24px',
+              maxWidth: '1440px',
+              minHeight: '760px',
+              padding: '45px 40px',
+              borderRadius: '26px',
               backgroundColor: 'rgba(10, 10, 10, 0.95)',
               border: '1px solid rgba(242, 101, 34, 0.25)',
-              boxShadow: '0 28px 70px rgba(0, 0, 0, 0.55)',
+              boxShadow: '0 32px 90px rgba(0, 0, 0, 0.55)',
               display: 'flex',
               flexDirection: 'column',
-              gap: '18px',
+              gap: '20px',
               boxSizing: 'border-box',
               margin: '0 auto'
             }}
@@ -261,25 +262,26 @@ const ClientRegister = () => {
 
             {/* ─── Selector de tipo de cuenta (tarjetas) ─── */}
             <style>{`
-              .plan-grid { display:flex; gap:16px; width:100%; overflow-x:auto; padding-bottom:6px; justify-content:flex-start; }
-              .plan-card { flex:0 0 260px; width:260px; min-height:420px; background:#f6f6f6; border-radius:20px; padding:20px; color:#111; border:1px solid rgba(0,0,0,0.12); box-shadow:0 18px 45px rgba(0,0,0,0.18); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; perspective: 1200px; position: relative; background-image: linear-gradient(180deg, #ffffff 0%, #f4f4f4 100%); }
+              .plan-grid { display:flex; flex-wrap:wrap; gap:22px; width:100%; justify-content:center; align-items:flex-start; padding-bottom:6px; }
+              .plan-card { flex:0 0 320px; width:320px; min-height:500px; background:#f6f6f6; border-radius:24px; padding:24px; color:#111; border:1px solid rgba(0,0,0,0.12); box-shadow:0 22px 55px rgba(0,0,0,0.2); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; perspective: 1200px; position: relative; background-image: linear-gradient(180deg, #ffffff 0%, #f4f4f4 100%); }
               .plan-card:not(.active){ transform: scale(.96) translateY(4px); opacity: .95 }
-              .plan-card.active{ transform: translateY(-14px) scale(1.03); z-index:20; }
+              .plan-card.active{ transform: translateY(-14px) scale(1.02); z-index:20; }
               .plan-card .card-inner{ transition: transform 0.6s cubic-bezier(.2,.9,.2,1); transform-style: preserve-3d; position: relative; }
               .plan-card.flip .card-inner{ transform: rotateY(180deg); }
-              .card-front, .card-back{ position: relative; width:100%; min-height:360px; }
+              .card-front, .card-back{ position: relative; width:100%; min-height:420px; }
               .card-back{ overflow-y:auto; }
-              .plan-title{ font-weight:900; font-size:1.1rem; color:#111 }
-              .plan-sub{ font-size:.82rem; color:#555; margin-top:4px }
-              .plan-features{ margin-top:12px; padding-left:16px; font-size:.86rem; color:#333; max-height:110px; overflow:hidden }
-              .plan-features li{ margin-bottom:8px }
-              .plan-cta{ margin-top:12px; width:100%; padding:12px 14px; border-radius:32px; border:none; background:#f26522; color:#111; font-weight:900; cursor:pointer; box-shadow:0 10px 18px rgba(242,101,34,0.24); }
-              .card-back { background: #fff; border-radius: 18px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.03); }
-              .card-back h3 { margin: 0 0 12px 0; color: #111; }
+              .plan-title{ font-weight:900; font-size:1.15rem; color:#111 }
+              .plan-sub{ font-size:.88rem; color:#444; margin-top:6px }
+              .plan-features{ margin-top:16px; padding-left:18px; font-size:.92rem; color:#333; max-height:140px; overflow:hidden }
+              .plan-features li{ margin-bottom:10px }
+              .plan-cta{ margin-top:18px; width:100%; padding:14px 16px; border-radius:36px; border:none; background:#f26522; color:#111; font-weight:900; cursor:pointer; box-shadow:0 12px 22px rgba(242,101,34,0.22); }
+              .card-back { background: #fff; border-radius: 20px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04); }
+              .card-back h3 { margin: 0 0 14px 0; color: #111; }
               .card-back p { color: #444; }
-              @media(max-width:1000px){ .plan-card { width:220px; flex:0 0 220px; min-height:400px; } }
-              @media(max-width:780px){ .plan-grid { justify-content:center; gap:14px; } .plan-card { width:220px; flex:0 0 220px; min-height:420px; } }
-              @media(max-width:640px){ .plan-card { width:100%; flex:1 0 auto; min-height:380px; } .plan-grid { display:block; } }
+              @media(max-width:1200px){ .plan-card { width:280px; flex:0 0 280px; min-height:470px; } }
+              @media(max-width:960px){ .plan-card { width:250px; flex:0 0 250px; min-height:460px; } }
+              @media(max-width:780px){ .plan-grid { justify-content:center; gap:18px; } .plan-card { width:100%; flex:1 0 auto; min-height:420px; } }
+              @media(max-width:640px){ .plan-card { padding:20px; min-height:380px; } }
             `}</style>
             <div ref={gridRef} className={`plan-grid ${selectedPlan ? 'focused' : ''}`}>
               {plans.map(p => {
