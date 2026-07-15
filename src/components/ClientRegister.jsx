@@ -6,6 +6,21 @@ import { useNavigate } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 import Logo4 from "../assets/Logo4.png";
 
+const ESPECIALIDADES_CATALOGO = [
+  { id: 1, name: "Electricidad", icon: "⚡" },
+  { id: 2, name: "Plomería", icon: "🚰" },
+  { id: 3, name: "Aire Acondicionado (HVAC)", icon: "❄️" },
+  { id: 4, name: "Pintura e Impermeabilización", icon: "🎨" },
+  { id: 5, name: "Albañilería y Remodelación", icon: "🧱" },
+  { id: 6, name: "Carpintería y Muebles", icon: "🪚" },
+  { id: 7, name: "Cerrajería y Seguridad", icon: "🔑" },
+  { id: 8, name: "Limpieza y Mantenimiento", icon: "🧹" },
+  { id: 9, name: "Multi-técnico / General", icon: "🧰" },
+  { id: 10, name: "Electrodomésticos y Equipos", icon: "🔌" },
+  { id: 11, name: "Jardinería y Exteriores", icon: "🪴" },
+  { id: 12, name: "Redes y CCTV", icon: "🖥️" }
+];
+
 const ClientRegister = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -18,6 +33,7 @@ const ClientRegister = () => {
   const [accountType, setAccountType] = useState("client");
   const [companyName, setCompanyName] = useState("");
   const [companyCode, setCompanyCode] = useState("");
+  const [selectedSpecialties, setSelectedSpecialties] = useState(["Electricidad"]);
   const [isPendingApproval, setIsPendingApproval] = useState(false);
 
   const [isCaptchaValid, setIsCaptchaValid] = useState(false);
@@ -79,7 +95,8 @@ const ClientRegister = () => {
         password,
         role_id:      roleId,
         company_code: !isAutonomoAccount ? companyCode.trim() || null : null,
-        company_name: isAutonomoAccount ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null
+        company_name: isAutonomoAccount ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null,
+        specialties:  roleId === 2 ? selectedSpecialties : []
       });
 
       setIsLoading(false);
@@ -245,14 +262,52 @@ const ClientRegister = () => {
                   <li>✅ Recibe y gestiona órdenes de trabajo</li>
                   <li>✅ Genera cotizaciones y reportes fotográficos</li>
                   <li>✅ Cuota después de 1 año: <strong>$99 MXN/mes</strong> *(exento si eres de Agente Solutions)*</li>
-                  <li style={{ color: '#aaa' }}>⏳ Tu perfil será aprobado por tu empresa o Root</li>
+                  <li style={{ color: '#aaa' }}>⏳ Tu perfil será aprobado por tu empresa o por Root</li>
                 </ul>
                 <div style={{ marginTop: 14 }}>
-                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>🔑 Código de tu empresa <span style={{ color: '#f26522' }}>*</span></label>
-                  <input type="text" placeholder="Ingresa el código que te dio tu empresa"
+                  <label style={{ color: '#888', fontSize: '0.75rem', display: 'block', marginBottom: 6, fontWeight: 'bold' }}>
+                    🔑 Código de tu empresa <span style={{ color: '#aaa', fontWeight: 'normal' }}>(Opcional — déjalo vacío para ir a Agente Solutions)</span>
+                  </label>
+                  <input type="text" placeholder="Ej: AUT_E_001 — o vacío si eres de Agente Solutions"
                     value={companyCode} onChange={e => setCompanyCode(e.target.value)}
                     style={{ width: '100%', padding: '10px 14px', borderRadius: '50px', border: 'none', backgroundColor: '#cfd3d8', color: '#1a1a1a', fontWeight: 'bold', fontSize: '0.83rem', boxSizing: 'border-box' }}
                   />
+                </div>
+
+                <div style={{ marginTop: 16 }}>
+                  <label style={{ color: '#f26522', fontSize: '0.78rem', display: 'block', marginBottom: 8, fontWeight: 'bold' }}>
+                    🛠️ SELECCIONA TUS ESPECIALIDADES <span style={{ color: '#aaa', fontWeight: 'normal' }}>(Elige una o más)</span>:
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '180px', overflowY: 'auto', padding: '4px' }}>
+                    {ESPECIALIDADES_CATALOGO.map(spec => {
+                      const isSelected = selectedSpecialties.includes(spec.name);
+                      return (
+                        <button
+                          key={spec.id}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              if (selectedSpecialties.length > 1) {
+                                setSelectedSpecialties(prev => prev.filter(s => s !== spec.name));
+                              }
+                            } else {
+                              setSelectedSpecialties(prev => [...prev, spec.name]);
+                            }
+                          }}
+                          style={{
+                            padding: '6px 12px', borderRadius: '20px', cursor: 'pointer',
+                            border: isSelected ? '1px solid #FF6600' : '1px solid rgba(255,255,255,0.15)',
+                            background: isSelected ? 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)' : 'rgba(255,255,255,0.06)',
+                            color: isSelected ? '#fff' : '#ccc',
+                            fontWeight: isSelected ? 'bold' : 'normal', fontSize: '0.75rem',
+                            display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.2s'
+                          }}
+                        >
+                          <span>{spec.icon}</span> <span>{spec.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             )}

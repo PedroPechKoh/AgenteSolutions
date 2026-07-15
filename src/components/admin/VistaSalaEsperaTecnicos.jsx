@@ -130,6 +130,20 @@ const VistaSalaEsperaTecnicos = () => {
                     <p style={{ margin: '6px 0', color: '#888', fontSize: '0.85rem' }}>
                       <strong>Fecha registro:</strong> {new Date(tech.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </p>
+                    <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed #ddd' }}>
+                      <strong style={{ fontSize: '0.78rem', color: '#FF6600', display: 'block', marginBottom: '4px' }}>🛠️ ESPECIALIDADES:</strong>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                        {tech.specialties && tech.specialties.length > 0 ? (
+                          tech.specialties.map((s, idx) => (
+                            <span key={idx} style={{ padding: '2px 8px', background: '#fff3e0', border: '1px solid #ffb74d', borderRadius: '12px', fontSize: '0.72rem', color: '#e65100', fontWeight: 'bold' }}>
+                              {typeof s === 'string' ? s : `${s.icon || '⚡'} ${s.name}`}
+                            </span>
+                          ))
+                        ) : (
+                          <span style={{ fontSize: '0.75rem', color: '#999', fontStyle: 'italic' }}>General / Sin especificar</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -296,6 +310,21 @@ const VistaSalaEsperaTecnicos = () => {
                       ? `${selectedTechDetails.tenant.name} (${selectedTechDetails.tenant.code})`
                       : 'Agente Solutions (Empresa Oficial)'}
                   </p>
+                </div>
+
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ fontSize: '0.8rem', color: '#FF6600', display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>🛠️ ESPECIALIDADES SELECCIONADAS POR EL TÉCNICO</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {selectedTechDetails.specialties && selectedTechDetails.specialties.length > 0 ? (
+                      selectedTechDetails.specialties.map((s, idx) => (
+                        <span key={idx} style={{ padding: '6px 14px', background: '#FFF5EC', border: '1px solid #FF6600', borderRadius: '16px', fontSize: '0.85rem', color: '#E65100', fontWeight: 'bold' }}>
+                          {typeof s === 'string' ? s : `${s.icon || '⚡'} ${s.name}`}
+                        </span>
+                      ))
+                    ) : (
+                      <span style={{ fontSize: '0.9rem', color: '#888', fontStyle: 'italic' }}>General / Sin especificar</span>
+                    )}
+                  </div>
                 </div>
 
                 <div style={{ gridColumn: '1 / -1' }}>

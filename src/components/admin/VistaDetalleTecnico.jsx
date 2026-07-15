@@ -6,6 +6,21 @@ import {
 } from 'lucide-react';
 import '../../styles/Admin/VistaDetalleCliente.css';
 
+const ESPECIALIDADES_CATALOGO = [
+  { id: 1, name: "Electricidad", icon: "⚡" },
+  { id: 2, name: "Plomería", icon: "🚰" },
+  { id: 3, name: "Aire Acondicionado (HVAC)", icon: "❄️" },
+  { id: 4, name: "Pintura e Impermeabilización", icon: "🎨" },
+  { id: 5, name: "Albañilería y Remodelación", icon: "🧱" },
+  { id: 6, name: "Carpintería y Muebles", icon: "🪚" },
+  { id: 7, name: "Cerrajería y Seguridad", icon: "🔑" },
+  { id: 8, name: "Limpieza y Mantenimiento", icon: "🧹" },
+  { id: 9, name: "Multi-técnico / General", icon: "🧰" },
+  { id: 10, name: "Electrodomésticos y Equipos", icon: "🔌" },
+  { id: 11, name: "Jardinería y Exteriores", icon: "🪴" },
+  { id: 12, name: "Redes y CCTV", icon: "🖥️" }
+];
+
 const VistaDetalleTecnico = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -17,6 +32,10 @@ const VistaDetalleTecnico = () => {
   const [cargando, setCargando] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSpecialties, setSelectedSpecialties] = useState(() => {
+    const specs = location.state?.tecnico?.specialties || location.state?.u?.specialties || [];
+    return specs.map(s => typeof s === 'string' ? s : s.name);
+  });
   const [formData, setFormData] = useState({
     nombre: tecnico?.name || tecnico?.nombre || '',
     correo: tecnico?.email || tecnico?.correo || '',
@@ -135,7 +154,18 @@ const VistaDetalleTecnico = () => {
       if (formData.password) payload.password = formData.password;
 
       const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/usuarios/update-profile`, payload);
-      setTecnico({ ...tecnico, ...formData });
+      
+      const rawId = String(tecnico.id || tecnico.user_id).replace(/[^\d]/g, '');
+      const token = localStorage.getItem('agente_token');
+      let updatedSpecs = tecnico.specialties || [];
+      try {
+        const specRes = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/u_${rawId}/specialties`, {
+          specialties: selectedSpecialties
+        }, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (specRes.data?.specialties) updatedSpecs = specRes.data.specialties;
+      } catch (err) { console.error('Error sincronizando especialidades:', err); }
+
+      setTecnico({ ...tecnico, ...formData, specialties: updatedSpecs });
       setIsModalOpen(false);
       alert(data.message || '¡Perfil actualizado con éxito!');
     } catch (error) {
@@ -248,8 +278,24 @@ const VistaDetalleTecnico = () => {
               <ShieldCheck size={18} className="icon-orange" />
               <div><label>ID DE EXPEDIENTE</label><p>#{String(tecnico.id).replace(/[^\d]/g, '')}</p></div>
             </div>
+            <div className="info-row-stack" style={{ borderTop: '1px solid #eee', paddingTop: '10px' }}>
+              <div>
+                <label style={{ color: '#F26522', fontWeight: 'bold' }}>🛠️ ESPECIALIDADES REGISTRADAS</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+                  {tecnico.specialties && tecnico.specialties.length > 0 ? (
+                    tecnico.specialties.map((s, idx) => (
+                      <span key={idx} style={{ padding: '4px 10px', borderRadius: '14px', background: '#fff7ed', border: '1px solid #f97316', color: '#c2410c', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                        {typeof s === 'string' ? s : `${s.icon || '⚡'} ${s.name}`}
+                      </span>
+                    ))
+                  ) : (
+                    <span style={{ color: '#94a3b8', fontSize: '0.8rem', fontStyle: 'italic' }}>No tiene especialidades seleccionadas</span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-          <button className="btn-editar-perfil-new" onClick={() => setIsModalOpen(true)}>MODIFICAR PERFIL</button>
+          <button className="btn-editar-perfil-new" onClick={() => setIsModalOpen(true)}>MODIFICAR PERFIL Y ESPECIALIDADES</button>
         </aside>
 
         <main className="propiedades-section">
@@ -416,6 +462,39 @@ const VistaDetalleTecnico = () => {
                       <option value="Activo">Activo</option>
                       <option value="Inactivo">Inactivo</option>
                     </select>
+                  </div>
+                  <div className="input-box-new full-width">
+                    <label style={{ color: '#F26522', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>🛠️ Especialidades Asignadas:</label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '160px', overflowY: 'auto', padding: '8px', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px' }}>
+                      {ESPECIALIDADES_CATALOGO.map(spec => {
+                        const isSelected = selectedSpecialties.includes(spec.name);
+                        return (
+                          <button
+                            key={spec.id}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                if (selectedSpecialties.length > 1) {
+                                  setSelectedSpecialties(prev => prev.filter(s => s !== spec.name));
+                                }
+                              } else {
+                                setSelectedSpecialties(prev => [...prev, spec.name]);
+                              }
+                            }}
+                            style={{
+                              padding: '6px 12px', borderRadius: '20px', cursor: 'pointer',
+                              border: isSelected ? '1px solid #FF6600' : '1px solid #cbd5e1',
+                              background: isSelected ? 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)' : '#ffffff',
+                              color: isSelected ? '#fff' : '#475569',
+                              fontWeight: isSelected ? 'bold' : 'normal', fontSize: '0.78rem',
+                              display: 'flex', alignItems: 'center', gap: '5px'
+                            }}
+                          >
+                            <span>{spec.icon}</span> <span>{spec.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
                 <div className="modal-actions-new">

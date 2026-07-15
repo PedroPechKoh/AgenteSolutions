@@ -1,10 +1,25 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Camera, X, ChevronLeft } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/Logo3.png"; 
 import "../../styles/Profile.css"; 
+
+const ESPECIALIDADES_CATALOGO = [
+  { id: 1, name: "Electricidad", icon: "⚡" },
+  { id: 2, name: "Plomería", icon: "🚰" },
+  { id: 3, name: "Aire Acondicionado (HVAC)", icon: "❄️" },
+  { id: 4, name: "Pintura e Impermeabilización", icon: "🎨" },
+  { id: 5, name: "Albañilería y Remodelación", icon: "🧱" },
+  { id: 6, name: "Carpintería y Muebles", icon: "🪚" },
+  { id: 7, name: "Cerrajería y Seguridad", icon: "🔑" },
+  { id: 8, name: "Limpieza y Mantenimiento", icon: "🧹" },
+  { id: 9, name: "Multi-técnico / General", icon: "🧰" },
+  { id: 10, name: "Electrodomésticos y Equipos", icon: "🔌" },
+  { id: 11, name: "Jardinería y Exteriores", icon: "🪴" },
+  { id: 12, name: "Redes y CCTV", icon: "🖥️" }
+];
 
 const Profile = () => {
   const { user, loginGlobal } = useAuth();
@@ -16,6 +31,7 @@ const Profile = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPhotoMenuOpen, setIsPhotoMenuOpen] = useState(false);
+  const [selectedSpecialties, setSelectedSpecialties] = useState([]);
 
   const openPhotoMenu = (type) => {
     uploadTargetRef.current = type;
@@ -64,6 +80,10 @@ const Profile = () => {
       phone_number: user?.phone_number || '',
       birth_date: user?.birth_date || ''
     });
+    if (user?.role_id === 2) {
+      const specs = user?.specialties ? user.specialties.map(s => typeof s === 'string' ? s : s.name) : ["Electricidad"];
+      setSelectedSpecialties(specs);
+    }
     setIsModalOpen(true);
   };
 
@@ -81,6 +101,20 @@ const Profile = () => {
         }
       });
 
+      let updatedSpecs = user?.specialties || [];
+      if (user?.role_id === 2) {
+        const specRes = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/u_${user.id}/specialties`, {
+          specialties: selectedSpecialties
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (specRes.data?.specialties) {
+          updatedSpecs = specRes.data.specialties;
+        }
+      }
+
       console.log("Perfil actualizado:", res.data);
       
       loginGlobal({
@@ -89,7 +123,8 @@ const Profile = () => {
         last_name: formData.last_name,
         email: formData.email,
         phone_number: formData.phone_number,
-        birth_date: formData.birth_date
+        birth_date: formData.birth_date,
+        specialties: updatedSpecs
       });
 
       setIsModalOpen(false);
@@ -214,6 +249,23 @@ const Profile = () => {
                 <div className="data-group"><label>Fecha de Nacimiento</label><p>{formatearFecha(user?.birth_date)}</p></div>
                 <div className="data-grid-item"><label>Miembro desde</label><p>{formatearFecha(user?.created_at)}</p></div>
               </div>
+
+              {user?.role_id === 2 && (
+                <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                  <h4 style={{ color: '#ff6600', marginBottom: '10px', fontSize: '0.9rem', textTransform: 'uppercase' }}>🛠️ Especialidades Registradas</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {user?.specialties && user.specialties.length > 0 ? (
+                      user.specialties.map((s, idx) => (
+                        <span key={idx} style={{ padding: '6px 14px', borderRadius: '20px', background: 'rgba(255,102,0,0.18)', border: '1px solid #ff6600', color: '#fff', fontSize: '0.82rem', fontWeight: 'bold' }}>
+                          {typeof s === 'string' ? s : `${s.icon || '⚡'} ${s.name}`}
+                        </span>
+                      ))
+                    ) : (
+                      <span style={{ color: '#aaa', fontStyle: 'italic', fontSize: '0.85rem' }}>No has seleccionado especialidades. HAZ CLIC EN EDITAR DATOS para agregar.</span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -274,6 +326,42 @@ const Profile = () => {
               <label>Correo Electrónico</label>
               <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
             </div>
+
+            {user?.role_id === 2 && (
+              <div className="form-group" style={{ marginTop: '15px' }}>
+                <label style={{ color: '#ff6600', fontWeight: 'bold' }}>🛠️ Editar Mis Especialidades:</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '160px', overflowY: 'auto', padding: '6px', background: 'rgba(0,0,0,0.2)', borderRadius: '10px' }}>
+                  {ESPECIALIDADES_CATALOGO.map(spec => {
+                    const isSelected = selectedSpecialties.includes(spec.name);
+                    return (
+                      <button
+                        key={spec.id}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            if (selectedSpecialties.length > 1) {
+                              setSelectedSpecialties(prev => prev.filter(s => s !== spec.name));
+                            }
+                          } else {
+                            setSelectedSpecialties(prev => [...prev, spec.name]);
+                          }
+                        }}
+                        style={{
+                          padding: '6px 12px', borderRadius: '20px', cursor: 'pointer',
+                          border: isSelected ? '1px solid #FF6600' : '1px solid rgba(255,255,255,0.15)',
+                          background: isSelected ? 'linear-gradient(135deg, #FF6600 0%, #d94e00 100%)' : 'rgba(255,255,255,0.06)',
+                          color: isSelected ? '#fff' : '#ccc',
+                          fontWeight: isSelected ? 'bold' : 'normal', fontSize: '0.75rem',
+                          display: 'flex', alignItems: 'center', gap: '5px'
+                        }}
+                      >
+                        <span>{spec.icon}</span> <span>{spec.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="modal-actions">
               <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)}>Cancelar</button>
