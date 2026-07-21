@@ -335,6 +335,7 @@ const VistaSalaEsperaTecnicos = () => {
                     )}
                   </div>
                 </div>
+                )}
 
                 <div style={{ gridColumn: '1 / -1' }}>
                   <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>FECHA Y HORA DE SOLICITUD</label>
