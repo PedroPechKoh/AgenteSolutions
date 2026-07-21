@@ -37,6 +37,7 @@ const ClientRegister = () => {
   const [isPendingApproval, setIsPendingApproval] = useState(false);
 
   const [isCaptchaValid, setIsCaptchaValid] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -128,6 +129,7 @@ const ClientRegister = () => {
 
   const handleCaptchaChange = (value) => {
     setIsCaptchaValid(!!value);
+    setCaptchaToken(value);
   };
 
   const handleTenantSelect = (e) => {
@@ -171,7 +173,8 @@ const ClientRegister = () => {
         role_id:      roleId,
         company_code: (!isAutonomoAccount && roleId !== 7) ? companyCode.trim() || null : null,
         company_name: isAutonomoAccount ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null,
-        specialties:  roleId === 2 ? selectedSpecialties : []
+        specialties:  roleId === 2 ? selectedSpecialties : [],
+        captcha_token: captchaToken
       });
 
       setIsLoading(false);
@@ -354,6 +357,13 @@ style={{
                           {(p.key === 'owner_business' || p.key === 'contratista') && (
                             <input value={companyName} onChange={e=>setCompanyName(e.target.value)} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           )}
+                          <div style={{ display: 'flex', justifyContent: 'center', margin: '5px 0' }}>
+                            <ReCAPTCHA
+                              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LfHnl4tAAAAAIosLgj18bnFZ4aqpQ0jBXpnJs_Q"}
+                              onChange={handleCaptchaChange}
+                              size="compact"
+                            />
+                          </div>
                           <div style={{ display:'flex', gap:8 }}>
                             <button type="submit" disabled={isLoading} style={{ flex:1, padding: '10px 14px', borderRadius: 20, background: '#f26522', color:'#fff', fontWeight:800 }}>{isLoading? '...' : 'Registrar'}</button>
                             <button type="button" onClick={(ev)=>{ ev.stopPropagation(); setFlipped(null); }} style={{ padding: '10px 14px', borderRadius: 20, background: '#333', color:'#fff' }}>Cancelar</button>
