@@ -186,13 +186,13 @@ const ClientRegister = () => {
         setIsPendingApproval(true);
       } else if (roleId === 5 || roleId === 4 || roleId === 6) {
         setMessage('🎉 ¡Registro exitoso con 6 MESES GRATIS activos! Redirigiendo...');
-        setTimeout(() => navigate(`/revisa-tu-correo?email=${email}`), 2200);
+        setTimeout(() => navigate(`/login`), 2200);
       } else if (roleId === 7) {
         setMessage('¡Registro exitoso! Redirigiendo...');
-        setTimeout(() => navigate(`/revisa-tu-correo?email=${email}`), 2000);
+        setTimeout(() => navigate(`/login`), 2000);
       } else {
         setMessage('¡Registro exitoso! Redirigiendo...');
-        setTimeout(() => navigate(`/revisa-tu-correo?email=${email}`), 2000);
+        setTimeout(() => navigate(`/login`), 2000);
       }
     } catch (error) {
       setIsLoading(false);
