@@ -185,14 +185,14 @@ const ClientRegister = () => {
       } else if (res.data.status === 'pending_approval' || roleId === 2) {
         setIsPendingApproval(true);
       } else if (roleId === 5 || roleId === 4 || roleId === 6) {
-        setMessage('🎉 ¡Registro exitoso con 6 MESES GRATIS activos! Redirigiendo para iniciar sesión...');
-        setTimeout(() => navigate('/'), 2200);
+        setMessage('🎉 ¡Registro exitoso con 6 MESES GRATIS activos! Redirigiendo...');
+        setTimeout(() => navigate(`/revisa-tu-correo?email=${email}`), 2200);
       } else if (roleId === 7) {
-        setMessage('¡Registro exitoso! Redirigiendo para que ingreses el código de tu Autónomo...');
-        setTimeout(() => navigate('/'), 2500);
+        setMessage('¡Registro exitoso! Redirigiendo...');
+        setTimeout(() => navigate(`/revisa-tu-correo?email=${email}`), 2000);
       } else {
-        setMessage('¡Registro exitoso! Redirigiendo al inicio de sesión...');
-        setTimeout(() => navigate('/'), 2000);
+        setMessage('¡Registro exitoso! Redirigiendo...');
+        setTimeout(() => navigate(`/revisa-tu-correo?email=${email}`), 2000);
       }
     } catch (error) {
       setIsLoading(false);
@@ -251,14 +251,12 @@ const ClientRegister = () => {
                 <strong style={{ color: '#f26522' }}>Estado actual:</strong> <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>⏳ Pendiente de aprobación</span>
               </p>
             </div>
-            <button
-              type="button"
-              className="btn-login"
-              onClick={() => navigate('/')}
-              style={{ width: '100%', maxWidth: '350px', padding: '14px', fontSize: '1.1rem', borderRadius: '50px', backgroundColor: '#f26522', color: '#fff', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
-            >
-              VOLVER AL INICIO DE SESIÓN
-            </button>
+          <button 
+            onClick={() => navigate(`/revisa-tu-correo?email=${email}`)}
+            style={{ padding: '12px 24px', backgroundColor: '#f26522', color: '#fff', border: 'none', borderRadius: '30px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}
+          >
+            Continuar a verificación de correo
+          </button>
           </div>
         ) : (
           <div

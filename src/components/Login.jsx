@@ -150,28 +150,24 @@ const handleLogin = async (e) => {
   const handleRecoverPassword = async (e) => {
     e.preventDefault();
     setRecoverMessage("");
-    if (newPassword !== confirmPassword) {
-      setRecoverMessage("Las contraseñas no coinciden.");
-      return;
-    }
+    setIsLoading(true);
     
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/recover-password`, {
-        email: recoverEmail,
-        new_password: newPassword
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/forgot-password`, {
+        email: recoverEmail
       });
-      setRecoverMessage("Contraseña actualizada con éxito.");
+      setRecoverMessage(res.data.message || "Te hemos enviado un enlace a tu correo.");
       setTimeout(() => {
         setIsRecoverModalOpen(false);
         setRecoverMessage("");
         setRecoverEmail("");
-        setNewPassword("");
-        setConfirmPassword("");
-      }, 2000);
+        setIsLoading(false);
+      }, 4000);
     } catch (error) {
+      setIsLoading(false);
       console.log("Error al recuperar:", error);
       if (error.response) {
-        setRecoverMessage(`Error: ${error.response.data.message || error.response.data.error || 'No se pudo actualizar.'}`);
+        setRecoverMessage(`Error: ${error.response.data.message || 'No se pudo procesar tu solicitud.'}`);
       } else {
         setRecoverMessage("Error al recuperar la contraseña. Verifica tu conexión.");
       }
@@ -298,6 +294,7 @@ const handleLogin = async (e) => {
           <div className="login-modal-content">
             <img src={backgroundSettings.appLogo || Logo4} alt="Agente Solutions" className="login-modal-logo" style={{ width: '150px', marginBottom: '20px', objectFit: 'contain' }} />
             <h3 style={{ color: 'white', marginBottom: '20px', fontStyle: 'italic' }}>RECUPERAR CONTRASEÑA</h3>
+            <p style={{ color: '#ccc', fontSize: '0.9rem', marginBottom: '15px' }}>Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.</p>
             <form onSubmit={handleRecoverPassword} style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '100%' }}>
               <div className="input-group">
                 <Mail size={20} strokeWidth={2.5} className="input-icon" />
@@ -311,38 +308,8 @@ const handleLogin = async (e) => {
                   style={{ paddingLeft: "50px" }}
                 />
               </div>
-              <div className="input-group">
-                <Lock size={20} strokeWidth={2.5} className="input-icon" />
-                <input
-                  type={showNewPassword ? "text" : "password"}
-                  placeholder="NUEVA CONTRASEÑA"
-                  className="custom-input login-modal-input"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  style={{ paddingLeft: "50px", paddingRight: "45px" }}
-                />
-                <button type="button" className="toggle-password-btn" onClick={() => setShowNewPassword(!showNewPassword)}>
-                  {showNewPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
-                </button>
-              </div>
-              <div className="input-group">
-                <Lock size={20} strokeWidth={2.5} className="input-icon" />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="CONFIRMAR CONTRASEÑA"
-                  className="custom-input login-modal-input"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  style={{ paddingLeft: "50px", paddingRight: "45px" }}
-                />
-                <button type="button" className="toggle-password-btn" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                  {showConfirmPassword ? <EyeOff size={18} strokeWidth={2.5} /> : <Eye size={18} strokeWidth={2.5} />}
-                </button>
-              </div>
-              <button type="submit" className="btn-login" style={{ fontSize: '1.2rem', padding: '10px' }}>
-                ACTUALIZAR
+              <button type="submit" disabled={isLoading} className="btn-login" style={{ fontSize: '1.2rem', padding: '10px' }}>
+                {isLoading ? 'ENVIANDO...' : 'ENVIAR ENLACE'}
               </button>
               <button 
                 type="button" 

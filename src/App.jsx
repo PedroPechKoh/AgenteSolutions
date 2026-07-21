@@ -14,6 +14,9 @@ import CustomizeLogin from "./components/CustomizeLogin";
 import AssignServiceForm from "./components/AssignServiceForm";
 import VistaNotificaciones from "./components/Shared/VistaNotificaciones"; 
 import RegistroZonas from "./components/VistasTecnico/RegistroZonas";
+import CheckEmail from "./components/CheckEmail";
+import VerifyEmail from "./components/VerifyEmail";
+import ResetPassword from "./components/ResetPassword";
 
 ///Cliente
 import MainLayoutCliente from "./components/VistaCliente/MainLayoutCliente";
@@ -107,6 +110,9 @@ useEffect(() => {
       <Route path="/" element={<LoginAgente />} />
       <Route path="/registro-cliente" element={<RegistroCliente />} />
       <Route path="/activacion-cuenta" element={<ActivacionCuenta />} />
+      <Route path="/revisa-tu-correo" element={<CheckEmail />} />
+      <Route path="/email/verify/:id/:hash" element={<VerifyEmail />} />
+      <Route path="/recuperar-password" element={<ResetPassword />} />
 
       {/* RUTA COMPARTIDA PROPIEDADES */}
       <Route path="/propiedades" element={
