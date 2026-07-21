@@ -80,9 +80,9 @@ const VistaSalaEsperaTecnicos = () => {
         <div style={{ backgroundColor: '#FFF3E0', borderRadius: '12px', padding: '20px', marginBottom: '25px', display: 'flex', alignItems: 'center', gap: '15px', borderLeft: '5px solid #FF9800' }}>
           <Clock size={35} color="#FF6600" style={{ flexShrink: 0 }} />
           <div>
-            <h4 style={{ margin: 0, color: '#333', fontSize: '1.1rem' }}>SALA DE ESPERA Y APROBACIÓN DE TÉCNICOS</h4>
+            <h4 style={{ margin: 0, color: '#333', fontSize: '1.1rem' }}>SALA DE ESPERA Y APROBACIÓN DE EQUIPO</h4>
             <p style={{ margin: '5px 0 0 0', color: '#666', fontSize: '0.95rem' }}>
-              Aquí aparecen los especialistas que se han registrado seleccionando tu empresa (código <strong>AUT_XX</strong>). Por seguridad, su acceso está restringido hasta que tú los autorices haciendo clic en "Aceptar y Dar de Alta" o revises sus detalles.
+              Aquí aparecen los usuarios que se han registrado seleccionando tu empresa (código AUT_XX). Por seguridad, su acceso está restringido hasta que tú los autorices haciendo clic en "Aceptar y Dar de Alta" o revises sus detalles.
             </p>
           </div>
         </div>
@@ -101,7 +101,7 @@ const VistaSalaEsperaTecnicos = () => {
           <div style={{ backgroundColor: '#fff', padding: '50px', borderRadius: '16px', textAlign: 'center', color: '#888', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
             <UserCheck size={50} color="#4CAF50" style={{ margin: '0 auto 15px auto', display: 'block' }} />
             <h3 style={{ margin: 0, color: '#333', fontSize: '1.3rem' }}>¡Todo al día!</h3>
-            <p style={{ marginTop: '10px', color: '#666' }}>No hay técnicos pendientes de autorización en tu empresa en este momento.</p>
+            <h4 style={{ color: '#444' }}>No hay usuarios pendientes de autorización en tu empresa en este momento.</h4>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px' }}>
