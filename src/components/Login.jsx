@@ -3,7 +3,7 @@ import "../styles/LoginAgente.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Clock } from "lucide-react";
 import Logo4 from "../assets/Logo4.png";
 
 const LoginAgente = () => {
@@ -23,6 +23,11 @@ const LoginAgente = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Estados para Sala de Espera / Vinculación
+  const [isPendingApproval, setIsPendingApproval] = useState(false);
+  const [requiresLink, setRequiresLink] = useState(false);
+  const [pendingUserId, setPendingUserId] = useState(null);
+  const [companyCode, setCompanyCode] = useState("");
   //Variablaes para personalizar el Login
   const [backgroundSettings, setBackgroundSettings] = useState({ imageUrl: null, colorHex: '#000000', appLogo: null });
   const [selectedTenant, setSelectedTenant] = useState(null);
@@ -132,6 +137,17 @@ const handleLogin = async (e) => {
       
       if (error.response) {
         if (error.response.status === 403) {
+          if (error.response.data?.status === 'pending') {
+            setIsPendingApproval(true);
+            setRequiresLink(false);
+            return;
+          }
+          if (error.response.data?.status === 'pending_link') {
+            setIsPendingApproval(true);
+            setRequiresLink(true);
+            setPendingUserId(error.response.data.user_id);
+            return;
+          }
           if (error.response.data?.blocked && error.response.data?.tenant_id) {
             navigate(`/activacion-cuenta?tenant_id=${error.response.data.tenant_id}`);
             return;
@@ -145,6 +161,25 @@ const handleLogin = async (e) => {
       } else {
         setMensaje("Error: Servidor no disponible. Revisa tu conexión.");
       }
+    }
+  };
+
+  const handleLinkCompany = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setMensaje("");
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/vincular-empresa`, {
+        user_id: pendingUserId,
+        company_code: companyCode
+      });
+      setIsLoading(false);
+      if (res.data.success) {
+        setRequiresLink(false);
+      }
+    } catch (err) {
+      setIsLoading(false);
+      setMensaje(err.response?.data?.message || 'Error al vincular código.');
     }
   };
 
@@ -197,6 +232,36 @@ const handleLogin = async (e) => {
      
       </div>
       
+      {isPendingApproval ? (
+        <div className="form-section" style={{ textAlign: 'center', backgroundColor: 'rgba(20, 20, 20, 0.95)', borderRadius: '24px', padding: '40px 25px', border: '2px solid #f26522', color: '#fff', boxShadow: '0 15px 35px rgba(242, 101, 34, 0.3)', zIndex: 10 }}>
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'rgba(242, 101, 34, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px auto', border: '1px solid #f26522' }}>
+            <Clock size={45} color="#f26522" />
+          </div>
+          <h2 style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '15px', fontWeight: '900', fontStyle: 'italic' }}>¡PERFIL EN REVISIÓN!</h2>
+          <p style={{ color: '#ddd', fontSize: '1rem', lineHeight: '1.6', marginBottom: '25px', maxWidth: '400px', margin: '0 auto 25px auto' }}>
+            Tu cuenta está en la sala de espera y debe ser revisada y autorizada por el <strong>Administrador de tu empresa</strong> para poder iniciar sesión.
+          </p>
+          {requiresLink ? (
+             <form onSubmit={handleLinkCompany} style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '100%', maxWidth: '350px', margin: '0 auto' }}>
+                <div style={{ textAlign: 'left' }}>
+                  <label style={{ fontSize: '0.85rem', color: '#ccc', marginBottom: '5px', display: 'block' }}>¿Trabajas para un Autónomo? Ingresa su código:</label>
+                  <input type="text" placeholder="Código de empresa" required value={companyCode} onChange={e => setCompanyCode(e.target.value)} style={{ width: '100%', padding: '12px 15px', borderRadius: '20px', border: 'none', background: '#f3f3f3', color: '#111', boxSizing: 'border-box' }} />
+                </div>
+                <button type="submit" disabled={isLoading} style={{ padding: '12px 24px', backgroundColor: '#f26522', color: '#fff', border: 'none', borderRadius: '30px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer', width: '100%' }}>
+                  {isLoading ? 'Vinculando...' : 'Vincular y Solicitar Acceso'}
+                </button>
+             </form>
+          ) : (
+            <div style={{ padding: '15px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '12px', borderLeft: '4px solid #f26522', display: 'inline-block' }}>
+               <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>⏳ Pendiente de aprobación</span>
+            </div>
+          )}
+          {mensaje && <p style={{ color: '#ff4d4d', marginTop: '15px', fontSize: '0.9rem', fontWeight: 'bold' }}>{mensaje}</p>}
+          <button type="button" onClick={() => { setIsPendingApproval(false); setRequiresLink(false); setMensaje(""); }} style={{ background: 'none', border: 'none', color: '#888', textDecoration: 'underline', marginTop: '20px', cursor: 'pointer' }}>
+             Volver al inicio de sesión
+          </button>
+        </div>
+      ) : (
       <form className="form-section" onSubmit={handleLogin}>
         {selectedTenant && (
           <div style={{
@@ -289,6 +354,7 @@ const handleLogin = async (e) => {
           </p>
         )}
       </form>
+      )}
 
       {isRecoverModalOpen && (
         <div className="login-modal-overlay">
