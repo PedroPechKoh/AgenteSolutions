@@ -182,7 +182,7 @@ const ClientRegister = () => {
       if (res.data.status === 'pending_payment') {
         // Autónomo: redirigir a pantalla de pago
         navigate(`/activacion-cuenta?tenant_id=${res.data.tenant_id}`);
-      } else if (res.data.status === 'pending_approval' || roleId === 2) {
+      } else if (res.data.status === 'pending_approval' || roleId === 2 || (roleId === 7 && companyCode.trim() !== '')) {
         setIsPendingApproval(true);
       } else if (roleId === 5 || roleId === 4 || roleId === 6) {
         setMessage('🎉 ¡Registro exitoso con 6 MESES GRATIS activos! Redirigiendo...');
@@ -243,7 +243,7 @@ const ClientRegister = () => {
               ¡PERFIL EN REVISIÓN!
             </h2>
             <p style={{ color: '#ddd', fontSize: '1rem', lineHeight: '1.6', marginBottom: '25px', maxWidth: '550px', margin: '0 auto 25px auto' }}>
-              Tu registro como <strong>Técnico</strong> se ha completado con éxito. Por seguridad, tu perfil está en la sala de espera y debe ser revisado y autorizado por el <strong>Administrador de tu empresa</strong> para poder iniciar sesión.
+              Tu registro se ha completado con éxito. Por seguridad, tu perfil está en la sala de espera y debe ser revisado y autorizado por el <strong>Administrador de tu empresa</strong> para poder iniciar sesión.
             </p>
             <div style={{ padding: '18px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '12px', marginBottom: '25px', borderLeft: '4px solid #f26522', textAlign: 'left', maxWidth: '500px', margin: '0 auto 25px auto' }}>
               <p style={{ margin: 0, fontSize: '0.95rem', color: '#eee', overflowWrap: 'anywhere' }}>
@@ -349,7 +349,7 @@ style={{
                           <input required value={phone} onChange={e=>setPhone(e.target.value)} placeholder="TELÉFONO" type="tel" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           <input required value={password} onChange={e=>setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           <input required value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder="CONFIRMAR CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          {(p.key === 'client' || p.key === 'technician') && (
+                          {(p.key === 'client' || p.key === 'technician' || p.key === 'admin_propiedades') && (
                             <input value={companyCode} onChange={e=>setCompanyCode(e.target.value)} placeholder="Código de empresa (Opcional)" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           )}
                           {(p.key === 'owner_business' || p.key === 'contratista') && (
