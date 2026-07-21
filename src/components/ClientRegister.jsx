@@ -95,6 +95,26 @@ const ClientRegister = () => {
       details: ['6 meses gratis de prueba', 'Administra hasta 30 clientes', 'Usuarios y técnicos sin límite', 'Reportes y cotizaciones en línea', 'Pago $935 MXN/mes después'],
       cta: 'Suscribirme',
       color: '#0F766E'
+    },
+    {
+      key: 'contratista',
+      label: 'CONTRATISTA',
+      sub: '',
+      note: '',
+      features: [],
+      details: [],
+      cta: 'Suscribirme',
+      color: '#B45309'
+    },
+    {
+      key: 'admin_propiedades',
+      label: 'ADMIN. PROPIEDADES',
+      sub: '',
+      note: '',
+      features: [],
+      details: [],
+      cta: 'Registrarme',
+      color: '#6D28D9'
     }
   ];
 
@@ -137,11 +157,11 @@ const ClientRegister = () => {
 
     setIsLoading(true);
 
-    const roleMap = { client: 3, technician: 2, owner: 5, owner_personal: 5, owner_business: 4 };
+    const roleMap = { client: 3, technician: 2, owner: 5, owner_personal: 5, owner_business: 4, contratista: 6, admin_propiedades: 7 };
     const roleId  = roleMap[accountType] ?? 3;
 
     try {
-      const isAutonomoAccount = (roleId === 5 || roleId === 4);
+      const isAutonomoAccount = (roleId === 5 || roleId === 4 || roleId === 6);
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/registro-usuario`, {
         first_name:   firstName.trim(),
         last_name:    lastName.trim(),
@@ -149,7 +169,7 @@ const ClientRegister = () => {
         phone_number: phone,
         password,
         role_id:      roleId,
-        company_code: !isAutonomoAccount ? companyCode.trim() || null : null,
+        company_code: (!isAutonomoAccount && roleId !== 7) ? companyCode.trim() || null : null,
         company_name: isAutonomoAccount ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null,
         specialties:  roleId === 2 ? selectedSpecialties : []
       });
@@ -161,9 +181,12 @@ const ClientRegister = () => {
         navigate(`/activacion-cuenta?tenant_id=${res.data.tenant_id}`);
       } else if (res.data.status === 'pending_approval' || roleId === 2) {
         setIsPendingApproval(true);
-      } else if (roleId === 5 || roleId === 4) {
+      } else if (roleId === 5 || roleId === 4 || roleId === 6) {
         setMessage('🎉 ¡Registro exitoso con 6 MESES GRATIS activos! Redirigiendo para iniciar sesión...');
         setTimeout(() => navigate('/'), 2200);
+      } else if (roleId === 7) {
+        setMessage('¡Registro exitoso! Redirigiendo para que ingreses el código de tu Autónomo...');
+        setTimeout(() => navigate('/'), 2500);
       } else {
         setMessage('¡Registro exitoso! Redirigiendo al inicio de sesión...');
         setTimeout(() => navigate('/'), 2000);
@@ -328,7 +351,7 @@ style={{
                           {(p.key === 'client' || p.key === 'technician') && (
                             <input value={companyCode} onChange={e=>setCompanyCode(e.target.value)} placeholder="Código de empresa (Opcional)" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
                           )}
-                          {p.key === 'owner_business' && (
+                          {(p.key === 'owner_business' || p.key === 'contratista') && (
                             <input value={companyName} onChange={e=>setCompanyName(e.target.value)} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
                           )}
                           <div style={{ display:'flex', gap:8 }}>
