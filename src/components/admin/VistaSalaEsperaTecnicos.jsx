@@ -131,19 +131,27 @@ const VistaSalaEsperaTecnicos = () => {
                       <strong>Fecha registro:</strong> {new Date(tech.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </p>
                     <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed #ddd' }}>
-                      <strong style={{ fontSize: '0.78rem', color: '#FF6600', display: 'block', marginBottom: '4px' }}>🛠️ ESPECIALIDADES:</strong>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                        {tech.specialties && tech.specialties.length > 0 ? (
-                          tech.specialties.map((s, idx) => (
-                            <span key={idx} style={{ padding: '2px 8px', background: '#fff3e0', border: '1px solid #ffb74d', borderRadius: '12px', fontSize: '0.72rem', color: '#e65100', fontWeight: 'bold' }}>
-                              {typeof s === 'string' ? s : `${s.icon || '⚡'} ${s.name}`}
-                            </span>
-                          ))
-                        ) : (
-                          <span style={{ fontSize: '0.75rem', color: '#999', fontStyle: 'italic' }}>General / Sin especificar</span>
-                        )}
-                      </div>
+                      <strong style={{ fontSize: '0.78rem', color: '#FF6600', display: 'block', marginBottom: '4px' }}>📋 ROL SOLICITADO:</strong>
+                      <span style={{ fontSize: '0.85rem', color: '#333', fontWeight: 'bold' }}>
+                        {tech.role_id === 2 ? '🧑‍🔧 Técnico Especialista' : '🏢 Administrador de Propiedades'}
+                      </span>
                     </div>
+                    {tech.role_id === 2 && (
+                      <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed #ddd' }}>
+                        <strong style={{ fontSize: '0.78rem', color: '#FF6600', display: 'block', marginBottom: '4px' }}>🛠️ ESPECIALIDADES:</strong>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                          {tech.specialties && tech.specialties.length > 0 ? (
+                            tech.specialties.map((s, idx) => (
+                              <span key={idx} style={{ padding: '2px 8px', background: '#fff3e0', border: '1px solid #ffb74d', borderRadius: '12px', fontSize: '0.72rem', color: '#e65100', fontWeight: 'bold' }}>
+                                {typeof s === 'string' ? s : `${s.icon || '⚡'} ${s.name}`}
+                              </span>
+                            ))
+                          ) : (
+                            <span style={{ fontSize: '0.75rem', color: '#999', fontStyle: 'italic' }}>General / Sin especificar</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -284,7 +292,7 @@ const VistaSalaEsperaTecnicos = () => {
                 <div>
                   <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>ROL SOLICITADO</label>
                   <p style={{ margin: 0, color: '#E65100', fontWeight: 'bold', fontSize: '1rem' }}>
-                    🧑‍🔧 Técnico Especialista
+                    {selectedTechDetails.role_id === 2 ? '🧑‍🔧 Técnico Especialista' : '🏢 Administrador de Propiedades'}
                   </p>
                 </div>
 
@@ -303,7 +311,7 @@ const VistaSalaEsperaTecnicos = () => {
                 </div>
 
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>EMPRESA / TENANT DESTINO</label>
+                  <label style={{ fontSize: '0.8rem', color: '#888', display: 'block', marginBottom: '3px', fontWeight: 'bold' }}>SE UNIRÁ AL EQUIPO DE</label>
                   <p style={{ margin: 0, color: '#333', fontWeight: 'bold', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Building2 size={18} color="#FF6600" />
                     {selectedTechDetails.tenant
@@ -312,9 +320,10 @@ const VistaSalaEsperaTecnicos = () => {
                   </p>
                 </div>
 
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label style={{ fontSize: '0.8rem', color: '#FF6600', display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>🛠️ ESPECIALIDADES SELECCIONADAS POR EL TÉCNICO</label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {selectedTechDetails.role_id === 2 && (
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ fontSize: '0.8rem', color: '#FF6600', display: 'block', marginBottom: '6px', fontWeight: 'bold' }}>🛠️ ESPECIALIDADES SELECCIONADAS POR EL TÉCNICO</label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                     {selectedTechDetails.specialties && selectedTechDetails.specialties.length > 0 ? (
                       selectedTechDetails.specialties.map((s, idx) => (
                         <span key={idx} style={{ padding: '6px 14px', background: '#FFF5EC', border: '1px solid #FF6600', borderRadius: '16px', fontSize: '0.85rem', color: '#E65100', fontWeight: 'bold' }}>
