@@ -342,17 +342,17 @@ style={{
                         </ul>
                         <div style={{ color: '#444', fontSize: '0.88rem', marginBottom: 14 }}>{p.note}</div>
                         <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: '100%', overflowY: 'auto' }}>
-                          <input required value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
-                          <input required value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
-                          <input required value={email} onChange={e=>setEmail(e.target.value)} placeholder="CORREO" type="email" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
-                          <input required value={phone} onChange={e=>setPhone(e.target.value)} placeholder="TELÉFONO" type="tel" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
-                          <input required value={password} onChange={e=>setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
-                          <input required value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder="CONFIRMAR CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                          <input required value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={email} onChange={e=>setEmail(e.target.value)} placeholder="CORREO" type="email" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={phone} onChange={e=>setPhone(e.target.value)} placeholder="TELÉFONO" type="tel" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={password} onChange={e=>setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder="CONFIRMAR CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           {(p.key === 'client' || p.key === 'technician') && (
-                            <input value={companyCode} onChange={e=>setCompanyCode(e.target.value)} placeholder="Código de empresa (Opcional)" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                            <input value={companyCode} onChange={e=>setCompanyCode(e.target.value)} placeholder="Código de empresa (Opcional)" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           )}
                           {(p.key === 'owner_business' || p.key === 'contratista') && (
-                            <input value={companyName} onChange={e=>setCompanyName(e.target.value)} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3' }} />
+                            <input value={companyName} onChange={e=>setCompanyName(e.target.value)} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           )}
                           <div style={{ display:'flex', gap:8 }}>
                             <button type="submit" disabled={isLoading} style={{ flex:1, padding: '10px 14px', borderRadius: 20, background: '#f26522', color:'#fff', fontWeight:800 }}>{isLoading? '...' : 'Registrar'}</button>
