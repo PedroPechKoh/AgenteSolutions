@@ -1,13 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { User, Lock, Mail, Phone, Eye, EyeOff, Shield, X } from 'lucide-react';
+import { User, Lock, Mail, Phone, Eye, EyeOff, Shield, X, ArrowLeft } from 'lucide-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
-  if (!isOpen) return null;
-
   const { user } = useAuth();
   const isRoot = user?.role_id === 0;
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -37,12 +37,18 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     const offset = Math.max(0, card.offsetLeft - (container.clientWidth - card.clientWidth) / 2);
     container.scrollTo({ left: offset, behavior: 'smooth' });
   };
+
+  const handleGoBack = () => {
+    if (onClose) onClose();
+    navigate('/');
+  };
+
   const [flippedRole, setFlippedRole] = useState(null);
 
   const plans = [
     {
       id: 3,
-      title: 'SOY CLIENTE',
+      title: 'CLIENTE',
       subtitle: 'Contrata servicios',
       price: 'GRATIS',
       features: [
@@ -56,7 +62,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         'Aprueba cotizaciones en la app',
         'Sigue tu orden en tiempo real',
         'Historial por propiedad',
-        'Registro 100% gratuito'
+        'Registro 100% gratuito',
       ],
       note: 'Registro gratis para clientes con seguimiento en vivo y historial por propiedad.',
       cta: 'Registrarme',
@@ -64,16 +70,16 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     },
     {
       id: 2,
-      title: 'SOY TÉCNICO',
+      title: 'TÉCNICO',
       subtitle: 'Presto servicios',
       price: 'Perfil',
       features: ['Recibe órdenes', 'Administra tu agenda', 'Calificaciones y perfil'],
       details: [
         '12 meses gratis de prueba',
-        'Perfil visible a clientes',
+        'red de 1000clientes de agentes solutions',
         'Gestiona órdenes y agenda',
-        'Envía cotizaciones desde la app',
-        'Especialidades y código de empresa'
+        'genera tus propias cotizaciones',
+        'genera tu propio perfil de especialidad'
       ],
       note: '12 meses gratis y perfil profesional para captar clientes y gestionar órdenes.',
       cta: 'Suscribirme',
@@ -81,14 +87,14 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     },
     {
       id: 5,
-      title: 'PROPIETARIO PERSONAL',
+      title: 'AUTÓNOMO',
       subtitle: '3 Propiedades',
       price: '$299/m',
       features: ['Añade propiedades', 'Historial completo', 'Administración simple'],
       details: [
         '6 meses gratis de prueba',
         'Registra hasta 3 propiedades',
-        'Invita técnicos propios',
+        'ingresa a tus tecnicos a tu sistema',
         'Dashboard de administración',
         'Pago $299 MXN/mes después'
       ],
@@ -98,7 +104,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     },
     {
       id: 4,
-      title: 'AUTÓNOMO EMPRESA',
+      title: 'AUTÓNOMO EMPRESARIAL',
       subtitle: '30 Clientes',
       price: '$935/m',
       features: ['Gestiona clientes', 'Reportes', 'Panel empresarial'],
@@ -183,6 +189,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="modal-overlay">
       <style>{`
@@ -221,6 +229,28 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         .modal-overlay .close-button:hover {
           color: #F26522;
           transform: scale(1.1);
+        }
+
+        .modal-overlay .back-button {
+          position: absolute;
+          top: 24px;
+          left: 24px;
+          background: none;
+          border: none;
+          color: white;
+          cursor: pointer;
+          font-family: "Arial Black", sans-serif;
+          font-size: 0.95rem;
+          letter-spacing: 1px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: 0.3s;
+          z-index: 1100;
+        }
+        .modal-overlay .back-button:hover {
+          color: #F26522;
+          transform: scale(1.05);
         }
 
         .modal-overlay .form-title {
@@ -431,6 +461,11 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           .modal-overlay .plan-card { width: 150px; height: 240px; flex: 0 0 150px; }
         }
       `}</style>
+
+      <button type="button" className="back-button" onClick={handleGoBack} aria-label="Regresar al inicio de sesión">
+        <ArrowLeft size={18} />
+        <span>Volver</span>
+      </button>
 
       <div className="modal-content">
         <button className="close-button" onClick={onClose} type="button">
