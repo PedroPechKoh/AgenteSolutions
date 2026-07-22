@@ -248,7 +248,8 @@ const VistaUsuarios = () => {
                           value={u.role_id}
                           onChange={(e) => cambiarRol(u.id, parseInt(e.target.value), u.nombre)}
                         >
-                          <option value="1">ADMIN</option>
+                          <option value="1">ADMIN (GLOBAL)</option>
+                          <option value="7">ADMIN. PROPIEDADES</option>
                           <option value="2">TÉCNICO</option>
                           <option value="3">CLIENTE</option>
                           <option value="4">AUT. EMPRESARIAL ($999)</option>
@@ -264,7 +265,8 @@ const VistaUsuarios = () => {
                           value={u.role_id}
                           onChange={(e) => cambiarRol(u.id, parseInt(e.target.value), u.nombre)}
                         >
-                          <option value="1">ADMIN</option>
+                          <option value="1">ADMIN (GLOBAL)</option>
+                          <option value="7">ADMIN. PROPIEDADES</option>
                           <option value="2">TÉCNICO</option>
                           <option value="3">CLIENTE</option>
                         </select>

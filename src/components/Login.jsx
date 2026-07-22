@@ -112,23 +112,24 @@ const handleLogin = async (e) => {
       });
 
       // 5. Las redirecciones se quedan exactamente igual
-      if (role_id === 0) {
+      const roleNum = Number(role_id);
+      if (roleNum === 0) {
         setMensaje(`¡Bienvenido ROOT ${first_name}! Entrando al panel principal...`);
         setTimeout(() => navigate("/VistaRoot"), 1000);
-      } else if (role_id === 4 || role_id === 5) {
-        const typeLabel = role_id === 5 ? 'AUTÓNOMO PERSONAL' : 'AUTÓNOMO EMPRESARIAL';
+      } else if (roleNum === 4 || roleNum === 5) {
+        const typeLabel = roleNum === 5 ? 'AUTÓNOMO PERSONAL' : 'AUTÓNOMO EMPRESARIAL';
         setMensaje(`¡Bienvenido ${typeLabel} ${first_name}! Entrando a tu panel...`);
         setTimeout(() => navigate("/VistaRoot"), 1000);
-      } else if (role_id === 1) {
+      } else if (roleNum === 1) {
         setMensaje(`¡Bienvenido ADMIN ${first_name}! Entrando al panel administrativo...`);
         setTimeout(() => navigate("/VistaAdmin"), 1000);
-      } else if (role_id === 2) {
+      } else if (roleNum === 2) {
         setMensaje(`¡Bienvenido TÉCNICO ${first_name}! Abriendo tu panel de trabajo...`);
         setTimeout(() => navigate("/VistaTecnico"), 1000);
-      } else if (role_id === 3) {
+      } else if (roleNum === 3) {
         setMensaje(`¡Bienvenido CLIENTE ${first_name}! Abriendo tu portal...`);
         setTimeout(() => navigate("/propiedades"), 1000);
-      } else if (role_id === 7) {
+      } else if (roleNum === 7) {
         setMensaje(`¡Bienvenido ADMIN. DE PROPIEDADES ${first_name}! Entrando al panel...`);
         setTimeout(() => navigate("/VistaAdmin"), 1000);
       } else {
