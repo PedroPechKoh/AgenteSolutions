@@ -63,7 +63,7 @@ const ClientRegister = () => {
       sub: 'Contrata servicios',
       note: 'Solicitud gratis + seguimiento completo de órdenes y propiedades',
       features: ['Solicita servicios', 'Sigue órdenes', 'Recibe cotizaciones', 'Historial por propiedad'],
-      details: ['Solicita técnicos certificados', 'Aproba cotizaciones en la app', 'Sigue tu orden en tiempo real', 'Historial por propiedad', 'Registro 100% gratuito'],
+      details: ['Solicita técnicos certificados', 'Aprueba cotizaciones en la app', 'Sigue tu orden en tiempo real', 'Historial por propiedad', 'Registro 100% gratuito'],
       cta: 'Registrarme',
       color: '#F26522'
     },
