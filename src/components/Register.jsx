@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { User, Lock, Mail, Phone, Eye, EyeOff, Shield, X } from 'lucide-react';
+import { User, Lock, Mail, Phone, Eye, EyeOff, Shield, X, ArrowLeft } from 'lucide-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
@@ -8,6 +9,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
 
   const { user } = useAuth();
   const isRoot = user?.role_id === 0;
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -37,6 +39,12 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     const offset = Math.max(0, card.offsetLeft - (container.clientWidth - card.clientWidth) / 2);
     container.scrollTo({ left: offset, behavior: 'smooth' });
   };
+
+  const handleGoBack = () => {
+    if (onClose) onClose();
+    navigate('/');
+  };
+
   const [flippedRole, setFlippedRole] = useState(null);
 
   const plans = [
@@ -221,6 +229,27 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         .modal-overlay .close-button:hover {
           color: #F26522;
           transform: scale(1.1);
+        }
+
+        .modal-overlay .back-button {
+          position: absolute;
+          top: 15px;
+          left: 15px;
+          background: none;
+          border: none;
+          color: white;
+          cursor: pointer;
+          font-family: "Arial Black", sans-serif;
+          font-size: 0.95rem;
+          letter-spacing: 1px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: 0.3s;
+        }
+        .modal-overlay .back-button:hover {
+          color: #F26522;
+          transform: scale(1.05);
         }
 
         .modal-overlay .form-title {
@@ -433,6 +462,10 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       `}</style>
 
       <div className="modal-content">
+        <button type="button" className="back-button" onClick={handleGoBack} aria-label="Regresar al inicio de sesión">
+          <ArrowLeft size={18} />
+          <span>Volver</span>
+        </button>
         <button className="close-button" onClick={onClose} type="button">
           <X size={28} />
         </button>
