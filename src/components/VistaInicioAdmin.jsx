@@ -56,6 +56,7 @@ const VistaInicioAdmin = () => {
   else if (isEmpresa) rolTexto = "EMPRESA / AUTÓNOMO EMPRESARIAL";
   else if (isPersonal) rolTexto = "PROPIETARIO / AUTÓNOMO PERSONAL";
   else if (user?.role_id === 2) rolTexto = "TÉCNICO / PROVEEDOR";
+  else if (user?.role_id === 7) rolTexto = "ADMINISTRADOR DE PROPIEDADES";
 
   const menuItems = [
     { id: 1, title: isPersonal ? 'TÉCNICOS Y PROVEEDORES' : 'USUARIOS', icon: '👤', path: '/usuarios'}, 
@@ -66,8 +67,11 @@ const VistaInicioAdmin = () => {
     { id: 6, title: 'SERVICIOS', icon: '🔧', path: '/tablero-servicios' },
     { id: 8, title: 'PRODUCTOS', icon: '📦', path: '/vista-producto' },
     { id: 9, title: 'DASHBOARD', icon: '📊',  path: '/dashboard'},
-    { id: 10, title: 'PERSONALIZAR', icon: '🎨', path: '/customize-login' },
   ];
+
+  if (user?.role_id !== 7) {
+    menuItems.push({ id: 10, title: 'PERSONALIZAR', icon: '🎨', path: '/customize-login' });
+  }
 
   if (!isPersonal) {
     menuItems.splice(6, 0, { id: 7, title: 'BODEGA', icon: '🏭', path: '/bodeguero' });
