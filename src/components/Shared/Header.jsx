@@ -37,13 +37,11 @@ const Header = ({ rolTexto = "USUARIO", titulo }) => {
   // ✅ Función para regresar al panel correcto según el tipo de usuario
   const irAlInicio = () => {
     if (!user) return;
-    switch (Number(user.role_id)) {
-      case 0: navigate('/VistaRoot'); break; 
-      case 1: navigate('/VistaRoot'); break; 
-      case 2: navigate('/VistaTecnico'); break;
-      case 3: navigate('/VistaInicioCliente'); break;
-      default: navigate('/'); break;
-    }
+    const role = Number(user.role_id);
+    if ([0, 1, 4, 5, 7].includes(role)) navigate('/VistaRoot');
+    else if (role === 2) navigate('/VistaTecnico');
+    else if (role === 3) navigate('/VistaInicioCliente');
+    else navigate('/');
   };
 
   return (
@@ -78,7 +76,10 @@ const Header = ({ rolTexto = "USUARIO", titulo }) => {
       {/* SECCIÓN CENTRAL: Título Dinámico */}
       <div className="center-title-section">
         <h1 className="welcome-title">
-          {titulo ? titulo.toUpperCase() : `BIENVENIDO ${(user?.first_name || user?.name) ? (user.first_name || user.name).toUpperCase() : rolTexto}`}
+          {titulo ? titulo.toUpperCase() : 
+            (Number(user?.role_id) === 7 && user?.tenant?.name) 
+              ? `BIENVENIDO ${(user?.first_name || user?.name)?.toUpperCase()} (EQUIPO DE ${user.tenant.name.toUpperCase()})` 
+              : `BIENVENIDO ${(user?.first_name || user?.name) ? (user.first_name || user.name).toUpperCase() : rolTexto}`}
         </h1>
       </div>
 

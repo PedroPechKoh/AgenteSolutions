@@ -259,6 +259,13 @@ const VistaUsuarios = () => {
                         <span className="badge-rol autonomo">AUT. EMPRESARIAL</span>
                       ) : u.role_id === 5 ? (
                         <span className="badge-rol autonomo">AUT. PERSONAL</span>
+                      ) : (user?.role_id === 7 || u.id === user?.id) ? (
+                        <span className={`badge-rol ${u.role_id === 7 ? 'admin' : typeof u.rol === 'string' ? u.rol.toLowerCase() : ''}`}>
+                          {u.role_id === 1 ? 'ADMIN (GLOBAL)' :
+                           u.role_id === 7 ? 'ADMIN. PROPIEDADES' :
+                           u.role_id === 2 ? 'TÉCNICO' :
+                           u.role_id === 3 ? 'CLIENTE' : 'DESCONOCIDO'}
+                        </span>
                       ) : (
                         <select 
                           className={`badge-rol ${typeof u.rol === 'string' ? u.rol.toLowerCase() : ''} select-rol-inline`}
