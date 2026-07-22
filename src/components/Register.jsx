@@ -53,7 +53,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       ],
       details: [
         'Solicita técnicos certificados',
-        'Aproba cotizaciones en la app',
+        'Aprueba cotizaciones en la app',
         'Sigue tu orden en tiempo real',
         'Historial por propiedad',
         'Registro 100% gratuito'
