@@ -42,7 +42,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   const plans = [
     {
       id: 3,
-      title: 'SOY CLIENTE',
+      title: 'CLIENTE',
       subtitle: 'Contrata servicios',
       price: 'GRATIS',
       features: [
@@ -52,8 +52,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         'Historial por propiedad',
       ],
       details: [
-        'Solicita técnicos certificados',
-        'Aproba cotizaciones en la app',
+        'Solicita técnicos ',
+        'Aprueba cotizaciones en la app',
         'Sigue tu orden en tiempo real',
         'Historial por propiedad',
         'Registro 100% gratuito'
@@ -64,16 +64,16 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     },
     {
       id: 2,
-      title: 'SOY TÉCNICO',
+      title: 'TÉCNICO',
       subtitle: 'Presto servicios',
       price: 'Perfil',
       features: ['Recibe órdenes', 'Administra tu agenda', 'Calificaciones y perfil'],
       details: [
         '12 meses gratis de prueba',
-        'Perfil visible a clientes',
+        'red de 1000clientes de agentes solutions',
         'Gestiona órdenes y agenda',
-        'Envía cotizaciones desde la app',
-        'Especialidades y código de empresa'
+        'genera tus propias cotizaciones',
+        'genera tu propio perfil de especialidad'
       ],
       note: '12 meses gratis y perfil profesional para captar clientes y gestionar órdenes.',
       cta: 'Suscribirme',
@@ -81,14 +81,14 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     },
     {
       id: 5,
-      title: 'PROPIETARIO PERSONAL',
+      title: 'AUTÓNOMO',
       subtitle: '3 Propiedades',
       price: '$299/m',
       features: ['Añade propiedades', 'Historial completo', 'Administración simple'],
       details: [
         '6 meses gratis de prueba',
         'Registra hasta 3 propiedades',
-        'Invita técnicos propios',
+        'ingresa a tus tecnicos a tu sistema',
         'Dashboard de administración',
         'Pago $299 MXN/mes después'
       ],
