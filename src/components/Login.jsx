@@ -128,6 +128,9 @@ const handleLogin = async (e) => {
       } else if (role_id === 3) {
         setMensaje(`¡Bienvenido CLIENTE ${first_name}! Abriendo tu portal...`);
         setTimeout(() => navigate("/propiedades"), 1000);
+      } else if (role_id === 7) {
+        setMensaje(`¡Bienvenido ADMIN. DE PROPIEDADES ${first_name}! Entrando al panel...`);
+        setTimeout(() => navigate("/VistaAdmin"), 1000);
       } else {
         setMensaje(`Error: Tu usuario no tiene permisos válidos.`);
       }
