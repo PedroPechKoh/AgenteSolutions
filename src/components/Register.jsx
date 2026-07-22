@@ -106,7 +106,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     },
     {
       id: 4,
-      title: 'AUTÓNOMO EMPRESA',
+      title: 'AUTÓNOMO EMPRESARIAL',
       subtitle: '30 Clientes',
       price: '$935/m',
       features: ['Gestiona clientes', 'Reportes', 'Panel empresarial'],
