@@ -233,8 +233,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
 
         .modal-overlay .back-button {
           position: absolute;
-          top: 15px;
-          left: 15px;
+          top: 24px;
+          left: 24px;
           background: none;
           border: none;
           color: white;
@@ -246,6 +246,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           align-items: center;
           gap: 6px;
           transition: 0.3s;
+          z-index: 1100;
         }
         .modal-overlay .back-button:hover {
           color: #F26522;
@@ -461,11 +462,12 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         }
       `}</style>
 
+      <button type="button" className="back-button" onClick={handleGoBack} aria-label="Regresar al inicio de sesión">
+        <ArrowLeft size={18} />
+        <span>Volver</span>
+      </button>
+
       <div className="modal-content">
-        <button type="button" className="back-button" onClick={handleGoBack} aria-label="Regresar al inicio de sesión">
-          <ArrowLeft size={18} />
-          <span>Volver</span>
-        </button>
         <button className="close-button" onClick={onClose} type="button">
           <X size={28} />
         </button>
