@@ -17,7 +17,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 50px 60px 50px; /* Aumentamos el padding inferior a 60px */
+    padding: 20px 50px;
     width: 100%;
     box-sizing: border-box;
 }
@@ -180,14 +180,14 @@
 
 /* --- TABLA RE-DISEÑADA --- */
 .cotiz-table-container {
-   width: 100%;
+    width: 100%;
     max-width: 1050px;
-    /* max-height y overflow-y eliminados para permitir el scroll global */
+    max-height: 600px;
+    overflow-y: auto;
     border-radius: 20px;
     background: white;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     margin-top: 10px;
-    margin-bottom: 40px;
 }
 
 .cotiz-data-table {
@@ -739,117 +739,7 @@
     white-space: nowrap;
 }
 
-.quotes-scroll-area {
- display: flex;
-    flex-direction: column;
-    gap: 16px; 
-    /* Agregamos esto para FORZAR a que no haya scroll interno, ignorando a "cart-list" */
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-}
-.quotes-view-container {
- 
-width: 100%;
-    /* Cambiamos height por min-height. Así no le ponemos techo a la vista y el navegador hará el scroll */
-    min-height: 100vh; 
-    padding-bottom: 40px; 
-    box-sizing: border-box;
-}
 @media (max-width: 768px) {
-    .quotes-view-container {
-        padding: 15px; /* Menos espacio a los lados en celular */
-    }
-
-    .quotes-main-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 15px;
-    }
-
-    .cart-summary-pill {
-        width: 100%;
-        justify-content: center;
-    }
-
-    /* 2. Ajustes de las tarjetas de cotización */
-    .quote-card-item {
-        flex-direction: column; /* Apila la información arriba y los totales abajo */
-        gap: 20px;
-        padding: 15px;
-    }
-
-    .card-content-left, 
-    .quote-card-right {
-        width: 100%;
-    }
-
-    .quote-card-right {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        border-top: 1px dashed #e2e8f0; /* Línea divisoria en móvil */
-        padding-top: 15px;
-        align-items: stretch;
-    }
-
-    .quote-total-box {
-        display: flex;
-        justify-content: space-between; /* Manda el texto "Total" a la izq y el precio a la der */
-        align-items: center;
-        width: 100%;
-    }
-
-    /* 3. Ajustes de botones y etiquetas (pills) */
-    .action-buttons-row {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-    }
-
-    .action-buttons-row button, 
-    .btn-preview, 
-    .btn-disabled {
-        width: 100%;
-        padding: 12px;
-        justify-content: center;
-    }
-
-    .quote-meta-row {
-        flex-wrap: wrap; /* Si las fechas o folios son largos, que bajen de línea */
-    }
-
-    /* 4. Ajustes del Modal de detalles */
-    .modal-content-wrapper {
-        width: 95% !important;
-        max-height: 90vh;
-        overflow-y: auto;
-        margin: 20px auto;
-    }
-
-    .detail-summary-row {
-        display: flex;
-        flex-direction: column; /* Apila Servicio, Tiempo y Condición */
-        gap: 15px;
-    }
-
-    .excel-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-        padding: 10px 0;
-    }
-
-    .excel-row span:nth-child(2) {
-        font-weight: bold;
-        font-size: 1.1em;
-    }
-
-    .modal-actions-row button {
-        width: 100%;
-    }
     .cotiz-actions-cell {
         flex-direction: column;
         align-items: stretch;
