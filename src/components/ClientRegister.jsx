@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { User, Lock, Eye, EyeOff, Mail, Phone, Building2, Briefcase, UserCheck, Clock, CheckCircle } from "lucide-react";
+import { User, Lock, Eye, EyeOff, Mail, Phone, Building2, Briefcase, UserCheck, Clock, CheckCircle, ArrowLeft } from "lucide-react";
 import "../styles/LoginAgente.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -145,6 +145,10 @@ const ClientRegister = () => {
 
   const navigate = useNavigate();
 
+  const handleGoBack = () => {
+    navigate('/');
+  };
+
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`)
       .then(r => { if (r.data.success) setBackgroundSettings(r.data.settings); })
@@ -247,6 +251,47 @@ const ClientRegister = () => {
         fontFamily: '"Arial Black", sans-serif'
       }} 
     >
+      <style>{`
+        .back-button {
+          position: fixed;
+          top: 25px;
+          left: 25px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+          cursor: pointer;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+          z-index: 1100;
+          backdrop-filter: blur(8px);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .back-button:hover {
+          color: #F26522;
+          background: rgba(242, 101, 34, 0.15);
+          border-color: #F26522;
+          transform: scale(1.1);
+          box-shadow: 0 6px 20px rgba(242, 101, 34, 0.4);
+        }
+        @media (max-width: 600px) {
+          .back-button {
+            top: 15px;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+          }
+        }
+      `}</style>
+
+      <button type="button" className="back-button" onClick={handleGoBack} title="Regresar al Login" aria-label="Regresar al inicio de sesión">
+        <ArrowLeft size={28} />
+      </button>
+
 <div style={{ maxWidth: '1440px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>        
         {/* LOGO SUPERIOR LIMPIO (Sin overlaps ni scale absoluto) */}
         <div style={{ marginBottom: '20px', textAlign: 'center' }}>
