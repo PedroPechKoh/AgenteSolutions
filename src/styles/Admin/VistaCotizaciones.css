@@ -746,9 +746,12 @@
 }
 .quotes-view-container {
  
-  width: 100%;
-  min-height: 100vh; /* Permite que ocupe toda la pantalla, pero crezca si hay más contenido */
-  padding-bottom: 40px; /* Un poco de espacio extra al final para que las últimas tarjetas no queden pegadas al borde */
+ width: 100%;
+    height: 100vh; /* Obliga al contenedor a medir exactamente el alto de la pantalla */
+    overflow-y: auto; /* Activa la barra de scroll vertical a la derecha */
+    overflow-x: hidden; /* Evita que se mueva hacia los lados accidentalmente */
+    padding-bottom: 40px; 
+    box-sizing: border-box;
 }
 @media (max-width: 768px) {
     .cotiz-actions-cell {
