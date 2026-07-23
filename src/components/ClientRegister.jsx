@@ -265,7 +265,7 @@ const ClientRegister = () => {
           align-items: center;
           width: 100px;
           height: 100px;
-          border-radius: 50%;
+          border-radius: 100%;
           transition: all 0.3s ease;
           z-index: 1100;
           backdrop-filter: blur(8px);
