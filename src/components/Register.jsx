@@ -232,31 +232,30 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         }
 
         .modal-overlay .back-button {
-          position: absolute;
-          top: 18px;
-          left: 18px;
-          background: rgba(255,255,255,0.12);
-          border: 1px solid rgba(255,255,255,0.25);
+          position: fixed; /* Se mantiene fijo aunque hagas scroll */
+          top: 25px;
+          left: 25px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.2);
           color: white;
           cursor: pointer;
-          font-family: "Arial Black", sans-serif;
-          font-size: 0.95rem;
-          letter-spacing: 1px;
-          display: inline-flex;
+          display: flex;
+          justify-content: center;
           align-items: center;
-          gap: 6px;
-          padding: 8px 12px;
-          border-radius: 999px;
-          transition: 0.3s;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%; /* Lo hace un círculo perfecto */
+          transition: all 0.3s ease;
           z-index: 1100;
-          backdrop-filter: blur(6px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+          backdrop-filter: blur(8px);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
         .modal-overlay .back-button:hover {
-          color: #F26522;
-          transform: translateX(-2px) scale(1.03);
-          background: rgba(242,101,34,0.18);
-          border-color: rgba(242,101,34,0.4);
+          color: #F26522; /* Tu color naranja principal */
+          background: rgba(242, 101, 34, 0.15);
+          border-color: #F26522;
+          transform: scale(1.1);
+          box-shadow: 0 6px 20px rgba(242, 101, 34, 0.4);
         }
 
         .modal-overlay .form-title {
@@ -442,6 +441,12 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           .modal-overlay .modal-content {
             padding: 45px 18px 25px 18px;
           }
+            .modal-overlay .back-button {
+            top: 15px;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+          }
           .modal-overlay .form-title {
             font-size: 1.35rem;
             letter-spacing: 1px;
@@ -468,8 +473,9 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         }
       `}</style>
 
-      <button type="button" className="back-button" onClick={handleGoBack} aria-label="Regresar al inicio de sesión">
-        <ArrowLeft size={18} />
+      <button type="button" className="back-button" onClick={handleGoBack} title="Regresar al Login" aria-label="Regresar al inicio de sesión">
+        <ArrowLeft size={28} />
+
         <span>Iniciar sesión</span>
       </button>
 
