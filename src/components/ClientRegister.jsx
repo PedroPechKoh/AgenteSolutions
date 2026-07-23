@@ -59,41 +59,65 @@ const ClientRegister = () => {
   const plans = [
     {
       key: 'client',
-      label: 'SOY CLIENTE',
+      label: 'CLIENTE',
       sub: 'Contrata servicios',
       note: 'Solicitud gratis + seguimiento completo de órdenes y propiedades',
       features: ['Solicita servicios', 'Sigue órdenes', 'Recibe cotizaciones', 'Historial por propiedad'],
-      details: ['Solicita técnicos certificados', 'Aproba cotizaciones en la app', 'Sigue tu orden en tiempo real', 'Historial por propiedad', 'Registro 100% gratuito'],
+      details: [
+        'Solicita técnicos ',
+        'Aprueba cotizaciones en la app',
+        'Sigue tu orden en tiempo real',
+        'Historial por propiedad',
+        'Registro 100% gratuito'
+      ],
       cta: 'Registrarme',
       color: '#F26522'
     },
     {
       key: 'technician',
-      label: 'SOY TÉCNICO',
+      label: 'TÉCNICO',
       sub: 'Presto servicios',
       note: '1 año gratis de prueba + perfil profesional visible',
       features: ['Recibe órdenes', 'Agenda tu trabajo', 'Genera reportes'],
-      details: ['12 meses gratis de prueba', 'Perfil visible a clientes', 'Gestiona órdenes y agenda', 'Envía cotizaciones desde la app', 'Especialidades y código de empresa'],
+      details: [
+        '12 meses gratis de prueba',
+        'red de 1000clientes de agentes solutions',
+        'Gestiona órdenes y agenda',
+        'genera tus propias cotizaciones',
+        'genera tu propio perfil de especialidad'
+      ],
       cta: 'Suscribirme',
       color: '#6B7280'
     },
     {
       key: 'owner_personal',
-      label: 'PROPIETARIO PERSONAL',
+      label: 'AUTÓNOMO',
       sub: '3 Propiedades',
       note: '6 meses gratis y control total de tu portafolio',
       features: ['Registra propiedades', 'Dashboard administrativo', 'Soporte dedicado'],
-      details: ['6 meses gratis de prueba', 'Registra hasta 3 propiedades', 'Invita técnicos propios', 'Dashboard de administración', 'Pago $299 MXN/mes después'],
+      details: [
+        '6 meses gratis de prueba',
+        'Registra hasta 3 propiedades',
+        'ingresa a tus tecnicos a tu sistema',
+        'Dashboard de administración',
+        'Pago $299 MXN/mes después'
+      ],
       cta: 'Suscribirme',
       color: '#1F6FEB'
     },
     {
       key: 'owner_business',
-      label: 'AUTÓNOMO EMPRESA',
+      label: 'AUTÓNOMO EMPRESARIAL',
       sub: '30 Clientes',
       note: 'Gestión empresarial con 6 meses gratis y usuarios ilimitados',
       features: ['Gestiona clientes', 'Reportes avanzados', 'Usuarios ilimitados'],
-      details: ['6 meses gratis de prueba', 'Administra hasta 30 clientes', 'Usuarios y técnicos sin límite', 'Reportes y cotizaciones en línea', 'Pago $935 MXN/mes después'],
+      details: [
+        '6 meses gratis de prueba',
+        'Administra hasta 30 clientes',
+        'Usuarios y técnicos sin límite',
+        'Reportes y cotizaciones en línea',
+        'Pago $935 MXN/mes después'
+      ],
       cta: 'Suscribirme',
       color: '#0F766E'
     },

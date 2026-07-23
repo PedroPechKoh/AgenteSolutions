@@ -5,8 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
-  if (!isOpen) return null;
-
   const { user } = useAuth();
   const isRoot = user?.role_id === 0;
   const navigate = useNavigate();
@@ -60,11 +58,11 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         'Historial por propiedad',
       ],
       details: [
-        'Solicita técnicos ',
+        'Solicita técnicos certificados',
         'Aprueba cotizaciones en la app',
         'Sigue tu orden en tiempo real',
         'Historial por propiedad',
-        'Registro 100% gratuito'
+        'Registro 100% gratuito',
       ],
       note: 'Registro gratis para clientes con seguimiento en vivo y historial por propiedad.',
       cta: 'Registrarme',
@@ -190,6 +188,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       }
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
