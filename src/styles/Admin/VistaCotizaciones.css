@@ -739,6 +739,17 @@
     white-space: nowrap;
 }
 
+.quotes-scroll-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; 
+}
+.quotes-view-container {
+ 
+  width: 100%;
+  min-height: 100vh; /* Permite que ocupe toda la pantalla, pero crezca si hay más contenido */
+  padding-bottom: 40px; /* Un poco de espacio extra al final para que las últimas tarjetas no queden pegadas al borde */
+}
 @media (max-width: 768px) {
     .cotiz-actions-cell {
         flex-direction: column;
