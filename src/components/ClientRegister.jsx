@@ -263,9 +263,9 @@ const ClientRegister = () => {
           display: flex;
           justify-content: center;
           align-items: center;
-          width: 200px;
-          height: 200px;
-          border-radius: 100%;
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
           transition: all 0.3s ease;
           z-index: 1100;
           backdrop-filter: blur(8px);
