@@ -231,36 +231,32 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           transform: scale(1.1);
         }
 
-        /* --- Estilos del nuevo botón "REGRESAR" --- */
         .modal-overlay .back-button {
           position: fixed; /* Se mantiene fijo aunque hagas scroll */
           top: 25px;
           left: 25px;
-          border: 2px solid #F26522; /* Borde naranja intenso */
-          background: rgba(242, 101, 34, 0.1); /* "Lavado" naranja de fondo semi-transparente */
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.2);
           color: white;
           cursor: pointer;
-          font-family: inherit;
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 8px; /* Espacio entre icono y texto */
-          padding: 8px 16px; /* Más padding para un aspecto rectangular */
-          border-radius: 8px; /* Bordes redondeados sutiles */
+          width: 50px;
+          height: 50px;
+          border-radius: 50%; /* Lo hace un círculo perfecto */
           transition: all 0.3s ease;
           z-index: 1100;
           backdrop-filter: blur(8px);
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-          text-transform: uppercase; /* Texto en mayúsculas */
-          font-weight: bold;
         }
-
         .modal-overlay .back-button:hover {
-          background: rgba(242, 101, 34, 0.25); /* Fondo más intenso al pasar el mouse */
-          transform: scale(1.05); /* Efecto de aumento sutil */
-          box-shadow: 0 6px 20px rgba(242, 101, 34, 0.4); /* Sombra naranja al pasar el mouse */
+          color: #F26522; /* Tu color naranja principal */
+          background: rgba(242, 101, 34, 0.15);
+          border-color: #F26522;
+          transform: scale(1.1);
+          box-shadow: 0 6px 20px rgba(242, 101, 34, 0.4);
         }
-        /* --- Fin de los estilos del botón --- */
 
         .modal-overlay .form-title {
           color: white;
@@ -448,8 +444,8 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
             .modal-overlay .back-button {
             top: 15px;
             left: 15px;
-            padding: 6px 12px; /* Reducción de padding en móviles */
-            font-size: 0.85rem;
+            width: 40px;
+            height: 40px;
           }
           .modal-overlay .form-title {
             font-size: 1.35rem;
@@ -477,12 +473,11 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
         }
       `}</style>
 
-      {/* --- El botón "REGRESAR" actualizado en el JSX --- */}
       <button type="button" className="back-button" onClick={handleGoBack} title="Regresar al Login" aria-label="Regresar al inicio de sesión">
-        <ArrowLeft size={18} /> {/* Icono de flecha ligeramente más pequeño */}
-        <span>REGRESAR</span> {/* Texto en mayúsculas */}
+        <ArrowLeft size={28} />
+
+        <span>Iniciar sesión</span>
       </button>
-      {/* --- Fin del botón actualizado --- */}
 
       <div className="modal-content">
         <button className="close-button" onClick={onClose} type="button">
