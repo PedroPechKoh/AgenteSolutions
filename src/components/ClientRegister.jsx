@@ -263,8 +263,8 @@ const ClientRegister = () => {
           display: flex;
           justify-content: center;
           align-items: center;
-          width: 50px;
-          height: 50px;
+          width: 100px;
+          height: 100px;
           border-radius: 50%;
           transition: all 0.3s ease;
           z-index: 1100;
