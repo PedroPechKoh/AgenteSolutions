@@ -264,7 +264,7 @@ const ClientRegister = () => {
           justify-content: center;
           align-items: center;
           width: 300px;
-          height: 300px;
+          height: 200px;
           border-radius: 100%;
           transition: all 0.3s ease;
           z-index: 1100;
