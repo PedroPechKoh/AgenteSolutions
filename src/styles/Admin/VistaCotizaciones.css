@@ -17,7 +17,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 50px;
+    padding: 20px 50px 60px 50px; /* Aumentamos el padding inferior a 60px */
     width: 100%;
     box-sizing: border-box;
 }
@@ -180,14 +180,14 @@
 
 /* --- TABLA RE-DISEÑADA --- */
 .cotiz-table-container {
-    width: 100%;
+   width: 100%;
     max-width: 1050px;
-    max-height: 600px;
-    overflow-y: auto;
+    /* max-height y overflow-y eliminados para permitir el scroll global */
     border-radius: 20px;
     background: white;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     margin-top: 10px;
+    margin-bottom: 40px;
 }
 
 .cotiz-data-table {
