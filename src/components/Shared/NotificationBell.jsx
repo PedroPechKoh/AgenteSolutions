@@ -174,10 +174,34 @@ const NotificationBell = () => {
       {isOpen && (
         <div className="notification-dropdown">
           <div className="notification-header">
-            <span>Notificaciones</span>
-            <span className="notification-badge">
-              {notifications.length} nuevas
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span>Notificaciones</span>
+              <span className="notification-badge">
+                {notifications.length} nuevas
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                navigate("/notificaciones");
+              }}
+              className="notification-top-btn"
+              title="Ver todas las notificaciones"
+            >
+              Ver todas ➔
+            </button>
+          </div>
+
+          <div className="notification-action-bar">
+            <button 
+              onClick={() => {
+                setIsOpen(false);
+                navigate("/notificaciones");
+              }}
+              className="notification-action-link"
+            >
+              Ver todas las notificaciones
+            </button>
           </div>
 
           <div className="notification-list">

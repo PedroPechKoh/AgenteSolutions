@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plus, Clock, CheckCircle2, Circle, X, UserCircle, Calendar, 
-  ArrowLeft, Camera, Layout, FileText, Maximize2, AlertTriangle, ChevronLeft, Timer, Settings
+  ArrowLeft, Camera, Layout, FileText, Maximize2, AlertTriangle, ChevronLeft, Timer, Settings, RotateCw
 } from 'lucide-react';
 import Header from '../Shared/Header';
 import ModalAsignarChecklist from './ModalAsignarChecklist';
@@ -173,10 +173,31 @@ const VistaServiciosAdmin = () => {
     });
   }, [cotizacionesData, tareaSeleccionada]);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchOrders();
+      await fetchCotizaciones();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 500);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
     fetchTecnicos();
     fetchCotizaciones();
+
+    // Auto-actualización silenciosa cada 60 segundos
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 60000);
+
+    return () => clearInterval(interval);
   }, [fetchOrders]);
 
   // --- AUTO-OPEN MODAL IF jobId IN URL ---
@@ -534,15 +555,50 @@ const VistaServiciosAdmin = () => {
     <div className="scrum-container admin-theme">
       <Header titulo="SERVICIOS" />
       
-      <header className="scrum-header-admin">
-        <button 
-          className="btn-back-dashboard" 
-          onClick={() => navigate(-1)}
-          style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+      <header className="scrum-header-admin" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '15px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <button 
+            className="btn-back-dashboard" 
+            onClick={() => navigate(-1)}
+            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+          >
+            <ChevronLeft size={20} /> REGRESAR
+          </button>
+          <h2 style={{ fontStyle: 'italic', fontWeight: '900', margin: 0 }}>GESTIÓN GLOBAL DE SERVICIOS</h2>
+        </div>
+
+        {/* BOTÓN ACTUALIZAR PROMINENTE CON ICONO */}
+        <button
+          onClick={handleManualRefresh}
+          disabled={isRefreshing}
+          style={{
+            background: '#F26522',
+            color: 'white',
+            border: 'none',
+            padding: '10px 24px',
+            borderRadius: '18px',
+            fontWeight: '900',
+            fontSize: '1rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            boxShadow: '0 4px 14px rgba(242, 101, 34, 0.35)',
+            transition: 'all 0.2s ease-in-out',
+            opacity: isRefreshing ? 0.75 : 1
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <ChevronLeft size={20} /> REGRESAR
+          <RotateCw 
+            size={20} 
+            style={{ 
+              animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+              transition: 'transform 0.3s'
+            }} 
+          />
+          <span>{isRefreshing ? 'Actualizando...' : 'Actualizar'}</span>
         </button>
-        <h2 style={{ fontStyle: 'italic', fontWeight: '900', margin: 0 }}>GESTIÓN GLOBAL DE SERVICIOS</h2>
       </header>
 
       {/* Buscador Universal */}
