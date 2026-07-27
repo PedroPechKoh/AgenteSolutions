@@ -361,38 +361,42 @@ const CustomizeLogin = () => {
                   ) : (
                     sidebarLinks.map((link, index) => (
                       <div key={link.id} className="sidebar-link-item">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <button onClick={() => moveLink(index, -1)} disabled={index === 0} style={{ cursor: index === 0 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '2px 8px', opacity: index === 0 ? 0.3 : 1 }}>▲</button>
-                          <button onClick={() => moveLink(index, 1)} disabled={index === sidebarLinks.length - 1} style={{ cursor: index === sidebarLinks.length - 1 ? 'not-allowed' : 'pointer', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '2px 8px', opacity: index === sidebarLinks.length - 1 ? 0.3 : 1 }}>▼</button>
+                        <div className="sidebar-link-top-controls">
+                          <div className="sidebar-reorder-btns">
+                            <button onClick={() => moveLink(index, -1)} disabled={index === 0} className="btn-reorder" title="Subir">▲</button>
+                            <button onClick={() => moveLink(index, 1)} disabled={index === sidebarLinks.length - 1} className="btn-reorder" title="Bajar">▼</button>
+                          </div>
+                          
+                          <select 
+                            className="sidebar-link-icon-select"
+                            value={link.icon}
+                            onChange={(e) => updateSidebarLink(link.id, 'icon', e.target.value)}
+                          >
+                            {ICONS_LIST.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                          </select>
+
+                          <button onClick={() => removeSidebarLink(link.id)} className="btn-delete-file sidebar-delete-btn" title="Borrar Botón">
+                            <Trash2 size={16} />
+                          </button>
                         </div>
                         
-                        <select 
-                          className="sidebar-link-icon-select"
-                          value={link.icon}
-                          onChange={(e) => updateSidebarLink(link.id, 'icon', e.target.value)}
-                        >
-                          {ICONS_LIST.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                        </select>
-                        
-                        <input 
-                          type="text" 
-                          placeholder="Etiqueta (ej. Mi Facebook)" 
-                          className="sidebar-link-input"
-                          value={link.label}
-                          onChange={(e) => updateSidebarLink(link.id, 'label', e.target.value)}
-                        />
-                        
-                        <input 
-                          type="url" 
-                          placeholder="URL (ej. https://facebook.com/pagina)" 
-                          className="sidebar-link-input"
-                          value={link.url}
-                          onChange={(e) => updateSidebarLink(link.id, 'url', e.target.value)}
-                        />
-                        
-                        <button onClick={() => removeSidebarLink(link.id)} className="btn-delete-file" style={{ padding: '10px 14px' }} title="Borrar">
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="sidebar-link-inputs-wrapper">
+                          <input 
+                            type="text" 
+                            placeholder="Etiqueta (ej. Mi Facebook)" 
+                            className="sidebar-link-input"
+                            value={link.label}
+                            onChange={(e) => updateSidebarLink(link.id, 'label', e.target.value)}
+                          />
+                          
+                          <input 
+                            type="url" 
+                            placeholder="URL (ej. https://facebook.com/pagina)" 
+                            className="sidebar-link-input"
+                            value={link.url}
+                            onChange={(e) => updateSidebarLink(link.id, 'url', e.target.value)}
+                          />
+                        </div>
                       </div>
                     ))
                   )}
