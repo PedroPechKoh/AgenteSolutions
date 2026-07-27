@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, PlusCircle, Trash2, Layout, Image as ImageIcon, Link as LinkIcon, MoveVertical } from 'lucide-react';
+import { useAuth } from "../context/AuthContext";
 import Header from "./Shared/Header";
 import "../styles/CustomizeLogin.css";
 
@@ -19,9 +20,15 @@ const ICONS_LIST = [
 
 const CustomizeLogin = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const isRoot = user.role_id === 0;
+  const { user } = useAuth();
+  const isRoot = Number(user?.role_id) === 0;
   const [activeTab, setActiveTab] = useState(isRoot ? 'fondo' : 'logo'); // 'fondo', 'logo', 'sidebar'
+
+  useEffect(() => {
+    if (isRoot) {
+      setActiveTab('fondo');
+    }
+  }, [isRoot]);
   
   // -- ESTADOS TAB: FONDO --
   const [selectedFile, setSelectedFile] = useState(null);
