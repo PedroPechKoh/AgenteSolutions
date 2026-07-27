@@ -182,9 +182,9 @@ const VistaServiciosAdmin = () => {
   // --- AUTO-OPEN MODAL IF jobId IN URL ---
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const jobId = params.get('jobId');
+    const jobId = params.get('jobId') || params.get('serviceId') || params.get('work_order_id') || params.get('id');
     if (jobId && tareasData.length > 0) {
-      const tarea = tareasData.find(t => t.dbId === parseInt(jobId));
+      const tarea = tareasData.find(t => String(t.dbId) === String(jobId) || String(t.id) === String(jobId));
       if (tarea) {
         const esActivo = ['sos', 'unassigned', 'todo', 'progress'].includes(tarea.estado);
         setSeccionTab(esActivo ? 'activos' : 'finalizados');

@@ -115,6 +115,9 @@ const VistaNotificaciones = () => {
                         url = '/propiedades';
                       }
                     } else {
+                      const workOrderId = n.data.work_order_id || n.data.service_id || n.data.id;
+                      const titleLower = n.data.title?.toLowerCase() || '';
+
                       // Normalización de URLs y Tipos para Admin y Técnicos
                       if (type === 'work_order_finished' || type === 'new_report') {
                         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
@@ -125,12 +128,18 @@ const VistaNotificaciones = () => {
                           const qId = n.data.quote_id;
                           url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
                         }
-                      } else if (type === 'new_work_order' || type === 'new_service_requested' || type === 'service_assigned' || type === 'work_order_assigned' || type === 'work_order_rescheduled') {
+                      } else if (type === 'new_service_requested' || type === 'new_work_order' || type === 'service_assigned' || titleLower.includes('solicitud de servicio') || titleLower.includes('servicio')) {
+                        if (isTecnico) {
+                          url = '/trabajos-tecnico';
+                        } else {
+                          url = workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios';
+                        }
+                      } else if (type === 'work_order_assigned' || type === 'work_order_rescheduled' || type === 'visit_rescheduled') {
                         url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
                       } else if (type === 'user_account_deleted') {
                         url = n.data.url || (n.data.role_id === 2 ? '/vista-tecnicos' : '/usuarios');
                       } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
-                        url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
+                        url = isTecnico ? '/trabajos-tecnico' : (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios');
                       }
 
                       // Fallback de seguridad
@@ -143,7 +152,9 @@ const VistaNotificaciones = () => {
                             url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
                           }
                         }
-                        else if (type?.includes('service') || type?.includes('work_order')) url = isTecnico ? '/trabajos-tecnico' : '/tablero-servicios';
+                        else if (type?.includes('service') || type?.includes('work_order') || titleLower.includes('servicio')) {
+                          url = isTecnico ? '/trabajos-tecnico' : (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios');
+                        }
                         else url = isTecnico ? '/trabajos-tecnico' : '/VistaRoot';
                       }
                     }
