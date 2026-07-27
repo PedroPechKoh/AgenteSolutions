@@ -83,7 +83,7 @@ const RegisterProperties = () => {
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
-    googleMapsApiKey: "AIzaSyDgyTj0X6kgGoMV8NxQGDp4-Nx0bxJd0Hw",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyDgyTj0X6kgGoMV8NxQGDp4-Nx0bxJd0Hw",
     libraries: libraries,
   });
 
