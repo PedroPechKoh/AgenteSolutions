@@ -100,7 +100,7 @@ const Map = () => {
               title="¡Estás aquí!"
               icon={{
                 // Usamos un ícono azul de Google para diferenciar la ubicación actual de los clientes
-                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' 
+                url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' 
               }}
             />
           )}
