@@ -47,10 +47,24 @@ const TrabajoPropiedad = () => {
     checkExistingQuote();
   }, [id]);
 
+  const getRealId = (rawId) => {
+    if (!rawId) return '';
+    const str = String(rawId);
+    if (str.includes('work_order') || str.includes('work-order')) {
+      return str.replace(/^work[_-]order[_-]/i, '');
+    }
+    if (str.includes('servicio')) {
+      return str.replace(/^servicio[_-]/i, '');
+    }
+    if (str.includes('-')) return str.split('-')[1];
+    if (str.includes('_')) return str.split('_')[1];
+    return str;
+  };
+
   const checkExistingQuote = async () => {
     try {
-      const realId = id.includes('-') ? id.split('-')[1] : id;
-      const isWorkOrder = id.includes('work_order');
+      const realId = getRealId(id);
+      const isWorkOrder = String(id).includes('work_order') || String(id).includes('work-order');
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
       const allQuotes = res.data.data || res.data;
       const found = allQuotes.find(q => 
@@ -68,7 +82,7 @@ const TrabajoPropiedad = () => {
 
   useEffect(() => {
     if (data) {
-      const realId = id.includes('-') ? id.split('-')[1] : id;
+      const realId = getRealId(id);
       const confirmado = localStorage.getItem(`materiales_confirmados_${realId}`) === 'true';
       setMaterialesConfirmados(confirmado);
 
@@ -117,7 +131,7 @@ const TrabajoPropiedad = () => {
     if (!confirmacion) return;
 
     try {
-      const realId = id.includes('-') ? id.split('-')[1] : id;
+      const realId = getRealId(id);
       
       // Cambiar estado a Listo
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${realId}/status`, {
