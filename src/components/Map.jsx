@@ -4,14 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import logoAgente from '../assets/Logo_simple.png';
 import Header from './Shared/Header';
-import { ChevronLeft, RefreshCw, Radio } from 'lucide-react';
+import { ChevronLeft, RefreshCw, Radio, ExternalLink } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const containerStyle = {
   width: '100%',
-  height: '75vh', 
-  borderRadius: '15px',
-  boxShadow: '0 4px 15px rgba(0,0,0,0.1)' 
+  height: 'calc(100vh - 210px)',
+  minHeight: '450px',
+  borderRadius: '16px',
+  boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
+  overflow: 'hidden'
 };
 
 const Map = () => {
@@ -26,6 +28,25 @@ const Map = () => {
 
   const [tenantLogo, setTenantLogo] = useState(null);
   const isRoot = [0, 1].includes(Number(user?.role_id));
+
+  const formatHora12 = (dateStr) => {
+    if (!dateStr) return '';
+    const timePart = String(dateStr).includes(' ') 
+      ? String(dateStr).split(' ')[1] 
+      : (String(dateStr).includes('T') ? String(dateStr).split('T')[1] : dateStr);
+    
+    if (!timePart) return String(dateStr);
+    const parts = timePart.split(':');
+    if (parts.length < 2) return dateStr;
+    
+    let hour = parseInt(parts[0], 10);
+    const min = parts[1];
+    if (isNaN(hour)) return dateStr;
+    
+    const ampm = hour >= 12 ? 'p.m.' : 'a.m.';
+    hour = hour % 12 || 12;
+    return `${hour}:${min} ${ampm}`;
+  };
 
   useEffect(() => {
     try {
@@ -83,7 +104,6 @@ const Map = () => {
       );
     }
 
-    // Auto-refresh si es Root para rastreo en tiempo real
     if (isRoot) {
       const intervalId = setInterval(cargarDatos, 15000);
       return () => clearInterval(intervalId);
@@ -113,18 +133,40 @@ const Map = () => {
     <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
       <Header titulo="MAPA DE MONITOREO GPS" />
 
-      <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+      <div style={{ padding: '15px', maxWidth: '1400px', margin: '0 auto' }}>
+        {/* BARRA SUPERIOR RESPONSIVA */}
+        <div style={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          gap: '10px', 
+          marginBottom: '15px' 
+        }}>
           <button 
             onClick={() => navigate(-1)} 
-            style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#F26522', color: 'white', padding: '8px 25px', borderRadius: '25px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '0.9rem' }}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              background: '#F26522', 
+              color: 'white', 
+              padding: '8px 20px', 
+              borderRadius: '25px', 
+              border: 'none', 
+              cursor: 'pointer', 
+              fontWeight: '800', 
+              fontSize: '0.85rem',
+              boxShadow: '0 2px 8px rgba(242,101,34,0.25)',
+              transition: 'transform 0.2s'
+            }}
           >
             <ChevronLeft size={18} />
             <span>REGRESAR</span>
           </button>
 
           {isRoot && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
               <span style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -133,11 +175,12 @@ const Map = () => {
                 borderRadius: '20px',
                 backgroundColor: '#dbeafe',
                 color: '#1e40af',
-                fontWeight: 'bold',
-                fontSize: '0.85rem'
+                fontWeight: '800',
+                fontSize: '0.8rem',
+                border: '1px solid #bfdbfe'
               }}>
-                <Radio size={16} className="animate-pulse" color="#2563eb" />
-                <span>Rastreo GPS Root Activo ({techniciansLive.length} Técnicos)</span>
+                <Radio size={15} className="animate-pulse" color="#2563eb" />
+                <span>Rastreo GPS Root ({techniciansLive.length} Técnicos)</span>
               </span>
 
               <button
@@ -147,14 +190,15 @@ const Map = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  background: '#334155',
+                  background: '#1e293b',
                   color: 'white',
-                  padding: '8px 16px',
+                  padding: '7px 16px',
                   borderRadius: '20px',
                   border: 'none',
                   cursor: 'pointer',
-                  fontWeight: 'bold',
-                  fontSize: '0.85rem'
+                  fontWeight: '800',
+                  fontSize: '0.8rem',
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
                 }}
               >
                 <RefreshCw size={14} /> Actualizar
@@ -206,7 +250,6 @@ const Map = () => {
             if (isNaN(lat) || isNaN(lng)) return null;
 
             const tieneArribo = tech.assigned_jobs && tech.assigned_jobs.some(j => j.arrival_status === 'EN_SITIO');
-            const pinColor = tieneArribo ? 'green-dot.png' : 'orange-dot.png';
 
             return (
               <React.Fragment key={`tech-${tech.user_id}`}>
@@ -223,7 +266,7 @@ const Map = () => {
                     fillOpacity: 1,
                     strokeWeight: 1.5,
                     strokeColor: '#ffffff',
-                    scale: 1.5,
+                    scale: 1.6,
                     anchor: (window.google && window.google.maps) ? new window.google.maps.Point(12, 12) : undefined
                   }}
                 />
@@ -263,27 +306,27 @@ const Map = () => {
               position={{ lat: parseFloat(marcadorActivo.lat), lng: parseFloat(marcadorActivo.lng) }}
               onCloseClick={() => setMarcadorActivo(null)}
             >
-              <div style={{ display: 'flex', gap: '15px', maxWidth: '300px', padding: '5px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '12px', width: '280px', maxWidth: 'calc(100vw - 70px)', padding: '4px', alignItems: 'center' }}>
                 <div>
                   <img 
                     src={marcadorActivo.picture || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'} 
                     alt="Perfil del Cliente" 
-                    style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #FF6600' }} 
+                    style={{ width: '54px', height: '54px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #FF6600', flexShrink: 0 }} 
                   />
                 </div>
 
-                <div style={{ color: '#333', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <h4 style={{ margin: 0, color: '#FF6600', fontSize: '1.1rem' }}>
+                <div style={{ color: '#333', display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 }}>
+                  <h4 style={{ margin: 0, color: '#FF6600', fontSize: '1rem', fontWeight: '800', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {marcadorActivo.owner_name || 'Cliente sin nombre'}
                   </h4>
-                  <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    📞 {marcadorActivo.phone || 'Sin teléfono registrado'}
+                  <p style={{ margin: 0, fontSize: '0.82rem', fontWeight: 'bold' }}>
+                    📞 {marcadorActivo.phone || 'Sin teléfono'}
                   </p>
-                  <p style={{ margin: 0, fontSize: '0.8rem', color: '#666', lineHeight: '1.2' }}>
+                  <p style={{ margin: 0, fontSize: '0.75rem', color: '#666', lineHeight: '1.2' }}>
                     📍 {marcadorActivo.address}
                   </p>
                   
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                  <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
                     <button 
                       onClick={() => {
                         const clienteData = {
@@ -303,18 +346,18 @@ const Map = () => {
                         navigate('/detalle-cliente', { state: { cliente: clienteData } });
                       }}
                       style={{
-                        backgroundColor: '#333', 
+                        backgroundColor: '#1e293b', 
                         color: 'white', 
                         border: 'none', 
-                        padding: '8px 12px', 
-                        borderRadius: '8px',
+                        padding: '6px 10px', 
+                        borderRadius: '6px',
                         cursor: 'pointer',
                         fontWeight: '800',
-                        fontSize: '0.75rem',
+                        fontSize: '0.7rem',
                         textTransform: 'uppercase',
                         flex: 1
                       }}>
-                      Ver Detalles
+                      Detalles
                     </button>
                     <button 
                       onClick={() => window.open(`https://www.google.com/maps/dir/?api=1&destination=${marcadorActivo.lat},${marcadorActivo.lng}`)}
@@ -322,11 +365,11 @@ const Map = () => {
                         backgroundColor: '#F26522', 
                         color: 'white', 
                         border: 'none', 
-                        padding: '8px 12px', 
-                        borderRadius: '8px',
+                        padding: '6px 10px', 
+                        borderRadius: '6px',
                         cursor: 'pointer',
                         fontWeight: '800',
-                        fontSize: '0.75rem',
+                        fontSize: '0.7rem',
                         textTransform: 'uppercase',
                         flex: 1
                       }}>
@@ -344,63 +387,111 @@ const Map = () => {
               position={{ lat: parseFloat(tecnicoActivo.latitude), lng: parseFloat(tecnicoActivo.longitude) }}
               onCloseClick={() => setTecnicoActivo(null)}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '320px', padding: '5px' }}>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                width: '310px', 
+                maxWidth: 'calc(100vw - 70px)', 
+                padding: '4px',
+                boxSizing: 'border-box'
+              }}>
+                {/* Encabezado del Técnico */}
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', paddingBottom: '8px', borderBottom: '1px solid #f1f5f9' }}>
                   <img 
                     src={tecnicoActivo.profile_picture || 'https://cdn-icons-png.flaticon.com/512/149/149071.png'} 
                     alt="Técnico" 
-                    style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #F26522' }} 
+                    style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #F26522', flexShrink: 0 }} 
                   />
-                  <div>
-                    <h4 style={{ margin: 0, color: '#F26522', fontSize: '1.05rem', fontWeight: 'bold' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <h4 style={{ margin: 0, color: '#0f172a', fontSize: '0.95rem', fontWeight: '800', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       🛠️ {tecnicoActivo.first_name} {tecnicoActivo.last_name}
                     </h4>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#555' }}>
+                    <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: '#475569', fontWeight: '600' }}>
                       📞 {tecnicoActivo.phone_number || 'Sin teléfono'}
                     </p>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>
-                      GPS: {new Date(tecnicoActivo.last_gps_update).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+                    {tecnicoActivo.last_gps_update && (
+                      <p style={{ margin: '2px 0 0', fontSize: '0.7rem', color: '#64748b' }}>
+                        Última señal: {formatHora12(tecnicoActivo.last_gps_update)}
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                <div style={{ borderTop: '1px solid #eee', paddingTop: '8px', marginTop: '4px' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#333' }}>Trabajos del Día:</span>
+                {/* Lista de Trabajos con Scroll Controlado */}
+                <div style={{ marginTop: '8px' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#334155', textTransform: 'uppercase', marginBottom: '6px' }}>
+                    Trabajos Asignados Hoy ({tecnicoActivo.assigned_jobs?.length || 0}):
+                  </div>
+
                   {(!tecnicoActivo.assigned_jobs || tecnicoActivo.assigned_jobs.length === 0) ? (
-                    <p style={{ margin: '4px 0 0', fontSize: '0.8rem', color: '#666' }}>Sin trabajos agendados hoy</p>
+                    <p style={{ margin: 0, fontSize: '0.78rem', color: '#94a3b8', fontStyle: 'italic' }}>Sin trabajos agendados hoy</p>
                   ) : (
-                    tecnicoActivo.assigned_jobs.map((job) => (
-                      <div key={job.composite_id} style={{
-                        marginTop: '6px',
-                        padding: '8px',
-                        borderRadius: '8px',
-                        backgroundColor: '#f8fafc',
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#0f172a' }}>
-                            #{job.id} - {job.property_name || job.address}
-                          </span>
-                          {job.arrival_status === 'EN_SITIO' ? (
-                            <span style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '2px 6px', borderRadius: '10px', backgroundColor: '#d1fae5', color: '#065f46' }}>
-                              🟢 En el lugar
+                    <div style={{ 
+                      maxHeight: '180px', 
+                      overflowY: 'auto', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: '8px',
+                      paddingRight: '4px'
+                    }}>
+                      {tecnicoActivo.assigned_jobs.map((job) => (
+                        <div key={job.composite_id} style={{
+                          padding: '8px 10px',
+                          borderRadius: '10px',
+                          backgroundColor: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#0f172a' }}>
+                              #{job.id} - {job.property_name || job.address}
                             </span>
-                          ) : (
-                            <span style={{ fontSize: '0.7rem', fontWeight: 'bold', padding: '2px 6px', borderRadius: '10px', backgroundColor: '#fff3ed', color: '#f26522' }}>
-                              🟠 En camino
-                            </span>
-                          )}
-                        </div>
-                        <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: '#64748b' }}>
-                          Cliente: {job.client_name || 'Desconocido'} ({job.client_phone || 'Sin tel'})
-                        </p>
-                        {job.arrived_at && (
-                          <p style={{ margin: '2px 0 0', fontSize: '0.72rem', color: '#059669', fontWeight: 'bold' }}>
-                            Llegada confirmada: {new Date(job.arrived_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {job.arrival_status === 'EN_SITIO' ? (
+                              <span style={{ fontSize: '0.65rem', fontWeight: '800', padding: '2px 8px', borderRadius: '12px', backgroundColor: '#d1fae5', color: '#065f46', flexShrink: 0 }}>
+                                🟢 En el lugar
+                              </span>
+                            ) : (
+                              <span style={{ fontSize: '0.65rem', fontWeight: '800', padding: '2px 8px', borderRadius: '12px', backgroundColor: '#fff3ed', color: '#f26522', flexShrink: 0 }}>
+                                🟠 En camino
+                              </span>
+                            )}
+                          </div>
+                          
+                          <p style={{ margin: '4px 0 0', fontSize: '0.72rem', color: '#64748b' }}>
+                            Cliente: <strong style={{ color: '#334155' }}>{job.client_name || 'Desconocido'}</strong> ({job.client_phone || 'Sin tel'})
                           </p>
-                        )}
-                      </div>
-                    ))
+
+                          {job.arrived_at && (
+                            <p style={{ margin: '3px 0 0', fontSize: '0.7rem', color: '#059669', fontWeight: '800' }}>
+                              Llegada confirmada: {formatHora12(job.arrived_at)}
+                            </p>
+                          )}
+
+                          <button 
+                            onClick={() => {
+                              const realId = String(job.id).replace('work_order-', '').replace('servicio-', '');
+                              navigate(`/tablero-servicios?jobId=${realId}`);
+                            }}
+                            style={{
+                              marginTop: '6px',
+                              background: '#ffffff',
+                              color: '#F26522',
+                              border: '1px solid #fed7aa',
+                              borderRadius: '6px',
+                              padding: '3px 8px',
+                              fontSize: '0.68rem',
+                              fontWeight: '800',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <ExternalLink size={12} /> Ver Orden #{job.id}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
