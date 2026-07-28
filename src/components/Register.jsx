@@ -28,7 +28,8 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
 
   // ROLES PARA LA PESTAÑA 1: AGENTE SOLUTIONS (INTERNOS / DIRECTOS)
   const rolesAgente = [
-    { id: 1, label: 'ADMIN / ROOT', desc: 'Acceso total a la plataforma matriz', icon: '🔴', color: '#EF4444' },
+    { id: 0, label: 'USUARIO ROOT', desc: 'Superadministrador matriz (Acceso Total)', icon: '👑', color: '#EF4444' },
+    { id: 1, label: 'ADMINISTRADOR', desc: 'Administrador de Agente Solutions', icon: '🔴', color: '#F59E0B' },
     { id: 2, label: 'TÉCNICO AGENTE', desc: 'Técnico directo de Agente Solutions', icon: '🛠️', color: '#F26522' },
     { id: 3, label: 'CLIENTE AGENTE', desc: 'Cliente directo de Agente Solutions', icon: '👤', color: '#10B981' }
   ];
