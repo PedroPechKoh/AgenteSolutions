@@ -49,22 +49,16 @@ const TrabajoPropiedad = () => {
 
   const getRealId = (rawId) => {
     if (!rawId) return '';
-    const str = String(rawId);
-    if (str.includes('work_order') || str.includes('work-order')) {
-      return str.replace(/^work[_-]order[_-]/i, '');
-    }
-    if (str.includes('servicio')) {
-      return str.replace(/^servicio[_-]/i, '');
-    }
-    if (str.includes('-')) return str.split('-')[1];
-    if (str.includes('_')) return str.split('_')[1];
-    return str;
+    const str = decodeURIComponent(String(rawId)).trim();
+    const match = str.match(/\d+/);
+    return match ? match[0] : str;
   };
 
   const checkExistingQuote = async () => {
     try {
       const realId = getRealId(id);
-      const isWorkOrder = String(id).includes('work_order') || String(id).includes('work-order');
+      const decoded = decodeURIComponent(String(id));
+      const isWorkOrder = /work[_\s-]*order/i.test(decoded);
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
       const allQuotes = res.data.data || res.data;
       const found = allQuotes.find(q => 
@@ -105,10 +99,11 @@ const TrabajoPropiedad = () => {
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
+      const cleanId = encodeURIComponent(String(id).trim());
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${cleanId}`);
       setData(res.data.data || res.data);
       try {
-        const reportsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}/reportes`);
+        const reportsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${cleanId}/reportes`);
         if (reportsRes.data && reportsRes.data.length > 0) {
           setHasReports(true);
         }
