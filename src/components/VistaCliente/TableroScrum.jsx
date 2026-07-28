@@ -3,9 +3,11 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Plus, Clock, CheckCircle2, X, UserCircle, Calendar, 
-  ArrowLeft, Camera, Layout, FileText, Maximize2, AlertTriangle, ChevronLeft, Timer 
+  ArrowLeft, Camera, Layout, FileText, Maximize2, AlertTriangle, ChevronLeft, Timer,
+  MapPin, Navigation, Phone
 } from 'lucide-react';
 import '../../styles/Cliente/TableroScrum.css';
+import '../../styles/TecnicoStyles/TrabajoPropiedad.css';
 
 const TableroScrum = () => {
   const { id } = useParams();
@@ -16,6 +18,8 @@ const TableroScrum = () => {
   const [tareasData, setTareasData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [tareaSeleccionada, setTareaSeleccionada] = useState(null);
+  const [detalleCompleto, setDetalleCompleto] = useState(null);
+  const [cargandoDetalle, setCargandoDetalle] = useState(false);
   const [verBitacora, setVerBitacora] = useState(false);
   const [imagenExpandida, setImagenExpandida] = useState(null);
   const [procesandoAccion, setProcesandoAccion] = useState(false);
@@ -29,7 +33,7 @@ const TableroScrum = () => {
     { id: 'rejected', titulo: 'CANCELADOS', color: '#dc2626', icon: <X size={20} /> }
   ];
 
-  // --- MAPEO DE DATOS (Mismo que en Laravel) ---
+  // --- MAPEO DE DATOS ---
   const transformarTareas = useCallback((data) => {
     return data.map(item => {
       let estado = 'todo';
@@ -77,30 +81,28 @@ const TableroScrum = () => {
   }, [id]);
 
   // --- ACCIONES ---
-  const abrirModal = (tarea) => {
+  const abrirModal = async (tarea) => {
     setTareaSeleccionada(tarea);
     setVerBitacora(false);
     setModalVisible(true);
+    setDetalleCompleto(null);
+    setCargandoDetalle(true);
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/work_order-${tarea.dbId}`);
+      if (res.data) {
+        setDetalleCompleto(res.data.data || res.data);
+      }
+    } catch (err) {
+      console.warn("No se pudo obtener el detalle completo del trabajo:", err);
+    } finally {
+      setCargandoDetalle(false);
+    }
   };
 
   const cerrarModal = () => {
     setModalVisible(false);
     setTareaSeleccionada(null);
-  };
-
-  const cambiarEstadoTarea = async (nuevoEstadoLaravel) => {
-    setProcesandoAccion(true);
-    try {
-      await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${tareaSeleccionada.dbId}/status`, {
-        status: nuevoEstadoLaravel
-      });
-      await fetchOrders(); // Recarga los datos
-      cerrarModal();
-    } catch (error) {
-      alert("No se pudo actualizar el estado del servicio.");
-    } finally {
-      setProcesandoAccion(false);
-    }
+    setDetalleCompleto(null);
   };
 
   if (loading) return <div className="loading-screen">Cargando Tablero Técnico...</div>;
@@ -184,107 +186,203 @@ const TableroScrum = () => {
         ))}
       </div>
 
+      {/* MODAL CON EL MISMO DISEÑO QUE EL DEL TÉCNICO */}
       {modalVisible && tareaSeleccionada && (
-        <div className="modal-view-overlay" onClick={cerrarModal}>
-          <div className="modal-card-container" onClick={e => e.stopPropagation()}>
-            <div className={`modal-top-indicator ${verBitacora ? 'is-bitacora' : tareaSeleccionada.estado}`}>
-               <div className="indicator-content">
-                  {verBitacora && <ArrowLeft size={18} className="nav-back-icon" onClick={() => setVerBitacora(false)} />}
-                  <span className="dot-blink"></span>
-                  {verBitacora ? 'BITÁCORA TÉCNICA' : 'VISTA DE TAREA'}
-               </div>
-               <button 
-                 onClick={cerrarModal}
-                 style={{
-                   background: 'rgba(255,255,255,0.25)',
-                   border: '2px solid rgba(255,255,255,0.6)',
-                   color: 'white',
-                   cursor: 'pointer',
-                   borderRadius: '50%',
-                   width: '36px',
-                   height: '36px',
-                   display: 'flex',
-                   alignItems: 'center',
-                   justifyContent: 'center',
-                   flexShrink: 0,
-                   fontSize: '18px',
-                   fontWeight: 'bold',
-                   lineHeight: 1
-                 }}
-               >
-                 ×
-               </button>
-            </div>
+        <div className="modal-view-overlay" onClick={cerrarModal} style={{ zIndex: 9999 }}>
+          <div 
+            className="modal-card-container" 
+            onClick={e => e.stopPropagation()} 
+            style={{ 
+              maxWidth: '920px', 
+              width: '94%', 
+              maxHeight: '92vh', 
+              overflowY: 'auto', 
+              borderRadius: '24px', 
+              padding: 0, 
+              overflow: 'hidden',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              border: 'none',
+              background: '#f8fafc'
+            }}
+          >
+            {/* HERO BANNER IGUAL QUE LA VISTA DEL TÉCNICO */}
+            <section className="tp-property-hero" style={{ height: '230px', borderRadius: '0', marginBottom: 0 }}>
+              <div className="tp-hero-overlay"></div>
+              <img 
+                src={detalleCompleto?.foto_fachada || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=1000'} 
+                alt="Fachada de la Propiedad" 
+                className="tp-hero-bg" 
+              />
+              
+              <button 
+                onClick={cerrarModal}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  zIndex: 10,
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1.5px solid rgba(255,255,255,0.4)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                }}
+              >
+                ×
+              </button>
 
-            <div className="modal-inner-scroll">
-                {!verBitacora ? (
-                  <div className="task-details-view">
-                    <span className="wkf-id">WKF-ORD-{tareaSeleccionada.dbId}</span>
-                    <h3 className="task-main-heading">{tareaSeleccionada.titulo}</h3>
-                    <p className="task-long-desc">{tareaSeleccionada.descripcion}</p>
-                    
-                    <div className="info-box-grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
-                      <div className="info-item">
-                        <UserCircle size={20} />
-                        <div><label>Técnico</label><strong>{tareaSeleccionada.tecnico}</strong></div>
-                      </div>
-                      <div className="info-item">
-                        <Calendar size={20} />
-                        <div><label>Fecha Reporte</label><strong>{tareaSeleccionada.fechaInicio}</strong></div>
-                      </div>
-                      <div className="info-item">
-                        <Timer size={20} />
-                        <div>
-                          <label>Visita Programada</label>
-                          <strong>{tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }) : 'Por programar'}</strong>
-                        </div>
-                      </div>
-                      <div className="info-item">
-                        <CheckCircle2 size={20} />
-                        <div>
-                          <label>Trabajo Finalizado</label>
-                          <strong>{tareaSeleccionada.estado === 'done' ? tareaSeleccionada.fechaFin : 'Pendiente'}</strong>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* El cliente solo puede VER el estado, no cambiarlo */}
-                    <button className="view-bitacora-btn" onClick={() => setVerBitacora(true)}>
-                      Ver Bitácora Técnica
-                    </button>
+              <div className="tp-hero-content" style={{ padding: '20px 25px' }}>
+                <div className="tp-hero-text">
+                  <span className="tp-id-badge">
+                    {detalleCompleto?.identificador_curp || `WKF-ORD-#${tareaSeleccionada.dbId}`}
+                  </span>
+                  <h1 className="tp-property-name" style={{ fontSize: '1.75rem', marginBottom: '4px' }}>
+                    {detalleCompleto?.propiedad_nombre || tareaSeleccionada.titulo}
+                  </h1>
+                  <div className="tp-property-address">
+                    <MapPin size={16} />
+                    <p style={{ margin: 0 }}>{detalleCompleto?.direccion || 'Propiedad registrada'}</p>
                   </div>
-                ) : (
-                  <div className="bitacora-view">
-                    <div className="bitacora-section">
-                      <h6 className="section-label"><Layout size={14} /> PROGRESO TÉCNICO</h6>
-                      <div className="checklist-minimal">
-                        <div className="check-row done"><CheckCircle2 size={16}/> Registro de incidencia</div>
-                        <div className={`check-row ${tareaSeleccionada.estado === 'progress' ? 'current' : tareaSeleccionada.estado === 'done' ? 'done' : ''}`}>
-                          {tareaSeleccionada.estado === 'done' ? <CheckCircle2 size={16}/> : <Clock size={16}/>} 
-                          Ejecución técnica
-                        </div>
-                      </div>
+                </div>
+                
+                <div className="tp-hero-actions">
+                  {detalleCompleto?.coordenadas && (
+                    <button 
+                      className="tp-action-btn maps" 
+                      onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${detalleCompleto.coordenadas}`, '_blank')}
+                    >
+                      <Navigation size={16} />
+                      <span>GPS</span>
+                    </button>
+                  )}
+                  {detalleCompleto?.tecnico_telefono && (
+                    <button 
+                      className="tp-action-btn call" 
+                      onClick={() => window.open(`tel:${detalleCompleto.tecnico_telefono}`)}
+                    >
+                      <Phone size={16} />
+                      <span>Llamar Técnico</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* SECCIÓN PRINCIPAL GRID */}
+            <div style={{ padding: '24px', backgroundColor: '#f8fafc' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+                
+                {/* TARJETA CONSISTE EN: */}
+                <div className="tp-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '22px', margin: 0, boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                  <div className="tp-card-header" style={{ marginBottom: '16px' }}>
+                    <FileText size={20} color="#F26522" />
+                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800', color: '#0f172a' }}>CONSISTE EN:</h3>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      backgroundColor: '#fee2e2',
+                      color: '#991b1b',
+                      padding: '5px 12px',
+                      borderRadius: '8px',
+                      fontSize: '0.72rem',
+                      fontWeight: '800',
+                      textTransform: 'uppercase',
+                      alignSelf: 'flex-start'
+                    }}>
+                      <AlertTriangle size={14} />
+                      <span>TIPO DE FALLA / PROBLEMA</span>
                     </div>
-                    <div className="media-area">
-                      <h6 className="section-label"><Camera size={14} /> EVIDENCIA DE CAMPO</h6>
-                      <div className="evidence-grid">
-                        {tareaSeleccionada.evidencias.map((img, i) => (
-                          <div key={i} className="evidence-card" onClick={() => setImagenExpandida(img)}>
-                            <img src={img} alt="Evidencia" />
-                            <div className="evidence-overlay"><Maximize2 size={16} /></div>
-                          </div>
+
+                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800', color: '#0f172a' }}>
+                      {tareaSeleccionada.titulo}
+                    </h4>
+
+                    <p style={{ margin: 0, fontSize: '0.92rem', color: '#475569', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+                      {tareaSeleccionada.descripcion || 'Sin descripción detallada registrada.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* TARJETA DETALLES DE SERVICIO Y TÉCNICO */}
+                <div className="tp-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '22px', margin: 0, display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                  <div className="tp-card-header" style={{ marginBottom: '4px' }}>
+                    <UserCircle size={20} color="#F26522" />
+                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800', color: '#0f172a' }}>INFORMACIÓN DEL SERVICIO</h3>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                      <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>Técnico Asignado</label>
+                      <strong style={{ fontSize: '0.88rem', color: '#0f172a', fontWeight: '800' }}>{detalleCompleto?.tecnico_nombre || tareaSeleccionada.tecnico}</strong>
+                    </div>
+
+                    <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                      <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>Fecha Reportado</label>
+                      <strong style={{ fontSize: '0.88rem', color: '#0f172a', fontWeight: '800' }}>{tareaSeleccionada.fechaInicio}</strong>
+                    </div>
+
+                    <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                      <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>Visita Programada</label>
+                      <strong style={{ fontSize: '0.85rem', color: '#0f172a', fontWeight: '800' }}>
+                        {tareaSeleccionada.scheduledAt ? new Date(tareaSeleccionada.scheduledAt).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }) : 'Por programar'}
+                      </strong>
+                    </div>
+
+                    <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                      <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>Estado de Llegada</label>
+                      {detalleCompleto?.arrival_status === 'EN_SITIO' ? (
+                        <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#065f46', backgroundColor: '#d1fae5', padding: '2px 8px', borderRadius: '10px', display: 'inline-block', marginTop: '2px' }}>
+                          🟢 En el lugar {detalleCompleto.arrived_at ? `(${detalleCompleto.arrived_at.substring(11, 16)})` : ''}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#9a3412', backgroundColor: '#ffedd5', padding: '2px 8px', borderRadius: '10px', display: 'inline-block', marginTop: '2px' }}>
+                          🟠 En camino
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* EVIDENCIAS DE FOTOGRAFÍAS */}
+                  {((detalleCompleto?.evidencias && detalleCompleto.evidencias.length > 0) || (tareaSeleccionada.evidencias && tareaSeleccionada.evidencias.length > 0)) && (
+                    <div style={{ marginTop: '5px', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
+                      <h4 style={{ margin: '0 0 10px', fontSize: '0.85rem', fontWeight: '800', color: '#334155', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Camera size={16} color="#F26522" /> EVIDENCIAS REGISTRADAS
+                      </h4>
+                      <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
+                        {(detalleCompleto?.evidencias || tareaSeleccionada.evidencias).map((img, i) => (
+                          <img 
+                            key={i} 
+                            src={img} 
+                            alt="Evidencia" 
+                            onClick={() => setImagenExpandida(img)}
+                            style={{ width: '74px', height: '74px', borderRadius: '12px', objectFit: 'cover', cursor: 'pointer', border: '1.5px solid #cbd5e1', boxShadow: '0 2px 6px rgba(0,0,0,0.06)' }}
+                          />
                         ))}
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {imagenExpandida && (
-        <div className="zoom-overlay" onClick={() => setImagenExpandida(null)}>
+        <div className="zoom-overlay" onClick={() => setImagenExpandida(null)} style={{ zIndex: 10000 }}>
           <button className="zoom-close-fixed" onClick={() => setImagenExpandida(null)}><X size={32} /></button>
           <div className="zoom-content" onClick={e => e.stopPropagation()}>
             <img src={imagenExpandida} className="image-zoomed" alt="Zoom" />
@@ -340,7 +438,7 @@ const TableroScrum = () => {
           .column-wrapper-responsive.hide-mobile { display: none; }
           .column-wrapper-responsive.show-mobile { display: block; animation: fadeIn 0.3s ease; }
           .scrum-column { width: 100% !important; margin: 0 !important; }
-          .column-header { display: none; } /* Ocultamos el header original porque ya está en el tab */
+          .column-header { display: none; }
         }
 
         @keyframes fadeIn {
