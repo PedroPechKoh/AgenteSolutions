@@ -127,16 +127,29 @@ const DetallePropiedad = () => {
 
         const { propiedad, stats: backStats, historial, owner_info, shared_users, is_shared_with_me } = resDash.data;
 
+        const rawFacade = propiedad?.facade_photo_path || propiedad?.facade_photo || propiedad?.foto_fachada || null;
+        let resolvedFacade = null;
+        if (rawFacade && typeof rawFacade === 'string') {
+          if (rawFacade.startsWith('http://') || rawFacade.startsWith('https://')) {
+            resolvedFacade = rawFacade;
+          } else {
+            const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+            const hostBase = apiBase.replace(/\/api\/?$/, '');
+            resolvedFacade = `${hostBase}/storage/${rawFacade.replace(/^\//, '')}`;
+          }
+        }
+
         setDatosPropiedad({
-          personaCargo: owner_info?.name || propiedad.propietario || "Sin asignar",
+          personaCargo: owner_info?.name || propiedad?.propietario || "Sin asignar",
           personaFoto: owner_info?.profile_picture || null,
+          facadePhoto: resolvedFacade,
           sharedUsers: shared_users || [],
           isSharedWithMe: is_shared_with_me || false,
-          curp: propiedad.custom_curp || propiedad.id,
-          direccion: propiedad.address || "Sin dirección",
-          mapsUrl: propiedad.coordinates ? `https://maps.google.com/?q=${propiedad.coordinates}` : "#",
-          nombre_propiedad: propiedad.nombre_propiedad || propiedad.property_name || "Propiedad",
-          location: propiedad.location || propiedad.state || "Mérida, Yuc."
+          curp: propiedad?.custom_curp || propiedad?.id,
+          direccion: propiedad?.address || "Sin dirección",
+          mapsUrl: propiedad?.coordinates ? `https://maps.google.com/?q=${propiedad.coordinates}` : "#",
+          nombre_propiedad: propiedad?.nombre_propiedad || propiedad?.property_name || "Propiedad",
+          location: propiedad?.location || propiedad?.state || "Mérida, Yuc."
         });
 
         setStats(backStats || { sos: 0, pendientes: 0, proceso: 0, listos: 0 });
@@ -1657,8 +1670,8 @@ const DetallePropiedad = () => {
             <section className="tp-property-hero" style={{ height: '220px', borderRadius: 0, marginBottom: 0, position: 'relative', flexShrink: 0 }}>
               <div className="tp-hero-overlay"></div>
               <img 
-                src={datosPropiedad.facade_photo || datosPropiedad.personaFoto || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=1000'} 
-                alt="Fachada" 
+                src={datosPropiedad.facadePhoto || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
+                alt="Fachada de la Propiedad" 
                 className="tp-hero-bg" 
               />
               
