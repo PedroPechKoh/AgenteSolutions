@@ -217,18 +217,30 @@ const TrabajoPropiedad = () => {
       setSurveyDataCompleto(surveyZonaOrTotal);
 
       // 2. FILTRADO POR EQUIPO / COMPONENTE AFECTADO
-      let eqNombre = null;
-      if (data?.descripcion && data.descripcion.includes('[EQUIPO AFECTADO]:')) {
+      let eqNombre = data?.equipment || data?.equipo_afectado || data?.item_affected || data?.affected_item || data?.equipo || null;
+      if (!eqNombre && data?.descripcion && data.descripcion.includes('[EQUIPO AFECTADO]:')) {
         const parts = data.descripcion.split('[EQUIPO AFECTADO]:');
         eqNombre = parts[1]?.trim();
-      } else if (data?.item_affected || data?.equipo_afectado || data?.affected_item || data?.equipo) {
-        eqNombre = data.item_affected || data.equipo_afectado || data.affected_item || data.equipo;
       }
 
       if (eqNombre && typeof eqNombre === 'string' && eqNombre.trim() !== '') {
         const eqClean = eqNombre.trim();
         setEquipoAfectadoNombre(eqClean);
         const eqNorm = normalizeStr(eqClean);
+        const eqWords = eqNorm.split(/[\s,()/-]+/).filter(w => w.length >= 3);
+
+        const itemCoincide = (it) => {
+          const subCat = normalizeStr(it.sub_category);
+          const marca = normalizeStr(it.brand);
+          const mod = normalizeStr(it.model_or_color);
+          const nombre = normalizeStr(it.name || it.item_name || it.title || '');
+          const completo = `${subCat} ${marca} ${mod} ${nombre}`.trim();
+
+          if (subCat === eqNorm || completo.includes(eqNorm) || eqNorm.includes(completo)) return true;
+          if (subCat && (eqNorm.includes(subCat) || subCat.includes(eqNorm))) return true;
+          if (eqWords.length > 0 && eqWords.some(w => completo.includes(w) || subCat.includes(w) || marca.includes(w))) return true;
+          return false;
+        };
 
         const filtrarCategoriasYSubareas = (areasList) => {
           let areasConEquipo = [];
@@ -244,17 +256,7 @@ const TrabajoPropiedad = () => {
                 let hayItemsEnSub = false;
                 if (sub.categories) {
                   for (let [catName, items] of Object.entries(sub.categories)) {
-                    const itemsMatched = (items || []).filter(it => {
-                      const subCat = normalizeStr(it.sub_category);
-                      const marca = normalizeStr(it.brand);
-                      const mod = normalizeStr(it.model_or_color);
-                      const completo = `${subCat} (${marca}) ${mod}`.trim();
-                      return subCat === eqNorm || 
-                             eqNorm.includes(subCat) || 
-                             subCat.includes(eqNorm) ||
-                             completo.includes(eqNorm) ||
-                             eqNorm.includes(completo);
-                    });
+                    const itemsMatched = (items || []).filter(it => itemCoincide(it));
                     if (itemsMatched.length > 0) {
                       catsFiltradasSub[catName] = itemsMatched;
                       hayItemsEnSub = true;
@@ -269,17 +271,7 @@ const TrabajoPropiedad = () => {
               }
             } else if (areaClone.categories) {
               for (let [catName, items] of Object.entries(areaClone.categories)) {
-                const itemsMatched = (items || []).filter(it => {
-                  const subCat = normalizeStr(it.sub_category);
-                  const marca = normalizeStr(it.brand);
-                  const mod = normalizeStr(it.model_or_color);
-                  const completo = `${subCat} (${marca}) ${mod}`.trim();
-                  return subCat === eqNorm || 
-                         eqNorm.includes(subCat) || 
-                         subCat.includes(eqNorm) ||
-                         completo.includes(eqNorm) ||
-                         eqNorm.includes(completo);
-                });
+                const itemsMatched = (items || []).filter(it => itemCoincide(it));
                 if (itemsMatched.length > 0) {
                   categoriasFiltradasArea[catName] = itemsMatched;
                   hayItemsEnArea = true;
@@ -310,10 +302,24 @@ const TrabajoPropiedad = () => {
           setAreaActivaSurvey(surveyPorEquipo[0].id);
           setModoFiltroEquipo(true);
         } else {
-          setSurveyDataFiltradoEquipo([]);
-          setSurveyData(surveyZonaOrTotal);
-          if (surveyZonaOrTotal.length > 0) setAreaActivaSurvey(surveyZonaOrTotal[0].id);
-          setModoFiltroEquipo(false);
+          // Si no hay plantilla coincidente en inventario, mostrar la tarjeta exclusiva del equipo dañado
+          const areaVirtual = [{
+            id: 'equipo-danado-unico',
+            name: 'EQUIPO AFECTADO',
+            categories: {
+              [eqClean]: [{
+                id: 'item-unique-1',
+                sub_category: eqClean,
+                brand: 'Reportado en Orden',
+                model_or_color: 'Falla/Componente',
+                image_path: data?.foto_fachada || data?.evidencias?.[0] || '/placeholder-item.jpg'
+              }]
+            }
+          }];
+          setSurveyDataFiltradoEquipo(areaVirtual);
+          setSurveyData(areaVirtual);
+          setAreaActivaSurvey('equipo-danado-unico');
+          setModoFiltroEquipo(true);
         }
       } else {
         setEquipoAfectadoNombre('');
