@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Lock, Mail, Phone, Shield, X, ArrowLeft, Building, Key, CheckCircle, AlertTriangle } from 'lucide-react';
+import { User, Lock, Mail, Phone, Shield, X, ArrowLeft, Building, Key, Users, Globe } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +7,8 @@ import { useAuth } from '../context/AuthContext';
 const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const [activeCategoryTab, setActiveCategoryTab] = useState('agente'); // 'agente' | 'publico'
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -24,14 +26,37 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
   const [tipoMensaje, setTipoMensaje] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const rolesDisponibles = [
-    { id: 2, label: 'TÉCNICO', desc: 'Presta servicios de mantenimiento', icon: '🛠️', color: '#F26522' },
-    { id: 3, label: 'CLIENTE', desc: 'Solicita servicios e inmuebles', icon: '👤', color: '#10B981' },
-    { id: 1, label: 'ADMIN / ROOT', desc: 'Acceso total a la plataforma', icon: '🔴', color: '#EF4444' },
+  // ROLES PARA LA PESTAÑA 1: AGENTE SOLUTIONS (INTERNOS / DIRECTOS)
+  const rolesAgente = [
+    { id: 1, label: 'ADMIN / ROOT', desc: 'Acceso total a la plataforma matriz', icon: '🔴', color: '#EF4444' },
+    { id: 2, label: 'TÉCNICO AGENTE', desc: 'Técnico directo de Agente Solutions', icon: '🛠️', color: '#F26522' },
+    { id: 3, label: 'CLIENTE AGENTE', desc: 'Cliente directo de Agente Solutions', icon: '👤', color: '#10B981' }
+  ];
+
+  // ROLES PARA LA PESTAÑA 2: AUTÓNOMOS Y PÚBLICO (EXTERNOS / MULTI-TENANT)
+  const rolesPublicos = [
     { id: 5, label: 'AUTÓNOMO PERSONAL', desc: 'Gestiona hasta 3 propiedades', icon: '🏢', color: '#3B82F6' },
     { id: 4, label: 'AUTÓNOMO EMPRESARIAL', desc: 'Gestiona hasta 30 clientes', icon: '🏬', color: '#8B5CF6' },
-    { id: 7, label: 'ADMIN. PROPIEDADES', desc: 'Administra equipo de autónomo', icon: '🔑', color: '#F59E0B' }
+    { id: 7, label: 'ADMIN. PROPIEDADES', desc: 'Vinculado a un equipo Autónomo', icon: '🔑', color: '#F59E0B' },
+    { id: 2, label: 'TÉCNICO DE AUTÓNOMO', desc: 'Técnico asignado a un Autónomo', icon: '🧰', color: '#06B6D4' },
+    { id: 3, label: 'CLIENTE DE AUTÓNOMO', desc: 'Cliente asignado a un Autónomo', icon: '👥', color: '#EC4899' }
   ];
+
+  const rolesActuales = activeCategoryTab === 'agente' ? rolesAgente : rolesPublicos;
+
+  const handleTabSwitch = (tab) => {
+    setActiveCategoryTab(tab);
+    setMensaje('');
+    if (tab === 'agente') {
+      setFormData(prev => ({ ...prev, role_id: 2, company_code: '', company_name: '' }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        role_id: 5,
+        company_code: prev.company_code || 'AUT_' + Math.floor(100 + Math.random() * 900)
+      }));
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -86,7 +111,7 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
           phone_number: '',
           password: '',
           confirmPassword: '',
-          role_id: 2,
+          role_id: activeCategoryTab === 'agente' ? 2 : 5,
           company_name: '',
           company_code: ''
         });
@@ -108,14 +133,6 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
     }
   };
 
-  const handleGoBack = () => {
-    if (onClose) {
-      onClose();
-    } else {
-      navigate(-1);
-    }
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -124,7 +141,7 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
         .root-register-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(15, 23, 42, 0.85);
+          background: rgba(15, 23, 42, 0.88);
           backdrop-filter: blur(8px);
           display: flex;
           justify-content: center;
@@ -139,7 +156,7 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
           border: 1px solid #334155;
           border-radius: 24px;
           width: 100%;
-          max-width: 780px;
+          max-width: 800px;
           max-height: 90vh;
           overflow-y: auto;
           padding: 32px;
@@ -153,13 +170,13 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 24px;
+          margin-bottom: 20px;
           border-bottom: 1px solid #1e293b;
           padding-bottom: 16px;
         }
 
         .root-register-title {
-          font-size: 1.4rem;
+          font-size: 1.35rem;
           font-weight: 900;
           color: #ffffff;
           display: flex;
@@ -187,6 +204,45 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
           color: white;
           border-color: #ef4444;
           transform: rotate(90deg);
+        }
+
+        /* TAB NAVIGATION STYLES */
+        .category-tabs-container {
+          display: flex;
+          background: #1e293b;
+          border-radius: 16px;
+          padding: 6px;
+          margin-bottom: 24px;
+          border: 1px solid #334155;
+          gap: 8px;
+        }
+
+        .category-tab-btn {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 12px 18px;
+          border-radius: 12px;
+          border: none;
+          background: transparent;
+          color: #94a3b8;
+          font-weight: 800;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.25s ease;
+        }
+
+        .category-tab-btn:hover {
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .category-tab-btn.active {
+          background: #F26522;
+          color: white;
+          box-shadow: 0 4px 14px rgba(242, 101, 34, 0.35);
         }
 
         .role-selector-grid {
@@ -296,6 +352,9 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
           .root-register-card {
             padding: 20px;
           }
+          .category-tabs-container {
+            flex-direction: column;
+          }
         }
       `}</style>
 
@@ -303,7 +362,7 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
         <div className="root-register-header">
           <div className="root-register-title">
             <Shield size={24} color="#F26522" />
-            <span>REGISTRO PRIVADO DE USUARIO</span>
+            <span>REGISTRO PRIVADO DE USUARIOS (ROOT)</span>
           </div>
           {onClose && (
             <button className="root-close-btn" onClick={onClose} type="button" title="Cerrar">
@@ -312,14 +371,34 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
           )}
         </div>
 
+        {/* 🔴 DOS PESTAÑAS PRINCIPALES DE REGISTRO */}
+        <div className="category-tabs-container">
+          <button
+            type="button"
+            className={`category-tab-btn ${activeCategoryTab === 'agente' ? 'active' : ''}`}
+            onClick={() => handleTabSwitch('agente')}
+          >
+            <Users size={18} />
+            <span>1. EQUIPO AGENTE SOLUTIONS</span>
+          </button>
+          <button
+            type="button"
+            className={`category-tab-btn ${activeCategoryTab === 'publico' ? 'active' : ''}`}
+            onClick={() => handleTabSwitch('publico')}
+          >
+            <Globe size={18} />
+            <span>2. AUTÓNOMOS Y PÚBLICO EXTERNO</span>
+          </button>
+        </div>
+
         <form onSubmit={handleRegistro}>
           <label style={{ fontSize: '0.85rem', fontWeight: '800', color: '#94a3b8', display: 'block', marginBottom: '10px' }}>
-            SELECCIONA EL ROL DEL USUARIO:
+            SELECCIONA EL ROL DE USUARIO ({activeCategoryTab === 'agente' ? 'EQUIPO INTERNO' : 'AUTÓNOMOS / EXTERNOS'}):
           </label>
           <div className="role-selector-grid">
-            {rolesDisponibles.map(r => (
+            {rolesActuales.map(r => (
               <button
-                key={r.id}
+                key={r.id + '-' + r.label}
                 type="button"
                 className={`role-option-btn ${formData.role_id === r.id ? 'selected' : ''}`}
                 onClick={() => setFormData({ ...formData, role_id: r.id })}
@@ -408,8 +487,8 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
             </div>
           </div>
 
-          {/* CAMPOS CONDICIONALES PARA AUTÓNOMOS, TÉCNICOS Y ADMIN PROPIEDADES */}
-          {(formData.role_id === 4 || formData.role_id === 5) && (
+          {/* CAMPOS CONDICIONALES PARA LA PESTAÑA DE AUTÓNOMOS / EXTERNOS */}
+          {activeCategoryTab === 'publico' && (formData.role_id === 4 || formData.role_id === 5) && (
             <div className="form-grid-2" style={{ marginTop: '8px' }}>
               <div className="form-input-box">
                 <Building className="input-icon-svg" size={18} />
@@ -435,13 +514,14 @@ const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
             </div>
           )}
 
-          {(formData.role_id === 2 || formData.role_id === 7) && (
+          {activeCategoryTab === 'publico' && (formData.role_id === 2 || formData.role_id === 3 || formData.role_id === 7) && (
             <div className="form-input-box" style={{ marginTop: '8px', marginBottom: '16px' }}>
               <Key className="input-icon-svg" size={18} />
               <input
                 name="company_code"
                 type="text"
-                placeholder={formData.role_id === 7 ? "CÓDIGO DEL AUTÓNOMO A VINCULAR (REQUERIDO)" : "CÓDIGO DE EMPRESA / AUTÓNOMO (OPCIONAL)"}
+                required={formData.role_id === 7}
+                placeholder={formData.role_id === 7 ? "CÓDIGO DEL AUTÓNOMO A VINCULAR (REQUERIDO)" : "CÓDIGO DEL AUTÓNOMO / EMPRESA VINCULADA"}
                 value={formData.company_code}
                 onChange={handleChange}
               />
