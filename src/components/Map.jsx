@@ -25,7 +25,7 @@ const Map = () => {
   const { user } = useAuth();
 
   const [tenantLogo, setTenantLogo] = useState(null);
-  const isRoot = user?.role_id === 0 || user?.role_id === 1;
+  const isRoot = [0, 1].includes(Number(user?.role_id));
 
   useEffect(() => {
     try {
@@ -224,7 +224,7 @@ const Map = () => {
                     strokeWeight: 1.5,
                     strokeColor: '#ffffff',
                     scale: 1.5,
-                    anchor: window.google ? new window.google.maps.Point(12, 12) : null
+                    anchor: (window.google && window.google.maps) ? new window.google.maps.Point(12, 12) : undefined
                   }}
                 />
 
