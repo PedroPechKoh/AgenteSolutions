@@ -2,11 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../../styles/Cliente/DetallePr.css';
+import '../../styles/TecnicoStyles/TrabajoPropiedad.css';
 import Swal from 'sweetalert2';
 import { 
   MapPin, User, AlertTriangle, Settings, CheckCircle, 
   X, LayoutDashboard, FileText, Send, Trash2, Clock, Briefcase, MessageSquare,
-  CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon, ArrowLeft
+  CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon, ArrowLeft,
+  Navigation, Phone
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Logo3 from '../../assets/Logo3.png';
@@ -1646,46 +1648,98 @@ const DetallePropiedad = () => {
         </div>
       )}
 
-      {/* MODAL DETALLE HISTORIAL (BITÁCORA) */}
+      {/* MODAL DETALLE HISTORIAL (HERO BANNER E IGUAL A LA VISTA DEL TÉCNICO) */}
       {isModalHistorialOpen && trabajoSeleccionado && (
-        <div className="modal-overlay-ui" onClick={() => setIsModalHistorialOpen(false)}>
-          <div className="modal-card-container" onClick={e => e.stopPropagation()} style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', background: '#fff', borderRadius: '28px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div className="modal-top-indicator" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', display: 'flex', justifyContent: 'space-between', padding: '14px 22px', alignItems: 'center' }}>
-              <div className="indicator-content" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'white', fontWeight: 'bold' }}>
-                <Eye size={22} />
-                <div>
-                  <h3 style={{ color: 'white', margin: 0 }}>Detalles de Servicio</h3>
-                  <span style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>{trabajoSeleccionado.isBatch ? 'ORDEN DE TRABAJO (LOTE)' : (trabajoSeleccionado.producto + ' • Finalizado el ' + trabajoSeleccionado.fecha)}</span>
+        <div className="modal-overlay-ui" onClick={() => setIsModalHistorialOpen(false)} style={{ zIndex: 9999 }}>
+          <div className="modal-card-container" onClick={e => e.stopPropagation()} style={{ width: '920px', maxWidth: '95vw', maxHeight: '92vh', background: '#f8fafc', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: 'none' }}>
+            
+            {/* HERO BANNER IGUAL AL DEL TÉCNICO */}
+            <section className="tp-property-hero" style={{ height: '220px', borderRadius: 0, marginBottom: 0, position: 'relative', flexShrink: 0 }}>
+              <div className="tp-hero-overlay"></div>
+              <img 
+                src={datosPropiedad.facade_photo || datosPropiedad.personaFoto || 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=1000'} 
+                alt="Fachada" 
+                className="tp-hero-bg" 
+              />
+              
+              <button 
+                onClick={() => setIsModalHistorialOpen(false)}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  zIndex: 10,
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1.5px solid rgba(255,255,255,0.4)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                }}
+              >
+                ×
+              </button>
+
+              <div className="tp-hero-content" style={{ padding: '20px 25px' }}>
+                <div className="tp-hero-text">
+                  <span className="tp-id-badge">
+                    {datosPropiedad.curp || `PROP-#${id}`}
+                  </span>
+                  <h1 className="tp-property-name" style={{ fontSize: '1.75rem', marginBottom: '4px' }}>
+                    {datosPropiedad.nombre_propiedad || 'Propiedad'}
+                  </h1>
+                  <div className="tp-property-address">
+                    <MapPin size={16} />
+                    <p style={{ margin: 0 }}>{datosPropiedad.direccion}</p>
+                  </div>
+                </div>
+                
+                <div className="tp-hero-actions">
+                  {datosPropiedad.mapsUrl && datosPropiedad.mapsUrl !== '#' && (
+                    <button 
+                      className="tp-action-btn maps" 
+                      onClick={() => window.open(datosPropiedad.mapsUrl, '_blank')}
+                    >
+                      <Navigation size={16} />
+                      <span>GPS</span>
+                    </button>
+                  )}
+                  {trabajoSeleccionado?.tecnico_telefono && (
+                    <button 
+                      className="tp-action-btn call" 
+                      onClick={() => window.open(`tel:${trabajoSeleccionado.tecnico_telefono}`)}
+                    >
+                      <Phone size={16} />
+                      <span>Llamar Técnico</span>
+                    </button>
+                  )}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <button className="btn-close-light" onClick={() => setIsModalHistorialOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={20}/></button>
-              </div>
-            </div>
+            </section>
 
             {trabajoSeleccionado.isBatch && (
               <div style={{ 
                 background: 'linear-gradient(135deg, #1e293b, #0f172a)', 
-                padding: '16px 20px', 
+                padding: '12px 20px', 
                 borderBottom: '2px solid #334155',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px'
+                gap: '8px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                  <span style={{ color: '#f8fafc', fontWeight: '800', fontSize: '0.85rem', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: '#f8fafc', fontWeight: '800', fontSize: '0.82rem', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     ⚡ Servicios incluidos en este lote ({trabajoSeleccionado.batchTasks?.length || 0})
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', background: 'rgba(255,255,255,0.1)', padding: '3px 12px', borderRadius: '12px' }}>
-                    Haz clic para navegar entre servicios
-                  </span>
                 </div>
-                <div style={{ 
-                  display: 'flex', 
-                  overflowX: 'auto', 
-                  gap: '10px',
-                  paddingBottom: '4px'
-                }}>
+                <div style={{ display: 'flex', overflowX: 'auto', gap: '8px', paddingBottom: '4px' }}>
                   {trabajoSeleccionado.batchTasks.map((t, index) => {
                     const isActive = activeBatchTab === index;
                     return (
@@ -1693,27 +1747,18 @@ const DetallePropiedad = () => {
                         key={t.dbId || index}
                         onClick={() => setActiveBatchTab(index)}
                         style={{
-                          padding: '10px 18px',
+                          padding: '8px 14px',
                           background: isActive ? 'linear-gradient(135deg, #F26522, #ea580c)' : '#f8fafc',
                           border: isActive ? 'none' : '1px solid #cbd5e1',
-                          borderRadius: '12px',
+                          borderRadius: '10px',
                           fontWeight: isActive ? '800' : '700',
                           color: isActive ? '#ffffff' : '#475569',
                           cursor: 'pointer',
                           whiteSpace: 'nowrap',
-                          fontSize: '0.92rem',
-                          transition: 'all 0.25s ease',
-                          boxShadow: isActive ? '0 4px 14px rgba(242, 101, 34, 0.45)' : '0 1px 3px rgba(0,0,0,0.05)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          transform: isActive ? 'scale(1.02)' : 'none'
+                          fontSize: '0.85rem'
                         }}
                       >
-                        <span style={{ background: isActive ? 'rgba(255,255,255,0.25)' : '#e2e8f0', color: isActive ? '#fff' : '#334155', padding: '2px 8px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '800' }}>
-                          #{index + 1}
-                        </span>
-                        <span>Servicio {index + 1}</span>
+                        Servicio #{index + 1}
                       </button>
                     );
                   })}
@@ -1721,31 +1766,66 @@ const DetallePropiedad = () => {
               </div>
             )}
 
-            <div className="modal-inner-scroll" style={{ padding: '28px', overflowY: 'auto', flex: 1 }}>
+            <div className="modal-inner-scroll" style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
               {(() => {
                 const activeTask = trabajoSeleccionado.isBatch ? trabajoSeleccionado.batchTasks[activeBatchTab] : trabajoSeleccionado;
                 if(!activeTask) return null;
                 
                 return (
                   <>
-              <div className="info-grid" style={{ marginBottom: '30px' }}>
-                <div className="info-item-card">
-                  <div className="item-icon"><User size={18} /></div>
-                  <div className="item-details"><label>Cliente</label><p>{datosPropiedad.personaCargo || "No asignado"}</p></div>
-                </div>
-                <div className="info-item-card">
-                  <div className="item-icon"><MapPin size={18} /></div>
-                  <div className="item-details">
-                    <label>Lugar del Servicio</label>
-                    <p style={{ margin: 0, fontWeight: 'bold' }}>{datosPropiedad.nombre_propiedad}</p>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>{datosPropiedad.direccion}</p>
-                  </div>
-                </div>
-                <div className="info-item-card">
-                  <div className="item-icon"><User size={18} /></div>
-                  <div className="item-details"><label>Técnico Responsable</label><p>{activeTask.tecnico}</p></div>
-                </div>
-              </div>
+                    {/* SECCIÓN CONSISTE EN */}
+                    <div className="tp-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
+                      <div className="tp-card-header" style={{ marginBottom: '14px' }}>
+                        <FileText size={20} color="#F26522" />
+                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800', color: '#0f172a' }}>CONSISTE EN:</h3>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          backgroundColor: '#fee2e2',
+                          color: '#991b1b',
+                          padding: '4px 10px',
+                          borderRadius: '8px',
+                          fontSize: '0.72rem',
+                          fontWeight: '800',
+                          textTransform: 'uppercase',
+                          alignSelf: 'flex-start'
+                        }}>
+                          <AlertTriangle size={14} />
+                          <span>TIPO DE FALLA / PROBLEMA</span>
+                        </div>
+
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800', color: '#0f172a' }}>
+                          {activeTask.producto || activeTask.title || 'Mantenimiento General'}
+                        </h4>
+
+                        <p style={{ margin: 0, fontSize: '0.92rem', color: '#475569', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+                          {activeTask.description || activeTask.descripcion || 'Sin descripción detallada.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="info-grid" style={{ marginBottom: '25px' }}>
+                      <div className="info-item-card">
+                        <div className="item-icon"><User size={18} /></div>
+                        <div className="item-details"><label>Cliente</label><p>{datosPropiedad.personaCargo || "No asignado"}</p></div>
+                      </div>
+                      <div className="info-item-card">
+                        <div className="item-icon"><MapPin size={18} /></div>
+                        <div className="item-details">
+                          <label>Lugar del Servicio</label>
+                          <p style={{ margin: 0, fontWeight: 'bold' }}>{datosPropiedad.nombre_propiedad}</p>
+                          <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>{datosPropiedad.direccion}</p>
+                        </div>
+                      </div>
+                      <div className="info-item-card">
+                        <div className="item-icon"><User size={18} /></div>
+                        <div className="item-details"><label>Técnico Responsable</label><p>{activeTask.tecnico}</p></div>
+                      </div>
+                    </div>
 
               {/* Botones de Acción Rápida */}
               <div style={{ display: 'flex', gap: '15px', marginBottom: '30px' }}>
