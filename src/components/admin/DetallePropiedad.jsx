@@ -1773,105 +1773,112 @@ const DetallePropiedad = () => {
                 
                 return (
                   <>
-                    {/* SECCIÓN CONSISTE EN */}
-                    <div className="tp-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '20px', marginBottom: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.03)' }}>
-                      <div className="tp-card-header" style={{ marginBottom: '14px' }}>
-                        <FileText size={20} color="#F26522" />
-                        <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800', color: '#0f172a' }}>CONSISTE EN:</h3>
+                    {/* 1. TARJETA CONSISTE EN: */}
+                    <div className="tp-card tp-work-description-card" style={{ margin: 0, marginBottom: '20px' }}>
+                      <div className="tp-card-header">
+                        <FileText size={20} />
+                        <h3>CONSISTE EN:</h3>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        <div style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          backgroundColor: '#fee2e2',
-                          color: '#991b1b',
-                          padding: '4px 10px',
-                          borderRadius: '8px',
-                          fontSize: '0.72rem',
-                          fontWeight: '800',
-                          textTransform: 'uppercase',
-                          alignSelf: 'flex-start'
-                        }}>
-                          <AlertTriangle size={14} />
-                          <span>TIPO DE FALLA / PROBLEMA</span>
+                      <div className="tp-work-description-v2">
+                        <div className="tp-description-grid">
+                          <div className="tp-desc-item">
+                            <div className="tp-desc-icon problem">
+                              <AlertTriangle size={20} />
+                            </div>
+                            <div className="tp-desc-text">
+                              <label>TIPO DE FALLA / PROBLEMA</label>
+                              <strong>{problema}</strong>
+                            </div>
+                          </div>
+
+                          <div className="tp-desc-item">
+                            <div className="tp-desc-icon equipment">
+                              <Zap size={20} />
+                            </div>
+                            <div className="tp-desc-text">
+                              <label>EQUIPO O COMPONENTE AFECTADO</label>
+                              <strong>{equipo}</strong>
+                            </div>
+                          </div>
                         </div>
+                      </div>
 
-                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800', color: '#0f172a' }}>
-                          {activeTask.producto || activeTask.title || 'Mantenimiento General'}
-                        </h4>
-
-                        <p style={{ margin: 0, fontSize: '0.92rem', color: '#475569', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
-                          {activeTask.description || activeTask.descripcion || 'Sin descripción detallada.'}
-                        </p>
+                      <div className="tp-work-meta">
+                        <div className="tp-meta-item">
+                          <Clock size={16} />
+                          <span>Programado: {activeTask.fecha || activeTask.scheduled_at || 'Pendiente'}</span>
+                        </div>
+                        <div className="tp-meta-item">
+                          <Wrench size={16} />
+                          <span>Título: {activeTask.producto || activeTask.title || 'Servicio'}</span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="info-grid" style={{ marginBottom: '25px' }}>
-                      <div className="info-item-card">
-                        <div className="item-icon"><User size={18} /></div>
-                        <div className="item-details"><label>Cliente</label><p>{datosPropiedad.personaCargo || "No asignado"}</p></div>
+                    {/* 2. TARJETA DATOS DEL CLIENTE */}
+                    <div className="tp-card tp-client-card" style={{ margin: 0, marginBottom: '20px' }}>
+                      <div className="tp-card-header">
+                        <User size={20} />
+                        <h3>DATOS DEL CLIENTE</h3>
                       </div>
-                      <div className="info-item-card">
-                        <div className="item-icon"><MapPin size={18} /></div>
-                        <div className="item-details">
-                          <label>Lugar del Servicio</label>
-                          <p style={{ margin: 0, fontWeight: 'bold' }}>{datosPropiedad.nombre_propiedad}</p>
-                          <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>{datosPropiedad.direccion}</p>
-                        </div>
-                      </div>
-                      <div className="info-item-card">
-                        <div className="item-icon"><User size={18} /></div>
-                        <div className="item-details"><label>Técnico Responsable</label><p>{activeTask.tecnico}</p></div>
+                      <div className="tp-client-info">
+                        <p><strong>Nombre:</strong> {datosPropiedad.personaCargo || 'Cliente no asignado'}</p>
+                        <p><strong>Teléfono:</strong> {datosPropiedad.telefono || 'No registrado'}</p>
+                        <p><strong>Tipo:</strong> {datosPropiedad.tipoPropiedad || 'CASA'}</p>
                       </div>
                     </div>
 
-              {/* Botones de Acción Rápida */}
-              <div style={{ display: 'flex', gap: '15px', marginBottom: '30px' }}>
-                <button 
-                  className="btn-primary-ui" 
-                  onClick={() => {
-                    const paramId = activeTask.tipo_registro === 'work_order' 
-                      ? `work_order-${activeTask.realId}` 
-                      : `servicio-${activeTask.realId || activeTask.id}`;
-                    navigate(`/reporte-trabajo-admin/${paramId}`);
-                  }}
-                  style={{ flex: 1, background: '#3b82f6', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(59, 130, 246, 0.2)' }}
-                >
-                  <FileText size={18} /> Reporte de este trabajo
-                </button>
-                
-                <button 
-                  className="btn-secondary-ui" 
-                  onClick={() => {
-                    // Buscar la cotización vinculada en el estado local de cotizaciones
-                    let cotVinculada = null;
-                    if (activeTask.tipo_registro === 'work_order') {
-                      cotVinculada = cotizaciones.find(c => String(c.raw?.work_order_id) === String(activeTask.realId));
-                    } else {
-                      cotVinculada = cotizaciones.find(c => String(c.raw?.service_id) === String(activeTask.realId));
-                    }
+                    {/* 3. TARJETA EQUIPO DE TRABAJO */}
+                    <div className="tp-card tp-team-card" style={{ margin: 0, marginBottom: '20px' }}>
+                      <div className="tp-card-header">
+                        <User size={20} />
+                        <h3>EQUIPO DE TRABAJO</h3>
+                      </div>
+                      <div className="tp-team-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: '#e2e2e2', padding: '12px 16px', borderRadius: '12px' }}>
+                          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#d1d1d1', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <User size={24} color="#000" />
+                          </div>
+                          <div>
+                            <p style={{ margin: 0, fontWeight: 'bold', color: '#333', fontSize: '0.95rem' }}>{activeTask.tecnico || 'Sin asignar'}</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: '#666' }}>ID: {activeTask.tecnico_id || '60'} | ÁREA: TÉCNICO</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-                    if (cotVinculada) {
-                      setCotizacionDetail(cotVinculada);
-                      setIsModalCotizacionDetailOpen(true);
-                      // Opcional: Cerrar el modal actual para no encimar tantos modales (o dejarlo abierto atrás)
-                      setIsModalHistorialOpen(false);
-                    } else {
-                      Swal.fire({
-                        icon: 'info',
-                        title: 'Sin Cotización',
-                        text: 'Este trabajo no tiene una cotización vinculada o fue creado directamente como servicio/emergencia.',
-                        confirmButtonColor: '#f26624'
-                      });
-                    }
-                  }}
-                  style={{ flex: 1, background: '#10b981', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.2)' }}
-                >
-                  <FileText size={18} /> Cotización de este trabajo
-                </button>
-              </div>
+                    {/* ÚNICO BOTÓN: VER REPORTE DEL TRABAJO */}
+                    <div style={{ marginBottom: '25px' }}>
+                      <button 
+                        onClick={() => {
+                          const paramId = activeTask.tipo_registro === 'work_order' 
+                            ? `work_order-${activeTask.realId}` 
+                            : `servicio-${activeTask.realId || activeTask.id}`;
+                          navigate(`/reporte-trabajo-admin/${paramId}`);
+                        }}
+                        style={{ 
+                          width: '100%', 
+                          background: '#3b82f6', 
+                          color: 'white', 
+                          padding: '14px', 
+                          borderRadius: '14px', 
+                          border: 'none', 
+                          fontWeight: '800', 
+                          fontSize: '0.95rem',
+                          display: 'flex', 
+                          justifyContent: 'center', 
+                          alignItems: 'center', 
+                          gap: '10px', 
+                          cursor: 'pointer', 
+                          boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        <FileText size={20} />
+                        <span>Ver Reporte de este trabajo</span>
+                      </button>
+                    </div>
 
               {/* Sección de Evidencias Generales */}
               {activeTask.evidencias && activeTask.evidencias.length > 0 && (
