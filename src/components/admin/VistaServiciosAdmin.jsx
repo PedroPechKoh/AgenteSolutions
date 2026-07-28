@@ -108,6 +108,8 @@ const VistaServiciosAdmin = () => {
         custom_checklist: item.custom_checklist,
         batch_id: item.batch_id,
         scheduledAt: item.scheduled_at,
+        arrival_status: item.arrival_status,
+        arrived_at: item.arrived_at,
         isOverdue: (item.scheduled_at && !['Listo', 'Finalizado'].includes(item.status)) 
                    ? new Date(item.scheduled_at) < new Date() 
                    : false
@@ -766,6 +768,13 @@ const VistaServiciosAdmin = () => {
                     <span className="wkf-id">WKF-ORD-{activeTask.dbId}</span>
                     <h3 className="task-main-heading" style={{ marginTop: '5px' }}>{activeTask.descripcion}</h3>
                     <p className="task-long-desc">{activeTask.titulo}</p>
+                    
+                    {activeTask.arrival_status === 'EN_SITIO' && (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dcfce7', color: '#166534', padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', marginTop: '10px' }}>
+                        <span style={{ width: '10px', height: '10px', background: '#22c55e', borderRadius: '50%', display: 'inline-block', boxShadow: '0 0 8px rgba(34, 197, 94, 0.6)' }}></span>
+                        En el lugar ({activeTask.arrived_at})
+                      </div>
+                    )}
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '15px 0' }}>
                       <button className="modal-action-btn variant-orange" onClick={() => setVerBitacora(true)}>
