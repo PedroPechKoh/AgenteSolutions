@@ -776,6 +776,41 @@ const VistaServiciosAdmin = () => {
                       </div>
                     )}
                     
+                    {activeTask.tecnicoId && (
+                      <button 
+                        onClick={() => navigate(`/map?techId=${activeTask.tecnicoId}`)}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          background: '#f8fafc',
+                          color: '#0f172a',
+                          padding: '6px 14px',
+                          borderRadius: '20px',
+                          fontSize: '0.8rem',
+                          fontWeight: '800',
+                          marginTop: '10px',
+                          marginLeft: activeTask.arrival_status === 'EN_SITIO' ? '8px' : '0px',
+                          border: '1.5px solid #cbd5e1',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                        }}
+                        onMouseOver={(e) => { 
+                          e.currentTarget.style.background = '#F26522'; 
+                          e.currentTarget.style.color = '#ffffff';
+                          e.currentTarget.style.borderColor = '#F26522';
+                        }}
+                        onMouseOut={(e) => { 
+                          e.currentTarget.style.background = '#f8fafc'; 
+                          e.currentTarget.style.color = '#0f172a';
+                          e.currentTarget.style.borderColor = '#cbd5e1';
+                        }}
+                      >
+                        📍 Ver GPS
+                      </button>
+                    )}
+                    
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', margin: '15px 0' }}>
                       <button className="modal-action-btn variant-orange" onClick={() => setVerBitacora(true)}>
                         <Camera size={18} /> Ver Evidencias y Proceso
