@@ -8,7 +8,7 @@ import {
   MapPin, User, AlertTriangle, Settings, CheckCircle, 
   X, LayoutDashboard, FileText, Send, Trash2, Clock, Briefcase, MessageSquare,
   CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon, ArrowLeft,
-  Navigation, Phone
+  Navigation, Phone, Zap, Wrench
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Logo3 from '../../assets/Logo3.png';
