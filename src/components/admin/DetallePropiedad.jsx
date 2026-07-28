@@ -1770,7 +1770,19 @@ const DetallePropiedad = () => {
               {(() => {
                 const activeTask = trabajoSeleccionado.isBatch ? trabajoSeleccionado.batchTasks[activeBatchTab] : trabajoSeleccionado;
                 if(!activeTask) return null;
-                
+
+                const rawDesc = activeTask.description || activeTask.descripcion || activeTask.producto || activeTask.title || '';
+                let problema = activeTask.producto || activeTask.title || 'Mantenimiento General';
+                let equipo = 'No especificado';
+
+                if (rawDesc.includes('[EQUIPO AFECTADO]:')) {
+                  const parts = rawDesc.split('[EQUIPO AFECTADO]:');
+                  problema = parts[0].trim() || problema;
+                  equipo = parts[1].trim() || 'No especificado';
+                } else if (rawDesc) {
+                  problema = rawDesc;
+                }
+
                 return (
                   <>
                     {/* 1. TARJETA CONSISTE EN: */}
