@@ -51,9 +51,9 @@ const TrabajosTecnico = () => {
     }
   }, [user]);
 
-  // GPS Tracking Loop: envía la ubicación GPS cada 30 segundos si el usuario es técnico
+  // GPS Tracking Loop: envía la ubicación GPS cada 30 segundos si el usuario es técnico o contratista
   useEffect(() => {
-    if (!user || (user.role_id !== 2 && user.role_id !== 0)) return;
+    if (!user || (user.role_id !== 2 && user.role_id !== 5 && user.role_id !== 0)) return;
 
     const sendLocation = () => {
       if (navigator.geolocation) {
