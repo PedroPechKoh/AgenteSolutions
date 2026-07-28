@@ -78,8 +78,9 @@ const NotificationBell = () => {
       const workOrderId = notification.data.work_order_id || notification.data.service_id || notification.data.id;
       const titleLower = notification.data.title?.toLowerCase() || '';
 
-      // Normalización de URLs y Tipos
-      if (type === 'work_order_finished' || type === 'new_report') {
+      if (type === 'technician_arrived') {
+        url = (user?.role_id === 0 || user?.role_id === 1) ? '/mapa' : (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico');
+      } else if (type === 'work_order_finished' || type === 'new_report') {
         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
       } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
         if (isTecnico) {
