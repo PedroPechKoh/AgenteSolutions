@@ -119,7 +119,7 @@ const VistaNotificaciones = () => {
                       const titleLower = n.data.title?.toLowerCase() || '';
 
                       if (type === 'technician_arrived') {
-                        url = (user?.role_id === 0 || user?.role_id === 1) ? '/mapa' : (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico');
+                        url = (user?.role_id === 0 || user?.role_id === 1) ? (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/map') : (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico');
                       } else if (type === 'work_order_finished' || type === 'new_report') {
                         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
                       } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
