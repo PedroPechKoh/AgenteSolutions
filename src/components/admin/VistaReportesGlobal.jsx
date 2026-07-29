@@ -443,26 +443,6 @@ const VistaReportesGlobal = () => {
                                     style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }}
                                     onClick={() => setZoomImage(r.image_url || r.image_path)}
                                   />
-                                  
-                                  {/* BOTONES FLOTANTES SUPERIORES CON ALTO CONTRASTE */}
-                                  <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 6, zIndex: 20 }}>
-                                    <button 
-                                      type="button"
-                                      onClick={(e) => { e.stopPropagation(); handleOpenModal('edit', r, trabajoId, tipo, stage); }} 
-                                      style={{ background: '#0f172a', border: '1.5px solid #334155', width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.3)', color: '#ffffff' }} 
-                                      title="Editar evidencia"
-                                    >
-                                      <Pencil size={16} color="#ffffff" />
-                                    </button>
-                                    <button 
-                                      type="button"
-                                      onClick={(e) => { e.stopPropagation(); handleDeleteReport(r.id); }} 
-                                      style={{ background: '#dc2626', border: 'none', width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(220,38,38,0.4)', color: '#ffffff' }} 
-                                      title="Eliminar evidencia"
-                                    >
-                                      <Trash2 size={16} color="#ffffff" />
-                                    </button>
-                                  </div>
                                 </div>
 
                                 <div style={{ fontSize: '0.78rem', color: '#475569', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
