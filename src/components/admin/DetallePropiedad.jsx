@@ -1854,6 +1854,33 @@ const DetallePropiedad = () => {
                       </div>
                     </div>
 
+                    {/* FOTOS DE EVIDENCIAS DIRECTAS DEBAJO DE DATOS DEL CLIENTE */}
+                    <div className="tp-card tp-evidence-card" style={{ margin: 0, marginBottom: '20px' }}>
+                      <div className="tp-card-header">
+                        <ImageIcon size={20} />
+                        <h3>EVIDENCIAS REGISTRADAS</h3>
+                      </div>
+                      <div className="tp-evidence-content" style={{ marginTop: '12px' }}>
+                        {activeTask.evidencias && activeTask.evidencias.length > 0 ? (
+                          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                            {activeTask.evidencias.map((img, imgIdx) => (
+                              <img 
+                                key={imgIdx} 
+                                src={img} 
+                                alt={`Evidencia ${imgIdx + 1}`} 
+                                onClick={() => setImagenAmpliada(img)}
+                                style={{ width: '135px', height: '100px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer', border: '2px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', transition: 'transform 0.2s' }} 
+                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem', fontStyle: 'italic' }}>No hay evidencias fotográficas registradas aún.</p>
+                        )}
+                      </div>
+                    </div>
+
                     {/* 3. TARJETA EQUIPO DE TRABAJO */}
                     <div className="tp-card tp-team-card" style={{ margin: 0, marginBottom: '20px' }}>
                       <div className="tp-card-header">
@@ -1904,28 +1931,6 @@ const DetallePropiedad = () => {
                         <span>Ver Reporte de este trabajo</span>
                       </button>
                     </div>
-
-              {/* Sección de Evidencias Generales */}
-              {activeTask.evidencias && activeTask.evidencias.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', color: '#1e293b' }}>
-                    <ImageIcon size={20} /> EVIDENCIAS DEL TRABAJO
-                  </h4>
-                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    {activeTask.evidencias.map((img, imgIdx) => (
-                      <img 
-                        key={imgIdx} 
-                        src={img} 
-                        alt={`Evidencia ${imgIdx + 1}`} 
-                        onClick={() => setImagenAmpliada(img)}
-                        style={{ width: '180px', height: '130px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer', border: '2px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', transition: 'all 0.2s ease' }} 
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
 
               <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#1e293b' }}>
                 <ImageIcon size={20} /> PASOS REALIZADOS EN EL TRABAJO

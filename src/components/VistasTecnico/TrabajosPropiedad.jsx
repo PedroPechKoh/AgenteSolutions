@@ -536,6 +536,38 @@ const TrabajoPropiedad = () => {
               </div>
             </motion.div>
 
+            {/* FOTOS DE EVIDENCIAS DIRECTAS DEBAJO DE DATOS DEL CLIENTE */}
+            <motion.div 
+              className="tp-card tp-evidence-card"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <div className="tp-card-header">
+                <Camera size={20} />
+                <h3>EVIDENCIAS REGISTRADAS</h3>
+              </div>
+              <div className="tp-evidence-content" style={{ marginTop: '12px' }}>
+                {data.evidencias && data.evidencias.length > 0 ? (
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    {data.evidencias.map((img, i) => (
+                      <img 
+                        key={i} 
+                        src={img} 
+                        alt={`Evidencia ${i + 1}`} 
+                        onClick={() => setImagenExpandida(img)}
+                        style={{ width: '135px', height: '100px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer', border: '2px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', transition: 'transform 0.2s' }} 
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem', fontStyle: 'italic' }}>No hay evidencias fotográficas enviadas para este reporte.</p>
+                )}
+              </div>
+            </motion.div>
+
             <motion.div 
               className="tp-card tp-team-card"
               initial={{ opacity: 0, y: 20 }}
@@ -573,10 +605,6 @@ const TrabajoPropiedad = () => {
               <p className="tp-flow-instruction">¿Listo para comenzar o terminar?</p>
               
               <div className="tp-flow-buttons">
-                <button className="tp-btn-consult variant-orange" onClick={() => setVerEvidencias(true)}>
-                  <Camera size={18} />
-                  <span>VER EVIDENCIAS Y PROCESO</span>
-                </button>
 
                 <button className="tp-btn-consult variant-dark" onClick={abrirSurvey}>
                   <Layout size={18} />
