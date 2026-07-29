@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Header from '../Shared/Header';
-import { Search, MapPin, Calendar, FileText, ChevronLeft, Plus, Edit, Trash2, X, Upload, CheckCircle2, AlertTriangle, Eye } from 'lucide-react';
+import { Search, MapPin, Calendar, FileText, ChevronLeft, Plus, Edit, Trash2, X, Upload, CheckCircle2, AlertTriangle, Eye, Pencil } from 'lucide-react';
 import Swal from 'sweetalert2';
 import '../../styles/Admin/VistaReportesGlobal.css';
 
