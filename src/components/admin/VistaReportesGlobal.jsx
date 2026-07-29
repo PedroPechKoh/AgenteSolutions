@@ -436,41 +436,90 @@ const VistaReportesGlobal = () => {
                             {/* CONTENIDO DE LA TARJETA */}
                             {r ? (
                               <>
-                                <div style={{ position: 'relative', width: '100%', height: '170px', borderRadius: '12px', overflow: 'hidden', marginBottom: '12px', backgroundColor: '#0f172a' }}>
+                                <div style={{ position: 'relative', width: '100%', height: '170px', borderRadius: '14px', overflow: 'hidden', marginBottom: '12px', backgroundColor: '#0f172a' }}>
                                   <img 
                                     src={r.image_url || r.image_path} 
                                     alt={stage.title} 
                                     style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }}
                                     onClick={() => setZoomImage(r.image_url || r.image_path)}
                                   />
-                                  <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 6, zIndex: 10 }}>
+                                  
+                                  {/* BOTONES FLOTANTES SUPERIORES CON ALTO CONTRASTE */}
+                                  <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 6, zIndex: 20 }}>
                                     <button 
+                                      type="button"
                                       onClick={(e) => { e.stopPropagation(); handleOpenModal('edit', r, trabajoId, tipo, stage); }} 
-                                      style={{ background: 'white', border: 'none', width: 30, height: 30, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }} 
+                                      style={{ background: '#0f172a', border: '1.5px solid #334155', width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.3)', color: '#ffffff' }} 
                                       title="Editar evidencia"
                                     >
-                                      <Edit size={14} color="#0f172a" />
+                                      <Pencil size={16} color="#ffffff" />
                                     </button>
                                     <button 
+                                      type="button"
                                       onClick={(e) => { e.stopPropagation(); handleDeleteReport(r.id); }} 
-                                      style={{ background: 'white', border: 'none', width: 30, height: 30, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.2)' }} 
+                                      style={{ background: '#dc2626', border: 'none', width: 34, height: 34, borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 10px rgba(220,38,38,0.4)', color: '#ffffff' }} 
                                       title="Eliminar evidencia"
                                     >
-                                      <Trash2 size={14} color="#dc2626" />
+                                      <Trash2 size={16} color="#ffffff" />
                                     </button>
                                   </div>
                                 </div>
 
                                 <div style={{ fontSize: '0.78rem', color: '#475569', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                  <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>
+                                  <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold', color: '#0f172a' }}>
                                     {r.technician?.first_name?.charAt(0) || 'T'}
                                   </div>
-                                  <span>{r.technician ? `${r.technician.first_name} ${r.technician.last_name}` : 'Técnico'}</span>
+                                  <span style={{ fontWeight: '700' }}>{r.technician ? `${r.technician.first_name} ${r.technician.last_name}` : 'Técnico'}</span>
                                 </div>
 
-                                <p style={{ margin: 0, fontSize: '0.82rem', color: '#0f172a', fontWeight: '600', lineHeight: 1.4, whiteSpace: 'pre-line' }}>
+                                <p style={{ margin: 0, fontSize: '0.84rem', color: '#0f172a', fontWeight: '600', lineHeight: 1.4, whiteSpace: 'pre-line', flex: 1 }}>
                                   "{cleanDesc || 'Sin descripción.'}"
                                 </p>
+
+                                {/* FILA DE BOTONES VISIBLES DE ACCIÓN DEBAJO DE LA DESCRIPCIÓN */}
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '14px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); handleOpenModal('edit', r, trabajoId, tipo, stage); }}
+                                    style={{
+                                      flex: 1,
+                                      background: '#f1f5f9',
+                                      color: '#0f172a',
+                                      border: '1px solid #cbd5e1',
+                                      padding: '8px 12px',
+                                      borderRadius: '10px',
+                                      fontWeight: '800',
+                                      fontSize: '0.78rem',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '6px'
+                                    }}
+                                  >
+                                    <Pencil size={14} color="#0f172a" /> Editar
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); handleDeleteReport(r.id); }}
+                                    style={{
+                                      background: '#fee2e2',
+                                      color: '#991b1b',
+                                      border: '1px solid #fecaca',
+                                      padding: '8px 12px',
+                                      borderRadius: '10px',
+                                      fontWeight: '800',
+                                      fontSize: '0.78rem',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '6px'
+                                    }}
+                                  >
+                                    <Trash2 size={14} color="#dc2626" /> Eliminar
+                                  </button>
+                                </div>
                               </>
                             ) : (
                               <div 
