@@ -220,7 +220,11 @@
     gap: 10px;
   }
   .tt-body {
-    padding: 10px 5px;
+    padding: 8px 4px 40px 4px;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   .header-welcome-message {
     font-size: 14px !important;
