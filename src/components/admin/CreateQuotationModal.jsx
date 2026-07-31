@@ -36,14 +36,23 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
   useEffect(() => {
     if (prefillData) {
       setServicioSeleccionado({
-        id: prefillData.service_id || prefillData.work_order_id || prefillData.dbId,
+        id: prefillData.service_id || prefillData.work_order_id || prefillData.dbId || prefillData.id,
         is_work_order: !!(prefillData.work_order_id || prefillData.is_work_order || prefillData.dbId),
-        identificador_curp: prefillData.folio || prefillData.folio_interno,
-        propietario: prefillData.cliente || prefillData.cliente_nombre,
-        propiedad_nombre: prefillData.propiedad_nombre || '---',
-        direccion: prefillData.direccion || '---'
+        identificador_curp: prefillData.folio || prefillData.folio_interno || `COT-${prefillData.id}`,
+        propietario: prefillData.cliente || prefillData.cliente_nombre || prefillData.titulo,
+        propiedad_nombre: prefillData.propiedad_nombre || prefillData.titulo || '---',
+        direccion: prefillData.direccion || prefillData.propiedad_direccion || '---'
       });
       
+      let conceptObj = prefillData.concept || prefillData.concepto || prefillData.descripcion;
+      if (typeof conceptObj === 'string' && (conceptObj.trim().startsWith('{') || conceptObj.trim().startsWith('['))) {
+        try {
+          conceptObj = JSON.parse(conceptObj);
+        } catch {
+          // ignore
+        }
+      }
+
       if (prefillData.isUnifiedBatch || prefillData.isBatch || prefillData.batchTasks) {
         setIsUnifiedBatch(true);
         const batchList = prefillData.batchTasks || prefillData.serviciosLote || [];
@@ -54,34 +63,46 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
             filasConceptos: [{ id: Date.now() + idx * 10, desc: t.descripcion || '', cant: 1, precio: '' }],
             filasMateriales: [{ id: Date.now() + idx * 10 + 5, desc: '', cant: 1, precio: '' }]
           })));
-        } else {
-          setLoteServicios([
-            { id: 1, titulo: 'Servicio #1', filasConceptos: [{ id: Date.now(), desc: '', cant: 1, precio: '' }], filasMateriales: [{ id: Date.now()+1, desc: '', cant: 1, precio: '' }] },
-            { id: 2, titulo: 'Servicio #2', filasConceptos: [{ id: Date.now()+2, desc: '', cant: 1, precio: '' }], filasMateriales: [{ id: Date.now()+3, desc: '', cant: 1, precio: '' }] }
-          ]);
         }
-      } else if (prefillData.concept) {
-        const c = prefillData.concept;
-        if (c.isUnifiedBatch && c.seccionesLote) {
+      } else if (conceptObj && typeof conceptObj === 'object') {
+        if (conceptObj.isUnifiedBatch && conceptObj.seccionesLote) {
           setIsUnifiedBatch(true);
-          setLoteServicios(c.seccionesLote.map((s, idx) => ({
+          setLoteServicios(conceptObj.seccionesLote.map((s, idx) => ({
             id: s.servicioId || idx + 1,
             titulo: s.titulo || `Servicio #${idx + 1}`,
-            filasConceptos: s.conceptos?.map((f, i) => ({ id: Date.now() + i, desc: f.descripcion, cant: f.cantidad, precio: f.precio })) || [],
-            filasMateriales: s.materiales?.map((f, i) => ({ id: Date.now() + 100 + i, desc: f.descripcion, cant: f.cantidad, precio: f.precio })) || []
+            filasConceptos: s.conceptos?.map((f, i) => ({ id: Date.now() + i, desc: f.descripcion || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.precio_u || '' })) || [],
+            filasMateriales: s.materiales?.map((f, i) => ({ id: Date.now() + 100 + i, desc: f.descripcion || f.nombre || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.costo_u || '' })) || []
           })));
         } else {
-          if (c.servicios || c.conceptos) {
-            setFilasConceptos((c.servicios || c.conceptos).map((f, i) => ({ id: Date.now() + i, desc: f.descripcion || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.precio_u || 0 })));
+          if (conceptObj.servicios || conceptObj.conceptos) {
+            const arr = conceptObj.servicios || conceptObj.conceptos;
+            setFilasConceptos(arr.map((f, i) => ({
+              id: Date.now() + i,
+              desc: f.descripcion || f.desc || f.titulo || 'Servicio',
+              cant: f.cantidad || f.cant || 1,
+              precio: f.precio || f.precio_u || ''
+            })));
           }
-          if (c.materiales) {
-            setFilasMateriales(c.materiales.map((f, i) => ({ id: Date.now() + 100 + i, desc: f.descripcion || f.nombre || f.desc, cant: f.cantidad || f.cant || 1, precio: f.precio || f.costo_u || 0 })));
+          if (conceptObj.materiales) {
+            setFilasMateriales(conceptObj.materiales.map((f, i) => ({
+              id: Date.now() + 100 + i,
+              desc: f.descripcion || f.nombre || f.desc || 'Material',
+              cant: f.cantidad || f.cant || 1,
+              precio: f.precio || f.costo_u || ''
+            })));
           }
         }
+      } else if (typeof conceptObj === 'string' && conceptObj.trim().length > 0) {
+        setFilasConceptos([{
+          id: Date.now(),
+          desc: conceptObj,
+          cant: 1,
+          precio: prefillData.total || prefillData.total_amount || ''
+        }]);
       }
       
-      setObservacionesInternas(`--- COTIZACIÓN TÉCNICO ---\n${prefillData.observations || 'Sin observaciones'}`);
-      setStep(2); // Ir directo a detalles
+      setObservacionesInternas(prefillData.isDerived ? `--- RECOTIZACIÓN DERIVADA DE #${prefillData.folio || prefillData.id} ---\nOriginal conservada en la BD.` : `--- COTIZACIÓN ANTERIOR ---\n${prefillData.observations || ''}`);
+      setStep(2);
     }
   }, [prefillData]);
 

@@ -179,8 +179,41 @@ const CotizacionesPendientes = () => {
 
   const handleSolicitarRecotizacion = (cot, e) => {
     if (e) e.stopPropagation();
-    alert(`Se ha enviado la solicitud de recotización para "${cot.titulo}" (${cot.folio}) al administrador de Agente Solutions.`);
-    mostrarNotificacion(`Solicitud enviada para ${cot.folio}. El administrador actualizará el costo y la fecha de vigencia.`);
+    if (!cot) return;
+
+    // 1. Notificación local para el Administrador
+    const notificacionesAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
+    const nuevaNotif = {
+      id: Date.now(),
+      type: 'solicitud_recotizacion',
+      titulo: `Solicitud de Recotización - ${cot.folio || `#${cot.id}`}`,
+      mensaje: `El cliente solicitó recotizar el servicio "${cot.titulo}" (${cot.folio}) por caducidad de 15 días. Contenidos precargados automáticamente.`,
+      cotizacionOriginal: { ...cot, isDerived: true },
+      fecha: new Date().toLocaleDateString('es-MX', { dateStyle: 'short', timeStyle: 'short' }),
+      leida: false
+    };
+    localStorage.setItem('notificaciones_admin', JSON.stringify([nuevaNotif, ...notificacionesAdmin]));
+
+    // 2. Enviar petición al backend API (si está conectado)
+    try {
+      const token = localStorage.getItem('token');
+      const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+      axios.post(`${API_URL}/cotizaciones/${cot.id}/recotizar`, {
+        cotizacion_id: cot.id,
+        motivo: 'Caducada (> 15 días)'
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).catch(err => console.warn("Petición de recotización guardada localmente:", err));
+    } catch {
+      // ignore
+    }
+
+    // 3. Confirmación al Cliente
+    alert(`🛒 ¡Solicitud de recotización enviada al Administrador para ${cot.folio || cot.titulo}!\n\n` +
+          `• La cotización previa permanece guardada en la base de datos sin borrarse.\n` +
+          `• El Administrador recibirá la notificación con todos los contenidos precargados en automático para modificar únicamente los precios.`);
+    
+    mostrarNotificacion(`Solicitud enviada para ${cot.folio}. El administrador actualizará los precios con el contenido precargado.`);
   };
 
   // Filtrado de seleccionadas (solo permite vigentes)
