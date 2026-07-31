@@ -274,110 +274,98 @@ const CotizacionesPendientes = () => {
                     className={`quote-card-item cart-card-row ${isSelected ? 'selected-row' : ''} ${cot.vencida ? 'expired-card-row' : ''}`}
                     onClick={() => handleToggleSelect(cot)}
                   >
-                    {/* Checkbox / Indicador de Caducidad */}
-                    <div 
-                      className={`cart-checkbox-wrapper ${cot.vencida ? 'disabled-checkbox' : ''}`} 
-                      onClick={(e) => handleToggleSelect(cot, e)}
-                      title={cot.vencida ? 'Cotización caducada. Solicita recotizar' : 'Marcar para sumar al total'}
-                    >
-                      {cot.vencida ? (
-                        <div className="expired-lock-box">
-                          <Lock size={18} className="lock-icon" />
-                        </div>
-                      ) : isSelected ? (
-                        <CheckSquare size={22} className="checkbox-icon checked" />
-                      ) : (
-                        <Square size={22} className="checkbox-icon" />
-                      )}
-                    </div>
-
-                    {/* Información Principal del Servicio */}
-                    <div className="card-content-left">
-                      <div className={`quote-card-icon cart-icon ${cot.vencida ? 'expired-icon-box' : ''}`}>
-                        {cot.vencida ? <CalendarX size={20} color="#dc2626" /> : <Clock size={20} />}
-                      </div>
-                      <div className="quote-card-info">
-                        <div className="quote-card-topline">
-                          <h4>{cot.titulo}</h4>
-                          {cot.vencida ? (
-                            <span className="quote-status-label status-expired">
-                              Caducada (&gt; 15 días)
-                            </span>
-                          ) : (
-                            <span className="quote-status-label status-valid">
-                              Vence en {cot.diasRestantes} días
-                            </span>
-                          )}
-                        </div>
-                        <p className="quote-description">{cot.descripcion}</p>
-                        
-                        {/* Aviso de Caducidad si aplica */}
-                        {cot.vencida && (
-                          <div className="expired-alert-banner">
-                            <AlertTriangle size={15} />
-                            <span>Cotización vencida. Debes recotizar para poder sumarla a tu cuenta.</span>
+                    {/* Sección Superior: Checkbox, Datos del servicio e Importe */}
+                    <div className="cart-card-top-body">
+                      {/* Checkbox / Indicador de Caducidad */}
+                      <div 
+                        className={`cart-checkbox-wrapper ${cot.vencida ? 'disabled-checkbox' : ''}`} 
+                        onClick={(e) => handleToggleSelect(cot, e)}
+                        title={cot.vencida ? 'Cotización caducada. Solicita recotizar' : 'Marcar para sumar al total'}
+                      >
+                        {cot.vencida ? (
+                          <div className="expired-lock-box">
+                            <Lock size={18} className="lock-icon" />
                           </div>
+                        ) : isSelected ? (
+                          <CheckSquare size={22} className="checkbox-icon checked" />
+                        ) : (
+                          <Square size={22} className="checkbox-icon" />
                         )}
+                      </div>
 
-                        <div className="quote-meta-row">
-                          <span className="quote-meta-pill">Folio: <strong>{cot.folio}</strong></span>
-                          <span className="quote-meta-pill">Registro: {cot.fecha}</span>
-                          <span className="quote-meta-pill validity-pill">
-                            Vigencia: {cot.vencida ? 'Expirada' : `${cot.diasRestantes}/15 días restantes`}
-                          </span>
+                      {/* Información Principal del Servicio */}
+                      <div className="card-content-left">
+                        <div className={`quote-card-icon cart-icon ${cot.vencida ? 'expired-icon-box' : ''}`}>
+                          {cot.vencida ? <CalendarX size={20} color="#dc2626" /> : <Clock size={20} />}
+                        </div>
+                        <div className="quote-card-info">
+                          <div className="quote-card-topline">
+                            <h4>{cot.titulo}</h4>
+                            {cot.vencida ? (
+                              <span className="quote-status-label status-expired">
+                                Caducada (&gt; 15 días)
+                              </span>
+                            ) : (
+                              <span className="quote-status-label status-valid">
+                                Vence en {cot.diasRestantes} días
+                              </span>
+                            )}
+                          </div>
+                          <p className="quote-description">{cot.descripcion}</p>
+                          
+                          {/* Aviso de Caducidad si aplica */}
+                          {cot.vencida && (
+                            <div className="expired-alert-banner">
+                              <AlertTriangle size={15} />
+                              <span>Cotización vencida. Debes recotizar para poder sumarla a tu cuenta.</span>
+                            </div>
+                          )}
+
+                          <div className="quote-meta-row">
+                            <span className="quote-meta-pill">Folio: <strong>{cot.folio}</strong></span>
+                            <span className="quote-meta-pill">Registro: {cot.fecha}</span>
+                            <span className="quote-meta-pill validity-pill">
+                              Vigencia: {cot.vencida ? 'Expirada' : `${cot.diasRestantes}/15 días restantes`}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Lado Derecho: Total y Acciones */}
-                    <div className="quote-card-right cart-card-actions">
+                      {/* Importe Total en la esquina superior derecha */}
                       <div className={`quote-total-box ${cot.vencida ? 'expired-total-box' : ''}`}>
                         <span>{cot.vencida ? 'Sujeto a recotización' : 'Importe total'}</span>
                         <strong className={cot.vencida ? 'strike-price' : ''}>
                           {formatCurrency(cot.total)}
                         </strong>
                       </div>
+                    </div>
 
-                      <div className="card-btn-group">
-                        {cot.vencida ? (
-                          <button 
-                            className="btn-requote-action"
-                            onClick={(e) => handleSolicitarRecotizacion(cot, e)}
-                          >
-                            <RefreshCw size={14} /> Recotizar
-                          </button>
-                        ) : null}
+                    {/* Barra de Acciones Centrada en la parte inferior de la tarjeta */}
+                    <div className="cart-card-centered-actions">
+                      {cot.vencida && (
                         <button 
-                          className="btn-preview" 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCotizacionSeleccionada(cot);
-                          }}
+                          className="btn-requote-action"
+                          onClick={(e) => handleSolicitarRecotizacion(cot, e)}
                         >
-                          <Eye size={14} style={{ marginRight: '4px' }} /> Ver detalle
+                          <RefreshCw size={14} /> Recotizar
                         </button>
-                        <button 
-                          className="btn-remove-cart"
-                          title="Quitar del carrito"
-                          style={{
-                            background: '#fef2f2',
-                            color: '#ef4444',
-                            border: '1px solid #fecaca',
-                            padding: '6px 10px',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            fontSize: '0.78rem',
-                            fontWeight: '700',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onClick={(e) => handleEliminarDelCarrito(cot, e)}
-                        >
-                          <Trash2 size={13} /> Quitar
-                        </button>
-                      </div>
+                      )}
+                      <button 
+                        className="btn-preview" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCotizacionSeleccionada(cot);
+                        }}
+                      >
+                        <Eye size={14} /> Ver detalle
+                      </button>
+                      <button 
+                        className="btn-remove-cart"
+                        title="Quitar del carrito"
+                        onClick={(e) => handleEliminarDelCarrito(cot, e)}
+                      >
+                        <Trash2 size={14} /> Quitar
+                      </button>
                     </div>
                   </div>
                 );

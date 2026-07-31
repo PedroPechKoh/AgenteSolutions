@@ -348,17 +348,87 @@
 .cart-card-row {
   position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: stretch;
+  flex-direction: column;
   background: white;
   padding: 20px 24px;
   border-radius: var(--radius-lg);
   border: 2px solid #e8edf4;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
-  gap: 20px;
+  gap: 14px;
   width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
+}
+
+.cart-card-top-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+.cart-card-centered-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding-top: 14px;
+  margin-top: 4px;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.cart-card-centered-actions .btn-preview,
+.cart-card-centered-actions .btn-requote-action {
+  background: var(--primary-orange);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(242, 102, 36, 0.22);
+  transition: all 0.2s ease;
+  min-height: 38px;
+}
+
+.cart-card-centered-actions .btn-preview:hover,
+.cart-card-centered-actions .btn-requote-action:hover {
+  background: var(--primary-orange-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(242, 102, 36, 0.32);
+}
+
+.cart-card-centered-actions .btn-remove-cart {
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  min-height: 38px;
+  transition: all 0.2s ease;
+}
+
+.cart-card-centered-actions .btn-remove-cart:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
 }
 
 .quote-card-item:hover,
