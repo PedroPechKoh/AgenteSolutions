@@ -155,3 +155,315 @@ textarea { width: 100%; height: 80px; border: 2px solid #f1f5f9; border-radius: 
 .btn-accept-final { background: #f97316; color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
 .btn-reject-final { background: #f1f5f9; color: #64748b; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
 .status-banner-error { grid-column: span 2; background: #fef2f2; color: #dc2626; padding: 15px; border-radius: 12px; text-align: center; font-weight: 900; border: 1px solid #fecaca; }
+
+/* --- DISEÑO DE CARRITO ESTILO SHEIN / TEMU CON SELECCIÓN ACUMULADA --- */
+.cart-page-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.cart-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #fff7ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ffedd5;
+}
+
+.cart-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 28px;
+  align-items: start;
+  margin-top: 15px;
+}
+
+/* Columna Izquierda: Selección & Lista */
+.cart-items-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cart-selection-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 14px 20px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+}
+
+.select-all-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.95rem;
+}
+
+.checkbox-icon {
+  color: #cbd5e1;
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.checkbox-icon:hover {
+  transform: scale(1.1);
+}
+
+.checkbox-icon.checked {
+  color: #f26624;
+}
+
+.selected-count-badge {
+  background: #fff7ed;
+  color: #f26624;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid #ffedd5;
+}
+
+.cart-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cart-card-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  border: 2px solid #e8edf4;
+  transition: all 0.2s ease-in-out;
+}
+
+.cart-card-row:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
+
+.cart-card-row.selected-row {
+  background: #fffdfa;
+  border-color: #f26624;
+  box-shadow: 0 8px 24px rgba(242, 102, 36, 0.08);
+}
+
+.cart-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.empty-cart-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 24px;
+  border: 2px dashed #e2e8f0;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Columna Derecha: Tarjeta de Resumen Lateral */
+.cart-summary-column {
+  position: sticky;
+  top: 24px;
+}
+
+.order-summary-card {
+  background: white;
+  border-radius: 24px;
+  padding: 26px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.summary-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.summary-items-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.summary-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 2px 0;
+}
+
+.selected-items-breakdown h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.no-selection-msg {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 0;
+  font-style: italic;
+}
+
+.breakdown-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.breakdown-item-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 65%;
+}
+
+.item-check-icon {
+  color: #f26624;
+  flex-shrink: 0;
+}
+
+.item-title {
+  color: #1e293b;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-price {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.total-accumulated-box {
+  background: linear-gradient(135deg, #fff7ed 0%, #fff3ea 100%);
+  padding: 18px 20px;
+  border-radius: 18px;
+  border: 1px solid #ffedd5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label-group span {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #9a3412;
+}
+
+.total-label-group small {
+  font-size: 0.7rem;
+  color: #c2410c;
+}
+
+.total-amount-highlight {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #f26624;
+}
+
+.btn-proceed-checkout {
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: #f26624;
+  color: white;
+  border: none;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 8px 20px rgba(242, 102, 36, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-proceed-checkout:hover:not(.disabled) {
+  background: #e05412;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(242, 102, 36, 0.4);
+}
+
+.btn-proceed-checkout.disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.cart-security-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: #64748b;
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .cart-main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-summary-column {
+    position: relative;
+    top: 0;
+  }
+}
