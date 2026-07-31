@@ -58,7 +58,8 @@ const TrabajoPropiedad = () => {
     setSubmittingSegundaVisita(true);
     try {
       const token = localStorage.getItem('agente_token');
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}/solicitar-segunda-visita`, {
+      const cleanId = encodeURIComponent(String(id).trim());
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${cleanId}/solicitar-segunda-visita`, {
         fecha_propuesta: fechaSegundaVisita,
         motivo: motivoSegundaVisita
       }, {
