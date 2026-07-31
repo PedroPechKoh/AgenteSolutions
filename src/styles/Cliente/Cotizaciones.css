@@ -349,27 +349,29 @@
   position: relative;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: stretch;
   background: white;
-  padding: 18px 22px;
+  padding: 20px 24px;
   border-radius: var(--radius-lg);
   border: 2px solid #e8edf4;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
-  gap: 16px;
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .quote-card-item:hover,
 .cart-card-row:hover {
   border-color: #cbd5e1;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
   transform: translateY(-2px);
 }
 
 .cart-card-row.selected-row {
   background: #fffdfa;
   border-color: var(--primary-orange);
-  box-shadow: 0 8px 24px rgba(242, 102, 36, 0.08);
+  box-shadow: 0 8px 24px rgba(242, 102, 36, 0.1);
 }
 
 .card-aceptadas {
@@ -392,16 +394,16 @@
 .quote-card-left,
 .card-content-left {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   align-items: flex-start;
-  flex: 1;
-  min-width: 0;
+  flex: 1 1 50%;
+  min-width: 260px;
 }
 
 .quote-card-icon {
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   border-radius: var(--radius-md);
   background: var(--primary-orange-light);
   color: var(--primary-orange);
@@ -409,44 +411,49 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .quote-card-info {
-  flex: 1;
-  min-width: 0;
+  flex: 1 1 auto;
+  min-width: 180px;
 }
 
 .quote-card-topline {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 6px;
   flex-wrap: wrap;
 }
 
 .quote-card-info h4 {
   margin: 0;
-  font-size: 1.02rem;
-  font-weight: 700;
+  font-size: 1.08rem;
+  font-weight: 800;
   color: var(--dark-slate);
-  word-break: break-word;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.35;
 }
 
 .quote-status-label {
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
-  font-size: 0.73rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 800;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .quote-description {
-  margin: 0 0 10px;
+  margin: 6px 0 12px;
   color: #475569;
   font-size: 0.88rem;
   line-height: 1.45;
-  word-break: break-word;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .quote-meta-row {
@@ -472,6 +479,7 @@
   align-items: flex-end;
   justify-content: space-between;
   flex-shrink: 0;
+  min-width: 180px;
 }
 
 .quote-total-box {
