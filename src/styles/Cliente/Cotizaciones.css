@@ -1,5 +1,5 @@
 /* --- LAYOUT --- */
-.quotes-view-container { padding: 30px; max-width: 1000px; margin: 0 auto; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; height: 100vh; }
+.quotes-view-container { padding: 30px; max-width: 1000px; margin: 0 auto; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; min-height: 100vh; height: auto; overflow-y: auto; }
 .quotes-main-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px; flex-shrink: 0; }
 .header-titles h2 { font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 0; }
 .header-titles p { color: #64748b; font-size: 0.85rem; margin-top: 4px; }
@@ -160,7 +160,10 @@ textarea { width: 100%; height: 80px; border: 2px solid #f1f5f9; border-radius: 
 .cart-page-container {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 24px 24px 80px 24px;
+  min-height: 100vh;
+  height: auto;
+  overflow-y: auto;
 }
 
 .cart-icon-badge {
