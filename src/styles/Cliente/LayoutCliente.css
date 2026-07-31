@@ -145,7 +145,7 @@
 }
 
 .tt-body {
-  padding: 10px 20px 80px 20px;
+  padding: 10px 20px 100px 20px;
   flex: 1;
   width: 100%;
   box-sizing: border-box;
@@ -156,39 +156,43 @@
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
+  scrollbar-width: auto;
+  scrollbar-color: #f26624 #f1f5f9;
 }
 
 .tt-body::after {
   content: "";
   display: block;
-  min-height: 60px;
+  min-height: 80px;
   width: 100%;
   flex-shrink: 0;
 }
 
-/* Barra de desplazamiento (Scrollbar) visible y elegante para toda la vista principal */
-.tt-body::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-  display: block;
+/* Barra de desplazamiento (Scrollbar) prominente y visible para toda la vista principal */
+.tt-body::-webkit-scrollbar,
+.tt-main::-webkit-scrollbar {
+  width: 14px !important;
+  height: 14px !important;
+  display: block !important;
 }
 
-.tt-body::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 8px;
+.tt-body::-webkit-scrollbar-track,
+.tt-main::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-left: 1px solid #e2e8f0 !important;
 }
 
-.tt-body::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 8px;
-  border: 2px solid #f1f5f9;
-  transition: background 0.2s ease;
+.tt-body::-webkit-scrollbar-thumb,
+.tt-main::-webkit-scrollbar-thumb {
+  background: #f26624 !important; /* Naranja institucional */
+  border-radius: 8px !important;
+  border: 2px solid #f1f5f9 !important;
+  min-height: 40px !important;
 }
 
-.tt-body::-webkit-scrollbar-thumb:hover {
-  background: #f26624;
+.tt-body::-webkit-scrollbar-thumb:hover,
+.tt-main::-webkit-scrollbar-thumb:hover {
+  background: #d95316 !important;
 }
 
 @media (max-width: 768px) {
