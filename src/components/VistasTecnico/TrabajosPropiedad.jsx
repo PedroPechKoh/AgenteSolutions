@@ -489,8 +489,12 @@ const TrabajoPropiedad = () => {
                 {(() => {
                   if (!data.descripcion) return <p className="tp-empty-desc">Sin descripción detallada.</p>;
                   
-                  if (data.descripcion.includes('[EQUIPO AFECTADO]:')) {
-                    const parts = data.descripcion.split('[EQUIPO AFECTADO]:');
+                  const cleanDesc = data.descripcion
+                    .replace(/\n?\[(SOLICITUD 2DA VISITA|RESPUESTA CLIENTE 2DA VISITA|PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN)\].*/gs, '')
+                    .trim();
+
+                  if (cleanDesc.includes('[EQUIPO AFECTADO]:')) {
+                    const parts = cleanDesc.split('[EQUIPO AFECTADO]:');
                     const problema = parts[0].trim();
                     const equipo = parts[1].trim();
 
@@ -526,7 +530,7 @@ const TrabajoPropiedad = () => {
                       </div>
                       <div className="tp-desc-text">
                         <label>DETALLES DEL SERVICIO</label>
-                        <p style={{ whiteSpace: 'pre-line' }}>{data.descripcion}</p>
+                        <p style={{ whiteSpace: 'pre-line' }}>{cleanDesc}</p>
                       </div>
                     </div>
                   );
@@ -713,31 +717,102 @@ const TrabajoPropiedad = () => {
                   </div>
                 )}
 
-                {/* BOTÓN SOLICITAR SEGUNDA VISITA */}
+                {/* BOTÓN SOLICITAR SEGUNDA VISITA CON ESTADOS DINÁMICOS */}
                 <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0', width: '100%' }}>
-                  <button 
-                    onClick={() => setShowModalSegundaVisita(true)}
-                    style={{ 
-                      width: '100%',
-                      background: '#ea580c', 
-                      color: '#ffffff', 
-                      border: 'none',
-                      padding: '12px 16px',
-                      borderRadius: '16px',
-                      fontWeight: '800',
-                      fontSize: '0.82rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '8px',
-                      boxShadow: '0 4px 12px rgba(234, 88, 12, 0.25)',
-                      textTransform: 'uppercase'
-                    }}
-                  >
-                    <Calendar size={18} />
-                    <span>¿NO SE TERMINÓ? SOLICITAR 2DA VISITA</span>
-                  </button>
+                  {(() => {
+                    const isSolicitada = 
+                      data?.estado === 'Segunda Visita Solicitada' || 
+                      data?.status === 'Segunda Visita Solicitada' || 
+                      (data?.descripcion && data.descripcion.includes('[SOLICITUD 2DA VISITA]') && !data.descripcion.includes('[RESPUESTA CLIENTE 2DA VISITA]') && !data.descripcion.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]'));
+
+                    const isProgramada = 
+                      data?.estado === 'Segunda Visita Programada' || 
+                      data?.status === 'Segunda Visita Programada' || 
+                      (data?.descripcion && (data.descripcion.includes('[RESPUESTA CLIENTE 2DA VISITA]') || data.descripcion.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]')));
+
+                    if (isSolicitada) {
+                      return (
+                        <button 
+                          disabled
+                          style={{ 
+                            width: '100%',
+                            background: '#64748b', 
+                            color: '#ffffff', 
+                            border: 'none',
+                            padding: '12px 16px',
+                            borderRadius: '16px',
+                            fontWeight: '800',
+                            fontSize: '0.82rem',
+                            cursor: 'not-allowed',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            opacity: 0.9,
+                            textTransform: 'uppercase',
+                            boxShadow: '0 4px 10px rgba(100, 116, 139, 0.2)'
+                          }}
+                        >
+                          <Clock size={18} />
+                          <span>REPROGRAMACIÓN SOLICITADA, EN ESPERA</span>
+                        </button>
+                      );
+                    }
+
+                    if (isProgramada) {
+                      return (
+                        <button 
+                          disabled
+                          style={{ 
+                            width: '100%',
+                            background: '#16a34a', 
+                            color: '#ffffff', 
+                            border: 'none',
+                            padding: '12px 16px',
+                            borderRadius: '16px',
+                            fontWeight: '800',
+                            fontSize: '0.82rem',
+                            cursor: 'default',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            textTransform: 'uppercase',
+                            boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)'
+                          }}
+                        >
+                          <CheckCircle2 size={18} />
+                          <span>SEGUNDA VISITA PROGRAMADA</span>
+                        </button>
+                      );
+                    }
+
+                    return (
+                      <button 
+                        onClick={() => setShowModalSegundaVisita(true)}
+                        style={{ 
+                          width: '100%',
+                          background: '#ea580c', 
+                          color: '#ffffff', 
+                          border: 'none',
+                          padding: '12px 16px',
+                          borderRadius: '16px',
+                          fontWeight: '800',
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          boxShadow: '0 4px 12px rgba(234, 88, 12, 0.25)',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        <Calendar size={18} />
+                        <span>¿NO SE TERMINÓ? SOLICITAR 2DA VISITA</span>
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
               
