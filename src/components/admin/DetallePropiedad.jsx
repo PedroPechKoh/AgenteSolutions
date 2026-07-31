@@ -2,11 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../../styles/Cliente/DetallePr.css';
+import '../../styles/TecnicoStyles/TrabajoPropiedad.css';
 import Swal from 'sweetalert2';
 import { 
   MapPin, User, AlertTriangle, Settings, CheckCircle, 
   X, LayoutDashboard, FileText, Send, Trash2, Clock, Briefcase, MessageSquare,
-  CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon, ArrowLeft
+  CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon, ArrowLeft,
+  Navigation, Phone, Zap, Wrench, Calendar
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Logo3 from '../../assets/Logo3.png';
@@ -37,6 +39,92 @@ const DetallePropiedad = () => {
   // Modal de Crear Cotizacion
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [cotizacionParaAsignar, setCotizacionParaAsignar] = useState(null);
+
+  // --- ESTADOS PARA 2DA VISITA ---
+  const [showModalReprogramar2da, setShowModalReprogramar2da] = useState(false);
+  const [showModalAdmin2daVisita, setShowModalAdmin2daVisita] = useState(false);
+  const [fecha2daCliente, setFecha2daCliente] = useState('');
+  const [fecha2daAdmin, setFecha2daAdmin] = useState('');
+  const [tecnico2daAdmin, setTecnico2daAdmin] = useState('');
+  const [obs2daAdmin, setObs2daAdmin] = useState('');
+  const [submitting2da, setSubmitting2da] = useState(false);
+
+  const handleResponderSegundaVisita = async (accion, fechaConfirmada) => {
+    if (!activeTask) return;
+    const taskParamId = activeTask.tipo_registro === 'work_order' 
+      ? `work_order-${activeTask.realId}` 
+      : `servicio-${activeTask.realId || activeTask.id}`;
+
+    setSubmitting2da(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${taskParamId}/responder-segunda-visita`, {
+        accion,
+        fecha_confirmada: fechaConfirmada
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Segunda Visita Confirmada',
+        text: `Has ${accion === 'aceptar' ? 'aceptado' : 'programado'} la fecha para la 2da visita: ${fechaConfirmada}.`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+
+      setShowModalReprogramar2da(false);
+      fetchPropiedad();
+    } catch (error) {
+      console.error("Error respondiendo 2da visita:", error);
+      Swal.fire('Error', 'No se pudo registrar la respuesta a la segunda visita.', 'error');
+    } finally {
+      setSubmitting2da(false);
+    }
+  };
+
+  const handleAdminProgramarSegundaVisita = async (e) => {
+    e.preventDefault();
+    if (!activeTask || !fecha2daAdmin) {
+      Swal.fire('Atención', 'Debes ingresar la fecha y hora para la 2da visita.', 'warning');
+      return;
+    }
+
+    const taskParamId = activeTask.tipo_registro === 'work_order' 
+      ? `work_order-${activeTask.realId}` 
+      : `servicio-${activeTask.realId || activeTask.id}`;
+
+    setSubmitting2da(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${taskParamId}/admin-programar-segunda-visita`, {
+        fecha_programada: fecha2daAdmin,
+        tecnico_id: tecnico2daAdmin || null,
+        observaciones: obs2daAdmin
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: '2da Visita Programada',
+        text: 'Se ha programado la 2da visita directamente. Se notificó al Cliente y al Técnico.',
+        timer: 2200,
+        showConfirmButton: false
+      });
+
+      setShowModalAdmin2daVisita(false);
+      setFecha2daAdmin('');
+      setTecnico2daAdmin('');
+      setObs2daAdmin('');
+      fetchPropiedad();
+    } catch (error) {
+      console.error("Error al programar 2da visita por Admin:", error);
+      Swal.fire('Error', 'No se pudo programar la 2da visita.', 'error');
+    } finally {
+      setSubmitting2da(false);
+    }
+  };
 
   // DATOS DE LA PROPIEDAD
   const [datosPropiedad, setDatosPropiedad] = useState({
@@ -125,16 +213,29 @@ const DetallePropiedad = () => {
 
         const { propiedad, stats: backStats, historial, owner_info, shared_users, is_shared_with_me } = resDash.data;
 
+        const rawFacade = propiedad?.facade_photo_path || propiedad?.facade_photo || propiedad?.foto_fachada || null;
+        let resolvedFacade = null;
+        if (rawFacade && typeof rawFacade === 'string') {
+          if (rawFacade.startsWith('http://') || rawFacade.startsWith('https://')) {
+            resolvedFacade = rawFacade;
+          } else {
+            const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+            const hostBase = apiBase.replace(/\/api\/?$/, '');
+            resolvedFacade = `${hostBase}/storage/${rawFacade.replace(/^\//, '')}`;
+          }
+        }
+
         setDatosPropiedad({
-          personaCargo: owner_info?.name || propiedad.propietario || "Sin asignar",
+          personaCargo: owner_info?.name || propiedad?.propietario || "Sin asignar",
           personaFoto: owner_info?.profile_picture || null,
+          facadePhoto: resolvedFacade,
           sharedUsers: shared_users || [],
           isSharedWithMe: is_shared_with_me || false,
-          curp: propiedad.custom_curp || propiedad.id,
-          direccion: propiedad.address || "Sin dirección",
-          mapsUrl: propiedad.coordinates ? `https://maps.google.com/?q=${propiedad.coordinates}` : "#",
-          nombre_propiedad: propiedad.nombre_propiedad || propiedad.property_name || "Propiedad",
-          location: propiedad.location || propiedad.state || "Mérida, Yuc."
+          curp: propiedad?.custom_curp || propiedad?.id,
+          direccion: propiedad?.address || "Sin dirección",
+          mapsUrl: propiedad?.coordinates ? `https://maps.google.com/?q=${propiedad.coordinates}` : "#",
+          nombre_propiedad: propiedad?.nombre_propiedad || propiedad?.property_name || "Propiedad",
+          location: propiedad?.location || propiedad?.state || "Mérida, Yuc."
         });
 
         setStats(backStats || { sos: 0, pendientes: 0, proceso: 0, listos: 0 });
@@ -1646,46 +1747,98 @@ const DetallePropiedad = () => {
         </div>
       )}
 
-      {/* MODAL DETALLE HISTORIAL (BITÁCORA) */}
+      {/* MODAL DETALLE HISTORIAL (HERO BANNER E IGUAL A LA VISTA DEL TÉCNICO) */}
       {isModalHistorialOpen && trabajoSeleccionado && (
-        <div className="modal-overlay-ui" onClick={() => setIsModalHistorialOpen(false)}>
-          <div className="modal-card-container" onClick={e => e.stopPropagation()} style={{ width: '850px', maxWidth: '95vw', maxHeight: '90vh', background: '#fff', borderRadius: '28px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div className="modal-top-indicator" style={{ background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)', display: 'flex', justifyContent: 'space-between', padding: '14px 22px', alignItems: 'center' }}>
-              <div className="indicator-content" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'white', fontWeight: 'bold' }}>
-                <Eye size={22} />
-                <div>
-                  <h3 style={{ color: 'white', margin: 0 }}>Detalles de Servicio</h3>
-                  <span style={{ color: '#cbd5e1', fontSize: '0.75rem' }}>{trabajoSeleccionado.isBatch ? 'ORDEN DE TRABAJO (LOTE)' : (trabajoSeleccionado.producto + ' • Finalizado el ' + trabajoSeleccionado.fecha)}</span>
+        <div className="modal-overlay-ui" onClick={() => setIsModalHistorialOpen(false)} style={{ zIndex: 9999 }}>
+          <div className="modal-card-container" onClick={e => e.stopPropagation()} style={{ width: '920px', maxWidth: '95vw', maxHeight: '92vh', background: '#f8fafc', borderRadius: '24px', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', border: 'none' }}>
+            
+            {/* HERO BANNER IGUAL AL DEL TÉCNICO */}
+            <section className="tp-property-hero" style={{ height: '220px', borderRadius: 0, marginBottom: 0, position: 'relative', flexShrink: 0 }}>
+              <div className="tp-hero-overlay"></div>
+              <img 
+                src={datosPropiedad.facadePhoto || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=1000'} 
+                alt="Fachada de la Propiedad" 
+                className="tp-hero-bg" 
+              />
+              
+              <button 
+                onClick={() => setIsModalHistorialOpen(false)}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  zIndex: 10,
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  backdropFilter: 'blur(8px)',
+                  border: '1.5px solid rgba(255,255,255,0.4)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  fontWeight: 'bold',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.2)'
+                }}
+              >
+                ×
+              </button>
+
+              <div className="tp-hero-content" style={{ padding: '20px 25px' }}>
+                <div className="tp-hero-text">
+                  <span className="tp-id-badge">
+                    {datosPropiedad.curp || `PROP-#${id}`}
+                  </span>
+                  <h1 className="tp-property-name" style={{ fontSize: '1.75rem', marginBottom: '4px' }}>
+                    {datosPropiedad.nombre_propiedad || 'Propiedad'}
+                  </h1>
+                  <div className="tp-property-address">
+                    <MapPin size={16} />
+                    <p style={{ margin: 0 }}>{datosPropiedad.direccion}</p>
+                  </div>
+                </div>
+                
+                <div className="tp-hero-actions">
+                  {datosPropiedad.mapsUrl && datosPropiedad.mapsUrl !== '#' && (
+                    <button 
+                      className="tp-action-btn maps" 
+                      onClick={() => window.open(datosPropiedad.mapsUrl, '_blank')}
+                    >
+                      <Navigation size={16} />
+                      <span>GPS</span>
+                    </button>
+                  )}
+                  {trabajoSeleccionado?.tecnico_telefono && (
+                    <button 
+                      className="tp-action-btn call" 
+                      onClick={() => window.open(`tel:${trabajoSeleccionado.tecnico_telefono}`)}
+                    >
+                      <Phone size={16} />
+                      <span>Llamar Técnico</span>
+                    </button>
+                  )}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <button className="btn-close-light" onClick={() => setIsModalHistorialOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}><X size={20}/></button>
-              </div>
-            </div>
+            </section>
 
             {trabajoSeleccionado.isBatch && (
               <div style={{ 
                 background: 'linear-gradient(135deg, #1e293b, #0f172a)', 
-                padding: '16px 20px', 
+                padding: '12px 20px', 
                 borderBottom: '2px solid #334155',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px'
+                gap: '8px'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                  <span style={{ color: '#f8fafc', fontWeight: '800', fontSize: '0.85rem', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: '#f8fafc', fontWeight: '800', fontSize: '0.82rem', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     ⚡ Servicios incluidos en este lote ({trabajoSeleccionado.batchTasks?.length || 0})
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', background: 'rgba(255,255,255,0.1)', padding: '3px 12px', borderRadius: '12px' }}>
-                    Haz clic para navegar entre servicios
-                  </span>
                 </div>
-                <div style={{ 
-                  display: 'flex', 
-                  overflowX: 'auto', 
-                  gap: '10px',
-                  paddingBottom: '4px'
-                }}>
+                <div style={{ display: 'flex', overflowX: 'auto', gap: '8px', paddingBottom: '4px' }}>
                   {trabajoSeleccionado.batchTasks.map((t, index) => {
                     const isActive = activeBatchTab === index;
                     return (
@@ -1693,27 +1846,18 @@ const DetallePropiedad = () => {
                         key={t.dbId || index}
                         onClick={() => setActiveBatchTab(index)}
                         style={{
-                          padding: '10px 18px',
+                          padding: '8px 14px',
                           background: isActive ? 'linear-gradient(135deg, #F26522, #ea580c)' : '#f8fafc',
                           border: isActive ? 'none' : '1px solid #cbd5e1',
-                          borderRadius: '12px',
+                          borderRadius: '10px',
                           fontWeight: isActive ? '800' : '700',
                           color: isActive ? '#ffffff' : '#475569',
                           cursor: 'pointer',
                           whiteSpace: 'nowrap',
-                          fontSize: '0.92rem',
-                          transition: 'all 0.25s ease',
-                          boxShadow: isActive ? '0 4px 14px rgba(242, 101, 34, 0.45)' : '0 1px 3px rgba(0,0,0,0.05)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          transform: isActive ? 'scale(1.02)' : 'none'
+                          fontSize: '0.85rem'
                         }}
                       >
-                        <span style={{ background: isActive ? 'rgba(255,255,255,0.25)' : '#e2e8f0', color: isActive ? '#fff' : '#334155', padding: '2px 8px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: '800' }}>
-                          #{index + 1}
-                        </span>
-                        <span>Servicio {index + 1}</span>
+                        Servicio #{index + 1}
                       </button>
                     );
                   })}
@@ -1721,99 +1865,256 @@ const DetallePropiedad = () => {
               </div>
             )}
 
-            <div className="modal-inner-scroll" style={{ padding: '28px', overflowY: 'auto', flex: 1 }}>
+            <div className="modal-inner-scroll" style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
               {(() => {
                 const activeTask = trabajoSeleccionado.isBatch ? trabajoSeleccionado.batchTasks[activeBatchTab] : trabajoSeleccionado;
                 if(!activeTask) return null;
-                
+
+                const rawDesc = activeTask.description || activeTask.descripcion || activeTask.producto || activeTask.title || '';
+                const cleanDesc = rawDesc
+                  .replace(/\n?\[(SOLICITUD 2DA VISITA|RESPUESTA CLIENTE 2DA VISITA|PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN|ALERTA DE REPROGRAMACIÓN)\].*/gs, '')
+                  .trim();
+
+                let problema = activeTask.producto || activeTask.title || 'Mantenimiento General';
+                let equipo = 'No especificado';
+
+                if (cleanDesc.includes('[EQUIPO AFECTADO]:')) {
+                  const parts = cleanDesc.split('[EQUIPO AFECTADO]:');
+                  problema = parts[0].trim() || problema;
+                  equipo = parts[1].trim() || 'No especificado';
+                } else if (cleanDesc.includes('---')) {
+                  const parts = cleanDesc.split('---');
+                  problema = parts[0].trim() || problema;
+                  equipo = parts[1].trim() || 'No especificado';
+                } else if (cleanDesc) {
+                  problema = cleanDesc;
+                }
+
+                // Cálculo robusto del banner de 2da visita
+                const isSegundaVisitaRequested = 
+                  activeTask.status === 'Segunda Visita Solicitada' || 
+                  activeTask.estado === 'Segunda Visita Solicitada' || 
+                  (activeTask.description && activeTask.description.includes('[SOLICITUD 2DA VISITA]'));
+
+                const isSegundaVisitaAgreed = 
+                  activeTask.status === 'Segunda Visita Programada' || 
+                  activeTask.estado === 'Segunda Visita Programada' ||
+                  (activeTask.description && (
+                    activeTask.description.includes('[RESPUESTA CLIENTE 2DA VISITA]') || 
+                    activeTask.description.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]')
+                  ));
+
+                const showBanner2daVisita = isSegundaVisitaRequested && !isSegundaVisitaAgreed;
+
+                let fechaPropuesta2da = activeTask.second_visit_proposed_date;
+                let motivo2da = activeTask.second_visit_reason;
+                if (!fechaPropuesta2da && activeTask.description && activeTask.description.includes('[SOLICITUD 2DA VISITA]')) {
+                  const matchFecha = activeTask.description.match(/propone la fecha:\s*([^\.\n]+)/i);
+                  if (matchFecha) fechaPropuesta2da = matchFecha[1].trim();
+
+                  const matchMotivo = activeTask.description.match(/Motivo:\s*([^\.\n]+)/i);
+                  if (matchMotivo) motivo2da = matchMotivo[1].trim();
+                }
+
                 return (
                   <>
-              <div className="info-grid" style={{ marginBottom: '30px' }}>
-                <div className="info-item-card">
-                  <div className="item-icon"><User size={18} /></div>
-                  <div className="item-details"><label>Cliente</label><p>{datosPropiedad.personaCargo || "No asignado"}</p></div>
-                </div>
-                <div className="info-item-card">
-                  <div className="item-icon"><MapPin size={18} /></div>
-                  <div className="item-details">
-                    <label>Lugar del Servicio</label>
-                    <p style={{ margin: 0, fontWeight: 'bold' }}>{datosPropiedad.nombre_propiedad}</p>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b', marginTop: '2px' }}>{datosPropiedad.direccion}</p>
-                  </div>
-                </div>
-                <div className="info-item-card">
-                  <div className="item-icon"><User size={18} /></div>
-                  <div className="item-details"><label>Técnico Responsable</label><p>{activeTask.tecnico}</p></div>
-                </div>
-              </div>
+                    {/* 1. TARJETA CONSISTE EN: */}
+                    <div className="tp-card tp-work-description-card" style={{ margin: 0, marginBottom: '20px' }}>
+                      <div className="tp-card-header">
+                        <FileText size={20} />
+                        <h3>CONSISTE EN:</h3>
+                      </div>
 
-              {/* Botones de Acción Rápida */}
-              <div style={{ display: 'flex', gap: '15px', marginBottom: '30px' }}>
-                <button 
-                  className="btn-primary-ui" 
-                  onClick={() => {
-                    const paramId = activeTask.tipo_registro === 'work_order' 
-                      ? `work_order-${activeTask.realId}` 
-                      : `servicio-${activeTask.realId || activeTask.id}`;
-                    navigate(`/reporte-trabajo-admin/${paramId}`);
-                  }}
-                  style={{ flex: 1, background: '#3b82f6', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(59, 130, 246, 0.2)' }}
-                >
-                  <FileText size={18} /> Reporte de este trabajo
-                </button>
-                
-                <button 
-                  className="btn-secondary-ui" 
-                  onClick={() => {
-                    // Buscar la cotización vinculada en el estado local de cotizaciones
-                    let cotVinculada = null;
-                    if (activeTask.tipo_registro === 'work_order') {
-                      cotVinculada = cotizaciones.find(c => String(c.raw?.work_order_id) === String(activeTask.realId));
-                    } else {
-                      cotVinculada = cotizaciones.find(c => String(c.raw?.service_id) === String(activeTask.realId));
-                    }
+                      <div className="tp-work-description-v2">
+                        <div className="tp-description-grid">
+                          <div className="tp-desc-item">
+                            <div className="tp-desc-icon problem">
+                              <AlertTriangle size={20} />
+                            </div>
+                            <div className="tp-desc-text">
+                              <label>TIPO DE FALLA / PROBLEMA</label>
+                              <strong>{problema}</strong>
+                            </div>
+                          </div>
 
-                    if (cotVinculada) {
-                      setCotizacionDetail(cotVinculada);
-                      setIsModalCotizacionDetailOpen(true);
-                      // Opcional: Cerrar el modal actual para no encimar tantos modales (o dejarlo abierto atrás)
-                      setIsModalHistorialOpen(false);
-                    } else {
-                      Swal.fire({
-                        icon: 'info',
-                        title: 'Sin Cotización',
-                        text: 'Este trabajo no tiene una cotización vinculada o fue creado directamente como servicio/emergencia.',
-                        confirmButtonColor: '#f26624'
-                      });
-                    }
-                  }}
-                  style={{ flex: 1, background: '#10b981', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(16, 185, 129, 0.2)' }}
-                >
-                  <FileText size={18} /> Cotización de este trabajo
-                </button>
-              </div>
+                          <div className="tp-desc-item">
+                            <div className="tp-desc-icon equipment">
+                              <Zap size={20} />
+                            </div>
+                            <div className="tp-desc-text">
+                              <label>EQUIPO O COMPONENTE AFECTADO</label>
+                              <strong>{equipo}</strong>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-              {/* Sección de Evidencias Generales */}
-              {activeTask.evidencias && activeTask.evidencias.length > 0 && (
-                <div style={{ marginBottom: '30px' }}>
-                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', color: '#1e293b' }}>
-                    <ImageIcon size={20} /> EVIDENCIAS DEL TRABAJO
-                  </h4>
-                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    {activeTask.evidencias.map((img, imgIdx) => (
-                      <img 
-                        key={imgIdx} 
-                        src={img} 
-                        alt={`Evidencia ${imgIdx + 1}`} 
-                        onClick={() => setImagenAmpliada(img)}
-                        style={{ width: '180px', height: '130px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer', border: '2px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', transition: 'all 0.2s ease' }} 
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+                      <div className="tp-work-meta">
+                        <div className="tp-meta-item">
+                          <Clock size={16} />
+                          <span>Programado: {activeTask.fecha || activeTask.scheduled_at || 'Pendiente'}</span>
+                        </div>
+                        <div className="tp-meta-item">
+                          <Wrench size={16} />
+                          <span>Título: {activeTask.producto || activeTask.title || 'Servicio'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. TARJETA DATOS DEL CLIENTE */}
+                    <div className="tp-card tp-client-card" style={{ margin: 0, marginBottom: '20px' }}>
+                      <div className="tp-card-header">
+                        <User size={20} />
+                        <h3>DATOS DEL CLIENTE</h3>
+                      </div>
+                      <div className="tp-client-info">
+                        <p><strong>Nombre:</strong> {datosPropiedad.personaCargo || 'Cliente no asignado'}</p>
+                        <p><strong>Teléfono:</strong> {datosPropiedad.telefono || 'No registrado'}</p>
+                        <p><strong>Tipo:</strong> {datosPropiedad.tipoPropiedad || 'CASA'}</p>
+                      </div>
+                    </div>
+
+                    {/* FOTOS DE EVIDENCIAS DIRECTAS DEBAJO DE DATOS DEL CLIENTE */}
+                    <div className="tp-card tp-evidence-card" style={{ margin: 0, marginBottom: '20px' }}>
+                      <div className="tp-card-header">
+                        <ImageIcon size={20} />
+                        <h3>EVIDENCIAS REGISTRADAS</h3>
+                      </div>
+                      <div className="tp-evidence-content" style={{ marginTop: '12px' }}>
+                        {activeTask.evidencias && activeTask.evidencias.length > 0 ? (
+                          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                            {activeTask.evidencias.map((img, imgIdx) => (
+                              <img 
+                                key={imgIdx} 
+                                src={img} 
+                                alt={`Evidencia ${imgIdx + 1}`} 
+                                onClick={() => setImagenAmpliada(img)}
+                                style={{ width: '135px', height: '100px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer', border: '2px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', transition: 'transform 0.2s' }} 
+                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem', fontStyle: 'italic' }}>No hay evidencias fotográficas registradas aún.</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 3. TARJETA EQUIPO DE TRABAJO */}
+                    <div className="tp-card tp-team-card" style={{ margin: 0, marginBottom: '20px' }}>
+                      <div className="tp-card-header">
+                        <User size={20} />
+                        <h3>EQUIPO DE TRABAJO</h3>
+                      </div>
+                      <div className="tp-team-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: '#e2e2e2', padding: '12px 16px', borderRadius: '12px' }}>
+                          <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#d1d1d1', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <User size={24} color="#000" />
+                          </div>
+                          <div>
+                            <p style={{ margin: 0, fontWeight: 'bold', color: '#333', fontSize: '0.95rem' }}>{activeTask.tecnico || 'Sin asignar'}</p>
+                            <p style={{ margin: '2px 0 0', fontSize: '0.78rem', color: '#666' }}>ID: {activeTask.tecnico_id || '60'} | ÁREA: TÉCNICO</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ALERTA Y RESPUESTA DE SEGUNDA VISITA PARA EL CLIENTE */}
+                    {showBanner2daVisita && (
+                      <div style={{ background: '#fff7ed', border: '2px solid #ea580c', borderRadius: '18px', padding: '20px', marginBottom: '25px', boxShadow: '0 10px 25px rgba(234, 88, 12, 0.15)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#c2410c', fontWeight: '900', fontSize: '1.05rem', marginBottom: '8px' }}>
+                          <AlertTriangle size={24} color="#ea580c" />
+                          <span>SOLICITUD DE SEGUNDA VISITA</span>
+                        </div>
+                        <p style={{ margin: '0 0 14px 0', fontSize: '0.88rem', color: '#431407', lineHeight: '1.4' }}>
+                          El técnico solicita regresar a una segunda visita. Fecha propuesta: <strong>{fechaPropuesta2da || 'Por confirmar'}</strong>.
+                          {motivo2da && <span> Motivo: <em>"{motivo2da}"</em></span>}
+                        </p>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                          <button 
+                            type="button"
+                            onClick={() => handleResponderSegundaVisita('aceptar', fechaPropuesta2da || new Date().toISOString().slice(0,10))}
+                            disabled={submitting2da}
+                            style={{ flex: 1, minWidth: '180px', background: '#16a34a', color: 'white', border: 'none', padding: '12px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                          >
+                            <CheckCircle size={18} />
+                            <span>ACEPTAR FECHA PROPUESTA</span>
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => setShowModalReprogramar2da(true)}
+                            disabled={submitting2da}
+                            style={{ flex: 1, minWidth: '180px', background: '#ea580c', color: 'white', border: 'none', padding: '12px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                          >
+                            <Calendar size={18} />
+                            <span>ELEGIR OTRA FECHA</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* BOTÓN: VER REPORTE DEL TRABAJO */}
+                    <div style={{ marginBottom: '15px' }}>
+                      <button 
+                        onClick={() => {
+                          const paramId = activeTask.tipo_registro === 'work_order' 
+                            ? `work_order-${activeTask.realId}` 
+                            : `servicio-${activeTask.realId || activeTask.id}`;
+                          navigate(`/reporte-trabajo-admin/${paramId}`);
+                        }}
+                        style={{ 
+                          width: '100%', 
+                          background: '#3b82f6', 
+                          color: 'white', 
+                          padding: '14px', 
+                          borderRadius: '14px', 
+                          border: 'none', 
+                          fontWeight: '800', 
+                          fontSize: '0.95rem',
+                          display: 'flex', 
+                          justifyContent: 'center', 
+                          alignItems: 'center', 
+                          gap: '10px', 
+                          cursor: 'pointer', 
+                          boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        <FileText size={20} />
+                        <span>Ver Reporte de este trabajo</span>
+                      </button>
+                    </div>
+
+                    {/* BOTÓN PROGRAMACIÓN DIRECTA POR ROOT/ADMIN */}
+                    {(user?.role_id === 0 || user?.role_id === 1) && (
+                      <div style={{ marginBottom: '25px' }}>
+                        <button 
+                          type="button"
+                          onClick={() => setShowModalAdmin2daVisita(true)}
+                          style={{ 
+                            width: '100%', 
+                            background: '#ea580c', 
+                            color: 'white', 
+                            padding: '14px', 
+                            borderRadius: '14px', 
+                            border: 'none', 
+                            fontWeight: '800', 
+                            fontSize: '0.9rem',
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            alignItems: 'center', 
+                            gap: '10px', 
+                            cursor: 'pointer', 
+                            boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)',
+                            textTransform: 'uppercase'
+                          }}
+                        >
+                          <Calendar size={20} />
+                          <span>Programar Segunda Visita Directa (Admin)</span>
+                        </button>
+                      </div>
+                    )}
 
               <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#1e293b' }}>
                 <ImageIcon size={20} /> PASOS REALIZADOS EN EL TRABAJO
@@ -2432,6 +2733,125 @@ const DetallePropiedad = () => {
           </div>
         </div>
       )}
+      {/* MODAL REPROGRAMAR 2DA VISITA POR CLIENTE */}
+      {showModalReprogramar2da && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', borderRadius: '22px', padding: '28px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <button onClick={() => setShowModalReprogramar2da(false)} style={{ position: 'absolute', top: '18px', right: '18px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+              <X size={24} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+              <div style={{ background: '#fff7ed', padding: '10px', borderRadius: '14px', border: '1px solid #ffedd5' }}>
+                <Calendar size={26} color="#ea580c" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: '900', color: '#0f172a' }}>PROPONER NUEVA FECHA</h3>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b' }}>Elige el día y hora que mejor te acomode</p>
+              </div>
+            </div>
+
+            <form onSubmit={(e) => { e.preventDefault(); handleResponderSegundaVisita('reprogramar', fecha2daCliente); }} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  NUEVA FECHA Y HORA <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input 
+                  type="datetime-local"
+                  value={fecha2daCliente}
+                  onChange={(e) => setFecha2daCliente(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setShowModalReprogramar2da(false)} style={{ flex: 1, padding: '12px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  CANCELAR
+                </button>
+                <button type="submit" disabled={submitting2da} style={{ flex: 1, padding: '12px', background: '#ea580c', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: submitting2da ? 'not-allowed' : 'pointer', opacity: submitting2da ? 0.7 : 1, textTransform: 'uppercase' }}>
+                  {submitting2da ? 'GUARDANDO...' : 'CONFIRMAR FECHA'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PROGRAMAR 2DA VISITA DIRECTA POR ADMIN */}
+      {showModalAdmin2daVisita && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', borderRadius: '22px', padding: '28px', width: '100%', maxWidth: '520px', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <button onClick={() => setShowModalAdmin2daVisita(false)} style={{ position: 'absolute', top: '18px', right: '18px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+              <X size={24} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+              <div style={{ background: '#fff7ed', padding: '12px', borderRadius: '16px', border: '1px solid #ffedd5' }}>
+                <Calendar size={28} color="#ea580c" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '900', color: '#0f172a' }}>PROGRAMAR 2DA VISITA DIRECTA</h3>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>Aviso o acuerdo directo con el cliente</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleAdminProgramarSegundaVisita} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  FECHA Y HORA DE LA 2DA VISITA <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input 
+                  type="datetime-local" 
+                  value={fecha2daAdmin}
+                  onChange={(e) => setFecha2daAdmin(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  TÉCNICO ASIGNADO (OPCIONAL)
+                </label>
+                <select
+                  value={tecnico2daAdmin}
+                  onChange={(e) => setTecnico2daAdmin(e.target.value)}
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', background: '#ffffff' }}
+                >
+                  <option value="">Mantener técnico asignado actual</option>
+                  {(listaTecnicos || []).map(t => (
+                    <option key={t.id} value={t.id}>{t.name || t.first_name || `Técnico #${t.id}`}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  OBSERVACIONES DE LA 2DA VISITA
+                </label>
+                <textarea 
+                  rows={3}
+                  value={obs2daAdmin}
+                  onChange={(e) => setObs2daAdmin(e.target.value)}
+                  placeholder="Ej. Solicitado directamente por el cliente por llamada..."
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.88rem', outline: 'none', resize: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setShowModalAdmin2daVisita(false)} style={{ flex: 1, padding: '12px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  CANCELAR
+                </button>
+                <button type="submit" disabled={submitting2da} style={{ flex: 1, padding: '12px', background: '#ea580c', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: submitting2da ? 'not-allowed' : 'pointer', opacity: submitting2da ? 0.7 : 1, textTransform: 'uppercase' }}>
+                  {submitting2da ? 'PROGRAMANDO...' : 'PROGRAMAR 2DA VISITA'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     {showCreateModal && (
       <CreateQuotationModal 
         prefillData={cotizacionParaAsignar}

@@ -2,96 +2,153 @@
   position: absolute;
   top: 40px;
   right: -10px;
-  width: 320px;
+  width: 350px;
   background-color: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  border-radius: 12px;
   z-index: 1000;
   overflow: hidden;
-  border: 1px solid #eee;
+  border: 1px solid #eaeaea;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
 .notification-header {
   background-color: #F26522;
-  padding: 12px 15px;
+  padding: 12px 16px;
   color: white;
-  font-weight: bold;
+  font-weight: 700;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
 .notification-badge {
-  font-size: 0.8rem;
-  background-color: rgba(255,255,255,0.2);
-  padding: 2px 8px;
+  font-size: 0.75rem;
+  background-color: rgba(255,255,255,0.25);
+  padding: 3px 9px;
   border-radius: 12px;
+  font-weight: 600;
+}
+
+.notification-top-btn {
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+.notification-top-btn:hover {
+  background: white;
+  color: #F26522;
+}
+
+.notification-action-bar {
+  background-color: #fff7f4;
+  border-bottom: 1px solid #fee6dc;
+  padding: 9px 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notification-action-link {
+  background: none;
+  border: none;
+  color: #F26522;
+  font-size: 0.83rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+.notification-action-link:hover {
+  text-decoration: underline;
+  opacity: 0.85;
 }
 
 .notification-list {
-  max-height: 300px;
+  max-height: 320px;
   overflow-y: auto;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
 .notification-empty {
-  padding: 20px;
+  padding: 24px;
   text-align: center;
   color: #888;
+  font-size: 0.9rem;
 }
 
 .notification-item {
-  padding: 15px;
-  border-bottom: 1px solid #eee;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   display: flex;
-  gap: 10px;
-  transition: background 0.2s;
+  gap: 12px;
+  transition: background 0.2s ease;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
 .notification-item:hover {
-  background-color: #f9f9f9;
+  background-color: #fff5f0;
 }
 
 .notification-item-icon {
   color: #F26522;
   margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .notification-item-title {
-  margin: 0 0 5px 0;
+  margin: 0 0 4px 0;
   font-size: 0.9rem;
-  color: #333;
+  font-weight: 700;
+  color: #222;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
 .notification-item-message {
   margin: 0;
-  font-size: 0.8rem;
-  color: #666;
-  line-height: 1.4;
+  font-size: 0.82rem;
+  color: #555;
+  line-height: 1.45;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  font-weight: 400;
 }
 
 .notification-footer {
   padding: 12px;
   text-align: center;
-  background-color: #f9f9f9;
+  background-color: #fafafa;
   border-top: 1px solid #eee;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 700;
   color: #F26522;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  transition: background 0.2s;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
 }
 
 .notification-footer:hover {
-  background-color: #f0f0f0;
+  background-color: #f2f2f2;
 }
 
 @media (max-width: 500px) {
   .notification-dropdown {
     position: fixed;
-    top: 80px; /* Below the header */
+    top: 75px;
     left: 50%;
     transform: translateX(-50%);
-    width: 90%;
-    max-width: 340px;
+    width: 92%;
+    max-width: 350px;
     right: auto;
     z-index: 1050;
   }

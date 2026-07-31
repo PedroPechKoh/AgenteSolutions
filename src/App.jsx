@@ -145,6 +145,7 @@ useEffect(() => {
         <Route path="/nuevo-reporte" element={<NuevoReporte />} />
         <Route path="/trabajo-inicio/:id" element={<TrabajoInicio />} />
         <Route path="/trabajo-propiedad/:id" element={<TrabajoPropiedad />} />
+        <Route path="/trabajo_propiedad/:id" element={<TrabajoPropiedad />} />
         <Route path="/venta-cruzada" element={<VentaCruzada />} />
         <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
         <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />

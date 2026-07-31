@@ -51,6 +51,72 @@ const TrabajosTecnico = () => {
     }
   }, [user]);
 
+  // GPS Tracking Loop: envía la ubicación GPS cada 30 segundos si el usuario es técnico o contratista
+  useEffect(() => {
+    if (!user || (user.role_id !== 2 && user.role_id !== 5 && user.role_id !== 0)) return;
+
+    const sendLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            try {
+              await axios.post(`${import.meta.env.VITE_API_BASE_URL}/technician/update-location`, {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+              });
+            } catch (err) {
+              console.warn("No se pudo actualizar la ubicación GPS:", err);
+            }
+          },
+          (error) => {
+            console.warn("Error obteniendo ubicación GPS:", error.message);
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      }
+    };
+
+    sendLocation();
+    const intervalId = setInterval(sendLocation, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [user]);
+
+  const handleConfirmArrival = async (e, item) => {
+    e.stopPropagation();
+    const confirmacion = window.confirm(`¿Confirmas que ya has llegado a la propiedad ${item.property_name || ''}?`);
+    if (!confirmacion) return;
+
+    let lat = null;
+    let lng = null;
+
+    if (navigator.geolocation) {
+      try {
+        const pos = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 });
+        });
+        lat = pos.coords.latitude;
+        lng = pos.coords.longitude;
+      } catch (err) {
+        console.warn("No se obtuvo GPS para confirmación de llegada:", err);
+      }
+    }
+
+    try {
+      const compositeId = item.composite_id || item.id;
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${compositeId}/confirm-arrival`, {
+        latitude: lat,
+        longitude: lng
+      });
+
+      alert("📍 ¡Llegada confirmada correctamente!");
+      fetchServicios();
+    } catch (error) {
+      console.error("Error al confirmar llegada:", error);
+      alert("No se pudo registrar la llegada. Intenta de nuevo.");
+    }
+  };
+
   // Nuevo useEffect para agregar los checklists de los trabajos de hoy
   const [checklistAgregado, setChecklistAgregado] = useState(null);
 
@@ -333,6 +399,46 @@ const TrabajosTecnico = () => {
           <div className="tt-info-row">
             <Clock size={12} />
             <span>Hora de visita: {new Date(item.scheduled_start || item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          </div>
+
+          <div style={{ marginTop: '6px' }} onClick={(e) => e.stopPropagation()}>
+            {item.arrival_status === 'EN_SITIO' ? (
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 10px',
+                borderRadius: '20px',
+                backgroundColor: '#d1fae5',
+                color: '#065f46',
+                fontWeight: 'bold',
+                fontSize: '0.75rem',
+                border: '1px solid #10b981'
+              }}>
+                🟢 En el lugar {item.arrived_at ? `(${new Date(item.arrived_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})` : ''}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => handleConfirmArrival(e, item)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '4px 10px',
+                  borderRadius: '20px',
+                  backgroundColor: '#fff3ed',
+                  color: '#f26522',
+                  fontWeight: 'bold',
+                  fontSize: '0.75rem',
+                  border: '1px solid #f26522',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                📍 ¡Ya llegué al lugar!
+              </button>
+            )}
           </div>
         </div>
 

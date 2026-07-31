@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Header from "../Shared/Header";
+import Swal from 'sweetalert2';
 import ModalCrearCotizacion from "../Shared/ModalCrearCotizacion";
 import "../../styles/TecnicoStyles/TrabajoPropiedad.css";
 import { 
@@ -10,7 +11,7 @@ import {
   ChevronLeft, Navigation, CheckCircle2, AlertCircle,
   FileText, ArrowRight, Package, Lock, Camera, Layout,
   X, Maximize2, ChevronRight, AlertTriangle, Zap,
-  Plus, Trash2, Upload, Calculator
+  Plus, Trash2, Upload, Calculator, Calendar
 } from 'lucide-react';
 import { useAuth } from "../../context/AuthContext";
 
@@ -42,15 +43,67 @@ const TrabajoPropiedad = () => {
   const [showModalCotizacion, setShowModalCotizacion] = useState(false);
   const [cotizacionExistente, setCotizacionExistente] = useState(null);
 
+  // --- ESTADOS PARA SEGUNDA VISITA ---
+  const [showModalSegundaVisita, setShowModalSegundaVisita] = useState(false);
+  const [fechaSegundaVisita, setFechaSegundaVisita] = useState('');
+  const [motivoSegundaVisita, setMotivoSegundaVisita] = useState('');
+  const [submittingSegundaVisita, setSubmittingSegundaVisita] = useState(false);
+
+  const handleSolicitarSegundaVisita = async (e) => {
+    e.preventDefault();
+    if (!fechaSegundaVisita) {
+      Swal.fire('Atención', 'Debes ingresar la fecha y hora sugerida para la segunda visita.', 'warning');
+      return;
+    }
+
+    setSubmittingSegundaVisita(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      const cleanId = encodeURIComponent(String(id).trim());
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${cleanId}/solicitar-segunda-visita`, {
+        fecha_propuesta: fechaSegundaVisita,
+        motivo: motivoSegundaVisita
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Solicitud Registrada',
+        text: 'Se ha enviado la solicitud de 2da visita. Se notificó al Cliente y al Administrador.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+
+      setShowModalSegundaVisita(false);
+      setFechaSegundaVisita('');
+      setMotivoSegundaVisita('');
+      fetchJobDetails();
+    } catch (error) {
+      console.error("Error solicitando 2da visita:", error);
+      Swal.fire('Error', 'No se pudo enviar la solicitud de segunda visita.', 'error');
+    } finally {
+      setSubmittingSegundaVisita(false);
+    }
+  };
+
   useEffect(() => {
     fetchJobDetails();
     checkExistingQuote();
   }, [id]);
 
+  const getRealId = (rawId) => {
+    if (!rawId) return '';
+    const str = decodeURIComponent(String(rawId)).trim();
+    const match = str.match(/\d+/);
+    return match ? match[0] : str;
+  };
+
   const checkExistingQuote = async () => {
     try {
-      const realId = id.includes('-') ? id.split('-')[1] : id;
-      const isWorkOrder = id.includes('work_order');
+      const realId = getRealId(id);
+      const decoded = decodeURIComponent(String(id));
+      const isWorkOrder = /work[_\s-]*order/i.test(decoded);
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
       const allQuotes = res.data.data || res.data;
       const found = allQuotes.find(q => 
@@ -68,7 +121,7 @@ const TrabajoPropiedad = () => {
 
   useEffect(() => {
     if (data) {
-      const realId = id.includes('-') ? id.split('-')[1] : id;
+      const realId = getRealId(id);
       const confirmado = localStorage.getItem(`materiales_confirmados_${realId}`) === 'true';
       setMaterialesConfirmados(confirmado);
 
@@ -91,10 +144,11 @@ const TrabajoPropiedad = () => {
   const fetchJobDetails = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}`);
+      const cleanId = encodeURIComponent(String(id).trim());
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${cleanId}`);
       setData(res.data.data || res.data);
       try {
-        const reportsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}/reportes`);
+        const reportsRes = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/servicios/${cleanId}/reportes`);
         if (reportsRes.data && reportsRes.data.length > 0) {
           setHasReports(true);
         }
@@ -117,7 +171,7 @@ const TrabajoPropiedad = () => {
     if (!confirmacion) return;
 
     try {
-      const realId = id.includes('-') ? id.split('-')[1] : id;
+      const realId = getRealId(id);
       
       // Cambiar estado a Listo
       await axios.put(`${import.meta.env.VITE_API_BASE_URL}/work-orders/${realId}/status`, {
@@ -208,18 +262,31 @@ const TrabajoPropiedad = () => {
       setSurveyDataCompleto(surveyZonaOrTotal);
 
       // 2. FILTRADO POR EQUIPO / COMPONENTE AFECTADO
-      let eqNombre = null;
-      if (data?.descripcion && data.descripcion.includes('[EQUIPO AFECTADO]:')) {
-        const parts = data.descripcion.split('[EQUIPO AFECTADO]:');
+      let eqNombre = data?.equipment || data?.equipo_afectado || data?.item_affected || data?.affected_item || data?.equipo || null;
+      if (!eqNombre && data?.descripcion && data.descripcion.includes('[EQUIPO AFECTADO]:')) {
+        const cleanEqDesc = data.descripcion.replace(/\n?\[(SOLICITUD 2DA VISITA|RESPUESTA CLIENTE 2DA VISITA|PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN)\].*/gs, '').trim();
+        const parts = cleanEqDesc.split('[EQUIPO AFECTADO]:');
         eqNombre = parts[1]?.trim();
-      } else if (data?.item_affected || data?.equipo_afectado || data?.affected_item || data?.equipo) {
-        eqNombre = data.item_affected || data.equipo_afectado || data.affected_item || data.equipo;
       }
 
       if (eqNombre && typeof eqNombre === 'string' && eqNombre.trim() !== '') {
         const eqClean = eqNombre.trim();
         setEquipoAfectadoNombre(eqClean);
         const eqNorm = normalizeStr(eqClean);
+        const eqWords = eqNorm.split(/[\s,()/-]+/).filter(w => w.length >= 3);
+
+        const itemCoincide = (it) => {
+          const subCat = normalizeStr(it.sub_category);
+          const marca = normalizeStr(it.brand);
+          const mod = normalizeStr(it.model_or_color);
+          const nombre = normalizeStr(it.name || it.item_name || it.title || '');
+          const completo = `${subCat} ${marca} ${mod} ${nombre}`.trim();
+
+          if (subCat === eqNorm || completo.includes(eqNorm) || eqNorm.includes(completo)) return true;
+          if (subCat && (eqNorm.includes(subCat) || subCat.includes(eqNorm))) return true;
+          if (eqWords.length > 0 && eqWords.some(w => completo.includes(w) || subCat.includes(w) || marca.includes(w))) return true;
+          return false;
+        };
 
         const filtrarCategoriasYSubareas = (areasList) => {
           let areasConEquipo = [];
@@ -235,17 +302,7 @@ const TrabajoPropiedad = () => {
                 let hayItemsEnSub = false;
                 if (sub.categories) {
                   for (let [catName, items] of Object.entries(sub.categories)) {
-                    const itemsMatched = (items || []).filter(it => {
-                      const subCat = normalizeStr(it.sub_category);
-                      const marca = normalizeStr(it.brand);
-                      const mod = normalizeStr(it.model_or_color);
-                      const completo = `${subCat} (${marca}) ${mod}`.trim();
-                      return subCat === eqNorm || 
-                             eqNorm.includes(subCat) || 
-                             subCat.includes(eqNorm) ||
-                             completo.includes(eqNorm) ||
-                             eqNorm.includes(completo);
-                    });
+                    const itemsMatched = (items || []).filter(it => itemCoincide(it));
                     if (itemsMatched.length > 0) {
                       catsFiltradasSub[catName] = itemsMatched;
                       hayItemsEnSub = true;
@@ -260,17 +317,7 @@ const TrabajoPropiedad = () => {
               }
             } else if (areaClone.categories) {
               for (let [catName, items] of Object.entries(areaClone.categories)) {
-                const itemsMatched = (items || []).filter(it => {
-                  const subCat = normalizeStr(it.sub_category);
-                  const marca = normalizeStr(it.brand);
-                  const mod = normalizeStr(it.model_or_color);
-                  const completo = `${subCat} (${marca}) ${mod}`.trim();
-                  return subCat === eqNorm || 
-                         eqNorm.includes(subCat) || 
-                         subCat.includes(eqNorm) ||
-                         completo.includes(eqNorm) ||
-                         eqNorm.includes(completo);
-                });
+                const itemsMatched = (items || []).filter(it => itemCoincide(it));
                 if (itemsMatched.length > 0) {
                   categoriasFiltradasArea[catName] = itemsMatched;
                   hayItemsEnArea = true;
@@ -301,10 +348,24 @@ const TrabajoPropiedad = () => {
           setAreaActivaSurvey(surveyPorEquipo[0].id);
           setModoFiltroEquipo(true);
         } else {
-          setSurveyDataFiltradoEquipo([]);
-          setSurveyData(surveyZonaOrTotal);
-          if (surveyZonaOrTotal.length > 0) setAreaActivaSurvey(surveyZonaOrTotal[0].id);
-          setModoFiltroEquipo(false);
+          // Si no hay plantilla coincidente en inventario, mostrar la tarjeta exclusiva del equipo dañado
+          const areaVirtual = [{
+            id: 'equipo-danado-unico',
+            name: 'EQUIPO AFECTADO',
+            categories: {
+              [eqClean]: [{
+                id: 'item-unique-1',
+                sub_category: eqClean,
+                brand: 'Reportado en Orden',
+                model_or_color: 'Falla/Componente',
+                image_path: data?.foto_fachada || data?.evidencias?.[0] || '/placeholder-item.jpg'
+              }]
+            }
+          }];
+          setSurveyDataFiltradoEquipo(areaVirtual);
+          setSurveyData(areaVirtual);
+          setAreaActivaSurvey('equipo-danado-unico');
+          setModoFiltroEquipo(true);
         }
       } else {
         setEquipoAfectadoNombre('');
@@ -429,8 +490,12 @@ const TrabajoPropiedad = () => {
                 {(() => {
                   if (!data.descripcion) return <p className="tp-empty-desc">Sin descripción detallada.</p>;
                   
-                  if (data.descripcion.includes('[EQUIPO AFECTADO]:')) {
-                    const parts = data.descripcion.split('[EQUIPO AFECTADO]:');
+                  const cleanDesc = data.descripcion
+                    .replace(/\n?\[(SOLICITUD 2DA VISITA|RESPUESTA CLIENTE 2DA VISITA|PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN)\].*/gs, '')
+                    .trim();
+
+                  if (cleanDesc.includes('[EQUIPO AFECTADO]:')) {
+                    const parts = cleanDesc.split('[EQUIPO AFECTADO]:');
                     const problema = parts[0].trim();
                     const equipo = parts[1].trim();
 
@@ -466,7 +531,7 @@ const TrabajoPropiedad = () => {
                       </div>
                       <div className="tp-desc-text">
                         <label>DETALLES DEL SERVICIO</label>
-                        <p style={{ whiteSpace: 'pre-line' }}>{data.descripcion}</p>
+                        <p style={{ whiteSpace: 'pre-line' }}>{cleanDesc}</p>
                       </div>
                     </div>
                   );
@@ -521,6 +586,38 @@ const TrabajoPropiedad = () => {
               </div>
             </motion.div>
 
+            {/* FOTOS DE EVIDENCIAS DIRECTAS DEBAJO DE DATOS DEL CLIENTE */}
+            <motion.div 
+              className="tp-card tp-evidence-card"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+            >
+              <div className="tp-card-header">
+                <Camera size={20} />
+                <h3>EVIDENCIAS REGISTRADAS</h3>
+              </div>
+              <div className="tp-evidence-content" style={{ marginTop: '12px' }}>
+                {data.evidencias && data.evidencias.length > 0 ? (
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    {data.evidencias.map((img, i) => (
+                      <img 
+                        key={i} 
+                        src={img} 
+                        alt={`Evidencia ${i + 1}`} 
+                        onClick={() => setImagenExpandida(img)}
+                        style={{ width: '135px', height: '100px', objectFit: 'cover', borderRadius: '12px', cursor: 'pointer', border: '2px solid #e2e8f0', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', transition: 'transform 0.2s' }} 
+                        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.85rem', fontStyle: 'italic' }}>No hay evidencias fotográficas enviadas para este reporte.</p>
+                )}
+              </div>
+            </motion.div>
+
             <motion.div 
               className="tp-card tp-team-card"
               initial={{ opacity: 0, y: 20 }}
@@ -558,10 +655,6 @@ const TrabajoPropiedad = () => {
               <p className="tp-flow-instruction">¿Listo para comenzar o terminar?</p>
               
               <div className="tp-flow-buttons">
-                <button className="tp-btn-consult variant-orange" onClick={() => setVerEvidencias(true)}>
-                  <Camera size={18} />
-                  <span>VER EVIDENCIAS Y PROCESO</span>
-                </button>
 
                 <button className="tp-btn-consult variant-dark" onClick={abrirSurvey}>
                   <Layout size={18} />
@@ -624,6 +717,104 @@ const TrabajoPropiedad = () => {
                     )}
                   </div>
                 )}
+
+                {/* BOTÓN SOLICITAR SEGUNDA VISITA CON ESTADOS DINÁMICOS */}
+                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0', width: '100%' }}>
+                  {(() => {
+                    const isSolicitada = 
+                      data?.estado === 'Segunda Visita Solicitada' || 
+                      data?.status === 'Segunda Visita Solicitada' || 
+                      (data?.descripcion && data.descripcion.includes('[SOLICITUD 2DA VISITA]') && !data.descripcion.includes('[RESPUESTA CLIENTE 2DA VISITA]') && !data.descripcion.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]'));
+
+                    const isProgramada = 
+                      data?.estado === 'Segunda Visita Programada' || 
+                      data?.status === 'Segunda Visita Programada' || 
+                      (data?.descripcion && (data.descripcion.includes('[RESPUESTA CLIENTE 2DA VISITA]') || data.descripcion.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]')));
+
+                    if (isSolicitada) {
+                      return (
+                        <button 
+                          disabled
+                          style={{ 
+                            width: '100%',
+                            background: '#64748b', 
+                            color: '#ffffff', 
+                            border: 'none',
+                            padding: '12px 16px',
+                            borderRadius: '16px',
+                            fontWeight: '800',
+                            fontSize: '0.82rem',
+                            cursor: 'not-allowed',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            opacity: 0.9,
+                            textTransform: 'uppercase',
+                            boxShadow: '0 4px 10px rgba(100, 116, 139, 0.2)'
+                          }}
+                        >
+                          <Clock size={18} />
+                          <span>REPROGRAMACIÓN SOLICITADA, EN ESPERA</span>
+                        </button>
+                      );
+                    }
+
+                    if (isProgramada) {
+                      return (
+                        <button 
+                          disabled
+                          style={{ 
+                            width: '100%',
+                            background: '#16a34a', 
+                            color: '#ffffff', 
+                            border: 'none',
+                            padding: '12px 16px',
+                            borderRadius: '16px',
+                            fontWeight: '800',
+                            fontSize: '0.82rem',
+                            cursor: 'default',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            textTransform: 'uppercase',
+                            boxShadow: '0 4px 12px rgba(22, 163, 74, 0.25)'
+                          }}
+                        >
+                          <CheckCircle2 size={18} />
+                          <span>SEGUNDA VISITA PROGRAMADA</span>
+                        </button>
+                      );
+                    }
+
+                    return (
+                      <button 
+                        onClick={() => setShowModalSegundaVisita(true)}
+                        style={{ 
+                          width: '100%',
+                          background: '#ea580c', 
+                          color: '#ffffff', 
+                          border: 'none',
+                          padding: '12px 16px',
+                          borderRadius: '16px',
+                          fontWeight: '800',
+                          fontSize: '0.82rem',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          boxShadow: '0 4px 12px rgba(234, 88, 12, 0.25)',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        <Calendar size={18} />
+                        <span>¿NO SE TERMINÓ? SOLICITAR 2DA VISITA</span>
+                      </button>
+                    );
+                  })()}
+                </div>
               </div>
               
               {!materialesConfirmados && (
@@ -944,6 +1135,64 @@ const TrabajoPropiedad = () => {
             checkExistingQuote();
           }}
         />
+      )}
+
+      {/* MODAL SOLICITAR SEGUNDA VISITA */}
+      {showModalSegundaVisita && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', borderRadius: '22px', padding: '28px', width: '100%', maxWidth: '500px', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <button onClick={() => setShowModalSegundaVisita(false)} style={{ position: 'absolute', top: '18px', right: '18px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+              <X size={24} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              <div style={{ background: '#fff7ed', padding: '12px', borderRadius: '16px', border: '1px solid #ffedd5' }}>
+                <Calendar size={28} color="#ea580c" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '900', color: '#0f172a' }}>SOLICITAR SEGUNDA VISITA</h3>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>Proponer fecha para regresar a finalizar el trabajo</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSolicitarSegundaVisita} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  FECHA Y HORA SUGERIDA PARA 2DA VISITA <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input 
+                  type="datetime-local" 
+                  value={fechaSegundaVisita}
+                  onChange={(e) => setFechaSegundaVisita(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  MOTIVO / EXPLICACIÓN DE LO QUE FALTÓ
+                </label>
+                <textarea 
+                  rows={3}
+                  value={motivoSegundaVisita}
+                  onChange={(e) => setMotivoSegundaVisita(e.target.value)}
+                  placeholder="Ej. Faltó refacción especializada, secado de pintura 24 hrs..."
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.88rem', outline: 'none', resize: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setShowModalSegundaVisita(false)} style={{ flex: 1, padding: '12px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  CANCELAR
+                </button>
+                <button type="submit" disabled={submittingSegundaVisita} style={{ flex: 1, padding: '12px', background: '#ea580c', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: submittingSegundaVisita ? 'not-allowed' : 'pointer', opacity: submittingSegundaVisita ? 0.7 : 1, textTransform: 'uppercase' }}>
+                  {submittingSegundaVisita ? 'ENVIANDO...' : 'ENVIAR SOLICITUD'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

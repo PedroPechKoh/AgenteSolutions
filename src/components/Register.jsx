@@ -1,13 +1,14 @@
-import React, { useState, useRef } from 'react';
-import { User, Lock, Mail, Phone, Eye, EyeOff, Shield, X, ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Lock, Mail, Phone, Shield, X, ArrowLeft, Building, Key, Users, Globe } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
+const RegisterModal = ({ isOpen = true, onClose, onSuccess }) => {
   const { user } = useAuth();
-  const isRoot = user?.role_id === 0;
   const navigate = useNavigate();
+
+  const [activeCategoryTab, setActiveCategoryTab] = useState('agente'); // 'agente' | 'publico'
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -16,110 +17,47 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     phone_number: '',
     password: '',
     confirmPassword: '',
-    role_id: 1,
+    role_id: 2, // Por defecto Técnico
     company_name: '',
     company_code: ''
   });
-  
+
   const [mensaje, setMensaje] = useState('');
-  const [tipoMensaje, setTipoMensaje] = useState(''); 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [tipoMensaje, setTipoMensaje] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
-  const gridRef = useRef(null);
-  const cardRefs = useRef({});
 
-  const centerCard = (cardEl) => {
-    if (!cardEl || !gridRef.current) return;
-    const container = gridRef.current;
-    const card = cardEl;
-    const offset = Math.max(0, card.offsetLeft - (container.clientWidth - card.clientWidth) / 2);
-    container.scrollTo({ left: offset, behavior: 'smooth' });
-  };
-
-  const handleGoBack = () => {
-    if (onClose) onClose();
-    navigate('/');
-  };
-
-  const [flippedRole, setFlippedRole] = useState(null);
-
-  const plans = [
-    {
-      id: 3,
-      title: 'CLIENTE',
-      subtitle: 'Contrata servicios',
-      price: 'GRATIS',
-      features: [
-        'Solicita servicios de mantenimiento',
-        'Sigue el estado de tus órdenes',
-        'Recibe y aprueba cotizaciones',
-        'Historial por propiedad',
-      ],
-      details: [
-        'Solicita técnicos certificados',
-        'Aprueba cotizaciones en la app',
-        'Sigue tu orden en tiempo real',
-        'Historial por propiedad',
-        'Registro 100% gratuito',
-      ],
-      note: 'Registro gratis para clientes con seguimiento en vivo y historial por propiedad.',
-      cta: 'Registrarme',
-      color: '#F26522'
-    },
-    {
-      id: 2,
-      title: 'TÉCNICO',
-      subtitle: 'Presto servicios',
-      price: 'Perfil',
-      features: ['Recibe órdenes', 'Administra tu agenda', 'Calificaciones y perfil'],
-      details: [
-        '12 meses gratis de prueba',
-        'red de 1000clientes de agentes solutions',
-        'Gestiona órdenes y agenda',
-        'genera tus propias cotizaciones',
-        'genera tu propio perfil de especialidad'
-      ],
-      note: '12 meses gratis y perfil profesional para captar clientes y gestionar órdenes.',
-      cta: 'Suscribirme',
-      color: '#6B7280'
-    },
-    {
-      id: 5,
-      title: 'AUTÓNOMO',
-      subtitle: '3 Propiedades',
-      price: '$299/m',
-      features: ['Añade propiedades', 'Historial completo', 'Administración simple'],
-      details: [
-        '6 meses gratis de prueba',
-        'Registra hasta 3 propiedades',
-        'ingresa a tus tecnicos a tu sistema',
-        'Dashboard de administración',
-        'Pago $299 MXN/mes después'
-      ],
-      note: '6 meses gratis para propietarios personales con control de hasta 3 propiedades.',
-      cta: 'Suscribirme',
-      color: '#1F6FEB'
-    },
-    {
-      id: 4,
-      title: 'AUTÓNOMO EMPRESARIAL',
-      subtitle: '30 Clientes',
-      price: '$935/m',
-      features: ['Gestiona clientes', 'Reportes', 'Panel empresarial'],
-      details: [
-        '6 meses gratis de prueba',
-        'Administra hasta 30 clientes',
-        'Usuarios y técnicos sin límite',
-        'Reportes y cotizaciones en línea',
-        'Pago $935 MXN/mes después'
-      ],
-      note: '6 meses gratis para empresas con clientes ilimitados y reportes inteligentes.',
-      cta: 'Suscribirme',
-      color: '#0F766E'
-    }
+  // ROLES PARA LA PESTAÑA 1: AGENTE SOLUTIONS (INTERNOS / DIRECTOS)
+  const rolesAgente = [
+    { id: 0, label: 'USUARIO ROOT', desc: 'Superadministrador matriz (Acceso Total)', icon: '👑', color: '#EF4444' },
+    { id: 1, label: 'ADMINISTRADOR', desc: 'Administrador de Agente Solutions', icon: '🔴', color: '#F59E0B' },
+    { id: 2, label: 'TÉCNICO AGENTE', desc: 'Técnico directo de Agente Solutions', icon: '🛠️', color: '#F26522' },
+    { id: 3, label: 'CLIENTE AGENTE', desc: 'Cliente directo de Agente Solutions', icon: '👤', color: '#10B981' }
   ];
+
+  // ROLES PARA LA PESTAÑA 2: AUTÓNOMOS Y PÚBLICO (EXTERNOS / MULTI-TENANT)
+  const rolesPublicos = [
+    { id: 5, label: 'AUTÓNOMO PERSONAL', desc: 'Gestiona hasta 3 propiedades', icon: '🏢', color: '#3B82F6' },
+    { id: 4, label: 'AUTÓNOMO EMPRESARIAL', desc: 'Gestiona hasta 30 clientes', icon: '🏬', color: '#8B5CF6' },
+    { id: 7, label: 'ADMIN. PROPIEDADES', desc: 'Vinculado a un equipo Autónomo', icon: '🔑', color: '#F59E0B' },
+    { id: 2, label: 'TÉCNICO DE AUTÓNOMO', desc: 'Técnico asignado a un Autónomo', icon: '🧰', color: '#06B6D4' },
+    { id: 3, label: 'CLIENTE DE AUTÓNOMO', desc: 'Cliente asignado a un Autónomo', icon: '👥', color: '#EC4899' }
+  ];
+
+  const rolesActuales = activeCategoryTab === 'agente' ? rolesAgente : rolesPublicos;
+
+  const handleTabSwitch = (tab) => {
+    setActiveCategoryTab(tab);
+    setMensaje('');
+    if (tab === 'agente') {
+      setFormData(prev => ({ ...prev, role_id: 2, company_code: '', company_name: '' }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        role_id: 5,
+        company_code: prev.company_code || 'AUT_' + Math.floor(100 + Math.random() * 900)
+      }));
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -128,7 +66,7 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
       [name]: name === 'role_id' ? parseInt(value) : value
     };
 
-    if (name === 'role_id' && parseInt(value) === 4 && !formData.company_code) {
+    if (name === 'role_id' && (parseInt(value) === 4 || parseInt(value) === 5) && !formData.company_code) {
       const randomCode = 'AUT_' + Math.floor(100 + Math.random() * 900);
       newFormData.company_code = randomCode;
     }
@@ -150,17 +88,22 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     setIsLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('agente_token') || localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/registro-usuario`, {
-        ...formData,
-        from_admin: true
-      }, { headers });
-      
-      setMensaje(`¡Éxito! Usuario ${res.data.user.first_name} registrado.`);
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/registro-usuario`,
+        {
+          ...formData,
+          from_admin: true,
+          captcha_token: 'from_admin_bypass'
+        },
+        { headers }
+      );
+
+      setMensaje(`¡Usuario ${res.data.user?.first_name || ''} registrado con éxito!`);
       setTipoMensaje('success');
-      
+
       setTimeout(() => {
         setFormData({
           first_name: '',
@@ -169,20 +112,22 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           phone_number: '',
           password: '',
           confirmPassword: '',
-          role_id: 1,
+          role_id: activeCategoryTab === 'agente' ? 2 : 5,
           company_name: '',
           company_code: ''
         });
         setIsLoading(false);
         if (onSuccess) onSuccess();
-        onClose();
-      }, 2000);
-      
+        if (onClose) onClose();
+      }, 1500);
+
     } catch (error) {
       setIsLoading(false);
       setTipoMensaje('error');
-      if (error.response && error.response.data.errors) {
-        setMensaje('Error: Datos inválidos o el correo ya existe.');
+      if (error.response && error.response.data && error.response.data.errors) {
+        const errs = error.response.data.errors;
+        const msg = Object.values(errs).flat().join(' ');
+        setMensaje(msg || 'Error: Datos inválidos o correo/teléfono ya registrado.');
       } else {
         setMensaje('Error al conectar con el servidor.');
       }
@@ -192,356 +137,418 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
+    <div className="root-register-overlay">
       <style>{`
-        .modal-overlay {
+        .root-register-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: rgba(0,0,0,0.8);
+          background: rgba(15, 23, 42, 0.88);
+          backdrop-filter: blur(8px);
           display: flex;
           justify-content: center;
           align-items: center;
-          z-index: 1000;
-        }
-        
-        .modal-overlay .modal-content {
-          background: #000;
-          padding: 45px 30px 30px 30px;
-          border-radius: 15px;
-          width: 90%;
-          max-width: 650px;
-          position: relative;
-          box-shadow: 0 0 20px rgba(242, 101, 34, 0.5);
-          font-family: "Arial Black", sans-serif;
+          z-index: 9999;
+          padding: 20px;
           box-sizing: border-box;
         }
 
-        .modal-overlay .close-button {
-          position: absolute;
-          top: 15px;
-          right: 15px;
-          background: none;
-          border: none;
-          color: white;
-          cursor: pointer;
-          transition: 0.3s;
-        }
-        .modal-overlay .close-button:hover {
-          color: #F26522;
-          transform: scale(1.1);
-        }
-
-        .modal-overlay .back-button {
-          position: fixed; /* Se mantiene fijo aunque hagas scroll */
-          top: 25px;
-          left: 25px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          color: white;
-          cursor: pointer;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: 50px;
-          height: 50px;
-          border-radius: 50%; /* Lo hace un círculo perfecto */
-          transition: all 0.3s ease;
-          z-index: 1100;
-          backdrop-filter: blur(8px);
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-        .modal-overlay .back-button:hover {
-          color: #F26522; /* Tu color naranja principal */
-          background: rgba(242, 101, 34, 0.15);
-          border-color: #F26522;
-          transform: scale(1.1);
-          box-shadow: 0 6px 20px rgba(242, 101, 34, 0.4);
-        }
-
-        .modal-overlay .form-title {
-          color: white;
-          font-style: italic;
-          font-size: 1.8rem;
-          letter-spacing: 2px;
-          margin-bottom: 25px;
-          text-align: center;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-          padding: 0 40px;
-        }
-
-        .modal-overlay .form-row-responsive {
-          display: flex;
-          gap: 15px;
-          margin-bottom: 15px;
-        }
-
-        .modal-overlay .input-group {
+        .root-register-card {
+          background: #0f172a;
+          border: 1px solid #334155;
+          border-radius: 24px;
+          width: 100%;
+          max-width: 800px;
+          max-height: 90vh;
+          overflow-y: auto;
+          padding: 32px;
+          box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 30px rgba(242, 101, 34, 0.2);
           position: relative;
-          flex: 1;
+          color: white;
+          font-family: system-ui, -apple-system, sans-serif;
         }
 
-        .modal-overlay .input-icon {
+        .root-register-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+          border-bottom: 1px solid #1e293b;
+          padding-bottom: 16px;
+        }
+
+        .root-register-title {
+          font-size: 1.35rem;
+          font-weight: 900;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          letter-spacing: 0.5px;
+        }
+
+        .root-close-btn {
+          background: #1e293b;
+          border: 1px solid #334155;
+          color: #94a3b8;
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .root-close-btn:hover {
+          background: #ef4444;
+          color: white;
+          border-color: #ef4444;
+          transform: rotate(90deg);
+        }
+
+        /* TAB NAVIGATION STYLES */
+        .category-tabs-container {
+          display: flex;
+          background: #1e293b;
+          border-radius: 16px;
+          padding: 6px;
+          margin-bottom: 24px;
+          border: 1px solid #334155;
+          gap: 8px;
+        }
+
+        .category-tab-btn {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 12px 18px;
+          border-radius: 12px;
+          border: none;
+          background: transparent;
+          color: #94a3b8;
+          font-weight: 800;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.25s ease;
+        }
+
+        .category-tab-btn:hover {
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .category-tab-btn.active {
+          background: #F26522;
+          color: white;
+          box-shadow: 0 4px 14px rgba(242, 101, 34, 0.35);
+        }
+
+        .role-selector-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 12px;
+          margin-bottom: 24px;
+        }
+
+        .role-option-btn {
+          background: #1e293b;
+          border: 2px solid #334155;
+          border-radius: 14px;
+          padding: 12px 14px;
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .role-option-btn:hover {
+          border-color: #64748b;
+          background: #334155;
+        }
+
+        .role-option-btn.selected {
+          border-color: #F26522;
+          background: rgba(242, 101, 34, 0.15);
+          box-shadow: 0 0 15px rgba(242, 101, 34, 0.2);
+        }
+
+        .form-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          margin-bottom: 16px;
+        }
+
+        .form-input-box {
+          position: relative;
+        }
+
+        .form-input-box input, 
+        .form-input-box select {
+          width: 100%;
+          padding: 12px 16px 12px 44px;
+          border-radius: 12px;
+          border: 1.5px solid #334155;
+          background: #1e293b;
+          color: white;
+          font-size: 0.95rem;
+          font-weight: 600;
+          outline: none;
+          transition: border-color 0.2s;
+          box-sizing: border-box;
+        }
+
+        .form-input-box input:focus, 
+        .form-input-box select:focus {
+          border-color: #F26522;
+          box-shadow: 0 0 0 3px rgba(242, 101, 34, 0.2);
+        }
+
+        .form-input-box .input-icon-svg {
           position: absolute;
-          left: 18px;
+          left: 14px;
           top: 50%;
           transform: translateY(-50%);
-          color: #555;
-          z-index: 2;
+          color: #64748b;
           pointer-events: none;
         }
 
-        .modal-overlay .custom-input, 
-        .modal-overlay .custom-select {
+        .btn-submit-root {
           width: 100%;
-          padding: 12px 45px 12px 55px;
-          border-radius: 50px;
-          border: 3px solid transparent;
-          background-color: #cfd3d8;
-          font-weight: 900;
-          font-style: italic;
-          font-size: 0.95rem;
-          outline: none;
-          transition: 0.3s;
-          color: #000;
-          box-sizing: border-box;
-        }
-
-        .modal-overlay .custom-input::placeholder {
-          color: #555;
-          opacity: 1;
-        }
-        
-        .modal-overlay .no-icon-input {
-          padding-left: 20px;
-        }
-
-        .modal-overlay .custom-select {
-          cursor: pointer;
-          appearance: none; 
-          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23555555' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-          background-repeat: no-repeat;
-          background-position: right 15px center;
-          background-size: 18px;
-        }
-
-        .modal-overlay .custom-input:focus, 
-        .modal-overlay .custom-select:focus {
-          border-color: #F26522;
-          background-color: white;
-          box-shadow: 0 0 15px rgba(242, 101, 34, 0.6);
-        }
-
-        .modal-overlay .custom-select:focus {
-          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23F26522' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-        }
-
-        /* Subscription / plan cards styles */
-        .modal-overlay .plan-grid {
-          display: flex;
-          gap: 14px;
-          margin: 0 auto 18px;
-          justify-content: space-between;
-          flex-wrap: nowrap;
-          transition: all 0.45s cubic-bezier(.2,.9,.2,1);
-          overflow-x: auto;
-          padding-bottom: 6px;
-        }
-        .modal-overlay .plan-grid.focused {
-          justify-content: center;
-        }
-        .modal-overlay .plan-card {
-          flex: 0 0 180px;
-          width: 180px;
-          height: 260px;
-          background: linear-gradient(180deg,#0f0f0f,#131313);
-          border-radius: 12px;
-          padding: 18px;
-          color: #fff;
-          border: 1px solid rgba(255,255,255,0.04);
-          box-shadow: 0 6px 12px rgba(0,0,0,0.5);
-          cursor: pointer;
-          transition: transform 0.45s cubic-bezier(.2,.9,.2,1), opacity 0.35s ease, box-shadow 0.35s;
-          transform-origin: center;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          align-items: flex-start;
-          perspective: 1200px;
-          position: relative;
-        }
-        .modal-overlay .plan-card:not(.active) {
-          transform: scale(0.96) translateY(4px);
-          opacity: 0.9;
-        }
-        .modal-overlay .plan-card.active {
-          transform: translateY(-18px) scale(1.06);
-          z-index: 30;
-          box-shadow: 0 18px 40px rgba(0,0,0,0.6), 0 6px 18px rgba(0,0,0,0.12);
-        }
-        .modal-overlay .plan-head .plan-title { font-weight: 900; font-size: 0.98rem; color: #fff; }
-        .modal-overlay .plan-sub { font-size: 0.74rem; color: #cfcfcf; margin-top: 4px; }
-        .modal-overlay .plan-price { margin-top: 6px; font-weight: 900; color: #fff; padding: 8px 12px; border-radius: 8px; display: inline-block; background: rgba(255,255,255,0.02); font-size: 0.95rem; }
-        .modal-overlay .plan-features { margin-top: 10px; padding-left: 14px; font-size: 0.78rem; color: #bfcfc0; max-height: 84px; overflow: hidden; }
-        .modal-overlay .plan-features li { margin-bottom: 6px; }
-        .modal-overlay .plan-cta { margin-top: 8px; width: 100%; padding: 10px 12px; border-radius: 28px; border: none; background: #F26522; color: #fff; font-weight: 800; cursor: pointer; }
-        .modal-overlay .plan-grid.focused .plan-card:not(.active) { transform: scale(0.82) translateY(18px); opacity: 0.28; pointer-events: none; filter: blur(0.8px); }
-        .modal-overlay .plan-card .card-inner{ transition: transform 0.6s cubic-bezier(.2,.9,.2,1); transform-style: preserve-3d; position: relative; }
-        .modal-overlay .plan-card.flip .card-inner{ transform: rotateY(180deg); }
-        .modal-overlay .card-front, .modal-overlay .card-back{ position: relative; width:100%; height:100%; }
-
-        /* Form show/hide animation */
-        .modal-overlay .toggle-password-btn {
-          position: absolute;
-          right: 15px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          color: #555;
-          cursor: pointer;
-          z-index: 2;
-        }
-
-        .modal-overlay .btn-registrar {
-          width: 100%;
-          padding: 15px;
+          padding: 14px;
           border-radius: 50px;
           border: none;
-          background: #F26522;
+          background: linear-gradient(135deg, #F26522 0%, #E05300 100%);
           color: white;
-          font-size: 1.2rem;
+          font-size: 1.05rem;
           font-weight: 900;
-          font-style: italic;
           cursor: pointer;
-          box-shadow: 0 5px 15px rgba(242,101,34,0.4);
-          transition: transform 0.2s;
+          box-shadow: 0 8px 25px rgba(242, 101, 34, 0.35);
+          transition: all 0.2s;
           margin-top: 10px;
         }
-        
-        .modal-overlay .btn-registrar:hover:not(:disabled) {
-          transform: scale(1.05);
+
+        .btn-submit-root:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 12px 30px rgba(242, 101, 34, 0.5);
         }
-        .modal-overlay .btn-registrar:disabled {
-          opacity: 0.7;
+
+        .btn-submit-root:disabled {
+          opacity: 0.5;
           cursor: not-allowed;
         }
 
-        .modal-overlay .msg-box {
-          text-align: center;
-          width: 100%;
-          font-weight: bold;
-          padding: 8px;
-          border-radius: 4px;
-          margin-top: 15px;
-        }
-        .modal-overlay .success { color: #fff; background: rgba(34, 197, 94, 0.9); }
-        .modal-overlay .error { color: #fff; background: rgba(255, 68, 68, 0.9); }
-
-        @media (max-width: 600px) {
-          .modal-overlay .modal-content {
-            padding: 45px 18px 25px 18px;
+        @media (max-width: 640px) {
+          .form-grid-2 {
+            grid-template-columns: 1fr;
           }
-            .modal-overlay .back-button {
-            top: 15px;
-            left: 15px;
-            width: 40px;
-            height: 40px;
+          .role-selector-grid {
+            grid-template-columns: 1fr;
           }
-          .modal-overlay .form-title {
-            font-size: 1.35rem;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
-            padding: 0 25px;
+          .root-register-card {
+            padding: 20px;
           }
-          .modal-overlay .form-row-responsive {
+          .category-tabs-container {
             flex-direction: column;
-            gap: 15px;
           }
-          .modal-overlay .custom-input, 
-          .modal-overlay .custom-select {
-            padding: 10px 40px 10px 48px;
-            font-size: 0.85rem;
-          }
-          .modal-overlay .no-icon-input {
-            padding-left: 15px;
-          }
-          .modal-overlay .input-icon {
-            left: 14px;
-          }
-          .modal-overlay .plan-grid { gap: 10px; }
-          .modal-overlay .plan-card { width: 150px; height: 240px; flex: 0 0 150px; }
         }
       `}</style>
 
-      <button type="button" className="back-button" onClick={handleGoBack} title="Regresar al Login" aria-label="Regresar al inicio de sesión">
-        <ArrowLeft size={28} />
-
-        <span>Iniciar sesión</span>
-      </button>
-
-      <div className="modal-content">
-        <button className="close-button" onClick={onClose} type="button">
-          <X size={28} />
-        </button>
-
-        {/* Subscription / Plan cards */}
-        <div ref={gridRef} className={`plan-grid ${selectedRole ? 'focused' : ''}`}>
-          {plans.map((p) => {
-            const isActive = selectedRole === p.id;
-            const isFlipped = flippedRole === p.id;
-            return (
-              <div
-                key={p.id}
-                ref={el => cardRefs.current[p.id] = el}
-                className={`plan-card ${isActive ? 'active' : ''} ${isFlipped ? 'flip' : ''}`}
-                style={{ borderTop: `4px solid ${p.color}`, boxShadow: selectedRole === p.id ? `0 18px 40px rgba(0,0,0,0.6), 0 6px 18px ${p.color}33` : undefined }}
-              >
-                <div className="card-inner" style={{ transition: 'transform 0.6s', transformStyle: 'preserve-3d', position: 'relative' }}>
-                  <div className="card-front" style={{ backfaceVisibility: 'hidden' }} onClick={() => { setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); centerCard(cardRefs.current[p.id]); }}>
-                    <div className="plan-head">
-                      <div className="plan-title">{p.title}</div>
-                      <div className="plan-sub">{p.subtitle}</div>
-                    </div>
-                    <div className="plan-price">{p.price}</div>
-                    <div style={{ fontSize: '0.82rem', color: '#d9d9d9', marginTop: '6px', minHeight: '44px' }}>{p.note}</div>
-                    <ul className="plan-features">
-                      {p.features.map((f, i) => (<li key={i}>{f}</li>))}
-                    </ul>
-                    <div style={{ width: '100%' }}>
-                      <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setFormData({ ...formData, role_id: p.id }); setSelectedRole(p.id); centerCard(cardRefs.current[p.id]); setFlippedRole(p.id); }}>{p.cta}</button>
-                    </div>
-                  </div>
-
-                  <div className="card-back" style={{ position: 'absolute', top:0, left:0, width:'100%', height:'100%', padding:'12px', boxSizing:'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', overflowY: 'auto' }}>
-                    <div style={{ color: '#ffd9b8', fontWeight: 900, marginBottom: 6 }}>{p.title} — ¿Qué incluye?</div>
-                    <ul style={{ color: '#dcdcdc', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: 8 }}>
-                      {p.details.map((f,i)=>(<li key={i}>• {f}</li>))}
-                    </ul>
-                    <div style={{ color: '#d9d9d9', fontSize: '0.85rem', marginBottom: 12 }}>{p.note}</div>
-                    <form onSubmit={handleRegistro} style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                      <input name="first_name" required placeholder="NOMBRE(S)" value={formData.first_name} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
-                      <input name="last_name" required placeholder="APELLIDOS" value={formData.last_name} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
-                      <input name="email" required type="email" placeholder="CORREO" value={formData.email} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
-                      <input name="phone_number" required type="tel" placeholder="TELÉFONO" value={formData.phone_number} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
-                      <input name="password" required type="password" placeholder="CONTRASEÑA" value={formData.password} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
-                      <input name="confirmPassword" required type="password" placeholder="CONFIRMA CONTRASEÑA" value={formData.confirmPassword} onChange={handleChange} style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
-                      {(p.id === 3 || p.id === 2) && (
-                        <input name="company_code" value={formData.company_code} onChange={handleChange} placeholder="Código de empresa (Opcional)" type="text" style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
-                      )}
-                      {p.id === 4 && (
-                        <input name="company_name" value={formData.company_name} onChange={handleChange} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding:'10px 12px', borderRadius:20, border:'none', background:'#f3f3f3' }} />
-                      )}
-                      <div style={{ display:'flex', gap:8 }}>
-                        <button type="submit" className="plan-cta" style={{ flex:1 }}>{isLoading ? '...' : 'Registrar'}</button>
-                        <button type="button" onClick={() => { setFlippedRole(null); }} style={{ padding:'8px 10px', borderRadius:20, background:'#333', color:'#fff' }}>Cancelar</button>
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+      <div className="root-register-card">
+        <div className="root-register-header">
+          <div className="root-register-title">
+            <Shield size={24} color="#F26522" />
+            <span>REGISTRO PRIVADO DE USUARIOS (ROOT)</span>
+          </div>
+          {onClose && (
+            <button className="root-close-btn" onClick={onClose} type="button" title="Cerrar">
+              <X size={20} />
+            </button>
+          )}
         </div>
+
+        {/* 🔴 DOS PESTAÑAS PRINCIPALES DE REGISTRO */}
+        <div className="category-tabs-container">
+          <button
+            type="button"
+            className={`category-tab-btn ${activeCategoryTab === 'agente' ? 'active' : ''}`}
+            onClick={() => handleTabSwitch('agente')}
+          >
+            <Users size={18} />
+            <span>1. EQUIPO AGENTE SOLUTIONS</span>
+          </button>
+          <button
+            type="button"
+            className={`category-tab-btn ${activeCategoryTab === 'publico' ? 'active' : ''}`}
+            onClick={() => handleTabSwitch('publico')}
+          >
+            <Globe size={18} />
+            <span>2. AUTÓNOMOS Y PÚBLICO EXTERNO</span>
+          </button>
+        </div>
+
+        <form onSubmit={handleRegistro}>
+          <label style={{ fontSize: '0.85rem', fontWeight: '800', color: '#94a3b8', display: 'block', marginBottom: '10px' }}>
+            SELECCIONA EL ROL DE USUARIO ({activeCategoryTab === 'agente' ? 'EQUIPO INTERNO' : 'AUTÓNOMOS / EXTERNOS'}):
+          </label>
+          <div className="role-selector-grid">
+            {rolesActuales.map(r => (
+              <button
+                key={r.id + '-' + r.label}
+                type="button"
+                className={`role-option-btn ${formData.role_id === r.id ? 'selected' : ''}`}
+                onClick={() => setFormData({ ...formData, role_id: r.id })}
+              >
+                <span style={{ fontSize: '1.5rem' }}>{r.icon}</span>
+                <div>
+                  <div style={{ fontWeight: '900', fontSize: '0.9rem', color: '#ffffff' }}>{r.label}</div>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{r.desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="form-grid-2">
+            <div className="form-input-box">
+              <User className="input-icon-svg" size={18} />
+              <input
+                name="first_name"
+                required
+                type="text"
+                placeholder="NOMBRE(S)"
+                value={formData.first_name}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-input-box">
+              <User className="input-icon-svg" size={18} />
+              <input
+                name="last_name"
+                required
+                type="text"
+                placeholder="APELLIDOS"
+                value={formData.last_name}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="form-grid-2">
+            <div className="form-input-box">
+              <Mail className="input-icon-svg" size={18} />
+              <input
+                name="email"
+                required
+                type="email"
+                placeholder="CORREO ELECTRÓNICO"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-input-box">
+              <Phone className="input-icon-svg" size={18} />
+              <input
+                name="phone_number"
+                required
+                type="tel"
+                placeholder="TELÉFONO (10 DÍGITOS)"
+                value={formData.phone_number}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="form-grid-2">
+            <div className="form-input-box">
+              <Lock className="input-icon-svg" size={18} />
+              <input
+                name="password"
+                required
+                type="password"
+                placeholder="CONTRASEÑA"
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="form-input-box">
+              <Lock className="input-icon-svg" size={18} />
+              <input
+                name="confirmPassword"
+                required
+                type="password"
+                placeholder="CONFIRMA CONTRASEÑA"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          {/* CAMPOS CONDICIONALES PARA LA PESTAÑA DE AUTÓNOMOS / EXTERNOS */}
+          {activeCategoryTab === 'publico' && (formData.role_id === 4 || formData.role_id === 5) && (
+            <div className="form-grid-2" style={{ marginTop: '8px' }}>
+              <div className="form-input-box">
+                <Building className="input-icon-svg" size={18} />
+                <input
+                  name="company_name"
+                  type="text"
+                  required
+                  placeholder="NOMBRE DE LA EMPRESA / NEGOCIO"
+                  value={formData.company_name}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="form-input-box">
+                <Key className="input-icon-svg" size={18} />
+                <input
+                  name="company_code"
+                  type="text"
+                  placeholder="CÓDIGO ÚNICO DE EMPRESA"
+                  value={formData.company_code}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeCategoryTab === 'publico' && (formData.role_id === 2 || formData.role_id === 3 || formData.role_id === 7) && (
+            <div className="form-input-box" style={{ marginTop: '8px', marginBottom: '16px' }}>
+              <Key className="input-icon-svg" size={18} />
+              <input
+                name="company_code"
+                type="text"
+                required={formData.role_id === 7}
+                placeholder={formData.role_id === 7 ? "CÓDIGO DEL AUTÓNOMO A VINCULAR (REQUERIDO)" : "CÓDIGO DEL AUTÓNOMO / EMPRESA VINCULADA"}
+                value={formData.company_code}
+                onChange={handleChange}
+              />
+            </div>
+          )}
+
+          <button type="submit" className="btn-submit-root" disabled={isLoading}>
+            {isLoading ? 'REGISTRANDO USUARIO...' : '🚀 CREAR Y ACTIVAR CUENTA'}
+          </button>
+        </form>
+
+        {mensaje && (
+          <div style={{
+            marginTop: '20px',
+            padding: '12px 16px',
+            borderRadius: '12px',
+            textAlign: 'center',
+            fontWeight: '800',
+            fontSize: '0.95rem',
+            color: 'white',
+            backgroundColor: tipoMensaje === 'error' ? '#ef4444' : '#10b981',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.2)'
+          }}>
+            {mensaje}
+          </div>
+        )}
       </div>
     </div>
   );

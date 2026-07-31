@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, PlusCircle, Trash2, Layout, Image as ImageIcon, Link as LinkIcon, MoveVertical } from 'lucide-react';
+import { useAuth } from "../context/AuthContext";
 import Header from "./Shared/Header";
 import "../styles/CustomizeLogin.css";
 
@@ -19,9 +20,15 @@ const ICONS_LIST = [
 
 const CustomizeLogin = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const isRoot = user.role_id === 0;
+  const { user } = useAuth();
+  const isRoot = Number(user?.role_id) === 0;
   const [activeTab, setActiveTab] = useState(isRoot ? 'fondo' : 'logo'); // 'fondo', 'logo', 'sidebar'
+
+  useEffect(() => {
+    if (isRoot) {
+      setActiveTab('fondo');
+    }
+  }, [isRoot]);
   
   // -- ESTADOS TAB: FONDO --
   const [selectedFile, setSelectedFile] = useState(null);
@@ -182,31 +189,32 @@ const CustomizeLogin = () => {
         <Header titulo="CONFIGURACIÓN GLOBAL" />
 
         <div className="customize-wrapper">
-          <button 
-            onClick={() => navigate(-1)} 
-            style={{ 
-              display: 'flex', alignItems: 'center', gap: '5px', 
-              background: '#F26522', color: 'white', padding: '8px 25px', 
-              borderRadius: '25px', border: 'none', cursor: 'pointer', 
-              fontWeight: 'bold', fontSize: '0.9rem', alignSelf: 'flex-start',
-              marginBottom: '15px'
-            }}
-          >
-            <ChevronLeft size={18} />
-            <span>VOLVER AL PANEL</span>
-          </button>
-
-          <h2 className="customize-title">APARIENCIA Y NAVEGACIÓN</h2>
+          <div className="customize-header-banner">
+            <h2 className="customize-title">APARIENCIA Y NAVEGACIÓN GLOBAL</h2>
+            <button 
+              onClick={() => navigate(-1)} 
+              style={{ 
+                display: 'flex', alignItems: 'center', gap: '6px', 
+                background: '#F26522', color: 'white', padding: '10px 24px', 
+                borderRadius: '30px', border: 'none', cursor: 'pointer', 
+                fontWeight: '800', fontSize: '0.9rem',
+                boxShadow: '0 4px 14px rgba(242, 101, 34, 0.3)'
+              }}
+            >
+              <ChevronLeft size={18} />
+              <span>VOLVER AL PANEL</span>
+            </button>
+          </div>
 
           {/* TABS MENU */}
           <div className="tabs-container">
             {isRoot && (
               <button className={`tab-button ${activeTab === 'fondo' ? 'active' : ''}`} onClick={() => setActiveTab('fondo')}>
-                <Layout size={18} /> Fondo de Inicio
+                <Layout size={18} /> Fondo de Inicio (Root)
               </button>
             )}
             <button className={`tab-button ${activeTab === 'logo' ? 'active' : ''}`} onClick={() => setActiveTab('logo')}>
-              <ImageIcon size={18} /> Logotipo
+              <ImageIcon size={18} /> Logotipo Principal
             </button>
             <button className={`tab-button ${activeTab === 'sidebar' ? 'active' : ''}`} onClick={() => setActiveTab('sidebar')}>
               <LinkIcon size={18} /> Botones del Sidebar
@@ -215,42 +223,86 @@ const CustomizeLogin = () => {
 
           <div className="customize-card">
             
-            {/* PESTAÑA 1: FONDO DE INICIO */}
+            {/* PESTAÑA 1: FONDO DE INICIO (ROOT) */}
             {activeTab === 'fondo' && (
               <div className="customize-grid">
-                <div>
-                  <span className="customize-section-title">1. IMAGEN DE FONDO</span>
-                  <div className="preview-box" style={{ backgroundColor: selectedColor }}>
-                    {previewUrl ? (
-                      <img src={previewUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    ) : (
-                      <span style={{ color: "#fff", textShadow: "1px 1px 3px rgba(0,0,0,0.8)", fontWeight: "bold" }}>Vista previa del color</span>
-                    )}
+                <div className="customize-section-card">
+                  <div>
+                    <span className="customize-section-title">
+                      <Layout size={18} color="#F26522" /> 1. VISTA PREVIA Y FOTO DE FONDO
+                    </span>
+                    <p className="color-note" style={{ marginTop: 0, marginBottom: '16px' }}>
+                      Sube una imagen de alta definición (JPG, PNG o WebP) para personalizar el fondo de inicio de sesión.
+                    </p>
+                    <div className="preview-box" style={{ backgroundColor: selectedColor }}>
+                      <span className="preview-box-badge">VISTA PREVIA EN VIVO</span>
+                      {previewUrl ? (
+                        <img src={previewUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ) : (
+                        <div style={{ textAlign: 'center', color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
+                          <span style={{ fontSize: '2rem', display: 'block', marginBottom: '5px' }}>🎨</span>
+                          <span style={{ fontWeight: '800', fontSize: '1rem' }}>FONDO DE COLOR PREDETERMINADO</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <div style={{ display: "flex", gap: "10px" }}>
+                  <div style={{ display: "flex", gap: "12px", marginTop: '10px' }}>
                     <label className="btn-choose-file">
-                      📂 ELEGIR FOTO
+                      📂 SUBIR FOTO DE FONDO
                       <input type="file" accept="image/png, image/jpeg, image/webp" onChange={handleFileChange} style={{ display: "none" }} />
                     </label>
                     {(previewUrl || selectedFile) && (
-                      <button type="button" onClick={handleDeleteImage} className="btn-delete-file" title="Eliminar imagen">🗑️</button>
+                      <button type="button" onClick={handleDeleteImage} className="btn-delete-file" title="Eliminar imagen">
+                        <Trash2 size={18} /> ELIMINAR FOTO
+                      </button>
                     )}
                   </div>
                 </div>
 
-                <div>
-                  <span className="customize-section-title">2. COLOR PREDETERMINADO</span>
-                  <div className="color-picker-container">
-                    <input type="color" value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)} className="color-picker-input" />
-                    <div>
-                      <div style={{ fontWeight: "900", fontSize: "1.3rem", color: "#000000" }}>
-                        {selectedColor.toUpperCase()}
+                <div className="customize-section-card">
+                  <div>
+                    <span className="customize-section-title">
+                      <Layout size={18} color="#F26522" /> 2. COLOR PREDETERMINADO Y PALETAS
+                    </span>
+                    <p className="color-note" style={{ marginTop: 0, marginBottom: '16px' }}>
+                      Este color se mostrará de fondo mientras carga la imagen o como color sólido principal.
+                    </p>
+
+                    <div className="color-picker-container">
+                      <input type="color" value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)} className="color-picker-input" />
+                      <div>
+                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#64748b', display: 'block' }}>CÓDIGO HEXADECIMAL</span>
+                        <div style={{ fontWeight: "900", fontSize: "1.4rem", color: "#0f172a" }}>
+                          {selectedColor.toUpperCase()}
+                        </div>
                       </div>
                     </div>
+
+                    <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#475569', display: 'block', marginTop: '16px' }}>
+                      ACCESOS RÁPIDOS DE COLOR:
+                    </span>
+                    <div className="preset-swatches">
+                      {[
+                        { hex: '#000000', label: 'Negro Absoluto' },
+                        { hex: '#0B132B', label: 'Azul Noche' },
+                        { hex: '#1E293B', label: 'Gris Antracita' },
+                        { hex: '#F26522', label: 'Naranja Agente' },
+                        { hex: '#FFFFFF', label: 'Blanco Pulcro' }
+                      ].map((swatch) => (
+                        <button
+                          key={swatch.hex}
+                          type="button"
+                          onClick={() => setSelectedColor(swatch.hex)}
+                          className="swatch-btn"
+                          style={{ backgroundColor: swatch.hex }}
+                          title={swatch.label}
+                        />
+                      ))}
+                    </div>
                   </div>
+
                   <p className="color-note">
-                    <strong>Nota:</strong> Este color será el fondo de tu sistema de inicio de sesión.<br />
-                    Si subes una imagen, el color quedará oculto detrás de la foto, pero se mostrará unos milisegundos mientras la foto carga.
+                    <strong>Nota:</strong> Los cambios aplicados aquí se actualizarán instantáneamente en la pantalla principal de Inicio de Sesión de todos los usuarios.
                   </p>
                 </div>
               </div>
@@ -259,27 +311,32 @@ const CustomizeLogin = () => {
             {/* PESTAÑA 2: LOGOTIPO */}
             {activeTab === 'logo' && (
               <div className="customize-grid">
-                <div>
-                  <span className="customize-section-title">LOGO PRINCIPAL DE LA PLATAFORMA</span>
-                  <p className="color-note" style={{ marginBottom: '15px' }}>
-                    Aparecerá en el encabezado de los paneles y en la pantalla de inicio de sesión.
-                    Se recomienda un formato PNG con fondo transparente (máx 2MB).
-                  </p>
-                  
-                  <div className="preview-box" style={{ backgroundColor: '#ffffff', border: '1px dashed #ccc' }}>
-                    {logoPreviewUrl ? (
-                      <img src={logoPreviewUrl} alt="Logo Preview" style={{ width: "auto", height: "80%", maxWidth: "80%", objectFit: "contain" }} />
-                    ) : (
-                      <span style={{ color: "#aaa", fontWeight: "bold" }}>No se ha subido ningún logo</span>
-                    )}
+                <div className="customize-section-card">
+                  <div>
+                    <span className="customize-section-title">
+                      <ImageIcon size={18} color="#F26522" /> LOGOTIPO PRINCIPAL
+                    </span>
+                    <p className="color-note" style={{ marginTop: 0, marginBottom: '15px' }}>
+                      Aparecerá en el encabezado de los paneles administrativos y en el Login. Recomendado formato PNG transparente (máx 2MB).
+                    </p>
+                    
+                    <div className="preview-box" style={{ backgroundColor: '#ffffff', border: '2px dashed #cbd5e1' }}>
+                      {logoPreviewUrl ? (
+                        <img src={logoPreviewUrl} alt="Logo Preview" style={{ width: "auto", height: "80%", maxWidth: "80%", objectFit: "contain" }} />
+                      ) : (
+                        <span style={{ color: "#94a3b8", fontWeight: "bold" }}>No se ha subido ningún logo personalizado</span>
+                      )}
+                    </div>
                   </div>
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <label className="btn-choose-file" style={{ backgroundColor: '#007bff' }}>
-                      📂 ELEGIR LOGO
+                  <div style={{ display: "flex", gap: "12px", marginTop: '10px' }}>
+                    <label className="btn-choose-file" style={{ backgroundColor: '#2563eb' }}>
+                      📂 SUBIR NUEVO LOGO
                       <input type="file" accept="image/png, image/jpeg, image/webp, image/svg+xml" onChange={handleLogoFileChange} style={{ display: "none" }} />
                     </label>
                     {(logoPreviewUrl || selectedLogoFile) && (
-                      <button type="button" onClick={handleDeleteLogo} className="btn-delete-file" title="Eliminar Logo">🗑️</button>
+                      <button type="button" onClick={handleDeleteLogo} className="btn-delete-file" title="Eliminar Logo">
+                        <Trash2 size={18} /> ELIMINAR LOGO
+                      </button>
                     )}
                   </div>
                 </div>
@@ -289,51 +346,57 @@ const CustomizeLogin = () => {
             {/* PESTAÑA 3: SIDEBAR (REDES SOCIALES) */}
             {activeTab === 'sidebar' && (
               <div>
-                <span className="customize-section-title">BOTONES DE CONTACTO PARA EL CLIENTE</span>
-                <p className="color-note">
-                  Agrega botones de redes sociales, página web o métodos de contacto que aparecerán en la barra lateral del cliente.
+                <span className="customize-section-title">
+                  <LinkIcon size={18} color="#F26522" /> BOTONES DE CONTACTO PARA EL CLIENTE
+                </span>
+                <p className="color-note" style={{ marginTop: 0 }}>
+                  Agrega botones de redes sociales, página web o métodos de contacto que aparecerán en la barra lateral del portal del cliente.
                 </p>
                 
                 <div className="sidebar-links-list">
                   {sidebarLinks.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '30px', color: '#999', fontStyle: 'italic', background: 'white', borderRadius: '10px' }}>
-                      Aún no has agregado ningún botón. Haz clic en "Añadir Enlace" para empezar.
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#94a3b8', fontStyle: 'italic', background: '#f8fafc', borderRadius: '16px', border: '1px dashed #cbd5e1' }}>
+                      Aún no has agregado ningún botón. Haz clic en "Añadir Nuevo Botón" para empezar.
                     </div>
                   ) : (
                     sidebarLinks.map((link, index) => (
                       <div key={link.id} className="sidebar-link-item">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                          <button onClick={() => moveLink(index, -1)} disabled={index === 0} style={{ cursor: index === 0 ? 'not-allowed' : 'pointer', background: 'none', border: 'none', opacity: index === 0 ? 0.3 : 1 }}>▲</button>
-                          <button onClick={() => moveLink(index, 1)} disabled={index === sidebarLinks.length - 1} style={{ cursor: index === sidebarLinks.length - 1 ? 'not-allowed' : 'pointer', background: 'none', border: 'none', opacity: index === sidebarLinks.length - 1 ? 0.3 : 1 }}>▼</button>
+                        <div className="sidebar-link-top-controls">
+                          <div className="sidebar-reorder-btns">
+                            <button onClick={() => moveLink(index, -1)} disabled={index === 0} className="btn-reorder" title="Subir">▲</button>
+                            <button onClick={() => moveLink(index, 1)} disabled={index === sidebarLinks.length - 1} className="btn-reorder" title="Bajar">▼</button>
+                          </div>
+                          
+                          <select 
+                            className="sidebar-link-icon-select"
+                            value={link.icon}
+                            onChange={(e) => updateSidebarLink(link.id, 'icon', e.target.value)}
+                          >
+                            {ICONS_LIST.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                          </select>
+
+                          <button onClick={() => removeSidebarLink(link.id)} className="btn-delete-file sidebar-delete-btn" title="Borrar Botón">
+                            <Trash2 size={16} />
+                          </button>
                         </div>
                         
-                        <select 
-                          className="sidebar-link-icon-select"
-                          value={link.icon}
-                          onChange={(e) => updateSidebarLink(link.id, 'icon', e.target.value)}
-                        >
-                          {ICONS_LIST.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-                        </select>
-                        
-                        <input 
-                          type="text" 
-                          placeholder="Etiqueta (ej. Mi Facebook)" 
-                          className="sidebar-link-input"
-                          value={link.label}
-                          onChange={(e) => updateSidebarLink(link.id, 'label', e.target.value)}
-                        />
-                        
-                        <input 
-                          type="url" 
-                          placeholder="URL (ej. https://facebook.com/pagina)" 
-                          className="sidebar-link-input"
-                          value={link.url}
-                          onChange={(e) => updateSidebarLink(link.id, 'url', e.target.value)}
-                        />
-                        
-                        <button onClick={() => removeSidebarLink(link.id)} className="btn-delete-file" style={{ padding: '8px' }} title="Borrar">
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="sidebar-link-inputs-wrapper">
+                          <input 
+                            type="text" 
+                            placeholder="Etiqueta (ej. Mi Facebook)" 
+                            className="sidebar-link-input"
+                            value={link.label}
+                            onChange={(e) => updateSidebarLink(link.id, 'label', e.target.value)}
+                          />
+                          
+                          <input 
+                            type="url" 
+                            placeholder="URL (ej. https://facebook.com/pagina)" 
+                            className="sidebar-link-input"
+                            value={link.url}
+                            onChange={(e) => updateSidebarLink(link.id, 'url', e.target.value)}
+                          />
+                        </div>
                       </div>
                     ))
                   )}
@@ -346,7 +409,7 @@ const CustomizeLogin = () => {
             )}
 
             {/* BARRA DE GUARDAR GENERAL */}
-            <div style={{ borderTop: "2px solid #ccc", paddingTop: "20px", marginTop: "20px" }}>
+            <div style={{ borderTop: "2px solid #f1f5f9", paddingTop: "24px", marginTop: "28px" }}>
               <button onClick={handleSaveChanges} disabled={isSaving} className="btn-save-all">
                 {isSaving ? "GUARDANDO TODOS LOS CAMBIOS..." : "💾 GUARDAR TODA LA CONFIGURACIÓN"}
               </button>
@@ -354,9 +417,10 @@ const CustomizeLogin = () => {
 
             {statusMessage && (
               <p style={{
-                marginTop: "15px", fontWeight: "bold", padding: "10px", borderRadius: "10px",
-                textAlign: "center", fontSize: "1rem", color: "white",
-                backgroundColor: statusMessage.includes("Error") ? "#ff4444" : "#4CAF50"
+                marginTop: "20px", fontWeight: "bold", padding: "14px", borderRadius: "14px",
+                textAlign: "center", fontSize: "1.05rem", color: "white",
+                backgroundColor: statusMessage.includes("Error") ? "#ef4444" : "#10b981",
+                boxShadow: '0 4px 14px rgba(0,0,0,0.1)'
               }}>
                 {statusMessage}
               </p>

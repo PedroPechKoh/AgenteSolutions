@@ -378,6 +378,37 @@ const VistaDetallePropiedad = () => {
               <FileText size={20} /> VER LEVANTAMIENTO
             </button>
           </div>
+
+          {/* BANNER NOTIFICACIÓN DE 2DA VISITA PARA EL CLIENTE */}
+          {(() => {
+            const historialItems = historial || [];
+            const tareaPendiente2da = historialItems.find(t => 
+              t.estado === 'Segunda Visita Solicitada' || 
+              t.status === 'Segunda Visita Solicitada' || 
+              (t.description && t.description.includes('[SOLICITUD 2DA VISITA]') && !t.description.includes('[RESPUESTA CLIENTE 2DA VISITA]'))
+            );
+
+            if (!tareaPendiente2da) return null;
+
+            return (
+              <div style={{ marginTop: '20px', background: '#fff7ed', border: '2px solid #ea580c', borderRadius: '16px', padding: '18px', boxShadow: '0 8px 20px rgba(234,88,12,0.15)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#c2410c', fontWeight: '900', fontSize: '1rem', marginBottom: '6px' }}>
+                  <Timer size={22} color="#ea580c" />
+                  <span>SOLICITUD DE REPROGRAMACIÓN DE SEGUNDA VISITA</span>
+                </div>
+                <p style={{ margin: '0 0 12px 0', fontSize: '0.88rem', color: '#431407', lineHeight: '1.4' }}>
+                  El técnico solicitó realizar una segunda visita para concluir el trabajo de: <strong>{tareaPendiente2da.producto || 'Mantenimiento'}</strong>.
+                </p>
+                <button 
+                  onClick={() => navigate(`/propiedad/${id}/tablero`)}
+                  style={{ background: '#ea580c', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '12px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <span>VER DETALLES Y CONFIRMAR FECHA</span>
+                  <ChevronDown size={16} />
+                </button>
+              </div>
+            );
+          })()}
         </div>
 
         {/* ==========================================
