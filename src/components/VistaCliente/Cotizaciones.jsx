@@ -369,17 +369,22 @@ const Cotizaciones = () => {
 
                   <div className="modal-actions-dynamic">
                     {(cotizacionSeleccionada.estado === 'nuevas' || !cotizacionSeleccionada.estado) && (
-                      <>
-                        <button className="btn-reject-final" onClick={cerrarModal}>RECHAZAR</button>
-                        <button 
-                          className="btn-cart-add-final"
-                          onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
-                          style={isCotizacionEnCarrito(cotizacionSeleccionada) ? { background: '#10b981', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)' } : {}}
-                        >
-                          <ShoppingCart size={18} /> {isCotizacionEnCarrito(cotizacionSeleccionada) ? 'YA EN EL CARRITO' : 'MANDAR AL CARRITO'}
-                        </button>
-                        <button className="btn-accept-final" onClick={() => setPasoPago(1)}>PAGAR ANTICIPO (60%)</button>
-                      </>
+                      isCotizacionEnCarrito(cotizacionSeleccionada) ? (
+                        <div style={{ width: '100%', padding: '14px 18px', background: '#ecfdf5', border: '2px solid #10b981', borderRadius: '12px', color: '#047857', fontWeight: '800', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '10px', fontSize: '0.95rem' }}>
+                          <ShoppingCart size={22} color="#10b981" /> ESTA COTIZACIÓN YA SE ENCUENTRA EN TU CARRITO DE COMPRAS
+                        </div>
+                      ) : (
+                        <>
+                          <button className="btn-reject-final" onClick={cerrarModal}>RECHAZAR</button>
+                          <button 
+                            className="btn-cart-add-final"
+                            onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
+                          >
+                            <ShoppingCart size={18} /> MANDAR AL CARRITO
+                          </button>
+                          <button className="btn-accept-final" onClick={() => setPasoPago(1)}>PAGAR ANTICIPO (60%)</button>
+                        </>
+                      )
                     )}
                     {cotizacionSeleccionada.estado === 'aceptadas' && cotizacionSeleccionada.pagadoPorcentaje === 60 && (
                       <button className="btn-liquidar-final" onClick={() => setPasoPago(1)}>

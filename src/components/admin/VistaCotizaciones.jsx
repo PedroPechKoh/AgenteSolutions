@@ -1507,63 +1507,69 @@ const VistaCotizaciones = () => {
                     </button>
                   )}
 
-                  {/* Si está pendiente, mostrar Aceptar / Rechazar / Mandar al Carrito */}
+                  {/* Si está pendiente, mostrar Aceptar / Rechazar / Mandar al Carrito (O Banner si ya está en carrito) */}
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && 
                     (cotizacionSeleccionada.status === 'Pendiente' || cotizacionSeleccionada.status === 'En proceso' || cotizacionSeleccionada.status?.includes('Admin') || cotizacionSeleccionada.status === 'Rechazado') && 
                     !rechazando && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
-                      {cotizacionSeleccionada.status !== 'Rechazado' && (
-                        <button 
-                          className="btn-modal-print" 
-                          style={{ background: '#c62828', color: 'white', width: '100%', minHeight: '45px', height: 'auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: 'unset', fontWeight: 'bold' }} 
-                          onClick={() => setRechazando(true)}
-                        >
-                          ✕ RECHAZAR
-                        </button>
-                      )}
+                    isCotizacionEnCarrito(cotizacionSeleccionada) ? (
+                      <div style={{ width: '100%', padding: '14px 18px', background: '#ecfdf5', border: '2px solid #10b981', borderRadius: '12px', color: '#047857', fontWeight: '800', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '10px', fontSize: '0.95rem' }}>
+                        <ShoppingCart size={22} color="#10b981" /> ESTA COTIZACIÓN YA SE ENCUENTRA EN TU CARRITO DE COMPRAS
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
+                        {cotizacionSeleccionada.status !== 'Rechazado' && (
+                          <button 
+                            className="btn-modal-print" 
+                            style={{ background: '#c62828', color: 'white', width: '100%', minHeight: '45px', height: 'auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: 'unset', fontWeight: 'bold' }} 
+                            onClick={() => setRechazando(true)}
+                          >
+                            ✕ RECHAZAR
+                          </button>
+                        )}
 
-                      <button 
-                        className="btn-modal-print" 
-                        style={{ 
-                          background: isCotizacionEnCarrito(cotizacionSeleccionada) ? '#10b981' : '#f26624', 
-                          color: 'white', 
-                          width: '100%', 
-                          minHeight: '45px', 
-                          height: 'auto', 
-                          padding: '10px 16px', 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center', 
-                          gap: '8px', 
-                          whiteSpace: 'normal', 
-                          minWidth: 'unset', 
-                          fontWeight: 'bold', 
-                          boxShadow: isCotizacionEnCarrito(cotizacionSeleccionada) ? '0 4px 10px rgba(16, 185, 129, 0.3)' : '0 4px 10px rgba(242, 102, 36, 0.3)' 
-                        }} 
-                        onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
-                      >
-                        <ShoppingCart size={18} /> {isCotizacionEnCarrito(cotizacionSeleccionada) ? 'YA EN EL CARRITO' : 'MANDAR AL CARRITO'}
-                      </button>
-                      
-                      {(cotizacionSeleccionada.status !== 'Rechazado' || esCliente) && (
                         <button 
                           className="btn-modal-print" 
-                          style={{ background: '#2e7d32', color: 'white', width: '100%', minHeight: '45px', height: 'auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: 'unset', fontWeight: 'bold' }} 
-                          onClick={() => {
-                            if (cotizacionSeleccionada.status === 'Rechazado') {
-                              if (window.confirm('¿Deseas aceptar esta cotización que habías rechazado?')) {
+                          style={{ 
+                            background: '#f26624', 
+                            color: 'white', 
+                            width: '100%', 
+                            minHeight: '45px', 
+                            height: 'auto', 
+                            padding: '10px 16px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            gap: '8px', 
+                            whiteSpace: 'normal', 
+                            minWidth: 'unset', 
+                            fontWeight: 'bold', 
+                            boxShadow: '0 4px 10px rgba(242, 102, 36, 0.3)' 
+                          }} 
+                          onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
+                        >
+                          <ShoppingCart size={18} /> MANDAR AL CARRITO
+                        </button>
+                        
+                        {(cotizacionSeleccionada.status !== 'Rechazado' || esCliente) && (
+                          <button 
+                            className="btn-modal-print" 
+                            style={{ background: '#2e7d32', color: 'white', width: '100%', minHeight: '45px', height: 'auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: 'unset', fontWeight: 'bold' }} 
+                            onClick={() => {
+                              if (cotizacionSeleccionada.status === 'Rechazado') {
+                                if (window.confirm('¿Deseas aceptar esta cotización que habías rechazado?')) {
+                                  procesarCotizacion('Aprobado');
+                                }
+                              } else {
                                 procesarCotizacion('Aprobado');
                               }
-                            } else {
-                              procesarCotizacion('Aprobado');
-                            }
-                          }}
-                          disabled={procesando}
-                        >
-                          ✓ ACEPTAR COTIZACIÓN
-                        </button>
-                      )}
-                    </div>
+                            }}
+                            disabled={procesando}
+                          >
+                            ✓ ACEPTAR COTIZACIÓN
+                          </button>
+                        )}
+                      </div>
+                    )
                   )}
 
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && rechazando && (
