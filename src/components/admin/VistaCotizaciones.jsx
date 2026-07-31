@@ -1507,14 +1507,36 @@ const VistaCotizaciones = () => {
                     </button>
                   )}
 
-                  {/* Si está pendiente, mostrar Aceptar / Rechazar / Mandar al Carrito (O Banner si ya está en carrito) */}
+                  {/* Si está pendiente, mostrar Aceptar / Rechazar / Mandar al Carrito (O solo YA EN EL CARRITO si ya se envió) */}
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && 
                     (cotizacionSeleccionada.status === 'Pendiente' || cotizacionSeleccionada.status === 'En proceso' || cotizacionSeleccionada.status?.includes('Admin') || cotizacionSeleccionada.status === 'Rechazado') && 
                     !rechazando && (
                     isCotizacionEnCarrito(cotizacionSeleccionada) ? (
-                      <div style={{ width: '100%', padding: '14px 18px', background: '#ecfdf5', border: '2px solid #10b981', borderRadius: '12px', color: '#047857', fontWeight: '800', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '10px', fontSize: '0.95rem' }}>
-                        <ShoppingCart size={22} color="#10b981" /> ESTA COTIZACIÓN YA SE ENCUENTRA EN TU CARRITO DE COMPRAS
-                      </div>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ 
+                          background: '#10b981', 
+                          color: 'white', 
+                          width: '100%', 
+                          minHeight: '48px', 
+                          height: 'auto', 
+                          padding: '12px 16px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '8px', 
+                          whiteSpace: 'normal', 
+                          minWidth: 'unset', 
+                          fontWeight: '800', 
+                          boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                          borderRadius: '10px',
+                          fontSize: '0.95rem',
+                          marginBottom: '10px'
+                        }} 
+                        onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
+                      >
+                        <ShoppingCart size={20} /> YA EN EL CARRITO
+                      </button>
                     ) : (
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
                         {cotizacionSeleccionada.status !== 'Rechazado' && (

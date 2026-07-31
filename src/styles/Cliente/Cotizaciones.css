@@ -241,7 +241,7 @@
   width: 100%;
 }
 
-/* Desplazamiento Fluido en Pantallas de Computadoras / Laptops */
+
 @media (min-width: 901px) {
 
   .cart-page-container,
@@ -260,7 +260,7 @@
   }
 }
 
-/* Estilos Personalizados de la Barra de Deslizamiento (Scrollbar) Naranja en Desktop / Laptops */
+
 .cart-list-wrapper::-webkit-scrollbar,
 .quotes-scroll-area::-webkit-scrollbar,
 .breakdown-list::-webkit-scrollbar,
