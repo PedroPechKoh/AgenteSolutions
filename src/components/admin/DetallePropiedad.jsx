@@ -8,7 +8,7 @@ import {
   MapPin, User, AlertTriangle, Settings, CheckCircle, 
   X, LayoutDashboard, FileText, Send, Trash2, Clock, Briefcase, MessageSquare,
   CreditCard, Map, ExternalLink, Plus, MessageCircle, Eye, Loader2, ImageIcon, ArrowLeft,
-  Navigation, Phone, Zap, Wrench
+  Navigation, Phone, Zap, Wrench, Calendar
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Logo3 from '../../assets/Logo3.png';
@@ -39,6 +39,92 @@ const DetallePropiedad = () => {
   // Modal de Crear Cotizacion
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [cotizacionParaAsignar, setCotizacionParaAsignar] = useState(null);
+
+  // --- ESTADOS PARA 2DA VISITA ---
+  const [showModalReprogramar2da, setShowModalReprogramar2da] = useState(false);
+  const [showModalAdmin2daVisita, setShowModalAdmin2daVisita] = useState(false);
+  const [fecha2daCliente, setFecha2daCliente] = useState('');
+  const [fecha2daAdmin, setFecha2daAdmin] = useState('');
+  const [tecnico2daAdmin, setTecnico2daAdmin] = useState('');
+  const [obs2daAdmin, setObs2daAdmin] = useState('');
+  const [submitting2da, setSubmitting2da] = useState(false);
+
+  const handleResponderSegundaVisita = async (accion, fechaConfirmada) => {
+    if (!activeTask) return;
+    const taskParamId = activeTask.tipo_registro === 'work_order' 
+      ? `work_order-${activeTask.realId}` 
+      : `servicio-${activeTask.realId || activeTask.id}`;
+
+    setSubmitting2da(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${taskParamId}/responder-segunda-visita`, {
+        accion,
+        fecha_confirmada: fechaConfirmada
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Segunda Visita Confirmada',
+        text: `Has ${accion === 'aceptar' ? 'aceptado' : 'programado'} la fecha para la 2da visita: ${fechaConfirmada}.`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+
+      setShowModalReprogramar2da(false);
+      fetchPropiedad();
+    } catch (error) {
+      console.error("Error respondiendo 2da visita:", error);
+      Swal.fire('Error', 'No se pudo registrar la respuesta a la segunda visita.', 'error');
+    } finally {
+      setSubmitting2da(false);
+    }
+  };
+
+  const handleAdminProgramarSegundaVisita = async (e) => {
+    e.preventDefault();
+    if (!activeTask || !fecha2daAdmin) {
+      Swal.fire('Atención', 'Debes ingresar la fecha y hora para la 2da visita.', 'warning');
+      return;
+    }
+
+    const taskParamId = activeTask.tipo_registro === 'work_order' 
+      ? `work_order-${activeTask.realId}` 
+      : `servicio-${activeTask.realId || activeTask.id}`;
+
+    setSubmitting2da(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${taskParamId}/admin-programar-segunda-visita`, {
+        fecha_programada: fecha2daAdmin,
+        tecnico_id: tecnico2daAdmin || null,
+        observaciones: obs2daAdmin
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: '2da Visita Programada',
+        text: 'Se ha programado la 2da visita directamente. Se notificó al Cliente y al Técnico.',
+        timer: 2200,
+        showConfirmButton: false
+      });
+
+      setShowModalAdmin2daVisita(false);
+      setFecha2daAdmin('');
+      setTecnico2daAdmin('');
+      setObs2daAdmin('');
+      fetchPropiedad();
+    } catch (error) {
+      console.error("Error al programar 2da visita por Admin:", error);
+      Swal.fire('Error', 'No se pudo programar la 2da visita.', 'error');
+    } finally {
+      setSubmitting2da(false);
+    }
+  };
 
   // DATOS DE LA PROPIEDAD
   const [datosPropiedad, setDatosPropiedad] = useState({
@@ -1900,8 +1986,42 @@ const DetallePropiedad = () => {
                       </div>
                     </div>
 
-                    {/* ÚNICO BOTÓN: VER REPORTE DEL TRABAJO */}
-                    <div style={{ marginBottom: '25px' }}>
+                    {/* ALERTA Y RESPUESTA DE SEGUNDA VISITA PARA EL CLIENTE */}
+                    {(activeTask.status === 'Segunda Visita Solicitada' || activeTask.estado === 'Segunda Visita Solicitada') && (
+                      <div style={{ background: '#fff7ed', border: '2px solid #ea580c', borderRadius: '18px', padding: '20px', marginBottom: '25px', boxShadow: '0 10px 25px rgba(234, 88, 12, 0.15)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#c2410c', fontWeight: '900', fontSize: '1.05rem', marginBottom: '8px' }}>
+                          <AlertTriangle size={24} color="#ea580c" />
+                          <span>SOLICITUD DE SEGUNDA VISITA</span>
+                        </div>
+                        <p style={{ margin: '0 0 14px 0', fontSize: '0.88rem', color: '#431407', lineHeight: '1.4' }}>
+                          El técnico solicita regresar a una segunda visita. Fecha propuesta: <strong>{activeTask.second_visit_proposed_date || 'Por confirmar'}</strong>.
+                          {activeTask.second_visit_reason && <span> Motivo: <em>"{activeTask.second_visit_reason}"</em></span>}
+                        </p>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                          <button 
+                            type="button"
+                            onClick={() => handleResponderSegundaVisita('aceptar', activeTask.second_visit_proposed_date || new Date().toISOString().slice(0,10))}
+                            disabled={submitting2da}
+                            style={{ flex: 1, minWidth: '180px', background: '#16a34a', color: 'white', border: 'none', padding: '12px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                          >
+                            <CheckCircle size={18} />
+                            <span>ACEPTAR FECHA PROPUESTA</span>
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => setShowModalReprogramar2da(true)}
+                            disabled={submitting2da}
+                            style={{ flex: 1, minWidth: '180px', background: '#ea580c', color: 'white', border: 'none', padding: '12px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                          >
+                            <Calendar size={18} />
+                            <span>ELEGIR OTRA FECHA</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* BOTÓN: VER REPORTE DEL TRABAJO */}
+                    <div style={{ marginBottom: '15px' }}>
                       <button 
                         onClick={() => {
                           const paramId = activeTask.tipo_registro === 'work_order' 
@@ -1931,6 +2051,36 @@ const DetallePropiedad = () => {
                         <span>Ver Reporte de este trabajo</span>
                       </button>
                     </div>
+
+                    {/* BOTÓN PROGRAMACIÓN DIRECTA POR ROOT/ADMIN */}
+                    {(user?.role_id === 0 || user?.role_id === 1) && (
+                      <div style={{ marginBottom: '25px' }}>
+                        <button 
+                          type="button"
+                          onClick={() => setShowModalAdmin2daVisita(true)}
+                          style={{ 
+                            width: '100%', 
+                            background: '#ea580c', 
+                            color: 'white', 
+                            padding: '14px', 
+                            borderRadius: '14px', 
+                            border: 'none', 
+                            fontWeight: '800', 
+                            fontSize: '0.9rem',
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            alignItems: 'center', 
+                            gap: '10px', 
+                            cursor: 'pointer', 
+                            boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)',
+                            textTransform: 'uppercase'
+                          }}
+                        >
+                          <Calendar size={20} />
+                          <span>Programar Segunda Visita Directa (Admin)</span>
+                        </button>
+                      </div>
+                    )}
 
               <h4 style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#1e293b' }}>
                 <ImageIcon size={20} /> PASOS REALIZADOS EN EL TRABAJO
@@ -2549,6 +2699,125 @@ const DetallePropiedad = () => {
           </div>
         </div>
       )}
+      {/* MODAL REPROGRAMAR 2DA VISITA POR CLIENTE */}
+      {showModalReprogramar2da && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', borderRadius: '22px', padding: '28px', width: '100%', maxWidth: '480px', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <button onClick={() => setShowModalReprogramar2da(false)} style={{ position: 'absolute', top: '18px', right: '18px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+              <X size={24} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+              <div style={{ background: '#fff7ed', padding: '10px', borderRadius: '14px', border: '1px solid #ffedd5' }}>
+                <Calendar size={26} color="#ea580c" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: '900', color: '#0f172a' }}>PROPONER NUEVA FECHA</h3>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#64748b' }}>Elige el día y hora que mejor te acomode</p>
+              </div>
+            </div>
+
+            <form onSubmit={(e) => { e.preventDefault(); handleResponderSegundaVisita('reprogramar', fecha2daCliente); }} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  NUEVA FECHA Y HORA <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input 
+                  type="datetime-local"
+                  value={fecha2daCliente}
+                  onChange={(e) => setFecha2daCliente(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setShowModalReprogramar2da(false)} style={{ flex: 1, padding: '12px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  CANCELAR
+                </button>
+                <button type="submit" disabled={submitting2da} style={{ flex: 1, padding: '12px', background: '#ea580c', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: submitting2da ? 'not-allowed' : 'pointer', opacity: submitting2da ? 0.7 : 1, textTransform: 'uppercase' }}>
+                  {submitting2da ? 'GUARDANDO...' : 'CONFIRMAR FECHA'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL PROGRAMAR 2DA VISITA DIRECTA POR ADMIN */}
+      {showModalAdmin2daVisita && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', borderRadius: '22px', padding: '28px', width: '100%', maxWidth: '520px', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <button onClick={() => setShowModalAdmin2daVisita(false)} style={{ position: 'absolute', top: '18px', right: '18px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+              <X size={24} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '18px' }}>
+              <div style={{ background: '#fff7ed', padding: '12px', borderRadius: '16px', border: '1px solid #ffedd5' }}>
+                <Calendar size={28} color="#ea580c" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '900', color: '#0f172a' }}>PROGRAMAR 2DA VISITA DIRECTA</h3>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>Aviso o acuerdo directo con el cliente</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleAdminProgramarSegundaVisita} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  FECHA Y HORA DE LA 2DA VISITA <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input 
+                  type="datetime-local" 
+                  value={fecha2daAdmin}
+                  onChange={(e) => setFecha2daAdmin(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  TÉCNICO ASIGNADO (OPCIONAL)
+                </label>
+                <select
+                  value={tecnico2daAdmin}
+                  onChange={(e) => setTecnico2daAdmin(e.target.value)}
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', background: '#ffffff' }}
+                >
+                  <option value="">Mantener técnico asignado actual</option>
+                  {(listaTecnicos || []).map(t => (
+                    <option key={t.id} value={t.id}>{t.name || t.first_name || `Técnico #${t.id}`}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  OBSERVACIONES DE LA 2DA VISITA
+                </label>
+                <textarea 
+                  rows={3}
+                  value={obs2daAdmin}
+                  onChange={(e) => setObs2daAdmin(e.target.value)}
+                  placeholder="Ej. Solicitado directamente por el cliente por llamada..."
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.88rem', outline: 'none', resize: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setShowModalAdmin2daVisita(false)} style={{ flex: 1, padding: '12px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  CANCELAR
+                </button>
+                <button type="submit" disabled={submitting2da} style={{ flex: 1, padding: '12px', background: '#ea580c', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: submitting2da ? 'not-allowed' : 'pointer', opacity: submitting2da ? 0.7 : 1, textTransform: 'uppercase' }}>
+                  {submitting2da ? 'PROGRAMANDO...' : 'PROGRAMAR 2DA VISITA'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     {showCreateModal && (
       <CreateQuotationModal 
         prefillData={cotizacionParaAsignar}

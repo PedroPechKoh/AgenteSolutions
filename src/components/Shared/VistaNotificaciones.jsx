@@ -135,8 +135,13 @@ const VistaNotificaciones = () => {
                         } else {
                           url = workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios';
                         }
-                      } else if (type === 'work_order_assigned' || type === 'work_order_rescheduled' || type === 'visit_rescheduled') {
-                        url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
+                      } else if (type === 'work_order_assigned' || type === 'work_order_rescheduled' || type === 'visit_rescheduled' || type === 'second_visit_requested' || type === 'second_visit_agreed' || type === 'second_visit_admin_scheduled') {
+                        if (isTecnico) {
+                          url = '/trabajos-tecnico';
+                        } else {
+                          const propId = n.data.property_id;
+                          url = propId ? `/propiedad/${propId}/tablero` : '/tablero-servicios';
+                        }
                       } else if (type === 'user_account_deleted') {
                         url = n.data.url || (n.data.role_id === 2 ? '/vista-tecnicos' : '/usuarios');
                       } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {

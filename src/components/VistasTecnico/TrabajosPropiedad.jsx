@@ -10,7 +10,7 @@ import {
   ChevronLeft, Navigation, CheckCircle2, AlertCircle,
   FileText, ArrowRight, Package, Lock, Camera, Layout,
   X, Maximize2, ChevronRight, AlertTriangle, Zap,
-  Plus, Trash2, Upload, Calculator
+  Plus, Trash2, Upload, Calculator, Calendar
 } from 'lucide-react';
 import { useAuth } from "../../context/AuthContext";
 
@@ -41,6 +41,49 @@ const TrabajoPropiedad = () => {
   // --- ESTADOS PARA COTIZACIÓN ---
   const [showModalCotizacion, setShowModalCotizacion] = useState(false);
   const [cotizacionExistente, setCotizacionExistente] = useState(null);
+
+  // --- ESTADOS PARA SEGUNDA VISITA ---
+  const [showModalSegundaVisita, setShowModalSegundaVisita] = useState(false);
+  const [fechaSegundaVisita, setFechaSegundaVisita] = useState('');
+  const [motivoSegundaVisita, setMotivoSegundaVisita] = useState('');
+  const [submittingSegundaVisita, setSubmittingSegundaVisita] = useState(false);
+
+  const handleSolicitarSegundaVisita = async (e) => {
+    e.preventDefault();
+    if (!fechaSegundaVisita) {
+      Swal.fire('Atención', 'Debes ingresar la fecha y hora sugerida para la segunda visita.', 'warning');
+      return;
+    }
+
+    setSubmittingSegundaVisita(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${id}/solicitar-segunda-visita`, {
+        fecha_propuesta: fechaSegundaVisita,
+        motivo: motivoSegundaVisita
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Solicitud Registrada',
+        text: 'Se ha enviado la solicitud de 2da visita. Se notificó al Cliente y al Administrador.',
+        timer: 2000,
+        showConfirmButton: false
+      });
+
+      setShowModalSegundaVisita(false);
+      setFechaSegundaVisita('');
+      setMotivoSegundaVisita('');
+      fetchJobDetails();
+    } catch (error) {
+      console.error("Error solicitando 2da visita:", error);
+      Swal.fire('Error', 'No se pudo enviar la solicitud de segunda visita.', 'error');
+    } finally {
+      setSubmittingSegundaVisita(false);
+    }
+  };
 
   useEffect(() => {
     fetchJobDetails();
@@ -667,6 +710,33 @@ const TrabajoPropiedad = () => {
                     )}
                   </div>
                 )}
+
+                {/* BOTÓN SOLICITAR SEGUNDA VISITA */}
+                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0', width: '100%' }}>
+                  <button 
+                    onClick={() => setShowModalSegundaVisita(true)}
+                    style={{ 
+                      width: '100%',
+                      background: '#ea580c', 
+                      color: '#ffffff', 
+                      border: 'none',
+                      padding: '12px 16px',
+                      borderRadius: '16px',
+                      fontWeight: '800',
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 12px rgba(234, 88, 12, 0.25)',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    <Calendar size={18} />
+                    <span>¿NO SE TERMINÓ? SOLICITAR 2DA VISITA</span>
+                  </button>
+                </div>
               </div>
               
               {!materialesConfirmados && (
@@ -987,6 +1057,64 @@ const TrabajoPropiedad = () => {
             checkExistingQuote();
           }}
         />
+      )}
+
+      {/* MODAL SOLICITAR SEGUNDA VISITA */}
+      {showModalSegundaVisita && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#ffffff', borderRadius: '22px', padding: '28px', width: '100%', maxWidth: '500px', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <button onClick={() => setShowModalSegundaVisita(false)} style={{ position: 'absolute', top: '18px', right: '18px', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+              <X size={24} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+              <div style={{ background: '#fff7ed', padding: '12px', borderRadius: '16px', border: '1px solid #ffedd5' }}>
+                <Calendar size={28} color="#ea580c" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '900', color: '#0f172a' }}>SOLICITAR SEGUNDA VISITA</h3>
+                <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>Proponer fecha para regresar a finalizar el trabajo</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSolicitarSegundaVisita} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  FECHA Y HORA SUGERIDA PARA 2DA VISITA <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input 
+                  type="datetime-local" 
+                  value={fechaSegundaVisita}
+                  onChange={(e) => setFechaSegundaVisita(e.target.value)}
+                  required
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: '800', color: '#1e293b', marginBottom: '6px' }}>
+                  MOTIVO / EXPLICACIÓN DE LO QUE FALTÓ
+                </label>
+                <textarea 
+                  rows={3}
+                  value={motivoSegundaVisita}
+                  onChange={(e) => setMotivoSegundaVisita(e.target.value)}
+                  placeholder="Ej. Faltó refacción especializada, secado de pintura 24 hrs..."
+                  style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1.5px solid #cbd5e1', fontSize: '0.88rem', outline: 'none', resize: 'none' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setShowModalSegundaVisita(false)} style={{ flex: 1, padding: '12px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  CANCELAR
+                </button>
+                <button type="submit" disabled={submittingSegundaVisita} style={{ flex: 1, padding: '12px', background: '#ea580c', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '800', cursor: submittingSegundaVisita ? 'not-allowed' : 'pointer', opacity: submittingSegundaVisita ? 0.7 : 1, textTransform: 'uppercase' }}>
+                  {submittingSegundaVisita ? 'ENVIANDO...' : 'ENVIAR SOLICITUD'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
