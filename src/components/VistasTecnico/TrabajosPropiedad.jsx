@@ -264,7 +264,8 @@ const TrabajoPropiedad = () => {
       // 2. FILTRADO POR EQUIPO / COMPONENTE AFECTADO
       let eqNombre = data?.equipment || data?.equipo_afectado || data?.item_affected || data?.affected_item || data?.equipo || null;
       if (!eqNombre && data?.descripcion && data.descripcion.includes('[EQUIPO AFECTADO]:')) {
-        const parts = data.descripcion.split('[EQUIPO AFECTADO]:');
+        const cleanEqDesc = data.descripcion.replace(/\n?\[(SOLICITUD 2DA VISITA|RESPUESTA CLIENTE 2DA VISITA|PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN)\].*/gs, '').trim();
+        const parts = cleanEqDesc.split('[EQUIPO AFECTADO]:');
         eqNombre = parts[1]?.trim();
       }
 

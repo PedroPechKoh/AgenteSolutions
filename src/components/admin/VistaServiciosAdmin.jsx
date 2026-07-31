@@ -67,10 +67,14 @@ const VistaServiciosAdmin = () => {
         estado = 'unassigned';
       }
       
+      const rawDescClean = (item.description || '')
+        .replace(/\n?\[(SOLICITUD 2DA VISITA|RESPUESTA CLIENTE 2DA VISITA|PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN|ALERTA DE REPROGRAMACIÓN)\].*/gs, '')
+        .trim();
+
       let equipoAfectado = 'No especificado';
-      let problemaDetalle = item.description || 'Sin descripción especificada';
-      if (item.description && item.description.includes('[EQUIPO AFECTADO]:')) {
-        const parts = item.description.split('[EQUIPO AFECTADO]:');
+      let problemaDetalle = rawDescClean || 'Sin descripción especificada';
+      if (rawDescClean && rawDescClean.includes('[EQUIPO AFECTADO]:')) {
+        const parts = rawDescClean.split('[EQUIPO AFECTADO]:');
         problemaDetalle = parts[0].trim() || 'Falla reportada en el equipo';
         equipoAfectado = parts[1].trim();
       } else if (item.item_affected || item.equipo_afectado || item.affected_item || item.equipment) {
