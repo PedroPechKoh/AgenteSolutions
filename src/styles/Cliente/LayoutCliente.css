@@ -220,11 +220,26 @@
     gap: 10px;
   }
   .tt-body {
-    padding: 8px 4px 40px 4px;
+    padding: 8px 6px 60px 6px;
     width: 100%;
     max-width: 100vw;
     box-sizing: border-box;
-    overflow-x: hidden;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #f26624 transparent !important;
+  }
+  .tt-body::-webkit-scrollbar {
+    display: block !important;
+    width: 6px !important;
+  }
+  .tt-body::-webkit-scrollbar-thumb {
+    background: #f26624 !important;
+    border-radius: 10px !important;
+  }
+  .tt-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05) !important;
   }
   .header-welcome-message {
     font-size: 14px !important;
