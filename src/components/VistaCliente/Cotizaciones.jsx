@@ -132,52 +132,56 @@ const Cotizaciones = () => {
     const listaMateriales = detalle.materiales || [];
 
     return (
-      <div style={{ margin: '15px 0', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
+      <div className="modal-concept-details-container">
         {listaServicios.length > 0 && (
-          <div style={{ marginBottom: '14px' }}>
-            <h4 style={{ margin: '0 0 8px 0', color: '#f26522', fontSize: '0.95rem', fontWeight: 'bold' }}>Servicios / Conceptos</h4>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-              <thead>
-                <tr style={{ background: '#f1f5f9', color: '#475569', textAlign: 'left' }}>
-                  <th style={{ padding: '6px 8px' }}>Descripción</th>
-                  <th style={{ padding: '6px 8px', textAlign: 'center' }}>Cant.</th>
-                  <th style={{ padding: '6px 8px', textAlign: 'right' }}>Precio</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listaServicios.map((s, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '6px 8px' }}>{s.descripcion || s.desc || 'Servicio'}</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'center' }}>{s.cantidad || s.cant || 1}</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: '600' }}>{formatCurrency(s.precio_u || s.precio || 0)}</td>
+          <div className="modal-concept-group">
+            <h4 className="modal-concept-title">Servicios / Conceptos</h4>
+            <div className="modal-table-scroll-wrapper">
+              <table className="modal-concept-table">
+                <thead>
+                  <tr>
+                    <th>Descripción</th>
+                    <th className="text-center">Cant.</th>
+                    <th className="text-right">Precio</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {listaServicios.map((s, idx) => (
+                    <tr key={idx}>
+                      <td>{s.descripcion || s.desc || 'Servicio'}</td>
+                      <td className="text-center">{s.cantidad || s.cant || 1}</td>
+                      <td className="text-right">{formatCurrency(s.precio_u || s.precio || 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
         {listaMateriales.length > 0 && (
-          <div>
-            <h4 style={{ margin: '0 0 8px 0', color: '#f26522', fontSize: '0.95rem', fontWeight: 'bold' }}>Materiales Incluidos</h4>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
-              <thead>
-                <tr style={{ background: '#f1f5f9', color: '#475569', textAlign: 'left' }}>
-                  <th style={{ padding: '6px 8px' }}>Nombre</th>
-                  <th style={{ padding: '6px 8px', textAlign: 'center' }}>Cant.</th>
-                  <th style={{ padding: '6px 8px', textAlign: 'right' }}>Costo</th>
-                </tr>
-              </thead>
-              <tbody>
-                {listaMateriales.map((m, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '6px 8px' }}>{m.nombre || m.descripcion || m.desc || 'Material'}</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'center' }}>{m.cantidad || m.cant || 1}</td>
-                    <td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: '600' }}>{formatCurrency(m.costo_u || m.precio || 0)}</td>
+          <div className="modal-concept-group">
+            <h4 className="modal-concept-title">Materiales Incluidos</h4>
+            <div className="modal-table-scroll-wrapper">
+              <table className="modal-concept-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th className="text-center">Cant.</th>
+                    <th className="text-right">Costo</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {listaMateriales.map((m, idx) => (
+                    <tr key={idx}>
+                      <td>{m.nombre || m.descripcion || m.desc || 'Material'}</td>
+                      <td className="text-center">{m.cantidad || m.cant || 1}</td>
+                      <td className="text-right">{formatCurrency(m.costo_u || m.precio || 0)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
@@ -301,7 +305,7 @@ const Cotizaciones = () => {
                     />
                   </div>
 
-                  <div className="modal-actions-dynamic" style={{ marginTop: '15px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <div className="modal-actions-dynamic">
                     {(cotizacionSeleccionada.estado === 'nuevas' || !cotizacionSeleccionada.estado) && (
                       <>
                         <button className="btn-reject-final" onClick={cerrarModal}>RECHAZAR</button>
