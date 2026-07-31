@@ -51,6 +51,7 @@ const VistaCotizaciones = () => {
     if (yaExiste) {
       alert(`La cotización ${cot.folio || `#${cot.id}`} ya se encuentra agregada en tu Carrito de Compras.`);
       setCotizacionSeleccionada(null);
+      navigate('/cotizaciones-pendientes');
       return;
     }
 
@@ -92,6 +93,7 @@ const VistaCotizaciones = () => {
 
     alert(`🛒 ¡Cotización ${nuevoItemCarrito.folio} enviada al Carrito de Compras con éxito!`);
     setCotizacionSeleccionada(null);
+    navigate('/cotizaciones-pendientes');
   };
   const [cotizaciones, setCotizaciones] = useState([]);
   const [cargando, setCargando] = useState(true);

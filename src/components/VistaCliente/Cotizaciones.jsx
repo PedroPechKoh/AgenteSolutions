@@ -45,6 +45,7 @@ const Cotizaciones = () => {
     if (yaExiste) {
       alert(`La cotización ${cot.folio || `#${cot.id}`} ya se encuentra agregada en tu Carrito de Compras.`);
       cerrarModal();
+      navigate('/cotizaciones-pendientes');
       return;
     }
 
@@ -68,6 +69,7 @@ const Cotizaciones = () => {
 
     alert(`🛒 ¡Cotización ${nuevoItemCarrito.folio} enviada al Carrito de Compras con éxito!`);
     cerrarModal();
+    navigate('/cotizaciones-pendientes');
   };
 
   useEffect(() => {
