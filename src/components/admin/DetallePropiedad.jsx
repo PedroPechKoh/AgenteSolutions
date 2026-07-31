@@ -1871,15 +1871,49 @@ const DetallePropiedad = () => {
                 if(!activeTask) return null;
 
                 const rawDesc = activeTask.description || activeTask.descripcion || activeTask.producto || activeTask.title || '';
+                const cleanDesc = rawDesc
+                  .replace(/\n?\[(SOLICITUD 2DA VISITA|RESPUESTA CLIENTE 2DA VISITA|PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN|ALERTA DE REPROGRAMACIÓN)\].*/gs, '')
+                  .trim();
+
                 let problema = activeTask.producto || activeTask.title || 'Mantenimiento General';
                 let equipo = 'No especificado';
 
-                if (rawDesc.includes('[EQUIPO AFECTADO]:')) {
-                  const parts = rawDesc.split('[EQUIPO AFECTADO]:');
+                if (cleanDesc.includes('[EQUIPO AFECTADO]:')) {
+                  const parts = cleanDesc.split('[EQUIPO AFECTADO]:');
                   problema = parts[0].trim() || problema;
                   equipo = parts[1].trim() || 'No especificado';
-                } else if (rawDesc) {
-                  problema = rawDesc;
+                } else if (cleanDesc.includes('---')) {
+                  const parts = cleanDesc.split('---');
+                  problema = parts[0].trim() || problema;
+                  equipo = parts[1].trim() || 'No especificado';
+                } else if (cleanDesc) {
+                  problema = cleanDesc;
+                }
+
+                // Cálculo robusto del banner de 2da visita
+                const isSegundaVisitaRequested = 
+                  activeTask.status === 'Segunda Visita Solicitada' || 
+                  activeTask.estado === 'Segunda Visita Solicitada' || 
+                  (activeTask.description && activeTask.description.includes('[SOLICITUD 2DA VISITA]'));
+
+                const isSegundaVisitaAgreed = 
+                  activeTask.status === 'Segunda Visita Programada' || 
+                  activeTask.estado === 'Segunda Visita Programada' ||
+                  (activeTask.description && (
+                    activeTask.description.includes('[RESPUESTA CLIENTE 2DA VISITA]') || 
+                    activeTask.description.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]')
+                  ));
+
+                const showBanner2daVisita = isSegundaVisitaRequested && !isSegundaVisitaAgreed;
+
+                let fechaPropuesta2da = activeTask.second_visit_proposed_date;
+                let motivo2da = activeTask.second_visit_reason;
+                if (!fechaPropuesta2da && activeTask.description && activeTask.description.includes('[SOLICITUD 2DA VISITA]')) {
+                  const matchFecha = activeTask.description.match(/propone la fecha:\s*([^\.\n]+)/i);
+                  if (matchFecha) fechaPropuesta2da = matchFecha[1].trim();
+
+                  const matchMotivo = activeTask.description.match(/Motivo:\s*([^\.\n]+)/i);
+                  if (matchMotivo) motivo2da = matchMotivo[1].trim();
                 }
 
                 return (
@@ -1987,20 +2021,20 @@ const DetallePropiedad = () => {
                     </div>
 
                     {/* ALERTA Y RESPUESTA DE SEGUNDA VISITA PARA EL CLIENTE */}
-                    {(activeTask.status === 'Segunda Visita Solicitada' || activeTask.estado === 'Segunda Visita Solicitada') && (
+                    {showBanner2daVisita && (
                       <div style={{ background: '#fff7ed', border: '2px solid #ea580c', borderRadius: '18px', padding: '20px', marginBottom: '25px', boxShadow: '0 10px 25px rgba(234, 88, 12, 0.15)' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#c2410c', fontWeight: '900', fontSize: '1.05rem', marginBottom: '8px' }}>
                           <AlertTriangle size={24} color="#ea580c" />
                           <span>SOLICITUD DE SEGUNDA VISITA</span>
                         </div>
                         <p style={{ margin: '0 0 14px 0', fontSize: '0.88rem', color: '#431407', lineHeight: '1.4' }}>
-                          El técnico solicita regresar a una segunda visita. Fecha propuesta: <strong>{activeTask.second_visit_proposed_date || 'Por confirmar'}</strong>.
-                          {activeTask.second_visit_reason && <span> Motivo: <em>"{activeTask.second_visit_reason}"</em></span>}
+                          El técnico solicita regresar a una segunda visita. Fecha propuesta: <strong>{fechaPropuesta2da || 'Por confirmar'}</strong>.
+                          {motivo2da && <span> Motivo: <em>"{motivo2da}"</em></span>}
                         </p>
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                           <button 
                             type="button"
-                            onClick={() => handleResponderSegundaVisita('aceptar', activeTask.second_visit_proposed_date || new Date().toISOString().slice(0,10))}
+                            onClick={() => handleResponderSegundaVisita('aceptar', fechaPropuesta2da || new Date().toISOString().slice(0,10))}
                             disabled={submitting2da}
                             style={{ flex: 1, minWidth: '180px', background: '#16a34a', color: 'white', border: 'none', padding: '12px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                           >
