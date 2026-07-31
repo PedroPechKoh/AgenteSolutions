@@ -804,20 +804,22 @@
 
 @media (max-width: 768px) {
   .quotes-view-container, .cart-page-container {
-    padding: 8px 6px 90px 6px !important;
+    padding: 8px 6px 100px 6px !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
     height: auto !important;
     min-height: 100% !important;
     overflow-y: visible !important;
+    touch-action: pan-y !important;
   }
 
-  .cart-list-wrapper, .quotes-scroll-area {
+  .cart-main-grid, .cart-items-column, .cart-list-wrapper, .quotes-scroll-area {
     overflow-y: visible !important;
     height: auto !important;
     max-height: none !important;
     -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
   }
 
   .cart-header {

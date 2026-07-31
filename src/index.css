@@ -23,34 +23,19 @@ a:hover {
 }
 
 html {
-  overflow: hidden;
-  height: 100%;
-  /* Ocultar scrollbar global en todos los navegadores */
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100%;
 }
-html::-webkit-scrollbar { display: none !important; width: 0 !important; }
 
 body {
   margin: 0;
   min-width: 320px;
-  height: 100%;
-  overflow: hidden;
-  /* Ocultar scrollbar global */
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-body::-webkit-scrollbar { display: none !important; width: 0 !important; }
-
-/* REGLA MAESTRA PARA OCULTAR TODOS LOS SCROLLBARS GLOBALES */
-* {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-*::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 
