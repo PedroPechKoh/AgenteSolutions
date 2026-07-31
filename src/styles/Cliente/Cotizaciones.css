@@ -469,4 +469,198 @@ textarea { width: 100%; height: 80px; border: 2px solid #f1f5f9; border-radius: 
     position: relative;
     top: 0;
   }
-}
+}
+
+/* --- ESTILOS DE CADUCIDAD (15 DÍAS) Y ALERTAS DE RECOTIZACIÓN --- */
+.cart-toast-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 14px 18px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  box-shadow: 0 8px 20px rgba(185, 28, 28, 0.08);
+  animation: fadeInDown 0.3s ease-out;
+}
+
+.toast-icon {
+  flex-shrink: 0;
+  color: #dc2626;
+}
+
+.toast-close-btn {
+  background: none;
+  border: none;
+  color: #b91c1c;
+  font-size: 1.4rem;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.expired-card-row {
+  background: #fffdfd !important;
+  border-color: #fca5a5 !important;
+}
+
+.expired-card-row:hover {
+  border-color: #f87171 !important;
+}
+
+.disabled-checkbox {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.expired-lock-box {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc2626;
+}
+
+.expired-icon-box {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+}
+
+.status-expired {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca;
+}
+
+.status-valid {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0;
+}
+
+.expired-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff1f2;
+  border: 1px solid #ffe4e6;
+  color: #be123c;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.validity-pill {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.expired-total-box {
+  background: #fef2f2 !important;
+  border: 1px solid #fee2e2;
+}
+
+.strike-price {
+  text-decoration: line-through;
+  color: #94a3b8;
+  font-size: 1.05rem !important;
+}
+
+.card-btn-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-requote-action {
+  background: #f26624;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 10px rgba(242, 102, 36, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-requote-action:hover {
+  background: #d95316;
+  transform: translateY(-1px);
+}
+
+.btn-requote-final {
+  width: 100%;
+  background: #f26624;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 16px rgba(242, 102, 36, 0.25);
+}
+
+.btn-requote-final:hover {
+  background: #d95316;
+}
+
+.badge-expired {
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+.modal-expired-banner-alert {
+  display: flex;
+  gap: 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 16px 20px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  align-items: flex-start;
+}
+
+.modal-expired-banner-alert strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.modal-expired-banner-alert p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #7f1d1d;
+  line-height: 1.4;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
