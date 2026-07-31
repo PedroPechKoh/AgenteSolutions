@@ -222,15 +222,16 @@
   width: 100%;
 }
 
-/* Scrollbar & Desplazamiento en Pantallas de Computadoras / Laptops (Desktop) */
+/* Desplazamiento Fluido en Pantallas de Computadoras / Laptops (Toda la Vista) */
 @media (min-width: 901px) {
+  .cart-page-container, .quotes-view-container {
+    padding-bottom: 90px;
+  }
+
   .cart-list-wrapper, .quotes-scroll-area {
-    max-height: calc(100vh - 260px);
-    min-height: 250px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 8px;
-    scroll-behavior: smooth;
+    height: auto;
+    max-height: none;
+    overflow: visible;
   }
 }
 

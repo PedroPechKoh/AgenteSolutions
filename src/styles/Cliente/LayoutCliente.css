@@ -145,7 +145,7 @@
 }
 
 .tt-body {
-  padding: 10px 20px 50px 20px;
+  padding: 10px 20px 80px 20px;
   flex: 1;
   width: 100%;
   box-sizing: border-box;
@@ -156,26 +156,40 @@
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-  /* Ocultar scrollbar en todos los navegadores */
-  scrollbar-width: none;        /* Firefox */
-  -ms-overflow-style: none;     /* IE / Edge legacy */
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
 .tt-body::after {
   content: "";
   display: block;
-  min-height: 40px;
+  min-height: 60px;
   width: 100%;
   flex-shrink: 0;
 }
+
+/* Barra de desplazamiento (Scrollbar) visible y elegante para toda la vista principal */
 .tt-body::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  width: 10px;
+  height: 10px;
+  display: block;
 }
 
+.tt-body::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
 
+.tt-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+  border: 2px solid #f1f5f9;
+  transition: background 0.2s ease;
+}
 
-/* Scrollbar styling for better visibility */
-/* Scrollbar styling removed as per user request to hide them */
+.tt-body::-webkit-scrollbar-thumb:hover {
+  background: #f26624;
+}
 
 @media (max-width: 768px) {
   .tt-container {
