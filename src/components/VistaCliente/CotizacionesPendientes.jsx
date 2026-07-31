@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Clock, ShoppingBag, Sparkles, CheckSquare, Square, 
   CreditCard, ShieldCheck, Eye, CheckCircle2, AlertTriangle, 
-  RefreshCw, AlertCircle, CalendarX, Lock
+  RefreshCw, AlertCircle, CalendarX, Lock, Trash2
 } from 'lucide-react';
 import '../../styles/Cliente/Cotizaciones.css';
 
@@ -25,11 +25,10 @@ const CotizacionesPendientes = () => {
 
     let fechaDoc = new Date(fechaStr);
     if (isNaN(fechaDoc.getTime())) {
-      // Si la fecha es una cadena formateada como "05 Mar 2026", simular o usar fecha actual
       if (fechaStr.includes('05 Mar') || fechaStr.includes('febrero')) {
         return { vencida: true, diasRestantes: 0, diasTranscurridos: 20 };
       }
-      return { vencida: false, diasRestantes: 8, diasTranscurridos: 7 };
+      return { vencida: false, diasRestantes: 15, diasTranscurridos: 0 };
     }
 
     const hoy = new Date();
@@ -44,57 +43,9 @@ const CotizacionesPendientes = () => {
     };
   };
 
-  // Lista inicial estática con cotizaciones activas y caducadas (>15 días)
-  const cotizacionesIniciales = [
-    {
-      id: 1,
-      titulo: 'Mantenimiento de transformadores',
-      folio: 'COT-204',
-      fecha: '2026-07-25', // Hace 6 días
-      total: 4500,
-      estado: 'Pendiente de aprobación',
-      descripcion: 'Servicio programado para revisión general de aislamiento y aceite.',
-      vencida: false,
-      diasRestantes: 9
-    },
-    {
-      id: 2,
-      titulo: 'Instalación de tablero industrial',
-      folio: 'COT-150',
-      fecha: '2026-07-28', // Hace 3 días
-      total: 12800,
-      estado: 'Esperando respuesta',
-      descripcion: 'Incluye mano de obra calificada, cableado y materiales de grado industrial.',
-      vencida: false,
-      diasRestantes: 12
-    },
-    {
-      id: 3,
-      titulo: 'Reparación de cortocircuito',
-      folio: 'COT-098',
-      fecha: '2026-07-05', // Hace 26 días (CADUCADA)
-      total: 3200,
-      estado: 'Caducada (> 15 días)',
-      descripcion: 'Cotización vencida. Se requiere solicitar recotización para actualizar precios.',
-      vencida: true,
-      diasRestantes: 0
-    },
-    {
-      id: 4,
-      titulo: 'Sistema de Tierra Física y Pararrayos',
-      folio: 'COT-310',
-      fecha: '2026-07-22', // Hace 9 días
-      total: 8900,
-      estado: 'Pendiente de aprobación',
-      descripcion: 'Medición de resistividad de terreno y colocación de varillas de cobre.',
-      vencida: false,
-      diasRestantes: 6
-    }
-  ];
-
-  const [cotizaciones, setCotizaciones] = useState(cotizacionesIniciales);
-  // Inicialmente seleccionamos solo las cotizaciones vigentes (no vencidas)
-  const [selectedIds, setSelectedIds] = useState([1, 2, 4]);
+  // Inicialización limpia sin datos estáticos de ejemplo
+  const [cotizaciones, setCotizaciones] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   useEffect(() => {
     const fetchCotizaciones = async () => {
@@ -103,17 +54,21 @@ const CotizacionesPendientes = () => {
         const token = localStorage.getItem('token');
         const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
         
+        // Cargar cotizaciones mandadas al carrito localmente
         const guardadasLocales = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
 
-        const res = await axios.get(`${API_URL}/cotizaciones`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
         let data = [];
-        if (Array.isArray(res.data)) {
-          data = res.data;
-        } else if (res.data && Array.isArray(res.data.quotes || res.data.data)) {
-          data = res.data.quotes || res.data.data;
+        try {
+          const res = await axios.get(`${API_URL}/cotizaciones`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (Array.isArray(res.data)) {
+            data = res.data;
+          } else if (res.data && Array.isArray(res.data.quotes || res.data.data)) {
+            data = res.data.quotes || res.data.data;
+          }
+        } catch (apiErr) {
+          console.warn("Utilizando cotizaciones guardadas en localStorage para el carrito:", apiErr);
         }
 
         const pendientesAPI = data.filter(cot => {
@@ -139,12 +94,7 @@ const CotizacionesPendientes = () => {
           });
         }
 
-        // Combinar cotizaciones locales guardadas desde la vista de Cotizaciones
         const mapa = new Map();
-        cotizacionesIniciales.forEach(item => {
-          const cad = calcularCaducidad(item.fecha, item.vencida);
-          mapa.set(String(item.id), { ...item, vencida: cad.vencida, diasRestantes: cad.diasRestantes });
-        });
 
         mapeadas.forEach(item => {
           mapa.set(String(item.id), item);
@@ -166,26 +116,7 @@ const CotizacionesPendientes = () => {
         setSelectedIds(vigentesIds);
 
       } catch (err) {
-        console.warn("Utilizando datos locales para el carrito con control de caducidad:", err);
-        const guardadasLocales = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
-        const mapa = new Map();
-        cotizacionesIniciales.forEach(item => {
-          const cad = calcularCaducidad(item.fecha, item.vencida);
-          mapa.set(String(item.id), { ...item, vencida: cad.vencida, diasRestantes: cad.diasRestantes });
-        });
-        guardadasLocales.forEach(item => {
-          const cad = calcularCaducidad(item.fecha, item.vencida);
-          mapa.set(String(item.id), {
-            ...item,
-            vencida: cad.vencida,
-            diasRestantes: cad.diasRestantes,
-            estado: cad.vencida ? 'Caducada (> 15 días)' : (item.estado || 'Pendiente de aprobación')
-          });
-        });
-        const listaFinal = Array.from(mapa.values());
-        setCotizaciones(listaFinal);
-        const vigentesIds = listaFinal.filter(c => !c.vencida).map(c => c.id);
-        setSelectedIds(vigentesIds);
+        console.warn("Error cargando carrito:", err);
       } finally {
         setLoading(false);
       }
@@ -193,6 +124,22 @@ const CotizacionesPendientes = () => {
 
     fetchCotizaciones();
   }, []);
+
+  // Eliminar servicio del carrito
+  const handleEliminarDelCarrito = (cot, e) => {
+    if (e) e.stopPropagation();
+    if (!cot) return;
+
+    if (window.confirm(`¿Deseas quitar la cotización "${cot.titulo || cot.folio}" del carrito?`)) {
+      const guardadas = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+      const filtradas = guardadas.filter(item => String(item.id) !== String(cot.id) && String(item.folio) !== String(cot.folio));
+      localStorage.setItem('carrito_cotizaciones', JSON.stringify(filtradas));
+
+      const listaActualizada = cotizaciones.filter(c => String(c.id) !== String(cot.id));
+      setCotizaciones(listaActualizada);
+      setSelectedIds(selectedIds.filter(id => String(id) !== String(cot.id)));
+    }
+  };
 
   // Manejador de selección de cotizaciones con validación de caducidad
   const handleToggleSelect = (cot, e) => {
@@ -408,6 +355,27 @@ const CotizacionesPendientes = () => {
                           }}
                         >
                           <Eye size={14} style={{ marginRight: '4px' }} /> Ver detalle
+                        </button>
+                        <button 
+                          className="btn-remove-cart"
+                          title="Quitar del carrito"
+                          style={{
+                            background: '#fef2f2',
+                            color: '#ef4444',
+                            border: '1px solid #fecaca',
+                            padding: '6px 10px',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '0.78rem',
+                            fontWeight: '700',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onClick={(e) => handleEliminarDelCarrito(cot, e)}
+                        >
+                          <Trash2 size={13} /> Quitar
                         </button>
                       </div>
                     </div>
