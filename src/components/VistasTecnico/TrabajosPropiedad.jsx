@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Header from "../Shared/Header";
+import Swal from 'sweetalert2';
 import ModalCrearCotizacion from "../Shared/ModalCrearCotizacion";
 import "../../styles/TecnicoStyles/TrabajoPropiedad.css";
 import { 
