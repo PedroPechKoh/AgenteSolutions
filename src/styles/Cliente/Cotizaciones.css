@@ -222,6 +222,66 @@
   width: 100%;
 }
 
+/* Scrollbar & Desplazamiento en Pantallas de Computadoras / Laptops (Desktop) */
+@media (min-width: 901px) {
+  .cart-list-wrapper, .quotes-scroll-area {
+    max-height: calc(100vh - 260px);
+    min-height: 250px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Estilos Personalizados de la Barra de Deslizamiento (Scrollbar) para Carrito en Desktop / Laptops */
+.cart-list-wrapper::-webkit-scrollbar,
+.quotes-scroll-area::-webkit-scrollbar,
+.breakdown-list::-webkit-scrollbar,
+.modal-excel-body::-webkit-scrollbar,
+.modal-table-scroll-wrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.cart-list-wrapper::-webkit-scrollbar-track,
+.quotes-scroll-area::-webkit-scrollbar-track,
+.breakdown-list::-webkit-scrollbar-track,
+.modal-excel-body::-webkit-scrollbar-track,
+.modal-table-scroll-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.cart-list-wrapper::-webkit-scrollbar-thumb,
+.quotes-scroll-area::-webkit-scrollbar-thumb,
+.breakdown-list::-webkit-scrollbar-thumb,
+.modal-excel-body::-webkit-scrollbar-thumb,
+.modal-table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+  border: 2px solid #f1f5f9;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.cart-list-wrapper::-webkit-scrollbar-thumb:hover,
+.quotes-scroll-area::-webkit-scrollbar-thumb:hover,
+.breakdown-list::-webkit-scrollbar-thumb:hover,
+.modal-excel-body::-webkit-scrollbar-thumb:hover,
+.modal-table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-orange, #f26624);
+}
+
+/* Estándar Firefox para Scrollbar */
+.cart-list-wrapper,
+.quotes-scroll-area,
+.breakdown-list,
+.modal-excel-body,
+.modal-table-scroll-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
 .empty-cart-state, .empty-state {
   display: flex;
   flex-direction: column;
