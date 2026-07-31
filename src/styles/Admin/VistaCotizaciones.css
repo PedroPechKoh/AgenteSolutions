@@ -248,9 +248,19 @@
     border-radius: 25px; 
     font-weight: bold; 
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.3s, transform 0.2s;
 }
 .btn-view-detail:hover { background: #e67a00; }
+
+.btn-view-detail.en-carrito {
+    background: #10b981 !important;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3) !important;
+}
+
+.btn-view-detail.en-carrito:hover {
+    background: #059669 !important;
+    transform: scale(1.03);
+}
 
 /* --- MODAL (FIXED PARA EVITAR DESPLAZAMIENTOS) --- */
 .modal-fixed-overlay {

@@ -18,6 +18,22 @@ const Cotizaciones = () => {
 
   const [cotizacionesData, setCotizacionesData] = useState([]);
 
+  const [carritoCotizaciones, setCarritoCotizaciones] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const isCotizacionEnCarrito = (cot) => {
+    if (!cot) return false;
+    return carritoCotizaciones.some(item => 
+      String(item.id) === String(cot.id) || 
+      (cot.folio && String(item.folio) === String(cot.folio))
+    );
+  };
+
   // Enviar servicio / cotización a la vista del Carrito
   const handleMandarAlCarrito = (cot, e) => {
     if (e) e.stopPropagation();
@@ -29,7 +45,6 @@ const Cotizaciones = () => {
     if (yaExiste) {
       alert(`La cotización ${cot.folio || `#${cot.id}`} ya se encuentra agregada en tu Carrito de Compras.`);
       cerrarModal();
-      navigate('/cotizaciones-pendientes');
       return;
     }
 
@@ -49,10 +64,10 @@ const Cotizaciones = () => {
 
     const nuevoCarrito = [nuevoItemCarrito, ...carritoGuardado];
     localStorage.setItem('carrito_cotizaciones', JSON.stringify(nuevoCarrito));
+    setCarritoCotizaciones(nuevoCarrito);
 
     alert(`🛒 ¡Cotización ${nuevoItemCarrito.folio} enviada al Carrito de Compras con éxito!`);
     cerrarModal();
-    navigate('/cotizaciones-pendientes');
   };
 
   useEffect(() => {
@@ -271,11 +286,12 @@ const Cotizaciones = () => {
                   </div>
                   {(cot.estado === 'nuevas' || !cot.estado || cot.estado === 'pendiente') && (
                     <button 
-                      className="btn-card-cart-quick"
+                      className={`btn-card-cart-quick ${isCotizacionEnCarrito(cot) ? 'en-carrito' : ''}`}
                       onClick={(e) => handleMandarAlCarrito(cot, e)}
                       title="Mandar este servicio al Carrito de compras"
+                      style={isCotizacionEnCarrito(cot) ? { background: '#10b981', color: 'white' } : {}}
                     >
-                      <ShoppingCart size={15} /> Mandar al Carrito
+                      <ShoppingCart size={15} /> {isCotizacionEnCarrito(cot) ? 'En Carrito' : 'Mandar al Carrito'}
                     </button>
                   )}
                   <ChevronRight size={18} />
@@ -358,8 +374,9 @@ const Cotizaciones = () => {
                         <button 
                           className="btn-cart-add-final"
                           onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
+                          style={isCotizacionEnCarrito(cotizacionSeleccionada) ? { background: '#10b981', boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)' } : {}}
                         >
-                          <ShoppingCart size={18} /> MANDAR AL CARRITO
+                          <ShoppingCart size={18} /> {isCotizacionEnCarrito(cotizacionSeleccionada) ? 'YA EN EL CARRITO' : 'MANDAR AL CARRITO'}
                         </button>
                         <button className="btn-accept-final" onClick={() => setPasoPago(1)}>PAGAR ANTICIPO (60%)</button>
                       </>

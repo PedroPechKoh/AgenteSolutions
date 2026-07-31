@@ -24,6 +24,22 @@ const VistaCotizaciones = () => {
   const [cotizacionParaAsignar, setCotizacionParaAsignar] = useState(null);
   const [cotizacionParaEditarTecnico, setCotizacionParaEditarTecnico] = useState(null);
 
+  const [carritoCotizaciones, setCarritoCotizaciones] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const isCotizacionEnCarrito = (cot) => {
+    if (!cot) return false;
+    return carritoCotizaciones.some(item => 
+      String(item.id) === String(cot.id) || 
+      (cot.folio && String(item.folio) === String(cot.folio))
+    );
+  };
+
   // Enviar cotización / servicio a la vista Carrito (CotizacionesPendientes)
   const handleMandarAlCarrito = (cot, e) => {
     if (e) e.stopPropagation();
@@ -35,7 +51,6 @@ const VistaCotizaciones = () => {
     if (yaExiste) {
       alert(`La cotización ${cot.folio || `#${cot.id}`} ya se encuentra agregada en tu Carrito de Compras.`);
       setCotizacionSeleccionada(null);
-      navigate('/cotizaciones-pendientes');
       return;
     }
 
@@ -73,10 +88,10 @@ const VistaCotizaciones = () => {
 
     const nuevoCarrito = [nuevoItemCarrito, ...carritoGuardado];
     localStorage.setItem('carrito_cotizaciones', JSON.stringify(nuevoCarrito));
+    setCarritoCotizaciones(nuevoCarrito);
 
     alert(`🛒 ¡Cotización ${nuevoItemCarrito.folio} enviada al Carrito de Compras con éxito!`);
     setCotizacionSeleccionada(null);
-    navigate('/cotizaciones-pendientes');
   };
   const [cotizaciones, setCotizaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -685,6 +700,9 @@ const VistaCotizaciones = () => {
               if (statusLower.includes('aprobad') || statusLower === 'procesada por admin' || statusLower.includes('aceptad') || statusLower.includes('validado')) {
                 return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fef3c7', color: '#d97706', fontSize: '0.65rem', fontWeight: 'bold' }}>POR PAGAR</span>;
               }
+              if (isCotizacionEnCarrito(c)) {
+                return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#dcfce7', color: '#16a34a', border: '1px solid #10b981', fontSize: '0.65rem', fontWeight: 'bold' }}>🛒 EN CARRITO</span>;
+              }
               return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#e0f2fe', color: '#0284c7', fontSize: '0.65rem', fontWeight: 'bold' }}>PENDIENTE</span>;
             })()}
             {(c.is_unified_batch || (c.related_service_ids && c.related_service_ids.length > 0) || (typeof c.concept === 'string' ? c.concept.includes('isUnifiedBatch') : c.concept?.isUnifiedBatch)) && (
@@ -733,8 +751,19 @@ const VistaCotizaciones = () => {
         </td>
         <td data-label="ACCIONES">
           <div className="cotiz-actions-cell">
-            <button className="btn-view-detail" onClick={() => setCotizacionSeleccionada(c)} style={{ fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}>
-              👁️ VER
+            <button 
+              className={`btn-view-detail ${isCotizacionEnCarrito(c) ? 'en-carrito' : ''}`} 
+              onClick={() => setCotizacionSeleccionada(c)} 
+              style={isCotizacionEnCarrito(c) ? { 
+                background: '#10b981', 
+                boxShadow: '0 4px 10px rgba(16, 185, 129, 0.3)', 
+                fontSize: 'clamp(0.7rem, 2vw, 0.9rem)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              } : { fontSize: 'clamp(0.7rem, 2vw, 0.9rem)' }}
+            >
+              {isCotizacionEnCarrito(c) ? '🛒 EN CARRITO' : '👁️ VER'}
             </button>
             {/* Botón para editar si está rechazada */}
             {!esCliente && c.status === 'Rechazado' && (
@@ -1495,10 +1524,25 @@ const VistaCotizaciones = () => {
 
                       <button 
                         className="btn-modal-print" 
-                        style={{ background: '#f26624', color: 'white', width: '100%', minHeight: '45px', height: 'auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: 'unset', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(242, 102, 36, 0.3)' }} 
+                        style={{ 
+                          background: isCotizacionEnCarrito(cotizacionSeleccionada) ? '#10b981' : '#f26624', 
+                          color: 'white', 
+                          width: '100%', 
+                          minHeight: '45px', 
+                          height: 'auto', 
+                          padding: '10px 16px', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '8px', 
+                          whiteSpace: 'normal', 
+                          minWidth: 'unset', 
+                          fontWeight: 'bold', 
+                          boxShadow: isCotizacionEnCarrito(cotizacionSeleccionada) ? '0 4px 10px rgba(16, 185, 129, 0.3)' : '0 4px 10px rgba(242, 102, 36, 0.3)' 
+                        }} 
                         onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
                       >
-                        <ShoppingCart size={18} /> MANDAR AL CARRITO
+                        <ShoppingCart size={18} /> {isCotizacionEnCarrito(cotizacionSeleccionada) ? 'YA EN EL CARRITO' : 'MANDAR AL CARRITO'}
                       </button>
                       
                       {(cotizacionSeleccionada.status !== 'Rechazado' || esCliente) && (
