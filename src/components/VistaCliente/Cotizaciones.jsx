@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   CheckCircle, XCircle, Clock, MessageSquare, 
-  ChevronRight, Copy, UploadCloud, ShieldCheck, CreditCard 
+  ChevronRight, Copy, UploadCloud, ShieldCheck, CreditCard, ShoppingCart 
 } from 'lucide-react';
 import '../../styles/Cliente/Cotizaciones.css';
 
@@ -17,6 +17,43 @@ const Cotizaciones = () => {
   const navigate = useNavigate();
 
   const [cotizacionesData, setCotizacionesData] = useState([]);
+
+  // Enviar servicio / cotización a la vista del Carrito
+  const handleMandarAlCarrito = (cot, e) => {
+    if (e) e.stopPropagation();
+    if (!cot) return;
+
+    const carritoGuardado = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+    const yaExiste = carritoGuardado.some(item => String(item.id) === String(cot.id) || String(item.folio) === String(cot.folio));
+
+    if (yaExiste) {
+      alert(`La cotización ${cot.folio || `#${cot.id}`} ya se encuentra agregada en tu Carrito de Compras.`);
+      cerrarModal();
+      navigate('/cotizaciones-pendientes');
+      return;
+    }
+
+    const fechaOriginal = cot.fecha || cot.created_at || new Date().toISOString().split('T')[0];
+    
+    const nuevoItemCarrito = {
+      id: cot.id || Date.now(),
+      titulo: cot.propiedad_nombre || cot.concepto || cot.titulo || `Cotización #${cot.id}`,
+      folio: cot.folio || `COT-${cot.id}`,
+      fecha: fechaOriginal,
+      total: Number(cot.total || cot.total_amount || 0),
+      estado: 'Pendiente de aprobación',
+      descripcion: getConceptoText(cot),
+      vencida: false,
+      diasRestantes: 15
+    };
+
+    const nuevoCarrito = [nuevoItemCarrito, ...carritoGuardado];
+    localStorage.setItem('carrito_cotizaciones', JSON.stringify(nuevoCarrito));
+
+    alert(`🛒 ¡Cotización ${nuevoItemCarrito.folio} enviada al Carrito de Compras con éxito!`);
+    cerrarModal();
+    navigate('/cotizaciones-pendientes');
+  };
 
   useEffect(() => {
     const fetchCotizaciones = async () => {
@@ -232,6 +269,15 @@ const Cotizaciones = () => {
                       <span className="partial-badge">{(cot.estado || 'PENDIENTE').toUpperCase()}</span>
                     )}
                   </div>
+                  {(cot.estado === 'nuevas' || !cot.estado || cot.estado === 'pendiente') && (
+                    <button 
+                      className="btn-card-cart-quick"
+                      onClick={(e) => handleMandarAlCarrito(cot, e)}
+                      title="Mandar este servicio al Carrito de compras"
+                    >
+                      <ShoppingCart size={15} /> Mandar al Carrito
+                    </button>
+                  )}
                   <ChevronRight size={18} />
                 </div>
               </div>
@@ -309,6 +355,12 @@ const Cotizaciones = () => {
                     {(cotizacionSeleccionada.estado === 'nuevas' || !cotizacionSeleccionada.estado) && (
                       <>
                         <button className="btn-reject-final" onClick={cerrarModal}>RECHAZAR</button>
+                        <button 
+                          className="btn-cart-add-final"
+                          onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
+                        >
+                          <ShoppingCart size={18} /> MANDAR AL CARRITO
+                        </button>
                         <button className="btn-accept-final" onClick={() => setPasoPago(1)}>PAGAR ANTICIPO (60%)</button>
                       </>
                     )}

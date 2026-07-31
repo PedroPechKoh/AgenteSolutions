@@ -103,6 +103,8 @@ const CotizacionesPendientes = () => {
         const token = localStorage.getItem('token');
         const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
         
+        const guardadasLocales = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+
         const res = await axios.get(`${API_URL}/cotizaciones`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -119,8 +121,9 @@ const CotizacionesPendientes = () => {
           return !st.includes('aceptad') && !st.includes('aprob') && !st.includes('rechaz') && !st.includes('cancel');
         });
 
+        let mapeadas = [];
         if (pendientesAPI.length > 0) {
-          const mapeadas = pendientesAPI.map(item => {
+          mapeadas = pendientesAPI.map(item => {
             const caducidad = calcularCaducidad(item.created_at || item.fecha, item.vencida);
             return {
               id: item.id,
@@ -134,13 +137,55 @@ const CotizacionesPendientes = () => {
               diasRestantes: caducidad.diasRestantes
             };
           });
-          setCotizaciones(mapeadas);
-          // Seleccionar solo las vigentes por defecto
-          const vigentesIds = mapeadas.filter(c => !c.vencida).map(c => c.id);
-          setSelectedIds(vigentesIds);
         }
+
+        // Combinar cotizaciones locales guardadas desde la vista de Cotizaciones
+        const mapa = new Map();
+        cotizacionesIniciales.forEach(item => {
+          const cad = calcularCaducidad(item.fecha, item.vencida);
+          mapa.set(String(item.id), { ...item, vencida: cad.vencida, diasRestantes: cad.diasRestantes });
+        });
+
+        mapeadas.forEach(item => {
+          mapa.set(String(item.id), item);
+        });
+
+        guardadasLocales.forEach(item => {
+          const cad = calcularCaducidad(item.fecha, item.vencida);
+          mapa.set(String(item.id), {
+            ...item,
+            vencida: cad.vencida,
+            diasRestantes: cad.diasRestantes,
+            estado: cad.vencida ? 'Caducada (> 15 días)' : (item.estado || 'Pendiente de aprobación')
+          });
+        });
+
+        const listaFinal = Array.from(mapa.values());
+        setCotizaciones(listaFinal);
+        const vigentesIds = listaFinal.filter(c => !c.vencida).map(c => c.id);
+        setSelectedIds(vigentesIds);
+
       } catch (err) {
         console.warn("Utilizando datos locales para el carrito con control de caducidad:", err);
+        const guardadasLocales = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+        const mapa = new Map();
+        cotizacionesIniciales.forEach(item => {
+          const cad = calcularCaducidad(item.fecha, item.vencida);
+          mapa.set(String(item.id), { ...item, vencida: cad.vencida, diasRestantes: cad.diasRestantes });
+        });
+        guardadasLocales.forEach(item => {
+          const cad = calcularCaducidad(item.fecha, item.vencida);
+          mapa.set(String(item.id), {
+            ...item,
+            vencida: cad.vencida,
+            diasRestantes: cad.diasRestantes,
+            estado: cad.vencida ? 'Caducada (> 15 días)' : (item.estado || 'Pendiente de aprobación')
+          });
+        });
+        const listaFinal = Array.from(mapa.values());
+        setCotizaciones(listaFinal);
+        const vigentesIds = listaFinal.filter(c => !c.vencida).map(c => c.id);
+        setSelectedIds(vigentesIds);
       } finally {
         setLoading(false);
       }

@@ -1202,6 +1202,54 @@
   min-height: 44px;
 }
 
+.btn-cart-add-final {
+  flex: 1.2;
+  min-width: 150px;
+  background: #0f172a;
+  color: white;
+  border: 1px solid #334155;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+  transition: all 0.2s ease;
+  min-height: 44px;
+  font-size: 0.85rem;
+}
+
+.btn-cart-add-final:hover {
+  background: var(--primary-orange);
+  border-color: var(--primary-orange);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(242, 102, 36, 0.35);
+}
+
+.btn-card-cart-quick {
+  background: var(--primary-orange-light);
+  color: var(--primary-orange);
+  border: 1px solid var(--primary-orange-border);
+  padding: 7px 12px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-card-cart-quick:hover {
+  background: var(--primary-orange);
+  color: white;
+  transform: translateY(-1px);
+}
+
 .btn-liquidar-final {
   width: 100%;
   background: var(--success-green);
