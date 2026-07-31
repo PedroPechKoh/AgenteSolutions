@@ -9,7 +9,7 @@ import {
   ArrowUpDown, FileText, Upload, 
   MoreVertical, Eye, CheckCircle, 
   XCircle, Clock, ChevronDown, ChevronLeft,
-  User, Wrench, Truck, Layout, Home, Phone, MapPin
+  User, Wrench, Truck, Layout, Home, Phone, MapPin, ShoppingCart
 } from 'lucide-react';
 import CreateQuotationModal from "./CreateQuotationModal";
 import ModalCrearCotizacion from "../Shared/ModalCrearCotizacion";
@@ -23,6 +23,61 @@ const VistaCotizaciones = () => {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [cotizacionParaAsignar, setCotizacionParaAsignar] = useState(null);
   const [cotizacionParaEditarTecnico, setCotizacionParaEditarTecnico] = useState(null);
+
+  // Enviar cotización / servicio a la vista Carrito (CotizacionesPendientes)
+  const handleMandarAlCarrito = (cot, e) => {
+    if (e) e.stopPropagation();
+    if (!cot) return;
+
+    const carritoGuardado = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+    const yaExiste = carritoGuardado.some(item => String(item.id) === String(cot.id) || String(item.folio) === String(cot.folio));
+
+    if (yaExiste) {
+      alert(`La cotización ${cot.folio || `#${cot.id}`} ya se encuentra agregada en tu Carrito de Compras.`);
+      setCotizacionSeleccionada(null);
+      navigate('/cotizaciones-pendientes');
+      return;
+    }
+
+    let conceptoTexto = 'Servicio registrado en espera.';
+    if (cot.concept) {
+      if (typeof cot.concept === 'string') {
+        try {
+          const parsed = JSON.parse(cot.concept);
+          if (parsed && parsed.conceptos) {
+            conceptoTexto = parsed.conceptos.map(x => x.descripcion || x.titulo || 'Servicio').join(', ');
+          } else {
+            conceptoTexto = cot.concept;
+          }
+        } catch {
+          conceptoTexto = cot.concept;
+        }
+      } else if (typeof cot.concept === 'object' && cot.concept.conceptos) {
+        conceptoTexto = cot.concept.conceptos.map(x => x.descripcion || x.titulo || 'Servicio').join(', ');
+      }
+    }
+
+    const fechaOriginal = cot.fecha || cot.created_at || new Date().toISOString().split('T')[0];
+
+    const nuevoItemCarrito = {
+      id: cot.id || Date.now(),
+      titulo: cot.propiedad_nombre || cot.cliente || cot.producto || `Cotización #${cot.id}`,
+      folio: cot.folio || `COT-${cot.id}`,
+      fecha: fechaOriginal,
+      total: Number(cot.total || cot.total_amount || 0),
+      estado: 'Pendiente de aprobación',
+      descripcion: cot.observations || conceptoTexto,
+      vencida: false,
+      diasRestantes: 15
+    };
+
+    const nuevoCarrito = [nuevoItemCarrito, ...carritoGuardado];
+    localStorage.setItem('carrito_cotizaciones', JSON.stringify(nuevoCarrito));
+
+    alert(`🛒 ¡Cotización ${nuevoItemCarrito.folio} enviada al Carrito de Compras con éxito!`);
+    setCotizacionSeleccionada(null);
+    navigate('/cotizaciones-pendientes');
+  };
   const [cotizaciones, setCotizaciones] = useState([]);
   const [cargando, setCargando] = useState(true);
 
@@ -1423,11 +1478,11 @@ const VistaCotizaciones = () => {
                     </button>
                   )}
 
-                  {/* Si está pendiente, mostrar Aceptar/Rechazar */}
+                  {/* Si está pendiente, mostrar Aceptar / Rechazar / Mandar al Carrito */}
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && 
                     (cotizacionSeleccionada.status === 'Pendiente' || cotizacionSeleccionada.status === 'En proceso' || cotizacionSeleccionada.status?.includes('Admin') || cotizacionSeleccionada.status === 'Rechazado') && 
                     !rechazando && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
                       {cotizacionSeleccionada.status !== 'Rechazado' && (
                         <button 
                           className="btn-modal-print" 
@@ -1437,6 +1492,14 @@ const VistaCotizaciones = () => {
                           ✕ RECHAZAR
                         </button>
                       )}
+
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#f26624', color: 'white', width: '100%', minHeight: '45px', height: 'auto', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', whiteSpace: 'normal', minWidth: 'unset', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(242, 102, 36, 0.3)' }} 
+                        onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
+                      >
+                        <ShoppingCart size={18} /> MANDAR AL CARRITO
+                      </button>
                       
                       {(cotizacionSeleccionada.status !== 'Rechazado' || esCliente) && (
                         <button 
