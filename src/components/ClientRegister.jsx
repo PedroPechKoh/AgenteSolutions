@@ -116,7 +116,7 @@ const ClientRegister = () => {
         'Administra hasta 30 clientes',
         'Usuarios y técnicos sin límite',
         'Reportes y cotizaciones en línea',
-        'Pago $935 MXN/mes después'
+        'Pago $899 MXN/mes después'
       ],
       cta: 'Suscribirme',
       color: '#0F766E'
@@ -152,7 +152,7 @@ const ClientRegister = () => {
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_API_BASE_URL}/ui/settings/login-settings`)
       .then(r => { if (r.data.success) setBackgroundSettings(r.data.settings); })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleCaptchaChange = (value) => {
@@ -188,20 +188,20 @@ const ClientRegister = () => {
     setIsLoading(true);
 
     const roleMap = { client: 3, technician: 2, owner: 5, owner_personal: 5, owner_business: 4, contratista: 6, admin_propiedades: 7 };
-    const roleId  = roleMap[accountType] ?? 3;
+    const roleId = roleMap[accountType] ?? 3;
 
     try {
       const isAutonomoAccount = (roleId === 5 || roleId === 4 || roleId === 6);
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/registro-usuario`, {
-        first_name:   firstName.trim(),
-        last_name:    lastName.trim(),
+        first_name: firstName.trim(),
+        last_name: lastName.trim(),
         email,
         phone_number: phone,
         password,
-        role_id:      roleId,
+        role_id: roleId,
         company_code: (!isAutonomoAccount && roleId !== 7) ? companyCode.trim() || null : null,
         company_name: isAutonomoAccount ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null,
-        specialties:  roleId === 2 ? selectedSpecialties : [],
+        specialties: roleId === 2 ? selectedSpecialties : [],
         captcha_token: captchaToken
       });
 
@@ -230,9 +230,9 @@ const ClientRegister = () => {
   };
 
   return (
-    <div 
-      style={{ 
-        backgroundColor: backgroundSettings.colorHex || '#0f0f0f', 
+    <div
+      style={{
+        backgroundColor: backgroundSettings.colorHex || '#0f0f0f',
         backgroundImage: backgroundSettings.imageUrl ? `url(${backgroundSettings.imageUrl})` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -249,7 +249,7 @@ const ClientRegister = () => {
         overflowY: 'auto',
         overflowX: 'hidden',
         fontFamily: '"Arial Black", sans-serif'
-      }} 
+      }}
     >
       <style>{`
         .back-button {
@@ -292,7 +292,7 @@ const ClientRegister = () => {
         <ArrowLeft size={28} />
       </button>
 
-<div style={{ maxWidth: '1440px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>        
+      <div style={{ maxWidth: '1440px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
         {/* LOGO SUPERIOR LIMPIO (Sin overlaps ni scale absoluto) */}
         <div style={{ marginBottom: '20px', textAlign: 'center' }}>
           <img
@@ -320,32 +320,32 @@ const ClientRegister = () => {
                 <strong style={{ color: '#f26522' }}>Estado actual:</strong> <span style={{ color: '#4CAF50', fontWeight: 'bold' }}>⏳ Pendiente de aprobación</span>
               </p>
             </div>
-          <button 
-            onClick={() => navigate(`/revisa-tu-correo?email=${email}`)}
-            style={{ padding: '12px 24px', backgroundColor: '#f26522', color: '#fff', border: 'none', borderRadius: '30px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}
-          >
-            Continuar a verificación de correo
-          </button>
+            <button
+              onClick={() => navigate(`/revisa-tu-correo?email=${email}`)}
+              style={{ padding: '12px 24px', backgroundColor: '#f26522', color: '#fff', border: 'none', borderRadius: '30px', fontSize: '1rem', fontWeight: 'bold', cursor: 'pointer' }}
+            >
+              Continuar a verificación de correo
+            </button>
           </div>
         ) : (
           <div
             className="register-card"
-style={{
-    width: '100%',
-    maxWidth: '100%', // Usamos el 100% del espacio que le dimos en el paso 1
-    minHeight: 'auto', // Cambiado a auto para que no sobre espacio negro abajo
-    padding: '45px 40px',
-    borderRadius: '26px',
-    backgroundColor: 'rgba(10, 10, 10, 0.95)',
-    border: '1px solid rgba(242, 101, 34, 0.25)',
-    boxShadow: '0 32px 90px rgba(0, 0, 0, 0.55)',
-    display: 'flex',
-    flexDirection: 'column', // ¡DEBE SER COLUMN!
-    alignItems: 'center', // Centra el contenido
-    gap: '40px', // Espacio entre el título, las tarjetas y el pie
-    boxSizing: 'border-box',
-    margin: '0 auto'
-  }}    >
+            style={{
+              width: '100%',
+              maxWidth: '100%', // Usamos el 100% del espacio que le dimos en el paso 1
+              minHeight: 'auto', // Cambiado a auto para que no sobre espacio negro abajo
+              padding: '45px 40px',
+              borderRadius: '26px',
+              backgroundColor: 'rgba(10, 10, 10, 0.95)',
+              border: '1px solid rgba(242, 101, 34, 0.25)',
+              boxShadow: '0 32px 90px rgba(0, 0, 0, 0.55)',
+              display: 'flex',
+              flexDirection: 'column', // ¡DEBE SER COLUMN!
+              alignItems: 'center', // Centra el contenido
+              gap: '40px', // Espacio entre el título, las tarjetas y el pie
+              boxSizing: 'border-box',
+              margin: '0 auto'
+            }}    >
             <h2
               style={{ color: 'white', fontStyle: 'italic', fontSize: '1.8rem', letterSpacing: '1.5px', margin: '0 0 10px 0', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', textAlign: 'center', fontWeight: '900' }}
             >
@@ -398,31 +398,31 @@ style={{
                         <div>
                           <div className="plan-title">{p.label}</div>
                           <div className="plan-sub">{p.sub}</div>
-                          <ul className="plan-features">{p.features.map((f,i)=>(<li key={i}>{f}</li>))}</ul>
+                          <ul className="plan-features">{p.features.map((f, i) => (<li key={i}>{f}</li>))}</ul>
                         </div>
                         <div style={{ width: '100%' }}>
-                          <button type="button" className="plan-cta" onClick={(ev)=>{ ev.stopPropagation(); setAccountType(p.key); setSelectedPlan(p.key); centerCard(cardRefs.current[p.key]); setFlipped(p.key); }}>{p.cta}</button>
+                          <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setAccountType(p.key); setSelectedPlan(p.key); centerCard(cardRefs.current[p.key]); setFlipped(p.key); }}>{p.cta}</button>
                         </div>
                       </div>
 
-                      <div className="card-back" style={{ position: 'absolute', top:0, left:0, width:'100%', height:'100%', padding:'16px', boxSizing:'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
+                      <div className="card-back" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', padding: '16px', boxSizing: 'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
                         <div style={{ color: '#111', fontWeight: 800, marginBottom: 10, fontSize: '1rem' }}>{p.label} — ¿Qué incluye?</div>
                         <ul style={{ color: '#333', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: 10, paddingLeft: '16px' }}>
-                          {p.details.map((f,i)=> (<li key={i} style={{ marginBottom: '8px' }}>• {f}</li>))}
+                          {p.details.map((f, i) => (<li key={i} style={{ marginBottom: '8px' }}>• {f}</li>))}
                         </ul>
                         <div style={{ color: '#444', fontSize: '0.88rem', marginBottom: 14 }}>{p.note}</div>
                         <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: '100%', overflowY: 'auto' }}>
-                          <input required value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={email} onChange={e=>setEmail(e.target.value)} placeholder="CORREO" type="email" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={phone} onChange={e=>setPhone(e.target.value)} placeholder="TELÉFONO" type="tel" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={password} onChange={e=>setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder="CONFIRMAR CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={lastName} onChange={e => setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={email} onChange={e => setEmail(e.target.value)} placeholder="CORREO" type="email" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={phone} onChange={e => setPhone(e.target.value)} placeholder="TELÉFONO" type="tel" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={password} onChange={e => setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                          <input required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="CONFIRMAR CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           {(p.key === 'client' || p.key === 'technician' || p.key === 'admin_propiedades') && (
-                            <input value={companyCode} onChange={e=>setCompanyCode(e.target.value)} placeholder="Código de empresa (Opcional)" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                            <input value={companyCode} onChange={e => setCompanyCode(e.target.value)} placeholder="Código de empresa (Opcional)" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           )}
                           {(p.key === 'owner_business' || p.key === 'contratista') && (
-                            <input value={companyName} onChange={e=>setCompanyName(e.target.value)} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                            <input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
                           )}
                           <div style={{ display: 'flex', justifyContent: 'center', margin: '5px 0' }}>
                             <ReCAPTCHA
@@ -431,9 +431,9 @@ style={{
                               size="compact"
                             />
                           </div>
-                          <div style={{ display:'flex', gap:8 }}>
-                            <button type="submit" disabled={isLoading} style={{ flex:1, padding: '10px 14px', borderRadius: 20, background: '#f26522', color:'#fff', fontWeight:800 }}>{isLoading? '...' : 'Registrar'}</button>
-                            <button type="button" onClick={(ev)=>{ ev.stopPropagation(); setFlipped(null); }} style={{ padding: '10px 14px', borderRadius: 20, background: '#333', color:'#fff' }}>Cancelar</button>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <button type="submit" disabled={isLoading} style={{ flex: 1, padding: '10px 14px', borderRadius: 20, background: '#f26522', color: '#fff', fontWeight: 800 }}>{isLoading ? '...' : 'Registrar'}</button>
+                            <button type="button" onClick={(ev) => { ev.stopPropagation(); setFlipped(null); }} style={{ padding: '10px 14px', borderRadius: 20, background: '#333', color: '#fff' }}>Cancelar</button>
                           </div>
                         </form>
                       </div>
@@ -443,7 +443,7 @@ style={{
               })}
             </div>
 
-              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
               {message && (
                 <p
                   style={{

@@ -12,7 +12,7 @@ import RegistroCliente from "./components/ClientRegister";
 import ActivacionCuenta from "./components/ActivacionCuenta";
 import CustomizeLogin from "./components/CustomizeLogin";
 import AssignServiceForm from "./components/AssignServiceForm";
-import VistaNotificaciones from "./components/Shared/VistaNotificaciones"; 
+import VistaNotificaciones from "./components/Shared/VistaNotificaciones";
 import RegistroZonas from "./components/VistasTecnico/RegistroZonas";
 import CheckEmail from "./components/CheckEmail";
 import VerifyEmail from "./components/VerifyEmail";
@@ -72,16 +72,16 @@ import ReporteTrabajo from "./components/VistaCliente/ReporteTrabajo";
 import DetallePropiedadadmin from "./components/admin/DetallePropiedad";
 import VistaDetallePropiedadCliente from "./components/VistaCliente/VistaDetallePropiedad";
 
-import RegisteRoot from "./components/Register"; 
+import RegisteRoot from "./components/Register";
 import VistaCotizacionPrint from "./components/admin/VistaCotizacionPrint";
 
-// Accept JSON
+
 axios.defaults.headers.common["Accept"] = "application/json";
 
 const AppRoutes = () => {
-useEffect(() => {
+  useEffect(() => {
     OneSignal.init({
-      appId: "632781ba-8ada-42ea-a894-b53f1618b204", // ⚠️ NO OLVIDES PEGAR TU ID REAL AQUÍ
+      appId: "632781ba-8ada-42ea-a894-b53f1618b204",
       promptOptions: {
         slidedown: {
           prompts: [
@@ -101,8 +101,7 @@ useEffect(() => {
   }, []);
   const { user, initialized } = useAuth();
 
-  // Mientras el auth está inicializando, no renderizamos nada para evitar
-  // que el comodín (*) redirija antes de que se lea el localStorage
+
   if (!initialized) return null;
 
   return (
@@ -116,14 +115,14 @@ useEffect(() => {
 
       {/* RUTA COMPARTIDA PROPIEDADES */}
       <Route path="/propiedades" element={
-          user?.role_id === 3 ? <MainLayoutCliente><VistaPropiedades /></MainLayoutCliente> : <VistaPropiedades />
+        user?.role_id === 3 ? <MainLayoutCliente><VistaPropiedades /></MainLayoutCliente> : <VistaPropiedades />
       } />
 
       {/* RUTA COMPARTIDA DETALLE REPORTE */}
       <Route path="/detalle-reporte/:id" element={
-          user?.role_id === 3 
-            ? <MainLayoutCliente><DetalleReporte /></MainLayoutCliente> 
-            : <DetalleReporte />
+        user?.role_id === 3
+          ? <MainLayoutCliente><DetalleReporte /></MainLayoutCliente>
+          : <DetalleReporte />
       } />
 
       <Route path="/VistaRoot" element={<VistaInicioAdmin />} />
@@ -132,57 +131,57 @@ useEffect(() => {
       <Route
         path="/registro-propiedades"
         element={
-            user?.role_id === 3 ? <MainLayoutCliente><RegisterProperties /></MainLayoutCliente> : <RegisterProperties />
+          user?.role_id === 3 ? <MainLayoutCliente><RegisterProperties /></MainLayoutCliente> : <RegisterProperties />
         }
       />
 
       {/* ------RUTAS DE LA VISTA DEL TECNICO (LIBERADAS) ------*/}
-        <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
-        <Route path="/Checklist/:id" element={<CheckList />} />
-        <Route path="/detalleTrabajo/:id" element={<DetalleTrabajo />} />
-        <Route path="/galeria-reportes/:id?" element={<GaleriaReportes />} />
-        <Route path="/reporte-individual/:id?" element={<ReporteIndividual />} />
-        <Route path="/nuevo-reporte" element={<NuevoReporte />} />
-        <Route path="/trabajo-inicio/:id" element={<TrabajoInicio />} />
-        <Route path="/trabajo-propiedad/:id" element={<TrabajoPropiedad />} />
-        <Route path="/trabajo_propiedad/:id" element={<TrabajoPropiedad />} />
-        <Route path="/venta-cruzada" element={<VentaCruzada />} />
-        <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
-        <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />
-        <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
+      <Route path="/trabajos-tecnico" element={<TrabajosTecnico />} />
+      <Route path="/Checklist/:id" element={<CheckList />} />
+      <Route path="/detalleTrabajo/:id" element={<DetalleTrabajo />} />
+      <Route path="/galeria-reportes/:id?" element={<GaleriaReportes />} />
+      <Route path="/reporte-individual/:id?" element={<ReporteIndividual />} />
+      <Route path="/nuevo-reporte" element={<NuevoReporte />} />
+      <Route path="/trabajo-inicio/:id" element={<TrabajoInicio />} />
+      <Route path="/trabajo-propiedad/:id" element={<TrabajoPropiedad />} />
+      <Route path="/trabajo_propiedad/:id" element={<TrabajoPropiedad />} />
+      <Route path="/venta-cruzada" element={<VentaCruzada />} />
+      <Route path="/registrar-venta-cruzada" element={<RegistrarVentaCruzada />} />
+      <Route path="/levantamiento-propiedad" element={<LevantamientoPropiedad />} />
+      <Route path="/RegistroZonas/:curp" element={<RegistroZonas />} />
 
       {/* ------RUTAS DE LA VISTA DEL ADMIN (LIBERADAS) ------*/}
-        <Route path="/vista-cotizaciones" element={
-          user?.role_id === 3 ? <MainLayoutCliente><VistaCotizaciones /></MainLayoutCliente> : <VistaCotizaciones />
-        } />
-        <Route path="/levantamientos" element={
-          user?.role_id === 3 ? <MainLayoutCliente><VistaLevantamientos /></MainLayoutCliente> : <VistaLevantamientos />
-        } />
-        <Route path="/mi-perfil" element={
-          user?.role_id === 3 ? <MainLayoutCliente><Profile /></MainLayoutCliente> : <Profile />
-        } />
+      <Route path="/vista-cotizaciones" element={
+        user?.role_id === 3 ? <MainLayoutCliente><VistaCotizaciones /></MainLayoutCliente> : <VistaCotizaciones />
+      } />
+      <Route path="/levantamientos" element={
+        user?.role_id === 3 ? <MainLayoutCliente><VistaLevantamientos /></MainLayoutCliente> : <VistaLevantamientos />
+      } />
+      <Route path="/mi-perfil" element={
+        user?.role_id === 3 ? <MainLayoutCliente><Profile /></MainLayoutCliente> : <Profile />
+      } />
 
 
-        <Route path="/detalle-producto" element={<ProductoDetalleView />} />
-        <Route path="/vista-producto" element={<ProductosView />} />
-        <Route path="/dashboard" element={<VistaDashboard />} />
-        <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
-        <Route path="/usuarios" element={<VistaUsuarios />} />
-        <Route path="/gestion-autonomos" element={<VistaGestionAutonomos />} />
-        <Route path="/sala-espera-tecnicos" element={<VistaSalaEsperaTecnicos />} />
-        <Route path="/mi-codigo-autonomo" element={<VistaCodigoAutonomo />} />
-        <Route path="/apoyo-autonomo" element={<VistaApoyoAutonomo />} />
+      <Route path="/detalle-producto" element={<ProductoDetalleView />} />
+      <Route path="/vista-producto" element={<ProductosView />} />
+      <Route path="/dashboard" element={<VistaDashboard />} />
+      <Route path="/detalle-cliente" element={<VistaDetalleCliente />} />
+      <Route path="/usuarios" element={<VistaUsuarios />} />
+      <Route path="/gestion-autonomos" element={<VistaGestionAutonomos />} />
+      <Route path="/sala-espera-tecnicos" element={<VistaSalaEsperaTecnicos />} />
+      <Route path="/mi-codigo-autonomo" element={<VistaCodigoAutonomo />} />
+      <Route path="/apoyo-autonomo" element={<VistaApoyoAutonomo />} />
 
 
-        <Route path="/map" element={<Map />} />
-        <Route path="/customize-login" element={<CustomizeLogin />} />
-        <Route path="/assign-service" element={<AssignServiceForm />} />
-        <Route path="/bodeguero" element={<VistaBodeguero/>} />
-        <Route path="/detalle-propiedad/:id" element={<DetallePropiedadadmin/>} />
-        <Route path="/tablero-servicios" element={<VistaServiciosAdmin />} />
-        <Route path="/detalle-tecnico" element={<VistaDetalleTecnico />} />
-        <Route path="/reportes-globales" element={<VistaReportesGlobal />} />
-        <Route path="/reporte-trabajo-admin/:id?" element={<ReporteTrabajoAdmin />} />
+      <Route path="/map" element={<Map />} />
+      <Route path="/customize-login" element={<CustomizeLogin />} />
+      <Route path="/assign-service" element={<AssignServiceForm />} />
+      <Route path="/bodeguero" element={<VistaBodeguero />} />
+      <Route path="/detalle-propiedad/:id" element={<DetallePropiedadadmin />} />
+      <Route path="/tablero-servicios" element={<VistaServiciosAdmin />} />
+      <Route path="/detalle-tecnico" element={<VistaDetalleTecnico />} />
+      <Route path="/reportes-globales" element={<VistaReportesGlobal />} />
+      <Route path="/reporte-trabajo-admin/:id?" element={<ReporteTrabajoAdmin />} />
 
       <Route path="/notificaciones" element={<VistaNotificaciones />} />
       <Route path="/trabajos-asignados" element={<TrabajosAsignados />} />
@@ -191,15 +190,15 @@ useEffect(() => {
       <Route path="/VistaInicioCliente" element={<VistaInicioCliente />} />
 
       {/* Rutas del cliente con Sidebar */}
-        <Route path="/Cotizaciones" element={<MainLayoutCliente><Cotizaciones /></MainLayoutCliente>} />
-        <Route path="/cotizaciones-pendientes" element={<MainLayoutCliente><CotizacionesPendientes /></MainLayoutCliente>} />
-        <Route path="/Pago" element={<MainLayoutCliente><Pago /></MainLayoutCliente>} />
-        <Route path="/SOSView" element={<MainLayoutCliente><SOSView /></MainLayoutCliente>} />
-        <Route path="/propiedad/:id/tablero" element={<DetallePropiedadadmin />} />
-        <Route path="/DetallePropiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
-        <Route path="/ReporteTrabajo" element={<MainLayoutCliente><ReporteTrabajo /></MainLayoutCliente>} />
-        <Route path="/VistaDetallePropiedad" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
-        <Route path="/propiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
+      <Route path="/Cotizaciones" element={<MainLayoutCliente><Cotizaciones /></MainLayoutCliente>} />
+      <Route path="/cotizaciones-pendientes" element={<MainLayoutCliente><CotizacionesPendientes /></MainLayoutCliente>} />
+      <Route path="/Pago" element={<MainLayoutCliente><Pago /></MainLayoutCliente>} />
+      <Route path="/SOSView" element={<MainLayoutCliente><SOSView /></MainLayoutCliente>} />
+      <Route path="/propiedad/:id/tablero" element={<DetallePropiedadadmin />} />
+      <Route path="/DetallePropiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
+      <Route path="/ReporteTrabajo" element={<MainLayoutCliente><ReporteTrabajo /></MainLayoutCliente>} />
+      <Route path="/VistaDetallePropiedad" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
+      <Route path="/propiedad/:id" element={<MainLayoutCliente><VistaDetallePropiedadCliente /></MainLayoutCliente>} />
 
 
       <Route path="/registro" element={<RegisteRoot />} />
