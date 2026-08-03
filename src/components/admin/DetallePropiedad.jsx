@@ -50,138 +50,6 @@ const DetallePropiedad = () => {
   const [submitting2da, setSubmitting2da] = useState(false);
 
   const handleResponderSegundaVisita = async (accion, fechaConfirmada) => {
-    if (!activeTask) return;
-    const taskParamId = activeTask.tipo_registro === 'work_order' 
-      ? `work_order-${activeTask.realId}` 
-      : `servicio-${activeTask.realId || activeTask.id}`;
-
-    setSubmitting2da(true);
-    try {
-      const token = localStorage.getItem('agente_token');
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${taskParamId}/responder-segunda-visita`, {
-        accion,
-        fecha_confirmada: fechaConfirmada
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Segunda Visita Confirmada',
-        text: `Has ${accion === 'aceptar' ? 'aceptado' : 'programado'} la fecha para la 2da visita: ${fechaConfirmada}.`,
-        timer: 2000,
-        showConfirmButton: false
-      });
-
-      setShowModalReprogramar2da(false);
-      fetchPropiedad();
-    } catch (error) {
-      console.error("Error respondiendo 2da visita:", error);
-      Swal.fire('Error', 'No se pudo registrar la respuesta a la segunda visita.', 'error');
-    } finally {
-      setSubmitting2da(false);
-    }
-  };
-
-  const handleAdminProgramarSegundaVisita = async (e) => {
-    e.preventDefault();
-    if (!activeTask || !fecha2daAdmin) {
-      Swal.fire('Atención', 'Debes ingresar la fecha y hora para la 2da visita.', 'warning');
-      return;
-    }
-
-    const taskParamId = activeTask.tipo_registro === 'work_order' 
-      ? `work_order-${activeTask.realId}` 
-      : `servicio-${activeTask.realId || activeTask.id}`;
-
-    setSubmitting2da(true);
-    try {
-      const token = localStorage.getItem('agente_token');
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${taskParamId}/admin-programar-segunda-visita`, {
-        fecha_programada: fecha2daAdmin,
-        tecnico_id: tecnico2daAdmin || null,
-        observaciones: obs2daAdmin
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      Swal.fire({
-        icon: 'success',
-        title: '2da Visita Programada',
-        text: 'Se ha programado la 2da visita directamente. Se notificó al Cliente y al Técnico.',
-        timer: 2200,
-        showConfirmButton: false
-      });
-
-      setShowModalAdmin2daVisita(false);
-      setFecha2daAdmin('');
-      setTecnico2daAdmin('');
-      setObs2daAdmin('');
-      fetchPropiedad();
-    } catch (error) {
-      console.error("Error al programar 2da visita por Admin:", error);
-      Swal.fire('Error', 'No se pudo programar la 2da visita.', 'error');
-    } finally {
-      setSubmitting2da(false);
-    }
-  };
-
-  // DATOS DE LA PROPIEDAD
-  const [datosPropiedad, setDatosPropiedad] = useState({
-    personaCargo: "Cargando...",
-    curp: "...",
-    direccion: "Cargando...",
-    mapsUrl: "#",
-    nombre_propiedad: "",
-    location: ""
-  });
-
-  const [cotizaciones, setCotizaciones] = useState([]);
-  const [sosPendientes, setSosPendientes] = useState([]);
-  const [colaTrabajos, setColaTrabajos] = useState([]);
-  const [stats, setStats] = useState({
-    sos: 0, pendientes: 0, proceso: 0, listos: 0
-  });
-
-  const [listaTecnicos, setListaTecnicos] = useState([]);
-  const [tabTablero, setTabTablero] = useState('activos'); // 'activos' | 'historial'
-  const [mesesAbiertos, setMesesAbiertos] = useState({});
-  const [historialFinalizados, setHistorialFinalizados] = useState([]);
-  const [reportesDetallados, setReportesDetallados] = useState([]);
-  const [cargandoReportes, setCargandoReportes] = useState(false);
-  const [reportesPropiedad, setReportesPropiedad] = useState([]);
-
-  const [itemsCotizacion, setItemsCotizacion] = useState([
-    { id: 1, concepto: "Mano de Obra Emergencia", cantidad: 1, precio: "" },
-    { id: 2, concepto: "Materiales e Insumos", cantidad: 1, precio: "" }
-  ]);
-
-  const [formPlanificacion, setFormPlanificacion] = useState({ 
-    tecnico: "", 
-    fecha: "", 
-    prioridad: "ALTA",
-    descripcionTrabajo: ""
-  });
-
-  const [mensajeChat, setMensajeChat] = useState('');
-  const [enviandoMensaje, setEnviandoMensaje] = useState(false);
-  const [usuarioId, setUsuarioId] = useState(null);
-  const [cotsAcordeonOpen, setCotsAcordeonOpen] = useState({
-    pendientes: true,
-    pagadas: false
-  });
-
-  const [colAbiertaKanban, setColAbiertaKanban] = useState('SOS');
-
-  const [submitting2da, setSubmitting2da] = useState(false);
-  const [fecha2daCliente, setFecha2daCliente] = useState('');
-  const [fecha2daAdmin, setFecha2daAdmin] = useState('');
-  const [tecnico2daAdmin, setTecnico2daAdmin] = useState('');
-  const [obs2daAdmin, setObs2daAdmin] = useState('');
-  const [showModalReprogramar2da, setShowModalReprogramar2da] = useState(false);
-  const [showModalAdmin2daVisita, setShowModalAdmin2daVisita] = useState(false);
-
-  const handleResponderSegundaVisita = async (accion, fechaConfirmada) => {
     const task = trabajoSeleccionado;
     if (!task) return;
 
@@ -301,6 +169,53 @@ const DetallePropiedad = () => {
       setSubmitting2da(false);
     }
   };
+
+  // DATOS DE LA PROPIEDAD
+  const [datosPropiedad, setDatosPropiedad] = useState({
+    personaCargo: "Cargando...",
+    curp: "...",
+    direccion: "Cargando...",
+    mapsUrl: "#",
+    nombre_propiedad: "",
+    location: ""
+  });
+
+  const [cotizaciones, setCotizaciones] = useState([]);
+  const [sosPendientes, setSosPendientes] = useState([]);
+  const [colaTrabajos, setColaTrabajos] = useState([]);
+  const [stats, setStats] = useState({
+    sos: 0, pendientes: 0, proceso: 0, listos: 0
+  });
+
+  const [listaTecnicos, setListaTecnicos] = useState([]);
+  const [tabTablero, setTabTablero] = useState('activos'); // 'activos' | 'historial'
+  const [mesesAbiertos, setMesesAbiertos] = useState({});
+  const [historialFinalizados, setHistorialFinalizados] = useState([]);
+  const [reportesDetallados, setReportesDetallados] = useState([]);
+  const [cargandoReportes, setCargandoReportes] = useState(false);
+  const [reportesPropiedad, setReportesPropiedad] = useState([]);
+
+  const [itemsCotizacion, setItemsCotizacion] = useState([
+    { id: 1, concepto: "Mano de Obra Emergencia", cantidad: 1, precio: "" },
+    { id: 2, concepto: "Materiales e Insumos", cantidad: 1, precio: "" }
+  ]);
+
+  const [formPlanificacion, setFormPlanificacion] = useState({ 
+    tecnico: "", 
+    fecha: "", 
+    prioridad: "ALTA",
+    descripcionTrabajo: ""
+  });
+
+  const [mensajeChat, setMensajeChat] = useState('');
+  const [enviandoMensaje, setEnviandoMensaje] = useState(false);
+  const [usuarioId, setUsuarioId] = useState(null);
+  const [cotsAcordeonOpen, setCotsAcordeonOpen] = useState({
+    pendientes: true,
+    pagadas: false
+  });
+
+  const [colAbiertaKanban, setColAbiertaKanban] = useState('SOS');
 
   useEffect(() => {
     try {
