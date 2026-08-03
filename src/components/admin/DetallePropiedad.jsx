@@ -1937,33 +1937,77 @@ const DetallePropiedad = () => {
                 }
 
                 // Cálculo robusto del banner de 2da visita
+                const fullTaskDesc = (
+                  activeTask.description || 
+                  activeTask.descripcion || 
+                  trabajoSeleccionado?.description || 
+                  trabajoSeleccionado?.descripcion || 
+                  ''
+                );
+
                 const isSegundaVisitaRequested = 
                   activeTask.status === 'Segunda Visita Solicitada' || 
                   activeTask.estado === 'Segunda Visita Solicitada' || 
-                  (activeTask.description && activeTask.description.includes('[SOLICITUD 2DA VISITA]'));
+                  trabajoSeleccionado?.status === 'Segunda Visita Solicitada' || 
+                  trabajoSeleccionado?.estado === 'Segunda Visita Solicitada' || 
+                  fullTaskDesc.includes('[SOLICITUD 2DA VISITA]');
 
                 const isSegundaVisitaAgreed = 
                   activeTask.status === 'Segunda Visita Programada' || 
                   activeTask.estado === 'Segunda Visita Programada' ||
-                  (activeTask.description && (
-                    activeTask.description.includes('[RESPUESTA CLIENTE 2DA VISITA]') || 
-                    activeTask.description.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]')
-                  ));
+                  trabajoSeleccionado?.status === 'Segunda Visita Programada' || 
+                  trabajoSeleccionado?.estado === 'Segunda Visita Programada' ||
+                  fullTaskDesc.includes('[RESPUESTA CLIENTE 2DA VISITA]') || 
+                  fullTaskDesc.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]');
 
                 const showBanner2daVisita = isSegundaVisitaRequested && !isSegundaVisitaAgreed;
 
-                let fechaPropuesta2da = activeTask.second_visit_proposed_date;
-                let motivo2da = activeTask.second_visit_reason;
-                if (!fechaPropuesta2da && activeTask.description && activeTask.description.includes('[SOLICITUD 2DA VISITA]')) {
-                  const matchFecha = activeTask.description.match(/propone la fecha:\s*([^\.\n]+)/i);
+                let fechaPropuesta2da = activeTask.second_visit_proposed_date || trabajoSeleccionado?.second_visit_proposed_date;
+                let motivo2da = activeTask.second_visit_reason || trabajoSeleccionado?.second_visit_reason;
+                if (!fechaPropuesta2da && fullTaskDesc.includes('[SOLICITUD 2DA VISITA]')) {
+                  const matchFecha = fullTaskDesc.match(/propone la fecha:\s*([^\.\n]+)/i);
                   if (matchFecha) fechaPropuesta2da = matchFecha[1].trim();
 
-                  const matchMotivo = activeTask.description.match(/Motivo:\s*([^\.\n]+)/i);
+                  const matchMotivo = fullTaskDesc.match(/Motivo:\s*([^\.\n]+)/i);
                   if (matchMotivo) motivo2da = matchMotivo[1].trim();
                 }
 
                 return (
                   <>
+                    {/* ALERTA Y RESPUESTA DE SEGUNDA VISITA PARA EL CLIENTE (AL INICIO DEL MODAL) */}
+                    {showBanner2daVisita && (
+                      <div style={{ background: '#fff7ed', border: '2px solid #ea580c', borderRadius: '18px', padding: '20px', marginBottom: '25px', boxShadow: '0 10px 25px rgba(234, 88, 12, 0.18)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#c2410c', fontWeight: '900', fontSize: '1.05rem', marginBottom: '8px' }}>
+                          <AlertTriangle size={24} color="#ea580c" />
+                          <span>SOLICITUD DE SEGUNDA VISITA</span>
+                        </div>
+                        <p style={{ margin: '0 0 14px 0', fontSize: '0.9rem', color: '#431407', lineHeight: '1.4' }}>
+                          El técnico solicita regresar a una segunda visita. Fecha propuesta: <strong>{fechaPropuesta2da || 'Por confirmar'}</strong>.
+                          {motivo2da && <span style={{ display: 'block', marginTop: '4px' }}>Motivo: <em>"{motivo2da}"</em></span>}
+                        </p>
+                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                          <button 
+                            type="button"
+                            onClick={() => handleResponderSegundaVisita('aceptar', fechaPropuesta2da || new Date().toISOString().slice(0,10))}
+                            disabled={submitting2da}
+                            style={{ flex: 1, minWidth: '180px', background: '#16a34a', color: 'white', border: 'none', padding: '12px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(22,163,74,0.25)' }}
+                          >
+                            <CheckCircle size={18} />
+                            <span>ACEPTAR FECHA PROPUESTA</span>
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => setShowModalReprogramar2da(true)}
+                            disabled={submitting2da}
+                            style={{ flex: 1, minWidth: '180px', background: '#ea580c', color: 'white', border: 'none', padding: '12px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(234,88,12,0.25)' }}
+                          >
+                            <Calendar size={18} />
+                            <span>ELEGIR OTRA FECHA</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
                     {/* 1. TARJETA CONSISTE EN: */}
                     <div className="tp-card tp-work-description-card" style={{ margin: 0, marginBottom: '20px' }}>
                       <div className="tp-card-header">
@@ -2065,40 +2109,6 @@ const DetallePropiedad = () => {
                         </div>
                       </div>
                     </div>
-
-                    {/* ALERTA Y RESPUESTA DE SEGUNDA VISITA PARA EL CLIENTE */}
-                    {showBanner2daVisita && (
-                      <div style={{ background: '#fff7ed', border: '2px solid #ea580c', borderRadius: '18px', padding: '20px', marginBottom: '25px', boxShadow: '0 10px 25px rgba(234, 88, 12, 0.15)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#c2410c', fontWeight: '900', fontSize: '1.05rem', marginBottom: '8px' }}>
-                          <AlertTriangle size={24} color="#ea580c" />
-                          <span>SOLICITUD DE SEGUNDA VISITA</span>
-                        </div>
-                        <p style={{ margin: '0 0 14px 0', fontSize: '0.88rem', color: '#431407', lineHeight: '1.4' }}>
-                          El técnico solicita regresar a una segunda visita. Fecha propuesta: <strong>{fechaPropuesta2da || 'Por confirmar'}</strong>.
-                          {motivo2da && <span> Motivo: <em>"{motivo2da}"</em></span>}
-                        </p>
-                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                          <button 
-                            type="button"
-                            onClick={() => handleResponderSegundaVisita('aceptar', fechaPropuesta2da || new Date().toISOString().slice(0,10))}
-                            disabled={submitting2da}
-                            style={{ flex: 1, minWidth: '180px', background: '#16a34a', color: 'white', border: 'none', padding: '12px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                          >
-                            <CheckCircle size={18} />
-                            <span>ACEPTAR FECHA PROPUESTA</span>
-                          </button>
-                          <button 
-                            type="button"
-                            onClick={() => setShowModalReprogramar2da(true)}
-                            disabled={submitting2da}
-                            style={{ flex: 1, minWidth: '180px', background: '#ea580c', color: 'white', border: 'none', padding: '12px 16px', borderRadius: '12px', fontWeight: '800', fontSize: '0.82rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
-                          >
-                            <Calendar size={18} />
-                            <span>ELEGIR OTRA FECHA</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
 
                     {/* BOTÓN: VER REPORTE DEL TRABAJO */}
                     <div style={{ marginBottom: '15px' }}>
