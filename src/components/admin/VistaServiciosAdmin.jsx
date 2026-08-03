@@ -786,8 +786,52 @@ const VistaServiciosAdmin = () => {
                     
                     <div style={{ color: '#F26522', fontWeight: 'bold', marginBottom: '5px' }}>{activeTask.propiedad}</div>
                     <span className="wkf-id">WKF-ORD-{activeTask.dbId}</span>
-                    <h3 className="task-main-heading" style={{ marginTop: '5px' }}>{activeTask.descripcion}</h3>
-                    <p className="task-long-desc">{activeTask.titulo}</p>
+
+                    {(() => {
+                      const rawModalDesc = activeTask.descripcion || activeTask.description || '';
+                      let cleanModalDesc = rawModalDesc
+                        .replace(/\n?\[(SOLICITUD 2DA VISITA|RESPUESTA CLIENTE 2DA VISITA|PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN|ALERTA DE REPROGRAMACIÓN)\].*/gs, '')
+                        .trim();
+
+                      if (cleanModalDesc.includes('[EQUIPO AFECTADO]:')) {
+                        cleanModalDesc = cleanModalDesc.split('[EQUIPO AFECTADO]:')[0].trim();
+                      }
+
+                      const is2daReq = 
+                        activeTask.status === 'Segunda Visita Solicitada' || 
+                        activeTask.estado === 'Segunda Visita Solicitada' || 
+                        rawModalDesc.includes('[SOLICITUD 2DA VISITA]');
+
+                      let fechaProp2da = activeTask.second_visit_proposed_date;
+                      let motivo2da = activeTask.second_visit_reason;
+                      if (!fechaProp2da && rawModalDesc.includes('[SOLICITUD 2DA VISITA]')) {
+                        const matchF = rawModalDesc.match(/propone la fecha:\s*([^\.\n]+)/i);
+                        if (matchF) fechaProp2da = matchF[1].trim();
+
+                        const matchM = rawModalDesc.match(/Motivo:\s*([^\.\n]+)/i);
+                        if (matchM) motivo2da = matchM[1].trim();
+                      }
+
+                      return (
+                        <>
+                          {is2daReq && (
+                            <div style={{ background: '#fff7ed', border: '2px solid #ea580c', borderRadius: '14px', padding: '14px', margin: '12px 0', boxShadow: '0 4px 14px rgba(234,88,12,0.15)' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c2410c', fontWeight: '900', fontSize: '0.95rem' }}>
+                                <AlertTriangle size={20} color="#ea580c" />
+                                <span>SOLICITUD DE SEGUNDA VISITA PENDIENTE</span>
+                              </div>
+                              <p style={{ margin: '6px 0 0 0', fontSize: '0.85rem', color: '#431407', lineHeight: '1.4' }}>
+                                Fecha Propuesta por Técnico: <strong>{fechaProp2da || 'Por definir'}</strong>
+                                {motivo2da && <span style={{ display: 'block', marginTop: '2px' }}>Motivo: <em>"{motivo2da}"</em></span>}
+                              </p>
+                            </div>
+                          )}
+
+                          <h3 className="task-main-heading" style={{ marginTop: '5px' }}>{cleanModalDesc || activeTask.titulo}</h3>
+                          <p className="task-long-desc">{activeTask.titulo}</p>
+                        </>
+                      );
+                    })()}
                     
                     {activeTask.arrival_status === 'EN_SITIO' && (
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dcfce7', color: '#166534', padding: '6px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', marginTop: '10px' }}>

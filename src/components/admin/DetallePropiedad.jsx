@@ -173,6 +173,135 @@ const DetallePropiedad = () => {
 
   const [colAbiertaKanban, setColAbiertaKanban] = useState('SOS');
 
+  const [submitting2da, setSubmitting2da] = useState(false);
+  const [fecha2daCliente, setFecha2daCliente] = useState('');
+  const [fecha2daAdmin, setFecha2daAdmin] = useState('');
+  const [tecnico2daAdmin, setTecnico2daAdmin] = useState('');
+  const [obs2daAdmin, setObs2daAdmin] = useState('');
+  const [showModalReprogramar2da, setShowModalReprogramar2da] = useState(false);
+  const [showModalAdmin2daVisita, setShowModalAdmin2daVisita] = useState(false);
+
+  const handleResponderSegundaVisita = async (accion, fechaConfirmada) => {
+    const task = trabajoSeleccionado;
+    if (!task) return;
+
+    try {
+      setSubmitting2da(true);
+      const token = localStorage.getItem('agente_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      const realId = task.realId || task.id;
+      const isWorkOrder = task.tipo_registro === 'work_order' || task.isWorkOrder;
+      const paramId = isWorkOrder ? `work_order-${realId}` : `servicio-${realId}`;
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/servicios/${paramId}/responder-segunda-visita`,
+        {
+          accion: accion,
+          fecha_confirmada: fechaConfirmada
+        },
+        { headers }
+      );
+
+      if (res.data?.success) {
+        Swal.fire({
+          icon: 'success',
+          title: accion === 'aceptar' ? '¡Fecha Aceptada!' : '¡Nueva Fecha Propuesta!',
+          text: accion === 'aceptar' 
+            ? 'Has aceptado la fecha propuesta para la 2da visita.' 
+            : 'Has propuesto una nueva fecha. El técnico y la administración han sido notificados.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+
+        const nuevoEstado = accion === 'aceptar' ? 'Segunda Visita Programada' : 'Segunda Visita Solicitada';
+        setColaTrabajos(prev => prev.map(t => {
+          if (String(t.id) === String(task.id) || String(t.realId) === String(task.realId)) {
+            return {
+              ...t,
+              status: nuevoEstado,
+              estado: nuevoEstado,
+              second_visit_proposed_date: fechaConfirmada
+            };
+          }
+          return t;
+        }));
+
+        setShowModalReprogramar2da(false);
+        setIsModalHistorialOpen(false);
+      }
+    } catch (err) {
+      console.error("Error al responder 2da visita:", err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || 'No se pudo procesar la respuesta.'
+      });
+    } finally {
+      setSubmitting2da(false);
+    }
+  };
+
+  const handleAdminProgramarSegundaVisita = async (e) => {
+    e.preventDefault();
+    const task = trabajoSeleccionado;
+    if (!task || !fecha2daAdmin) return;
+
+    try {
+      setSubmitting2da(true);
+      const token = localStorage.getItem('agente_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      const realId = task.realId || task.id;
+      const isWorkOrder = task.tipo_registro === 'work_order' || task.isWorkOrder;
+      const paramId = isWorkOrder ? `work_order-${realId}` : `servicio-${realId}`;
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/servicios/${paramId}/admin-programar-segunda-visita`,
+        {
+          fecha_programada: fecha2daAdmin,
+          tecnico_id: tecnico2daAdmin || null,
+          observaciones: obs2daAdmin || null
+        },
+        { headers }
+      );
+
+      if (res.data?.success) {
+        Swal.fire({
+          icon: 'success',
+          title: '2da Visita Programada por Admin',
+          text: 'La 2da visita ha sido asignada correctamente.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+
+        setColaTrabajos(prev => prev.map(t => {
+          if (String(t.id) === String(task.id) || String(t.realId) === String(task.realId)) {
+            return {
+              ...t,
+              status: 'Segunda Visita Programada',
+              estado: 'Segunda Visita Programada',
+              scheduled_at: fecha2daAdmin
+            };
+          }
+          return t;
+        }));
+
+        setShowModalAdmin2daVisita(false);
+        setIsModalHistorialOpen(false);
+      }
+    } catch (err) {
+      console.error("Error al programar 2da visita por admin:", err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.response?.data?.message || 'No se pudo programar la 2da visita.'
+      });
+    } finally {
+      setSubmitting2da(false);
+    }
+  };
+
   useEffect(() => {
     try {
       const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
