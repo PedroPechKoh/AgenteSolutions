@@ -102,6 +102,15 @@ const NotificationBell = () => {
         url = propId ? `/propiedad/${propId}/tablero` : '/propiedades'; 
       } else if (type === 'user_account_deleted') {
         url = notification.data.url || (notification.data.role_id === 2 ? '/vista-tecnicos' : '/usuarios');
+      } else if (type === 'second_visit_requested' || type === 'second_visit_agreed' || type === 'second_visit_admin_scheduled' || titleLower.includes('segunda visita')) {
+        const propId = notification.data.property_id;
+        if (isTecnico) {
+          url = '/trabajos-tecnico';
+        } else if (user?.role_id === 3) {
+          url = propId ? `/propiedad/${propId}/tablero` : '/propiedades';
+        } else {
+          url = workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios';
+        }
       } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
         url = isTecnico ? '/trabajos-tecnico' : (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios');
       }
