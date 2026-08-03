@@ -486,6 +486,22 @@ const VistaServiciosAdmin = () => {
                     {(tarea.estado === 'sos' || (tarea.estado === 'progress' && tarea.prioridad === 'SOS')) && <AlertTriangle size={14} className="sos-icon-inline" />}
                     {tarea.titulo}
                   </h5>
+                  {(() => {
+                    const is2daReq = 
+                      tarea.status === 'Segunda Visita Solicitada' || 
+                      tarea.estado === 'Segunda Visita Solicitada' || 
+                      (tarea.descripcion && tarea.descripcion.includes('[SOLICITUD 2DA VISITA]'));
+
+                    if (is2daReq) {
+                      return (
+                        <div style={{ background: '#fff7ed', color: '#c2410c', border: '1.5px solid #ea580c', padding: '6px 8px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px', boxShadow: '0 2px 6px rgba(234,88,12,0.15)' }}>
+                          <AlertTriangle size={14} color="#ea580c" />
+                          <span>2DA VISITA SOLICITADA</span>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                   {tarea.isBatch ? (
                     <div style={{ background: '#e0f2fe', color: '#0284c7', padding: '6px 10px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '10px', border: '1px solid #7dd3fc', width: '100%' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>

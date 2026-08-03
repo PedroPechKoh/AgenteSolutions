@@ -1074,14 +1074,60 @@ const DetallePropiedad = () => {
                                 return null;
                               })()
                             )}
-                            <h4>{t.producto}</h4>
-                            {t.descripcion && (
-                              <p style={{ fontSize: '0.85em', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>
-                                {t.descripcion.length > 60 
-                                  ? t.descripcion.substring(0, 60) + '…' 
-                                  : t.descripcion}
-                              </p>
-                            )}
+                            {(() => {
+                              const is2daReq = 
+                                t.status === 'Segunda Visita Solicitada' || 
+                                t.estado === 'Segunda Visita Solicitada' || 
+                                (t.descripcion && t.descripcion.includes('[SOLICITUD 2DA VISITA]')) ||
+                                (t.description && t.description.includes('[SOLICITUD 2DA VISITA]')) ||
+                                (t.isBatch && t.batchTasks?.some(bt => 
+                                  bt.status === 'Segunda Visita Solicitada' || 
+                                  bt.estado === 'Segunda Visita Solicitada' || 
+                                  (bt.descripcion && bt.descripcion.includes('[SOLICITUD 2DA VISITA]')) ||
+                                  (bt.description && bt.description.includes('[SOLICITUD 2DA VISITA]'))
+                                ));
+
+                              const is2daAgreed = 
+                                t.status === 'Segunda Visita Programada' || 
+                                t.estado === 'Segunda Visita Programada' || 
+                                (t.descripcion && (t.descripcion.includes('[RESPUESTA CLIENTE 2DA VISITA]') || t.descripcion.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]')));
+
+                              const rawCardDesc = t.descripcion || t.description || '';
+                              let cleanCardDesc = rawCardDesc
+                                .replace(/\n?\[(SOLICITUD 2DA VISITA|RESPUESTA CLIENTE 2DA VISITA|PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN|ALERTA DE REPROGRAMACIÓN)\].*/gs, '')
+                                .trim();
+
+                              if (cleanCardDesc.includes('[EQUIPO AFECTADO]:')) {
+                                cleanCardDesc = cleanCardDesc.split('[EQUIPO AFECTADO]:')[0].trim();
+                              }
+
+                              return (
+                                <>
+                                  {is2daReq && !is2daAgreed && (
+                                    <div style={{ background: '#fff7ed', color: '#c2410c', border: '1.5px solid #ea580c', padding: '6px 8px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px', boxShadow: '0 2px 6px rgba(234,88,12,0.15)' }}>
+                                      <AlertTriangle size={14} color="#ea580c" />
+                                      <span>2DA VISITA SOLICITADA - TOCAR</span>
+                                    </div>
+                                  )}
+
+                                  {is2daAgreed && (
+                                    <div style={{ background: '#f0fdf4', color: '#15803d', border: '1.5px solid #22c55e', padding: '5px 8px', borderRadius: '8px', fontSize: '0.72rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                                      <CheckCircle size={12} color="#16a34a" />
+                                      <span>2DA VISITA PROGRAMADA</span>
+                                    </div>
+                                  )}
+
+                                  <h4>{t.producto}</h4>
+                                  {cleanCardDesc && (
+                                    <p style={{ fontSize: '0.85em', color: '#555', marginTop: '4px', lineHeight: 1.3 }}>
+                                      {cleanCardDesc.length > 55 
+                                        ? cleanCardDesc.substring(0, 55) + '…' 
+                                        : cleanCardDesc}
+                                    </p>
+                                  )}
+                                </>
+                              );
+                            })()}
                             <div className="k-footer">
                               <span className={estado === 'SOS' ? 'badge-sos' : estado === 'ESPERANDO' ? 'badge-status-waiting' : 'badge-prio alta'}>
                                 {t.tecnico || 'Sin Técnico'}
