@@ -87,6 +87,38 @@ const TrabajoPropiedad = () => {
     }
   };
 
+  const handleResponderSegundaVisita = async (accion, fechaConfirmada) => {
+    setSubmittingSegundaVisita(true);
+    try {
+      const token = localStorage.getItem('agente_token');
+      const cleanId = encodeURIComponent(String(id).trim());
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/servicios/${cleanId}/responder-segunda-visita`, {
+        accion: accion,
+        fecha_confirmada: fechaConfirmada
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.data?.success) {
+        Swal.fire({
+          icon: 'success',
+          title: accion === 'aceptar' ? '¡Fecha Aceptada!' : '¡Nueva Fecha Enviada!',
+          text: accion === 'aceptar' 
+            ? 'Has aceptado la fecha de la 2da visita.' 
+            : 'Has propuesto una nueva fecha para la 2da visita. Se notificó al cliente y administración.',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        fetchJobDetails();
+      }
+    } catch (error) {
+      console.error("Error al responder 2da visita:", error);
+      Swal.fire('Error', error.response?.data?.message || 'No se pudo procesar la respuesta a la segunda visita.', 'error');
+    } finally {
+      setSubmittingSegundaVisita(false);
+    }
+  };
+
   useEffect(() => {
     fetchJobDetails();
     checkExistingQuote();
@@ -718,45 +750,63 @@ const TrabajoPropiedad = () => {
                   </div>
                 )}
 
-                {/* BOTÓN SOLICITAR SEGUNDA VISITA CON ESTADOS DINÁMICOS */}
+                {/* BOTÓN / BANNER SEGUNDA VISITA CON ESTADOS DINÁMICOS Y NEGOCIACIÓN */}
                 <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0', width: '100%' }}>
                   {(() => {
+                    const fullDesc = data?.description || data?.descripcion || '';
+
                     const isSolicitada = 
                       data?.estado === 'Segunda Visita Solicitada' || 
                       data?.status === 'Segunda Visita Solicitada' || 
-                      (data?.descripcion && data.descripcion.includes('[SOLICITUD 2DA VISITA]') && !data.descripcion.includes('[RESPUESTA CLIENTE 2DA VISITA]') && !data.descripcion.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]'));
+                      fullDesc.includes('[SOLICITUD 2DA VISITA]') ||
+                      fullDesc.includes('[ALERTA DE REPROGRAMACIÓN 2DA VISITA]') ||
+                      fullDesc.includes('[RESPUESTA CLIENTE 2DA VISITA]');
 
                     const isProgramada = 
                       data?.estado === 'Segunda Visita Programada' || 
                       data?.status === 'Segunda Visita Programada' || 
-                      (data?.descripcion && (data.descripcion.includes('[RESPUESTA CLIENTE 2DA VISITA]') || data.descripcion.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]')));
+                      fullDesc.includes('[RESPUESTA 2DA VISITA]: Cita ACEPTADA') ||
+                      fullDesc.includes('[PROGRAMACIÓN DIRECTA 2DA VISITA POR ADMIN]');
 
-                    if (isSolicitada) {
+                    let fechaProp = data?.second_visit_proposed_date;
+                    let motivo2da = data?.second_visit_reason;
+                    if (!fechaProp && fullDesc.includes('fecha:')) {
+                      const mF = fullDesc.match(/fecha:\s*([^\.\n]+)/i);
+                      if (mF) fechaProp = mF[1].trim();
+                    }
+
+                    if (isSolicitada && !isProgramada) {
                       return (
-                        <button 
-                          disabled
-                          style={{ 
-                            width: '100%',
-                            background: '#64748b', 
-                            color: '#ffffff', 
-                            border: 'none',
-                            padding: '12px 16px',
-                            borderRadius: '16px',
-                            fontWeight: '800',
-                            fontSize: '0.82rem',
-                            cursor: 'not-allowed',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px',
-                            opacity: 0.9,
-                            textTransform: 'uppercase',
-                            boxShadow: '0 4px 10px rgba(100, 116, 139, 0.2)'
-                          }}
-                        >
-                          <Clock size={18} />
-                          <span>REPROGRAMACIÓN SOLICITADA, EN ESPERA</span>
-                        </button>
+                        <div style={{ background: '#fff7ed', border: '2px solid #ea580c', borderRadius: '16px', padding: '16px', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.15)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c2410c', fontWeight: '900', fontSize: '0.95rem', marginBottom: '6px' }}>
+                            <AlertTriangle size={20} color="#ea580c" />
+                            <span>SEGUNDA VISITA EN NEGOCIACIÓN</span>
+                          </div>
+                          <p style={{ margin: '0 0 12px 0', fontSize: '0.84rem', color: '#431407', lineHeight: '1.4' }}>
+                            Fecha Propuesta Actual: <strong>{fechaProp || 'Por confirmar'}</strong>
+                            {motivo2da && <span style={{ display: 'block', marginTop: '2px' }}>Motivo: <em>"{motivo2da}"</em></span>}
+                          </p>
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <button 
+                              type="button"
+                              onClick={() => handleResponderSegundaVisita('aceptar', fechaProp || new Date().toISOString().slice(0,10))}
+                              disabled={submittingSegundaVisita}
+                              style={{ flex: 1, minWidth: '140px', background: '#16a34a', color: 'white', border: 'none', padding: '10px 14px', borderRadius: '12px', fontWeight: '800', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 10px rgba(22,163,74,0.25)' }}
+                            >
+                              <CheckCircle2 size={16} />
+                              <span>ACEPTAR FECHA</span>
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => setShowModalSegundaVisita(true)}
+                              disabled={submittingSegundaVisita}
+                              style={{ flex: 1, minWidth: '140px', background: '#ea580c', color: 'white', border: 'none', padding: '10px 14px', borderRadius: '12px', fontWeight: '800', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 10px rgba(234,88,12,0.25)' }}
+                            >
+                              <Calendar size={16} />
+                              <span>PROPONER OTRA</span>
+                            </button>
+                          </div>
+                        </div>
                       );
                     }
 
