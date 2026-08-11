@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import Header from '../../../components/Shared/Header';
 import { useAuth } from '../../../context/AuthContext';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import '../../../styles/Autonomos/VistaRedAutonomo.css';
-import { Network, Plus, Star, MapPin, DollarSign, Clock, CheckCircle } from 'lucide-react';
+import { Network, Plus, Star, MapPin, DollarSign, Clock, CheckCircle, Send } from 'lucide-react';
+
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%',
+  borderRadius: '12px',
+  boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+};
+
+const defaultCenter = { lat: 21.0181, lng: -89.6242 }; // Mérida
 
 const mockSolicitudes = [
-  { id: 1, titulo: "Mantenimiento de 5 Minisplits", ubicacion: "Norte, Mérida", presupuesto: "$2,000", estado: "Cotizando", cotizaciones: 3, fecha: "2026-08-11" },
-  { id: 2, titulo: "Reparación de Fuga de Agua", ubicacion: "Centro, Mérida", presupuesto: "A convenir", estado: "Completado", cotizaciones: 1, fecha: "2026-08-09" }
+  { id: 1, titulo: "Mantenimiento de 5 Minisplits", lat: 21.0250, lng: -89.6300, ubicacion: "Norte, Mérida", presupuesto: "$2,000", estado: "Cotizando", cotizaciones: 3, fecha: "Hoy" },
+  { id: 2, titulo: "Reparación de Fuga de Agua", lat: 21.0100, lng: -89.6200, ubicacion: "Centro, Mérida", presupuesto: "A convenir", estado: "Completado", cotizaciones: 1, fecha: "Ayer" }
 ];
 
 const mockCotizaciones = [
@@ -16,8 +26,14 @@ const mockCotizaciones = [
 
 const VistaRedAutonomo = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('mis-solicitudes');
+  const [activeTab, setActiveTab] = useState('mapa');
   const [showModal, setShowModal] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY_HERE"
+  });
 
   return (
     <div className="red-autonomo-container">
@@ -26,6 +42,12 @@ const VistaRedAutonomo = () => {
       <div className="red-content">
         <div className="red-header-actions">
           <div className="red-tabs">
+            <button 
+              className={`red-tab ${activeTab === 'mapa' ? 'active' : ''}`}
+              onClick={() => setActiveTab('mapa')}
+            >
+              <MapPin size={18} /> Ver Mapa
+            </button>
             <button 
               className={`red-tab ${activeTab === 'mis-solicitudes' ? 'active' : ''}`}
               onClick={() => setActiveTab('mis-solicitudes')}
@@ -39,11 +61,48 @@ const VistaRedAutonomo = () => {
               <DollarSign size={18} /> Cotizaciones Recibidas
             </button>
           </div>
-          
-          <button className="red-btn-primary" onClick={() => setShowModal(true)}>
-            <Plus size={20} /> Publicar en la Red
-          </button>
         </div>
+
+        {activeTab === 'mapa' && (
+          <div className="red-map-wrapper">
+            {isLoaded ? (
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={defaultCenter}
+                zoom={13}
+              >
+                {mockSolicitudes.map(job => (
+                  <Marker
+                    key={job.id}
+                    position={{ lat: job.lat, lng: job.lng }}
+                    onClick={() => setSelectedJob(job)}
+                  />
+                ))}
+
+                {selectedJob && (
+                  <InfoWindow
+                    position={{ lat: selectedJob.lat, lng: selectedJob.lng }}
+                    onCloseClick={() => setSelectedJob(null)}
+                  >
+                    <div className="mercado-info-window">
+                      <h4>{selectedJob.titulo}</h4>
+                      <p><MapPin size={12}/> {selectedJob.ubicacion}</p>
+                      <p className="red-status cotizando">{selectedJob.estado}</p>
+                      <p><strong>{selectedJob.cotizaciones} Cotizaciones</strong></p>
+                    </div>
+                  </InfoWindow>
+                )}
+              </GoogleMap>
+            ) : (
+              <div className="red-loading-map">Cargando Mapa...</div>
+            )}
+            
+            {/* Botón flotante para agregar un problema */}
+            <button className="red-fab-button" onClick={() => setShowModal(true)} title="Agregar un problema a la red">
+              <Plus size={32} />
+            </button>
+          </div>
+        )}
 
         {activeTab === 'mis-solicitudes' && (
           <div className="red-solicitudes-grid">
@@ -62,7 +121,7 @@ const VistaRedAutonomo = () => {
                   <div className="red-cotizaciones-badge">
                     {sol.cotizaciones} Cotizaciones
                   </div>
-                  <button className="red-btn-secondary">Ver Detalles</button>
+                  <button className="red-btn-secondary" onClick={() => setActiveTab('cotizaciones')}>Ver Cotizaciones</button>
                 </div>
               </div>
             ))}
@@ -98,10 +157,17 @@ const VistaRedAutonomo = () => {
           <div className="red-modal">
             <h2>Publicar Trabajo en la Red</h2>
             <div className="red-modal-body">
-              <input type="text" placeholder="Título del trabajo (Ej. Mantenimiento A/C)" className="red-input" />
-              <textarea placeholder="Describe lo que necesitas..." className="red-textarea"></textarea>
-              <input type="text" placeholder="Ubicación" className="red-input" />
-              <input type="text" placeholder="Presupuesto sugerido (Opcional)" className="red-input" />
+              <label className="red-label">Título del trabajo</label>
+              <input type="text" placeholder="Ej. Mantenimiento A/C" className="red-input" />
+              
+              <label className="red-label">Describe el problema</label>
+              <textarea placeholder="Necesito reparar..." className="red-textarea"></textarea>
+              
+              <label className="red-label">Ubicación (Propiedad)</label>
+              <input type="text" placeholder="Selecciona la propiedad" className="red-input" />
+              
+              <label className="red-label">Presupuesto sugerido (Opcional)</label>
+              <input type="text" placeholder="Ej. $800" className="red-input" />
             </div>
             <div className="red-modal-footer">
               <button className="red-btn-cancel" onClick={() => setShowModal(false)}>Cancelar</button>

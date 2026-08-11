@@ -109,6 +109,12 @@ const VistaInicioAdmin = () => {
       icon: '🤝',
       path: '/apoyo-autonomo'
     });
+    menuItems.push({
+      id: 15,
+      title: 'MERCADO / RED',
+      icon: '🌍',
+      path: '/red-autonomos'
+    });
   }
 
   return (
