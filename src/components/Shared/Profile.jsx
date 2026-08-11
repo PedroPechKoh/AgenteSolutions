@@ -4,7 +4,7 @@ import { Camera, X, ChevronLeft } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/Logo3.png"; 
-import "../../styles/Profile.css"; 
+import "../../styles/Shared/Profile.css"; 
 
 const ESPECIALIDADES_CATALOGO = [
   { id: 1, name: "Electricidad", icon: "⚡" },

@@ -25,7 +25,7 @@ import {
   MarkerF,
   Autocomplete,
 } from "@react-google-maps/api";
-import "../styles/RegisterProperties.css";
+import "../styles/Shared/RegisterProperties.css";
 
 const containerStyle = {
   width: "100%",

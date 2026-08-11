@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { X, Plus, Trash2, Camera, FileText, Upload } from 'lucide-react';
-import '../../styles/TecnicoStyles/TrabajoPropiedad.css';
+import '../../styles/AgenteSolutions/Tecnico/TrabajoPropiedad.css';
 
 const ModalCrearCotizacion = ({ 
   workOrderId, 

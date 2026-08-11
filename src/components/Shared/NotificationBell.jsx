@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Bell, Check, Info } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import "../../styles/NotificationBell.css";
+import "../../styles/Shared/NotificationBell.css";
 
 const timeAgo = (dateString) => {
   if (!dateString) return "";
