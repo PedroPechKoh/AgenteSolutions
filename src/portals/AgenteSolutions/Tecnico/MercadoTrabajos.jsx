@@ -39,7 +39,7 @@ const mockJobs = [
 const MercadoTrabajos = () => {
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY_HERE" // El backend debería proveerla o usar variable de entorno
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyDgyTj0X6kgGoMV8NxQGDp4-Nx0bxJd0Hw"
   });
 
   const [selectedJob, setSelectedJob] = useState(null);
