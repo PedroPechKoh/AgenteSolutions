@@ -112,7 +112,7 @@ const VistaInicioAdmin = () => {
     menuItems.push({
       id: 15,
       title: 'MERCADO / RED',
-      icon: '🌍',
+      icon: '🗺️',
       path: '/red-autonomos'
     });
   }
