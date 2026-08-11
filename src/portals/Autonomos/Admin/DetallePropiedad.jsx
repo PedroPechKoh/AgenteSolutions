@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import Header from '../../../components/Shared/Header';
 import { 
   Layout, CheckCircle2, ListTodo, Timer, AlertCircle, 
   FileText, History, ChevronDown, ChevronUp, X, 
@@ -331,6 +332,9 @@ const DetallePropiedad = () => {
 
   return (
     <div className="view-container">
+      <div className="top-bar-orange" />
+      <div className="top-bar-black" />
+      <Header titulo="DETALLE PROPIEDAD" />
       <div className="main-layout-detail">
         {/* ==========================================
             COLUMNA IZQUIERDA (Info + Historial)
