@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import Header from '../../../components/Shared/Header';
 import { useAuth } from '../../../context/AuthContext';
+import ModalServicioAutonomo from './ModalServicioAutonomo';
 import '../../../styles/Autonomos/VistaRedAutonomo.css';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
 import { Plus, MapPin, DollarSign, Clock, CheckCircle } from 'lucide-react';
@@ -87,21 +88,7 @@ const VistaRedAutonomo = () => {
       </div>
 
       {showModal && (
-        <div className="red-modal-overlay" style={{ zIndex: 9999 }}>
-          <div className="red-modal">
-            <h2>Publicar Trabajo en la Red</h2>
-            <div className="red-modal-body">
-              <input type="text" placeholder="Título del trabajo (Ej. Mantenimiento A/C)" className="red-input" />
-              <textarea placeholder="Describe lo que necesitas..." className="red-textarea" rows="4"></textarea>
-              <input type="text" placeholder="Ubicación" className="red-input" />
-              <input type="text" placeholder="Presupuesto sugerido (Opcional)" className="red-input" />
-            </div>
-            <div className="red-modal-footer">
-              <button className="red-btn-cancel" onClick={() => setShowModal(false)}>Cancelar</button>
-              <button className="red-btn-primary" onClick={() => setShowModal(false)}>Publicar Ahora</button>
-            </div>
-          </div>
-        </div>
+        <ModalServicioAutonomo onClose={() => setShowModal(false)} />
       )}
     </div>
   );
