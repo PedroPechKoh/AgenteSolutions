@@ -46,6 +46,8 @@ const MercadoTrabajos = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
   const [networkJobs, setNetworkJobs] = useState([]);
+  const [quotePrice, setQuotePrice] = useState('');
+  const [quoteMessage, setQuoteMessage] = useState('');
 
   const fetchJobs = async () => {
     try {
@@ -58,8 +60,11 @@ const MercadoTrabajos = () => {
             lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
             presupuesto: "A convenir",
             cliente: order.property?.client?.first_name || 'Cliente Autónomo',
+            lugar: order.property?.property_name || 'Lugar no especificado',
+            calle: order.property?.address || 'Dirección no especificada',
             descripcion: order.description,
             fecha: new Date(order.created_at).toLocaleDateString(),
+            cotizaciones: order.network_quotes_count || 0
         }));
         setNetworkJobs(jobs);
       }
@@ -74,6 +79,34 @@ const MercadoTrabajos = () => {
     const interval = setInterval(fetchJobs, 5000); // Polling cada 5s
     return () => clearInterval(interval);
   }, []);
+
+  const handleEnviarCotizacion = async () => {
+    if (!selectedJob) return;
+    if (!quotePrice) {
+      alert("Por favor ingresa una propuesta económica.");
+      return;
+    }
+
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/mercado-trabajos/${selectedJob.id}/cotizar`, {
+        price: quotePrice,
+        message: quoteMessage
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('agente_token')}` }
+      });
+
+      if (res.data.success) {
+        alert("✅ " + res.data.message);
+        setShowQuoteModal(false);
+        setQuotePrice('');
+        setQuoteMessage('');
+        fetchJobs(); // Actualizar el mapa
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Hubo un error al enviar tu cotización. Intenta de nuevo.");
+    }
+  };
 
   return (
     <div className="mercado-container">
@@ -141,6 +174,9 @@ const MercadoTrabajos = () => {
                   <span><DollarSign size={14}/> {job.presupuesto}</span>
                   <span><Clock size={14}/> {job.fecha}</span>
                 </div>
+                <div style={{ fontSize: '12px', color: '#888', marginTop: '5px' }}>
+                  {job.cotizaciones} Cotizaciones enviadas
+                </div>
               </div>
             ))}
           </div>
@@ -159,25 +195,35 @@ const MercadoTrabajos = () => {
             <div className="mercado-modal-body">
               <div className="mercado-job-summary">
                 <h3>{selectedJob.titulo}</h3>
+                <p><strong>Lugar:</strong> {selectedJob.lugar}</p>
+                <p><strong>Calle:</strong> {selectedJob.calle}</p>
                 <p><strong>Cliente:</strong> {selectedJob.cliente}</p>
                 <p><strong>Descripción:</strong> {selectedJob.descripcion}</p>
               </div>
               
               <div className="mercado-quote-form">
                 <label>Tu Propuesta Económica ($)</label>
-                <input type="number" placeholder="Ej. 800" className="mercado-input" />
+                <input 
+                  type="number" 
+                  placeholder="Ej. 800" 
+                  className="mercado-input" 
+                  value={quotePrice}
+                  onChange={(e) => setQuotePrice(e.target.value)}
+                />
                 
                 <label>Mensaje para el cliente</label>
                 <textarea 
                   placeholder="Hola, tengo experiencia en esto. Puedo ir hoy mismo..." 
                   className="mercado-textarea"
+                  value={quoteMessage}
+                  onChange={(e) => setQuoteMessage(e.target.value)}
                 ></textarea>
               </div>
             </div>
             
             <div className="mercado-modal-footer">
               <button className="mercado-btn-cancel" onClick={() => setShowQuoteModal(false)}>Cancelar</button>
-              <button className="mercado-btn-submit" onClick={() => setShowQuoteModal(false)}>
+              <button className="mercado-btn-submit" onClick={handleEnviarCotizacion}>
                 <Send size={16}/> Enviar Cotización
               </button>
             </div>

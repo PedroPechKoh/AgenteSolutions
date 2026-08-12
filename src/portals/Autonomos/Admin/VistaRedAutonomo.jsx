@@ -41,7 +41,7 @@ const VistaRedAutonomo = () => {
             presupuesto: "A convenir",
             estado: order.status,
             fecha: new Date(order.created_at).toLocaleDateString(),
-            cotizaciones: 0,
+            cotizaciones: order.network_quotes_count || 0,
             cliente: order.property?.client?.first_name || 'Cliente'
         }));
         setNetworkJobs(jobs);
