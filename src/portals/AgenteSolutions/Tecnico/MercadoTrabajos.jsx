@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import Header from '../../../components/Shared/Header';
-import { MapPin, DollarSign, Clock, Send } from 'lucide-react';
+import { MapPin, DollarSign, Clock, Send, User, FileText } from 'lucide-react';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
 
 const mapContainerStyle = {
@@ -63,6 +63,7 @@ const MercadoTrabajos = () => {
             lugar: order.property?.property_name || 'Lugar no especificado',
             calle: order.property?.address || 'Dirección no especificada',
             descripcion: order.description,
+            foto: order.evidence_path || order.evidence_path_2 || order.property?.facade_photo_path || null,
             fecha: new Date(order.created_at).toLocaleDateString(),
             cotizaciones: order.network_quotes_count || 0
         }));
@@ -186,44 +187,85 @@ const MercadoTrabajos = () => {
       {/* Modal para Cotizar */}
       {showQuoteModal && selectedJob && (
         <div className="mercado-modal-overlay">
-          <div className="mercado-modal">
-            <div className="mercado-modal-header">
+          <div className="mercado-premium-modal">
+            <div className="mercado-premium-header">
               <h2>Cotizar Trabajo</h2>
               <span className="mercado-modal-close" onClick={() => setShowQuoteModal(false)}>×</span>
             </div>
             
-            <div className="mercado-modal-body">
-              <div className="mercado-job-summary">
-                <h3>{selectedJob.titulo}</h3>
-                <p><strong>Lugar:</strong> {selectedJob.lugar}</p>
-                <p><strong>Calle:</strong> {selectedJob.calle}</p>
-                <p><strong>Cliente:</strong> {selectedJob.cliente}</p>
-                <p><strong>Descripción:</strong> {selectedJob.descripcion}</p>
+            <div className="mercado-premium-body">
+              <div className="mercado-premium-details">
+                {selectedJob.foto && (
+                  <div className="mercado-premium-image-wrapper">
+                    <img src={selectedJob.foto} alt="Propiedad / Evidencia" className="mercado-premium-image" />
+                  </div>
+                )}
+                <div className="mercado-premium-text">
+                  <h3>{selectedJob.titulo}</h3>
+                  <div className="mercado-premium-info-grid">
+                    <div className="mercado-info-item">
+                      <MapPin size={16} className="mercado-icon-blue" />
+                      <div>
+                        <strong>Lugar</strong>
+                        <span>{selectedJob.lugar}</span>
+                      </div>
+                    </div>
+                    <div className="mercado-info-item">
+                      <MapPin size={16} className="mercado-icon-blue" />
+                      <div>
+                        <strong>Calle</strong>
+                        <span>{selectedJob.calle}</span>
+                      </div>
+                    </div>
+                    <div className="mercado-info-item">
+                      <User size={16} className="mercado-icon-blue" />
+                      <div>
+                        <strong>Cliente</strong>
+                        <span>{selectedJob.cliente}</span>
+                      </div>
+                    </div>
+                    <div className="mercado-info-item full-width">
+                      <FileText size={16} className="mercado-icon-blue" />
+                      <div>
+                        <strong>Descripción</strong>
+                        <span>{selectedJob.descripcion}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               
-              <div className="mercado-quote-form">
-                <label>Tu Propuesta Económica ($)</label>
-                <input 
-                  type="number" 
-                  placeholder="Ej. 800" 
-                  className="mercado-input" 
-                  value={quotePrice}
-                  onChange={(e) => setQuotePrice(e.target.value)}
-                />
+              <div className="mercado-premium-form">
+                <h4>Tu Oferta</h4>
+                <div className="mercado-form-group">
+                  <label>Propuesta Económica ($)</label>
+                  <div className="mercado-input-wrapper">
+                    <DollarSign size={18} className="mercado-input-icon" />
+                    <input 
+                      type="number" 
+                      placeholder="Ej. 800" 
+                      className="mercado-premium-input" 
+                      value={quotePrice}
+                      onChange={(e) => setQuotePrice(e.target.value)}
+                    />
+                  </div>
+                </div>
                 
-                <label>Mensaje para el cliente</label>
-                <textarea 
-                  placeholder="Hola, tengo experiencia en esto. Puedo ir hoy mismo..." 
-                  className="mercado-textarea"
-                  value={quoteMessage}
-                  onChange={(e) => setQuoteMessage(e.target.value)}
-                ></textarea>
+                <div className="mercado-form-group">
+                  <label>Mensaje para el cliente</label>
+                  <textarea 
+                    placeholder="Hola, tengo experiencia en esto. Puedo ir hoy mismo..." 
+                    className="mercado-premium-textarea"
+                    value={quoteMessage}
+                    onChange={(e) => setQuoteMessage(e.target.value)}
+                  ></textarea>
+                </div>
               </div>
             </div>
             
-            <div className="mercado-modal-footer">
+            <div className="mercado-premium-footer">
               <button className="mercado-btn-cancel" onClick={() => setShowQuoteModal(false)}>Cancelar</button>
-              <button className="mercado-btn-submit" onClick={handleEnviarCotizacion}>
+              <button className="mercado-premium-submit" onClick={handleEnviarCotizacion}>
                 <Send size={16}/> Enviar Cotización
               </button>
             </div>
