@@ -130,8 +130,8 @@ const handleLogin = async (e) => {
         setMensaje(`¡Bienvenido TÉCNICO INTERNO ${first_name}! Abriendo tu panel de trabajo...`);
         setTimeout(() => navigate("/VistaTecnico"), 1000);
       } else if (roleNum === 8) {
-        setMensaje(`¡Bienvenido TÉCNICO DE LA RED ${first_name}! Abriendo el mercado de trabajos...`);
-        setTimeout(() => navigate("/mercado-trabajos"), 1000);
+        setMensaje(`¡Bienvenido TÉCNICO DE LA RED ${first_name}! Abriendo tu panel...`);
+        setTimeout(() => navigate("/VistaTecnico"), 1000);
       } else if (roleNum === 3) {
         setMensaje(`¡Bienvenido CLIENTE ${first_name}! Abriendo tu portal...`);
         setTimeout(() => navigate("/propiedades"), 1000);

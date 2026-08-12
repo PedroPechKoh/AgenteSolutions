@@ -9,8 +9,8 @@ import Header from '../../../components/Shared/Header';
 const VistaInicioTecnico = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isIndependent = user?.tenant_id > 1 || user?.role_id === 5; // Simulación de técnico independiente
-  
+  const isIndependent = user?.role_id === 8;
+
   return (
     <div className="main-container">
       <div className="top-bar-orange"></div>
@@ -34,12 +34,21 @@ const VistaInicioTecnico = () => {
             </div>
           </div>
 
-          <div className="menu-card">
-            <div className="card-inner" onClick={() => navigate('/trabajos-asignados')}>
-              <div className="icon-placeholder">📋</div>
-              <span className="card-title">LEVANTAMIENTO</span>
+          {isIndependent ? (
+            <div className="menu-card">
+              <div className="card-inner" onClick={() => navigate('/mercado-trabajos')}>
+                <div className="icon-placeholder">🌍</div>
+                <span className="card-title">MERCADO / RED</span>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="menu-card">
+              <div className="card-inner" onClick={() => navigate('/trabajos-asignados')}>
+                <div className="icon-placeholder">📋</div>
+                <span className="card-title">LEVANTAMIENTO</span>
+              </div>
+            </div>
+          )}
 
           <div className="menu-card">
             <div className="card-inner" onClick={() => navigate('/vista-cotizaciones')}>
@@ -48,14 +57,7 @@ const VistaInicioTecnico = () => {
             </div>
           </div>
 
-          {isIndependent && (
-            <div className="menu-card">
-              <div className="card-inner" onClick={() => navigate('/mercado-trabajos')}>
-                <div className="icon-placeholder">🌍</div>
-                <span className="card-title">MERCADO / RED</span>
-              </div>
-            </div>
-          )}
+
         </nav>
       </div>
     </div>
