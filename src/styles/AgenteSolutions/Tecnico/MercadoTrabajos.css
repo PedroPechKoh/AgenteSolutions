@@ -253,3 +253,20 @@
 .mercado-btn-submit:hover {
   background: #0056b3;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mercado-content {
+    flex-direction: column;
+    height: auto;
+  }
+  .mercado-map-section {
+    height: 400px;
+    flex: none;
+    width: 100%;
+  }
+  .mercado-sidebar {
+    width: 100%;
+    max-height: 400px;
+  }
+}
