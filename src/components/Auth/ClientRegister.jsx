@@ -187,11 +187,11 @@ const ClientRegister = () => {
 
     setIsLoading(true);
 
-    const roleMap = { client: 3, technician: 2, owner: 5, owner_personal: 5, owner_business: 4, contratista: 6, admin_propiedades: 7 };
+    const roleMap = { client: 3, technician: 8, owner: 5, owner_personal: 5, owner_business: 4, contratista: 6, admin_propiedades: 7 };
     const roleId = roleMap[accountType] ?? 3;
 
     try {
-      const isAutonomoAccount = (roleId === 5 || roleId === 4 || roleId === 6);
+      const isAutonomoAccount = (roleId === 5 || roleId === 4 || roleId === 6 || roleId === 8);
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/registro-usuario`, {
         first_name: firstName.trim(),
         last_name: lastName.trim(),
@@ -201,7 +201,7 @@ const ClientRegister = () => {
         role_id: roleId,
         company_code: (!isAutonomoAccount && roleId !== 7) ? companyCode.trim() || null : null,
         company_name: isAutonomoAccount ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null,
-        specialties: roleId === 2 ? selectedSpecialties : [],
+        specialties: roleId === 8 ? selectedSpecialties : [],
         captcha_token: captchaToken
       });
 
@@ -212,8 +212,8 @@ const ClientRegister = () => {
         navigate(`/activacion-cuenta?tenant_id=${res.data.tenant_id}`);
       } else if (res.data.status === 'pending_approval' || roleId === 2 || (roleId === 7 && companyCode.trim() !== '')) {
         setIsPendingApproval(true);
-      } else if (roleId === 5 || roleId === 4 || roleId === 6) {
-        setMessage('🎉 ¡Registro exitoso con 6 MESES GRATIS activos! Redirigiendo...');
+      } else if (roleId === 5 || roleId === 4 || roleId === 6 || roleId === 8) {
+        setMessage('🎉 ¡Registro exitoso con 1 AÑO GRATIS de prueba! Redirigiendo...');
         setTimeout(() => navigate(`/login`), 2200);
       } else if (roleId === 7) {
         setMessage('¡Registro exitoso! Redirigiendo...');

@@ -116,16 +116,22 @@ const handleLogin = async (e) => {
       if (roleNum === 0) {
         setMensaje(`¡Bienvenido ROOT ${first_name}! Entrando al panel principal...`);
         setTimeout(() => navigate("/VistaRoot"), 1000);
-      } else if (roleNum === 4 || roleNum === 5) {
-        const typeLabel = roleNum === 5 ? 'AUTÓNOMO PERSONAL' : 'AUTÓNOMO EMPRESARIAL';
+      } else if (roleNum === 4 || roleNum === 5 || roleNum === 6) {
+        let typeLabel = 'AUTÓNOMO';
+        if (roleNum === 5) typeLabel = 'AUTÓNOMO PERSONAL';
+        if (roleNum === 4) typeLabel = 'AUTÓNOMO EMPRESARIAL';
+        if (roleNum === 6) typeLabel = 'CONTRATISTA';
         setMensaje(`¡Bienvenido ${typeLabel} ${first_name}! Entrando a tu panel...`);
         setTimeout(() => navigate("/VistaRoot"), 1000);
       } else if (roleNum === 1) {
         setMensaje(`¡Bienvenido ADMIN ${first_name}! Entrando al panel administrativo...`);
         setTimeout(() => navigate("/VistaAdmin"), 1000);
       } else if (roleNum === 2) {
-        setMensaje(`¡Bienvenido TÉCNICO ${first_name}! Abriendo tu panel de trabajo...`);
+        setMensaje(`¡Bienvenido TÉCNICO INTERNO ${first_name}! Abriendo tu panel de trabajo...`);
         setTimeout(() => navigate("/VistaTecnico"), 1000);
+      } else if (roleNum === 8) {
+        setMensaje(`¡Bienvenido TÉCNICO DE LA RED ${first_name}! Abriendo el mercado de trabajos...`);
+        setTimeout(() => navigate("/mercado-trabajos"), 1000);
       } else if (roleNum === 3) {
         setMensaje(`¡Bienvenido CLIENTE ${first_name}! Abriendo tu portal...`);
         setTimeout(() => navigate("/propiedades"), 1000);
