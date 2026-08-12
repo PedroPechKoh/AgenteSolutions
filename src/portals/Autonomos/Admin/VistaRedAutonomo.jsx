@@ -47,7 +47,8 @@ const VistaRedAutonomo = () => {
         setNetworkJobs(jobs);
       }
     } catch (e) {
-      console.error("Error fetching network jobs", e);
+      console.error("Error fetching network jobs, falling back to mock", e);
+      if (networkJobs.length === 0) setNetworkJobs(mockSolicitudes);
     }
   };
 

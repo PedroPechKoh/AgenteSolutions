@@ -64,7 +64,8 @@ const MercadoTrabajos = () => {
         setNetworkJobs(jobs);
       }
     } catch (e) {
-      console.error("Error fetching jobs from API", e);
+      console.error("Error fetching jobs from API, falling back to mock", e);
+      if (networkJobs.length === 0) setNetworkJobs(mockJobs);
     }
   };
 
