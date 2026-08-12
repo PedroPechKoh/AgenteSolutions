@@ -29,11 +29,13 @@
 .mercado-info-window {
   padding: 5px;
   max-width: 200px;
+  color: #333;
 }
 
 .mercado-info-window h4 {
   margin: 0 0 5px 0;
   font-size: 14px;
+  color: #111;
 }
 
 .mercado-info-window p {
@@ -151,6 +153,7 @@
   width: 100%;
   max-width: 500px;
   overflow: hidden;
+  color: #333;
 }
 
 .mercado-modal-header {
@@ -165,6 +168,7 @@
 .mercado-modal-header h2 {
   margin: 0;
   font-size: 20px;
+  color: #222;
 }
 
 .mercado-modal-close {
@@ -191,6 +195,7 @@
 .mercado-job-summary h3 {
   margin-top: 0;
   margin-bottom: 10px;
+  color: #111;
 }
 
 .mercado-job-summary p {
@@ -203,6 +208,7 @@
   font-weight: 600;
   margin-bottom: 8px;
   font-size: 14px;
+  color: #444;
 }
 
 .mercado-input, .mercado-textarea {
@@ -213,6 +219,8 @@
   margin-bottom: 15px;
   font-size: 14px;
   box-sizing: border-box;
+  color: #333;
+  background-color: #fff;
 }
 
 .mercado-textarea {
