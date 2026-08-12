@@ -206,6 +206,7 @@ const ModalServicioAutonomo = ({ propertyId, onClose, onSuccess }) => {
         formData.append('description', descFinal);
         if (total > 1) {
             formData.append('batch_id', loteId);
+        }
         if (publishToNetwork) {
             formData.append('publish_network', '1');
         }
