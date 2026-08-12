@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import Header from '../../../components/Shared/Header';
 import { useAuth } from '../../../context/AuthContext';
+import axios from 'axios';
 import ModalServicioAutonomo from './ModalServicioAutonomo';
 import '../../../styles/Autonomos/VistaRedAutonomo.css';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
@@ -25,6 +26,36 @@ const VistaRedAutonomo = () => {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [networkJobs, setNetworkJobs] = useState([]);
+
+  const fetchJobs = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/mercado-trabajos`);
+      if (res.data.success) {
+        // Transform the backend data into map format
+        const jobs = res.data.data.map(order => ({
+            id: order.id,
+            titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
+            lat: order.property?.latitud ? parseFloat(order.property.latitud) : (21.0181 + (Math.random() - 0.5) * 0.05),
+            lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
+            presupuesto: "A convenir",
+            estado: order.status,
+            fecha: new Date(order.created_at).toLocaleDateString(),
+            cotizaciones: 0,
+            cliente: order.property?.client?.first_name || 'Cliente'
+        }));
+        setNetworkJobs(jobs);
+      }
+    } catch (e) {
+      console.error("Error fetching network jobs", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs(); // Fetch initially
+    const interval = setInterval(fetchJobs, 5000); // Polling every 5 seconds for real-time
+    return () => clearInterval(interval);
+  }, []);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -51,7 +82,7 @@ const VistaRedAutonomo = () => {
               center={defaultCenter}
               zoom={13}
             >
-              {mockSolicitudes.map(job => (
+              {networkJobs.map(job => (
                 <Marker
                   key={job.id}
                   position={{ lat: job.lat, lng: job.lng }}
@@ -59,6 +90,7 @@ const VistaRedAutonomo = () => {
                   icon={{
                     url: 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png'
                   }}
+                  animation={job.id > 1000 ? window.google.maps.Animation.DROP : null} // Animación si es nuevo
                 />
               ))}
 

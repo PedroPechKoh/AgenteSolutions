@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import Header from '../../../components/Shared/Header';
 import { MapPin, DollarSign, Clock, Send } from 'lucide-react';
@@ -44,6 +45,34 @@ const MercadoTrabajos = () => {
 
   const [selectedJob, setSelectedJob] = useState(null);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [networkJobs, setNetworkJobs] = useState([]);
+
+  const fetchJobs = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/mercado-trabajos`);
+      if (res.data.success) {
+        const jobs = res.data.data.map(order => ({
+            id: order.id,
+            titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
+            lat: order.property?.latitud ? parseFloat(order.property.latitud) : (21.0181 + (Math.random() - 0.5) * 0.05),
+            lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
+            presupuesto: "A convenir",
+            cliente: order.property?.client?.first_name || 'Cliente Autónomo',
+            descripcion: order.description,
+            fecha: new Date(order.created_at).toLocaleDateString(),
+        }));
+        setNetworkJobs(jobs);
+      }
+    } catch (e) {
+      console.error("Error fetching jobs from API", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+    const interval = setInterval(fetchJobs, 5000); // Polling cada 5s
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="mercado-container">
@@ -58,7 +87,7 @@ const MercadoTrabajos = () => {
               center={defaultCenter}
               zoom={13}
             >
-              {mockJobs.map(job => (
+              {networkJobs.map(job => (
                 <Marker
                   key={job.id}
                   position={{ lat: job.lat, lng: job.lng }}
@@ -66,6 +95,7 @@ const MercadoTrabajos = () => {
                   icon={{
                     url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
                   }}
+                  animation={job.id > 1000 ? window.google.maps.Animation.DROP : null}
                 />
               ))}
 
@@ -99,7 +129,7 @@ const MercadoTrabajos = () => {
           <p className="mercado-subtitle">Haz clic en un marcador del mapa o selecciona de la lista para cotizar.</p>
           
           <div className="mercado-job-list">
-            {mockJobs.map(job => (
+            {networkJobs.map(job => (
               <div 
                 key={job.id} 
                 className={`mercado-job-card ${selectedJob?.id === job.id ? 'active' : ''}`}
