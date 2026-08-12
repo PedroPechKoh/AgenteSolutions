@@ -133,7 +133,7 @@ const handleLogin = async (e) => {
         setMensaje(`¡Bienvenido ADMIN. DE PROPIEDADES ${first_name}! Entrando al panel...`);
         setTimeout(() => navigate("/VistaRoot"), 1000);
       } else {
-        setMensaje(`Error: Tu usuario no tiene permisos válidos.`);
+        setMensaje(`Error: Tu usuario (Rol ${roleNum}) no tiene permisos válidos.`);
       }
       
     } catch (error) {
