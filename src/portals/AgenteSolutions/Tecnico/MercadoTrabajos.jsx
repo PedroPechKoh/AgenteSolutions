@@ -53,20 +53,27 @@ const MercadoTrabajos = () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/mercado-trabajos`);
       if (res.data.success) {
-        const jobs = res.data.data.map(order => ({
-            id: order.id,
-            titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
-            lat: order.property?.latitud ? parseFloat(order.property.latitud) : (21.0181 + (Math.random() - 0.5) * 0.05),
-            lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
-            presupuesto: "A convenir",
-            cliente: order.owner_name || 'Cliente Autónomo',
-            lugar: order.property?.property_name || 'Lugar no especificado',
-            calle: order.property?.address || 'Dirección no especificada',
-            descripcion: order.description,
-            foto: order.evidence_path || order.evidence_path_2 || order.property?.facade_photo_path || null,
-            fecha: new Date(order.created_at).toLocaleDateString(),
-            cotizaciones: order.network_quotes_count || 0
-        }));
+        const userStr = localStorage.getItem('agente_user');
+        const authUser = userStr ? JSON.parse(userStr) : null;
+        
+        const jobs = res.data.data.map(order => {
+            const myQuote = authUser && order.network_quotes ? order.network_quotes.find(q => q.technician_id === authUser.id) : null;
+            return {
+                id: order.id,
+                titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
+                lat: order.property?.latitud ? parseFloat(order.property.latitud) : (21.0181 + (Math.random() - 0.5) * 0.05),
+                lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
+                presupuesto: "A convenir",
+                cliente: order.owner_name || 'Cliente Autónomo',
+                lugar: order.property?.property_name || 'Lugar no especificado',
+                calle: order.property?.address || 'Dirección no especificada',
+                descripcion: order.description,
+                foto: order.evidence_path || order.evidence_path_2 || order.property?.facade_photo_path || null,
+                fecha: new Date(order.created_at).toLocaleDateString(),
+                cotizaciones: order.network_quotes_count || 0,
+                myQuote: myQuote
+            };
+        });
         setNetworkJobs(jobs);
       }
     } catch (e) {
@@ -145,9 +152,13 @@ const MercadoTrabajos = () => {
                     <p className="mercado-info-price">{selectedJob.presupuesto}</p>
                     <button 
                       className="mercado-btn-details"
-                      onClick={() => setShowQuoteModal(true)}
+                      onClick={() => {
+                        setQuotePrice(selectedJob.myQuote ? selectedJob.myQuote.price : '');
+                        setQuoteMessage(selectedJob.myQuote ? selectedJob.myQuote.message : '');
+                        setShowQuoteModal(true);
+                      }}
                     >
-                      Ver y Cotizar
+                      {selectedJob.myQuote ? (selectedJob.myQuote.status === 'rejected' ? 'Revisar Rechazo' : 'Ver tu Cotización') : 'Ver y Cotizar'}
                     </button>
                   </div>
                 </InfoWindow>
@@ -236,7 +247,12 @@ const MercadoTrabajos = () => {
               </div>
               
               <div className="mercado-premium-form">
-                <h4>Tu Oferta</h4>
+                {selectedJob.myQuote && selectedJob.myQuote.status === 'rejected' && (
+                  <div style={{ background: '#f8d7da', color: '#721c24', padding: '10px', borderRadius: '8px', marginBottom: '15px', border: '1px solid #f5c6cb', fontSize: '14px' }}>
+                    <strong>❌ Tu cotización fue rechazada.</strong> Por favor, revisa las condiciones y envía una nueva propuesta si lo deseas.
+                  </div>
+                )}
+                <h4>{selectedJob.myQuote ? 'Actualizar Tu Oferta' : 'Tu Oferta'}</h4>
                 <div className="mercado-form-group">
                   <label>Propuesta Económica ($)</label>
                   <div className="mercado-input-wrapper">
@@ -265,8 +281,12 @@ const MercadoTrabajos = () => {
             
             <div className="mercado-premium-footer">
               <button className="mercado-btn-cancel" onClick={() => setShowQuoteModal(false)}>Cancelar</button>
-              <button className="mercado-premium-submit" onClick={handleEnviarCotizacion}>
-                <Send size={16}/> Enviar Cotización
+              <button 
+                className="mercado-premium-submit"
+                onClick={handleEnviarCotizacion}
+              >
+                <Send size={16} /> 
+                {selectedJob.myQuote ? 'Actualizar Cotización' : 'Enviar Cotización'}
               </button>
             </div>
           </div>

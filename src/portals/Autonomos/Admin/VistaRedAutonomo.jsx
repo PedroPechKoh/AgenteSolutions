@@ -198,17 +198,25 @@ const VistaRedAutonomo = () => {
                         </div>
                       )}
                       <div className="red-quote-actions">
-                        <button className="red-btn-reject" onClick={() => handleRejectQuote(quote.id)}>
-                          Rechazar Oferta
-                        </button>
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                          <button className="red-btn-contact" onClick={() => alert("Función de chat en desarrollo.")}>
-                            Contactar
-                          </button>
-                          <button className="red-btn-accept" onClick={() => alert("Se aceptaría la cotización de " + quote.technician?.first_name)}>
-                            Aceptar Oferta
-                          </button>
-                        </div>
+                        {quote.status === 'rejected' ? (
+                          <div style={{ color: '#dc3545', fontWeight: 'bold', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            ❌ Propuesta Rechazada
+                          </div>
+                        ) : (
+                          <>
+                            <button className="red-btn-reject" onClick={() => handleRejectQuote(quote.id)}>
+                              Rechazar Oferta
+                            </button>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                              <button className="red-btn-contact" onClick={() => alert("Función de chat en desarrollo.")}>
+                                Contactar
+                              </button>
+                              <button className="red-btn-accept" onClick={() => alert("Se aceptaría la cotización de " + quote.technician?.first_name)}>
+                                Aceptar Oferta
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
