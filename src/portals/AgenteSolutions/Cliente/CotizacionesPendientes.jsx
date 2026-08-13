@@ -209,16 +209,31 @@ const CotizacionesPendientes = () => {
     window.dispatchEvent(new Event('notif_update'));
     window.dispatchEvent(new Event('storage'));
 
-    // 2. Enviar petición al backend API (si está conectado)
+    // 2. Enviar notificaciones y petición al backend API (Laravel)
     try {
-      const token = localStorage.getItem('token');
-      const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
+      const token = localStorage.getItem('agente_token') || localStorage.getItem('token');
+      const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      // Notificar al backend Laravel sobre la recotización para el usuario Root / Admin
+      axios.post(`${API_URL}/notifications/send-to-admin`, {
+        title: `🔄 Solicitud de Recotización - ${cot.folio || `#${cot.id}`}`,
+        message: `El cliente solicitó recotizar el servicio "${cot.titulo || cot.concepto || ''}" (${cot.folio || cot.id}) por estar vencida.`,
+        type: "solicitud_recotizacion",
+        quote_id: cot.id,
+        data: {
+          type: 'solicitud_recotizacion',
+          quote_id: cot.id,
+          cotizacion_id: cot.id,
+          url: '/vista-cotizaciones?filtro=Recotizaciones'
+        }
+      }, { headers }).catch(err => console.warn("Notificación a admin en API backend guardada:", err));
+
+      // Petición al endpoint de recotización
       axios.post(`${API_URL}/cotizaciones/${cot.id}/recotizar`, {
         cotizacion_id: cot.id,
         motivo: 'Caducada (> 15 días)'
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).catch(err => console.warn("Petición de recotización guardada localmente:", err));
+      }, { headers }).catch(err => console.warn("Petición de recotización guardada localmente:", err));
     } catch {
       // ignore
     }

@@ -35,11 +35,18 @@ const NotificationBell = () => {
   const fetchNotifications = async () => {
     let list = [];
     try {
+      const token = localStorage.getItem("agente_token") || localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const { data } = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/notifications/unread`,
+        { headers }
       );
-      if (data.success && Array.isArray(data.notifications)) {
+      if (data?.success && Array.isArray(data?.notifications)) {
         list = data.notifications;
+      } else if (Array.isArray(data)) {
+        list = data;
+      } else if (data && Array.isArray(data.data)) {
+        list = data.data;
       }
     } catch (error) {
       console.warn("Error al cargar notificaciones del servidor, usando respaldo local:", error);

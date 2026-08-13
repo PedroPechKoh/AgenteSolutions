@@ -15,12 +15,32 @@ const VistaNotificaciones = () => {
   useEffect(() => {
     const cargarHistorial = async () => {
       try {
-        const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/notifications/all`);
-        if (data.success) {
-          setNotificaciones(data.notifications);
+        const token = localStorage.getItem("agente_token") || localStorage.getItem("token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/notifications/all`, { headers });
+        let list = [];
+        if (data?.success && Array.isArray(data?.notifications)) {
+          list = data.notifications;
+        } else if (Array.isArray(data)) {
+          list = data;
+        } else if (data && Array.isArray(data.data)) {
+          list = data.data;
         }
+
+        const user = JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData;
+        if (user?.role_id === 0 || user?.role_id === 1) {
+          const localAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
+          localAdmin.forEach(n => {
+            if (!list.some(item => String(item.id) === String(n.id))) list.push(n);
+          });
+        }
+        setNotificaciones(list);
       } catch (error) {
-        console.error("Error al cargar historial", error);
+        console.error("Error al cargar historial, usando notificaciones de respaldo:", error);
+        const user = JSON.parse(localStorage.getItem('agente_session') || '{}')?.userData;
+        if (user?.role_id === 0 || user?.role_id === 1) {
+          setNotificaciones(JSON.parse(localStorage.getItem('notificaciones_admin') || '[]'));
+        }
       } finally {
         setCargando(false);
       }
