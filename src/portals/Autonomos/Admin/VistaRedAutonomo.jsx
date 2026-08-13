@@ -28,6 +28,8 @@ const VistaRedAutonomo = () => {
   const [showQuotesModal, setShowQuotesModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
   const [selectedJobForQuotes, setSelectedJobForQuotes] = useState(null);
+  const [selectedTechnicianProfile, setSelectedTechnicianProfile] = useState(null);
+  const [showTechModal, setShowTechModal] = useState(false);
   const [networkJobs, setNetworkJobs] = useState([]);
 
   const fetchJobs = async () => {
@@ -168,24 +170,22 @@ const VistaRedAutonomo = () => {
                     <div key={quote.id} className="red-quote-card">
                       <div className="red-quote-header">
                         <div className="red-quote-tech">
-                          <div className="red-quote-avatar">
+                          <div 
+                            className="red-quote-avatar" 
+                            style={{ cursor: 'pointer', border: '2px solid transparent', transition: 'border 0.2s' }}
+                            onMouseOver={e => e.currentTarget.style.border = '2px solid #007bff'}
+                            onMouseOut={e => e.currentTarget.style.border = '2px solid transparent'}
+                            onClick={() => {
+                              setSelectedTechnicianProfile(quote.technician);
+                              setShowTechModal(true);
+                            }}
+                            title="Ver Perfil del Técnico"
+                          >
                             {quote.technician?.first_name?.charAt(0) || 'T'}
                           </div>
                           <div>
                             <h4>{quote.technician?.first_name} {quote.technician?.last_name}</h4>
                             <span className="red-quote-role">Técnico de la Red</span>
-                            {quote.technician?.birth_date && (
-                              <div className="red-quote-birthdate">
-                                📅 Nacimiento: {new Date(quote.technician.birth_date).toLocaleDateString()}
-                              </div>
-                            )}
-                            {quote.technician?.specialties && quote.technician.specialties.length > 0 && (
-                              <div className="red-quote-specialties">
-                                {quote.technician.specialties.map(spec => (
-                                  <span key={spec.id} className="red-specialty-badge">{spec.name}</span>
-                                ))}
-                              </div>
-                            )}
                           </div>
                         </div>
                         <div className="red-quote-price">
@@ -213,6 +213,62 @@ const VistaRedAutonomo = () => {
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DEL PERFIL DEL TÉCNICO */}
+      {showTechModal && selectedTechnicianProfile && (
+        <div className="mercado-modal-overlay">
+          <div className="mercado-premium-modal" style={{ maxWidth: '450px' }}>
+            <div className="mercado-premium-header">
+              <h2>Perfil del Técnico</h2>
+              <span className="mercado-modal-close" onClick={() => setShowTechModal(false)}>×</span>
+            </div>
+            <div className="mercado-premium-body" style={{ flexDirection: 'column', padding: '25px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
+                <div style={{ 
+                  width: '70px', height: '70px', borderRadius: '50%', background: '#007bff', 
+                  color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                  fontSize: '28px', fontWeight: 'bold' 
+                }}>
+                  {selectedTechnicianProfile.first_name?.charAt(0) || 'T'}
+                </div>
+                <div>
+                  <h3 style={{ margin: '0 0 5px 0', color: '#1a2b4c' }}>
+                    {selectedTechnicianProfile.first_name} {selectedTechnicianProfile.last_name}
+                  </h3>
+                  <span style={{ color: '#007bff', fontWeight: '600', fontSize: '14px' }}>Técnico de la Red</span>
+                </div>
+              </div>
+
+              <div style={{ background: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+                <div style={{ marginBottom: '10px' }}>
+                  <strong>📧 Email:</strong> {selectedTechnicianProfile.email || 'No disponible'}
+                </div>
+                <div style={{ marginBottom: '10px' }}>
+                  <strong>📱 Teléfono:</strong> {selectedTechnicianProfile.phone_number || 'No disponible'}
+                </div>
+                {selectedTechnicianProfile.birth_date && (
+                  <div>
+                    <strong>📅 Fecha de Nacimiento:</strong> {new Date(selectedTechnicianProfile.birth_date).toLocaleDateString()}
+                  </div>
+                )}
+              </div>
+
+              <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>Especialidades Verificadas</h4>
+              {selectedTechnicianProfile.specialties && selectedTechnicianProfile.specialties.length > 0 ? (
+                <div className="red-quote-specialties" style={{ marginTop: 0 }}>
+                  {selectedTechnicianProfile.specialties.map(spec => (
+                    <span key={spec.id} className="red-specialty-badge" style={{ fontSize: '13px', padding: '6px 12px' }}>
+                      {spec.name}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ color: '#666', fontStyle: 'italic', margin: 0 }}>No ha registrado especialidades.</p>
               )}
             </div>
           </div>
