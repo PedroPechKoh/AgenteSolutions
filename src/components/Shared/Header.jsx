@@ -38,8 +38,8 @@ const Header = ({ rolTexto = "USUARIO", titulo }) => {
   const irAlInicio = () => {
     if (!user) return;
     const role = Number(user.role_id);
-    if ([0, 1, 4, 5, 7].includes(role)) navigate('/VistaRoot');
-    else if (role === 2) navigate('/VistaTecnico');
+    if ([0, 1, 4, 5, 6, 7].includes(role)) navigate('/VistaRoot');
+    else if (role === 2 || role === 8) navigate('/VistaTecnico');
     else if (role === 3) navigate('/VistaInicioCliente');
     else navigate('/');
   };

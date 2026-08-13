@@ -137,12 +137,14 @@ const VistaNotificaciones = () => {
                         } else {
                           url = workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios';
                         }
-                      } else if (type === 'work_order_assigned' || type === 'work_order_rescheduled' || type === 'visit_rescheduled' || type === 'second_visit_requested' || type === 'second_visit_agreed' || type === 'second_visit_admin_scheduled') {
+                      } else if (type === 'work_order_assigned' || type === 'work_order_rescheduled' || type === 'visit_rescheduled' || type === 'second_visit_requested' || type === 'second_visit_agreed' || type === 'second_visit_reprogrammed' || type === 'second_visit_admin_scheduled' || titleLower.includes('segunda visita')) {
                         if (isTecnico) {
-                          url = '/trabajos-tecnico';
-                        } else {
+                          url = workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico';
+                        } else if (user?.role_id === 3) {
                           const propId = n.data.property_id;
-                          url = propId ? `/propiedad/${propId}/tablero` : '/tablero-servicios';
+                          url = propId ? `/propiedad/${propId}/tablero` : '/propiedades';
+                        } else {
+                          url = workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios';
                         }
                       } else if (type === 'user_account_deleted') {
                         url = n.data.url || (n.data.role_id === 2 ? '/vista-tecnicos' : '/usuarios');
@@ -151,19 +153,17 @@ const VistaNotificaciones = () => {
                       }
 
                       // Fallback de seguridad
-                      if (!url) {
-                        if (type?.includes('quote')) {
-                          if (isTecnico) {
-                            url = '/trabajos-tecnico';
-                          } else {
-                            const qId = n.data.quote_id;
-                            url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
-                          }
+                      if (!url || (isTecnico && (url.includes('/propiedad/') || url.includes('/tablero-servicios') || url.includes('/VistaRoot')))) {
+                        if (isTecnico) {
+                          url = workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico';
+                        } else if (type?.includes('quote')) {
+                          const qId = n.data.quote_id;
+                          url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
                         }
                         else if (type?.includes('service') || type?.includes('work_order') || titleLower.includes('servicio')) {
-                          url = isTecnico ? '/trabajos-tecnico' : (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios');
+                          url = workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios';
                         }
-                        else url = isTecnico ? '/trabajos-tecnico' : '/VistaRoot';
+                        else url = '/VistaRoot';
                       }
                     }
 

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Bell, Check, Info } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import "../../styles/NotificationBell.css";
+import "../../styles/Shared/NotificationBell.css";
 
 const timeAgo = (dateString) => {
   if (!dateString) return "";
@@ -139,24 +139,31 @@ const NotificationBell = () => {
         url = propId ? `/propiedad/${propId}/tablero` : '/propiedades'; 
       } else if (type === 'user_account_deleted') {
         url = notification.data.url || (notification.data.role_id === 2 ? '/vista-tecnicos' : '/usuarios');
+      } else if (type === 'second_visit_requested' || type === 'second_visit_agreed' || type === 'second_visit_reprogrammed' || type === 'second_visit_admin_scheduled' || titleLower.includes('segunda visita')) {
+        const propId = notification.data.property_id;
+        if (isTecnico) {
+          url = workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico';
+        } else if (user?.role_id === 3) {
+          url = propId ? `/propiedad/${propId}/tablero` : '/propiedades';
+        } else {
+          url = workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios';
+        }
       } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
-        url = isTecnico ? '/trabajos-tecnico' : (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios');
+        url = isTecnico ? (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico') : (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios');
       }
 
       // Fallback de seguridad
-      if (!url) {
-        if (type?.includes('quote')) {
-          if (isTecnico) {
-            url = '/trabajos-tecnico';
-          } else {
-            const qId = notification.data.quote_id;
-            url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
-          }
+      if (!url || (isTecnico && (url.includes('/propiedad/') || url.includes('/tablero-servicios') || url.includes('/VistaRoot')))) {
+        if (isTecnico) {
+          url = workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico';
+        } else if (type?.includes('quote')) {
+          const qId = notification.data.quote_id;
+          url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
         }
         else if (type?.includes('service') || type?.includes('work_order') || titleLower.includes('servicio')) {
-          url = isTecnico ? '/trabajos-tecnico' : (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios');
+          url = workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios';
         }
-        else url = isTecnico ? '/trabajos-tecnico' : '/VistaRoot';
+        else url = '/VistaRoot';
       }
 
       console.log("Final URL from Bell:", url);
