@@ -184,18 +184,30 @@ const CotizacionesPendientes = () => {
     if (e) e.stopPropagation();
     if (!cot) return;
 
-    // 1. Notificación local para el Administrador
+    // 1. Notificación local para el Administrador / Root
     const notificacionesAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
     const nuevaNotif = {
       id: Date.now(),
       type: 'solicitud_recotizacion',
+      title: `🔄 Solicitud de Recotización - ${cot.folio || `#${cot.id}`}`,
       titulo: `Solicitud de Recotización - ${cot.folio || `#${cot.id}`}`,
-      mensaje: `El cliente solicitó recotizar el servicio "${cot.titulo}" (${cot.folio}) por caducidad de 15 días. Contenidos precargados automáticamente.`,
+      message: `El cliente solicitó recotizar el servicio "${cot.titulo || cot.concepto || ''}" (${cot.folio || cot.id}) por caducidad.`,
+      mensaje: `El cliente solicitó recotizar el servicio "${cot.titulo || cot.concepto || ''}" (${cot.folio || cot.id}) por caducidad.`,
       cotizacionOriginal: { ...cot, isDerived: true },
       fecha: new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }),
-      leida: false
+      created_at: new Date().toISOString(),
+      read_at: null,
+      leida: false,
+      data: {
+        type: 'solicitud_recotizacion',
+        quote_id: cot.id,
+        cotizacion_id: cot.id,
+        url: '/vista-cotizaciones?filtro=Recotizaciones'
+      }
     };
     localStorage.setItem('notificaciones_admin', JSON.stringify([nuevaNotif, ...notificacionesAdmin]));
+    window.dispatchEvent(new Event('notif_update'));
+    window.dispatchEvent(new Event('storage'));
 
     // 2. Enviar petición al backend API (si está conectado)
     try {

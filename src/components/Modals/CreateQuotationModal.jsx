@@ -352,6 +352,9 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
           localStorage.setItem('notificaciones_admin', JSON.stringify(notifsAdmin));
         }
 
+        window.dispatchEvent(new Event('notif_update'));
+        window.dispatchEvent(new Event('storage'));
+
         alert(`¡Versión V${nextVer} (${v2Quote.folio}) creada con éxito y enviada al cliente! La recotización aparecerá en su lista de POR PAGAR.`);
         onSuccess();
       }

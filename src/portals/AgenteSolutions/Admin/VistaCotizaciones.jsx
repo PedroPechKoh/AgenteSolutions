@@ -319,6 +319,8 @@ const VistaCotizaciones = () => {
         data: { quote_id: cot.id }
       });
       localStorage.setItem('notificaciones_tecnico', JSON.stringify(notifsTecnico));
+      window.dispatchEvent(new Event('notif_update'));
+      window.dispatchEvent(new Event('storage'));
 
       try {
         await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cot.id}/solicitar-recotizacion-tecnico`);

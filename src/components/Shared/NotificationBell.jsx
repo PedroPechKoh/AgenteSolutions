@@ -76,6 +76,15 @@ const NotificationBell = () => {
   useEffect(() => {
     if (user) {
       fetchNotifications();
+      const timer = setInterval(fetchNotifications, 3000);
+      window.addEventListener('storage', fetchNotifications);
+      window.addEventListener('notif_update', fetchNotifications);
+
+      return () => {
+        clearInterval(timer);
+        window.removeEventListener('storage', fetchNotifications);
+        window.removeEventListener('notif_update', fetchNotifications);
+      };
     }
   }, [user]);
 
