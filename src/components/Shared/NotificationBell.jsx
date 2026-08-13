@@ -101,25 +101,25 @@ const NotificationBell = () => {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       setIsOpen(false);
 
-      let url = notification.data?.url;
-      const type = notification.data?.alert_type || notification.data?.type || notification.type;
+      let url = notification.data?.url || notification.url;
+      const type = notification.data?.alert_type || notification.data?.type || notification.type || notification.alert_type;
 
       console.log("Notification from Bell clicked:", notification);
       
       const isTecnico = user?.role_id === 2;
       const isCliente = user?.role_id === 3;
-      const workOrderId = notification.data?.work_order_id || notification.data?.service_id || notification.data?.id;
-      const titleLower = (notification.data?.title || notification.title || '').toLowerCase();
+      const workOrderId = notification.data?.work_order_id || notification.data?.service_id || notification.data?.id || notification.work_order_id || notification.service_id || notification.id;
+      const titleLower = (notification.data?.title || notification.title || notification.titulo || '').toLowerCase();
 
       if (type === 'technician_arrived') {
         url = (user?.role_id === 0 || user?.role_id === 1) ? (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/map') : (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico');
       } else if (type === 'work_order_finished' || type === 'new_report') {
         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
       } else if (type === 'recotizacion_lista' || titleLower.includes('recotización está lista')) {
-        const qId = notification.data?.quote_id || notification.data?.cotizacion_id;
+        const qId = notification.data?.quote_id || notification.data?.cotizacion_id || notification.quote_id;
         url = qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Por Pagar` : '/vista-cotizaciones?filtro=Por Pagar';
       } else if (type === 'solicitud_recotizacion_tecnico' || type === 'solicitud_recotizacion' || titleLower.includes('recotiz') || type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
-        const qId = notification.data?.quote_id || notification.data?.cotizacion_id;
+        const qId = notification.data?.quote_id || notification.data?.cotizacion_id || notification.quote_id;
         const esRecotizacion = type === 'solicitud_recotizacion' || type === 'solicitud_recotizacion_tecnico' || titleLower.includes('recotiz');
         if (esRecotizacion) {
           url = isCliente ? `/vista-cotizaciones?quoteId=${qId}&filtro=Por Pagar` : (qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Recotizaciones` : '/vista-cotizaciones?filtro=Recotizaciones');
@@ -135,12 +135,12 @@ const NotificationBell = () => {
       } else if (type === 'work_order_assigned' || type === 'work_order_rescheduled' || type === 'visit_rescheduled') {
         url = isTecnico ? '/trabajos-tecnico' : '/levantamientos';
       } else if (type === 'work_order_cancelled_client') { 
-        const propId = notification.data.property_id; 
+        const propId = notification.data?.property_id || notification.property_id; 
         url = propId ? `/propiedad/${propId}/tablero` : '/propiedades'; 
       } else if (type === 'user_account_deleted') {
-        url = notification.data.url || (notification.data.role_id === 2 ? '/vista-tecnicos' : '/usuarios');
+        url = notification.data?.url || notification.url || ((notification.data?.role_id || notification.role_id) === 2 ? '/vista-tecnicos' : '/usuarios');
       } else if (type === 'second_visit_requested' || type === 'second_visit_agreed' || type === 'second_visit_reprogrammed' || type === 'second_visit_admin_scheduled' || titleLower.includes('segunda visita')) {
-        const propId = notification.data.property_id;
+        const propId = notification.data?.property_id || notification.property_id;
         if (isTecnico) {
           url = workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico';
         } else if (user?.role_id === 3) {
@@ -157,7 +157,7 @@ const NotificationBell = () => {
         if (isTecnico) {
           url = workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico';
         } else if (type?.includes('quote')) {
-          const qId = notification.data.quote_id;
+          const qId = notification.data?.quote_id || notification.quote_id;
           url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
         }
         else if (type?.includes('service') || type?.includes('work_order') || titleLower.includes('servicio')) {
@@ -266,10 +266,10 @@ const NotificationBell = () => {
                   </div>
                   <div>
                     <h4 className="notification-item-title">
-                      {notif.data.title}
+                      {notif.data?.title || notif.title || notif.titulo || 'Notificación'}
                     </h4>
                     <p className="notification-item-message">
-                      {notif.data.message}
+                      {notif.data?.message || notif.message || notif.mensaje || ''}
                     </p>
                     {notif.created_at && (
                       <span style={{ fontSize: '11px', color: '#888', marginTop: '5px', display: 'block' }}>

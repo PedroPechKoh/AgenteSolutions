@@ -95,8 +95,8 @@ const VistaNotificaciones = () => {
                 const esNueva = notif.read_at === null;
 
                   const handleNavigate = (n) => {
-                    let url = n.data.url;
-                    const type = n.data.alert_type || n.data.type;
+                    let url = n.data?.url || n.url;
+                    const type = n.data?.alert_type || n.data?.type || n.type || n.alert_type;
 
                     console.log("Notificación clickeada:", n);
                     
@@ -107,24 +107,24 @@ const VistaNotificaciones = () => {
                     // Si es cliente, redirigimos a sus propias rutas para evitar que entre a vistas de Admin
                     if (isCliente) {
                       if (type === 'recotizacion_lista' || type?.includes('quote') || type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated') {
-                        const qId = n.data?.quote_id || n.data?.cotizacion_id;
+                        const qId = n.data?.quote_id || n.data?.cotizacion_id || n.quote_id;
                         url = qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Por Pagar` : '/vista-cotizaciones?filtro=Por Pagar';
                       } else if (type?.includes('service') || type?.includes('work_order') || type === 'new_work_order' || type === 'work_order_scheduled' || type === 'work_order_cancelled_client' || type === 'visit_rescheduled') {
-                        const propId = n.data?.property_id;
+                        const propId = n.data?.property_id || n.property_id;
                         url = propId ? `/propiedad/${propId}/tablero` : '/propiedades';
                       } else {
                         url = '/propiedades';
                       }
                     } else {
-                      const workOrderId = n.data.work_order_id || n.data.service_id || n.data.id;
-                      const titleLower = n.data.title?.toLowerCase() || '';
+                      const workOrderId = n.data?.work_order_id || n.data?.service_id || n.data?.id || n.work_order_id || n.service_id || n.id;
+                      const titleLower = (n.data?.title || n.title || n.titulo || '').toLowerCase();
 
                       if (type === 'technician_arrived') {
                         url = (user?.role_id === 0 || user?.role_id === 1) ? (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/map') : (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico');
                       } else if (type === 'work_order_finished' || type === 'new_report') {
                         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
                       } else if (type === 'solicitud_recotizacion_tecnico' || type === 'solicitud_recotizacion' || titleLower.includes('recotiz') || type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
-                        const qId = n.data?.quote_id || n.data?.cotizacion_id;
+                        const qId = n.data?.quote_id || n.data?.cotizacion_id || n.quote_id;
                         const esRecotizacion = type === 'solicitud_recotizacion' || type === 'solicitud_recotizacion_tecnico' || titleLower.includes('recotiz');
                         if (esRecotizacion) {
                           url = qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Recotizaciones` : '/vista-cotizaciones?filtro=Recotizaciones';
@@ -141,13 +141,13 @@ const VistaNotificaciones = () => {
                         if (isTecnico) {
                           url = workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico';
                         } else if (user?.role_id === 3) {
-                          const propId = n.data.property_id;
+                          const propId = n.data?.property_id || n.property_id;
                           url = propId ? `/propiedad/${propId}/tablero` : '/propiedades';
                         } else {
                           url = workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios';
                         }
                       } else if (type === 'user_account_deleted') {
-                        url = n.data.url || (n.data.role_id === 2 ? '/vista-tecnicos' : '/usuarios');
+                        url = n.data?.url || n.url || ((n.data?.role_id || n.role_id) === 2 ? '/vista-tecnicos' : '/usuarios');
                       } else if (url === '/VistaServiciosAdmin' || url === '/tablero-servicios') {
                         url = isTecnico ? '/trabajos-tecnico' : (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/tablero-servicios');
                       }
@@ -157,7 +157,7 @@ const VistaNotificaciones = () => {
                         if (isTecnico) {
                           url = workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico';
                         } else if (type?.includes('quote')) {
-                          const qId = n.data.quote_id;
+                          const qId = n.data?.quote_id || n.quote_id;
                           url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
                         }
                         else if (type?.includes('service') || type?.includes('work_order') || titleLower.includes('servicio')) {
@@ -206,7 +206,7 @@ const VistaNotificaciones = () => {
                     
                     <div style={{ flex: 1 }}>
                       <h4 style={{ margin: '0 0 5px 0', color: esNueva ? '#000' : '#555', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        {notif.data.title}
+                        {notif.data?.title || notif.title || notif.titulo || 'Notificación'}
                         {esNueva && (
                           <span style={{ fontSize: '0.7rem', backgroundColor: '#FF3B30', color: 'white', padding: '2px 8px', borderRadius: '10px' }}>
                             Nueva
@@ -214,7 +214,7 @@ const VistaNotificaciones = () => {
                         )}
                       </h4>
                       <p style={{ margin: '0 0 8px 0', color: '#555', fontSize: '0.95rem' }}>
-                        {notif.data.message}
+                        {notif.data?.message || notif.message || notif.mensaje || ''}
                       </p>
                       <span style={{ fontSize: '0.8rem', color: '#999' }}>
                         {formatearFecha(notif.created_at)}
