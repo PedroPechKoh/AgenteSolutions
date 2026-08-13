@@ -4,6 +4,7 @@ import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-map
 import Header from '../../../components/Shared/Header';
 import { MapPin, DollarSign, Clock, Send, User, FileText } from 'lucide-react';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
+import { useAuth } from '../../../context/AuthContext';
 
 const mapContainerStyle = {
   width: '100%',
@@ -49,12 +50,12 @@ const MercadoTrabajos = () => {
   const [quotePrice, setQuotePrice] = useState('');
   const [quoteMessage, setQuoteMessage] = useState('');
 
+  const { user: authUser } = useAuth();
+  
   const fetchJobs = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/mercado-trabajos`);
       if (res.data.success) {
-        const userStr = localStorage.getItem('agente_user');
-        const authUser = userStr ? JSON.parse(userStr) : null;
         
         const jobs = res.data.data.map(order => {
             let myQuote = null;
@@ -293,7 +294,7 @@ const MercadoTrabajos = () => {
                 onClick={handleEnviarCotizacion}
               >
                 <Send size={16} /> 
-                {selectedJob.myQuote ? 'Actualizar Cotización' : 'Enviar Cotización'}
+                {selectedJob.myQuote ? 'Enviar Nueva Oferta' : 'Enviar Cotización'}
               </button>
             </div>
           </div>
