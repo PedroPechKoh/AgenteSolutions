@@ -9,7 +9,7 @@ import {
   ArrowUpDown, FileText, Upload, 
   MoreVertical, Eye, CheckCircle, 
   XCircle, Clock, ChevronDown, ChevronLeft,
-  User, Wrench, Truck, Layout, Home, Phone, MapPin, ShoppingCart
+  User, Wrench, Truck, Layout, Home, Phone, MapPin, ShoppingCart, RefreshCw
 } from 'lucide-react';
 import CreateQuotationModal from "./CreateQuotationModal";
 import ModalCrearCotizacion from "../Shared/ModalCrearCotizacion";
@@ -179,8 +179,10 @@ const VistaCotizaciones = () => {
       if (quoteIdParam && !paymentStatus) {
         const found = cotizaciones.find(c => String(c.id) === String(quoteIdParam));
         if (found) {
-          const statusLower = String(found.status || '').toLowerCase();
-          if (statusLower.includes('rechazad')) {
+          const statusLower = String(found.status || found.estado || '').toLowerCase();
+          if (statusLower.includes('recotiza') || found.recotizacionSolicitada) {
+            setFiltro('Recotizaciones');
+          } else if (statusLower.includes('rechazad')) {
             setFiltro('Rechazadas');
           } else if (statusLower.includes('pagad') || statusLower.includes('pago en revisión')) {
             setFiltro('Pagadas');
@@ -193,6 +195,15 @@ const VistaCotizaciones = () => {
           window.history.replaceState({}, document.title, window.location.pathname);
         }
       }
+
+      const filtroParam = searchParams.get('filtro');
+      if (filtroParam) {
+        if (filtroParam.toLowerCase().includes('recotiz')) {
+          setFiltro('Recotizaciones');
+        } else {
+          setFiltro(filtroParam);
+        }
+      }
     }
   }, [cotizaciones]);
 
@@ -202,29 +213,124 @@ const VistaCotizaciones = () => {
       const userId = session?.userData?.id;
       const roleId = session?.userData?.role_id;
 
-      const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
-      let data = respuesta.data;
+      let data = [];
+      try {
+        const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
+        if (Array.isArray(respuesta.data)) {
+          data = respuesta.data;
+        } else if (respuesta.data && Array.isArray(respuesta.data.quotes || respuesta.data.data)) {
+          data = respuesta.data.quotes || respuesta.data.data;
+        }
+      } catch (apiErr) {
+        console.warn("Utilizando cotizaciones guardadas localmente como respaldo:", apiErr);
+      }
 
-      // FILTRO PARA TÉCNICOS: Solo ver sus propuestas al Admin
+      const carritoGuardado = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+      const notifsAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
+
+      const mapa = new Map();
+      data.forEach(item => mapa.set(String(item.id), item));
+
+      notifsAdmin.forEach(notif => {
+        if (notif.type === 'solicitud_recotizacion' && notif.cotizacionOriginal) {
+          const orig = notif.cotizacionOriginal;
+          const idKey = String(orig.id);
+          const prev = mapa.get(idKey) || {};
+          mapa.set(idKey, {
+            ...prev,
+            ...orig,
+            id: orig.id,
+            folio: orig.folio || prev.folio || `COT-${orig.id}`,
+            status: 'Pendiente de recotización',
+            estado: 'Pendiente de recotización',
+            recotizacionSolicitada: true,
+            cliente: orig.cliente || orig.titulo || prev.cliente || 'Solicitud del Cliente'
+          });
+        }
+      });
+
+      carritoGuardado.forEach(item => {
+        if (item.estado === 'Pendiente de recotización' || item.recotizacionSolicitada) {
+          const idKey = String(item.id);
+          const prev = mapa.get(idKey) || {};
+          mapa.set(idKey, {
+            ...prev,
+            ...item,
+            id: item.id,
+            folio: item.folio || prev.folio || `COT-${item.id}`,
+            status: 'Pendiente de recotización',
+            estado: 'Pendiente de recotización',
+            recotizacionSolicitada: true,
+            cliente: item.cliente || item.titulo || prev.cliente || 'Solicitud del Cliente'
+          });
+        }
+      });
+
+      let listaCombinada = Array.from(mapa.values());
+
+      // FILTRO PARA TÉCNICOS: Solo ver sus propuestas al Admin y solicitudes de recotización
       if (roleId === 2) {
-        data = data.filter(c => 
-          (c.tecnico_user_id == userId || c.tecnico_id == userId || c.user_id == userId || c.tecnico === session?.userData?.name) 
-          && c.created_by_role === 'Técnico'
+        listaCombinada = listaCombinada.filter(c => 
+          (c.tecnico_user_id == userId || c.tecnico_id == userId || c.user_id == userId || c.tecnico === session?.userData?.name || !c.tecnico_user_id) 
+          && (c.created_by_role === 'Técnico' || c.status?.toLowerCase().includes('recotiza') || c.recotizacionSolicitada)
         );
       }
 
-      setCotizaciones(data);
+      setCotizaciones(listaCombinada);
 
       // Sincronizar cotizacionSeleccionada si está abierta
       setCotizacionSeleccionada(prev => {
         if (!prev) return null;
-        const updated = data.find(c => c.id === prev.id);
+        const updated = listaCombinada.find(c => String(c.id) === String(prev.id));
         return updated || prev;
       });
     } catch (error) {
       console.error("Error al cargar cotizaciones:", error);
     } finally {
       setCargando(false);
+    }
+  };
+
+  const handleSolicitarRecotizacionATecnico = async (cot) => {
+    if (!cot) return;
+    try {
+      const tecnicoNombre = cot.tecnico || 'Técnico';
+      const confirmacion = window.confirm(`¿Confirmas que deseas enviar la solicitud de recotización (V2) al técnico ${tecnicoNombre}?`);
+      if (!confirmacion) return;
+
+      const cotizLocales = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+      const ind = cotizLocales.findIndex(item => String(item.id) === String(cot.id));
+      if (ind !== -1) {
+        cotizLocales[ind].estado = 'Pendiente recotización por técnico';
+        cotizLocales[ind].status = 'Pendiente recotización por técnico';
+        cotizLocales[ind].recotizacionSolicitada = true;
+      }
+      localStorage.setItem('carrito_cotizaciones', JSON.stringify(cotizLocales));
+
+      const notifsTecnico = JSON.parse(localStorage.getItem('notificaciones_tecnico') || '[]');
+      notifsTecnico.unshift({
+        id: Date.now(),
+        type: 'solicitud_recotizacion_tecnico',
+        title: '🔄 Solicitud de Recotización (V2)',
+        message: `El administrador ha solicitado crear la Versión 2 de la cotización ${cot.folio || cot.id}.`,
+        created_at: new Date().toISOString(),
+        read_at: null,
+        tecnico_user_id: cot.tecnico_user_id || cot.tecnico_id,
+        data: { quote_id: cot.id }
+      });
+      localStorage.setItem('notificaciones_tecnico', JSON.stringify(notifsTecnico));
+
+      try {
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cot.id}/solicitar-recotizacion-tecnico`);
+      } catch (e) {
+        console.warn("API de notificaciones a técnico offline, usado respaldo local:", e);
+      }
+
+      alert(`📩 ¡Solicitud de recotización V2 enviada al técnico ${tecnicoNombre}! La cotización V1 permanece guardada en el historial.`);
+      setCotizacionSeleccionada(null);
+      cargarCotizaciones();
+    } catch (error) {
+      console.error("Error al enviar recotización a técnico:", error);
     }
   };
 
@@ -266,7 +372,13 @@ const VistaCotizaciones = () => {
         c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status === 'Validado' || (c.cash_requested && !c.cash_confirmed) || c.status?.toLowerCase().includes('efectivo solicitado')
       )) ||
       (filtro === 'Rechazadas' && c.status?.toLowerCase().includes('rechazad')) ||
-      (filtro === 'Pagadas' && !c.status?.toLowerCase().includes('efectivo solicitado') && !(c.cash_requested && !c.cash_confirmed) && (c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad')));
+      (filtro === 'Pagadas' && !c.status?.toLowerCase().includes('efectivo solicitado') && !(c.cash_requested && !c.cash_confirmed) && (c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad'))) ||
+      (filtro === 'Recotizaciones' && (
+        c.status?.toLowerCase().includes('recotiza') ||
+        c.estado?.toLowerCase().includes('recotiza') ||
+        c.recotizacionSolicitada === true ||
+        c.is_requote_requested === true
+      ));
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
                              (c.folio?.toString() || "").includes(busqueda || "");
@@ -604,6 +716,21 @@ const VistaCotizaciones = () => {
             <button className={`cotiz-pill ${filtro === 'Pagadas' ? 'active' : ''}`} onClick={() => setFiltro('Pagadas')} style={{ background: filtro === 'Pagadas' ? '#e8f5e9' : 'transparent', color: filtro === 'Pagadas' ? '#1b8a5a' : '#64748b', borderColor: filtro === 'Pagadas' ? '#c8e6c9' : '#e2e8f0' }}>
               <CheckCircle size={16} /> PAGADAS
             </button>
+            <button 
+              className={`cotiz-pill ${filtro === 'Recotizaciones' ? 'active' : ''}`} 
+              onClick={() => setFiltro('Recotizaciones')} 
+              style={{ 
+                background: filtro === 'Recotizaciones' ? '#fff7ed' : 'transparent', 
+                color: filtro === 'Recotizaciones' ? '#f26624' : '#64748b', 
+                borderColor: filtro === 'Recotizaciones' ? '#ffedd5' : '#e2e8f0',
+                fontWeight: 'bold',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <RefreshCw size={16} /> RECOTIZACIONES
+            </button>
           </div>
 
           {!esCliente && !esTecnico && (
@@ -683,7 +810,10 @@ const VistaCotizaciones = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
             <span>{c.folio}</span>
             {(() => {
-              const statusLower = String(c.status || '').toLowerCase();
+              const statusLower = String(c.status || c.estado || '').toLowerCase();
+              if (statusLower.includes('recotiza') || c.recotizacionSolicitada) {
+                return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fef3c7', color: '#b45309', border: '1px solid #f59e0b', fontSize: '0.65rem', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>🔄 RECOTIZACIÓN SOLICITADA</span>;
+              }
               if ((c.cash_requested && !c.cash_confirmed) || statusLower.includes('efectivo solicitado')) {
                 return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fef3c7', color: '#b45309', border: '1px solid #f59e0b', fontSize: '0.65rem', fontWeight: 'bold' }}>💵 EFECTIVO PENDIENTE</span>;
               }
@@ -767,6 +897,19 @@ const VistaCotizaciones = () => {
             >
               {isCotizacionEnCarrito(c) ? '🛒 EN CARRITO' : '👁️ VER'}
             </button>
+            {/* Botón para recotizar si fue solicitada recotización */}
+            {!esCliente && (c.status?.toLowerCase().includes('recotiza') || c.estado?.toLowerCase().includes('recotiza') || c.recotizacionSolicitada) && (
+              <button 
+                className="btn-view-detail" 
+                style={{ background: '#f26624', color: 'white', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                onClick={() => {
+                  setCotizacionParaAsignar(c); 
+                  setShowCreateModal(true);
+                }}
+              >
+                <RefreshCw size={13} /> RECOTIZAR
+              </button>
+            )}
             {/* Botón para editar si está rechazada */}
             {!esCliente && c.status === 'Rechazado' && (
               <button 
@@ -1474,6 +1617,70 @@ const VistaCotizaciones = () => {
                       </button>
                     )}
                   </div>
+
+                  {/* Seccion de Recotización / Opciones de Versión V2 */}
+                  {!esCliente && (cotizacionSeleccionada.status?.toLowerCase().includes('recotiza') || cotizacionSeleccionada.estado?.toLowerCase().includes('recotiza') || cotizacionSeleccionada.recotizacionSolicitada) && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginBottom: '15px', background: '#fff7ed', padding: '15px', borderRadius: '12px', border: '1px solid #ffedd5' }}>
+                      <div style={{ color: '#c2410c', fontSize: '0.9rem', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <RefreshCw size={18} /> El cliente solicitó recotizar este servicio por caducidad.
+                      </div>
+
+                      {(cotizacionSeleccionada.created_by_role === 'Técnico' || cotizacionSeleccionada.tecnico) ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                          <button 
+                            className="btn-modal-print" 
+                            style={{ background: '#0284c7', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
+                            onClick={() => handleSolicitarRecotizacionATecnico(cotizacionSeleccionada)}
+                          >
+                            📩 REENVIAR A TÉCNICO ({cotizacionSeleccionada.tecnico || 'RESPONSABLE'}) PARA CREAR V2
+                          </button>
+                          <button 
+                            className="btn-modal-print" 
+                            style={{ background: '#f26624', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
+                            onClick={() => {
+                              const target = cotizacionSeleccionada;
+                              setCotizacionSeleccionada(null);
+                              setCotizacionParaAsignar({ ...target, isRecotizacionV2: true });
+                              setShowCreateModal(true);
+                            }}
+                          >
+                            ✏️ RECOTIZAR DIRECTAMENTE COMO ADMIN (CREAR V2)
+                          </button>
+                        </div>
+                      ) : (
+                        <button 
+                          className="btn-modal-print" 
+                          style={{ background: '#f26624', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
+                          onClick={() => {
+                            const target = cotizacionSeleccionada;
+                            setCotizacionSeleccionada(null);
+                            setCotizacionParaAsignar({ ...target, isRecotizacionV2: true });
+                            setShowCreateModal(true);
+                          }}
+                        >
+                          ✏️ RECOTIZAR AHORA (CREAR VERSIÓN V2)
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Si el usuario es Técnico y la cotización requiere recotización */}
+                  {esTecnico && (cotizacionSeleccionada.status?.toLowerCase().includes('recotiza') || cotizacionSeleccionada.recotizacionSolicitada) && (
+                    <div style={{ width: '100%', marginBottom: '15px' }}>
+                      <button 
+                        className="btn-modal-print" 
+                        style={{ background: '#f26624', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
+                        onClick={() => {
+                          const target = cotizacionSeleccionada;
+                          setCotizacionSeleccionada(null);
+                          setCotizacionParaAsignar({ ...target, isRecotizacionV2: true });
+                          setShowCreateModal(true);
+                        }}
+                      >
+                        <RefreshCw size={18} /> ✏️ RECOTIZAR Y CREAR VERSIÓN 2 (V2)
+                      </button>
+                    </div>
+                  )}
 
                   {/* ROW: Validación de Pago (Solo Admin) */}
                   {!esCliente && !esTecnico && cotizacionSeleccionada.status === 'Pago en Revisión' && (

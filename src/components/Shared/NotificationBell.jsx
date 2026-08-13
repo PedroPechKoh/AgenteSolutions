@@ -31,17 +31,37 @@ const NotificationBell = () => {
   const dropdownRef = useRef(null);
   const { user } = useAuth();
 
-  // Función para obtener las notificaciones de Laravel
+  // Función para obtener las notificaciones de Laravel y respaldo local
   const fetchNotifications = async () => {
+    let list = [];
     try {
       const { data } = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/notifications/unread`,
       );
-      if (data.success) {
-        setNotifications(data.notifications);
+      if (data.success && Array.isArray(data.notifications)) {
+        list = data.notifications;
       }
     } catch (error) {
-      console.error("Error al cargar notificaciones", error);
+      console.warn("Error al cargar notificaciones del servidor, usando respaldo local:", error);
+    }
+
+    if (user?.role_id === 2) {
+      const localTecnico = JSON.parse(localStorage.getItem('notificaciones_tecnico') || '[]');
+      const notifFiltradas = localTecnico.filter(n => !n.tecnico_user_id || n.tecnico_user_id == user.id);
+      const combined = [...list];
+      notifFiltradas.forEach(n => {
+        if (!combined.some(item => item.id === n.id)) combined.push(n);
+      });
+      setNotifications(combined);
+    } else if (user?.role_id === 0 || user?.role_id === 1) {
+      const localAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
+      const combined = [...list];
+      localAdmin.forEach(n => {
+        if (!combined.some(item => item.id === n.id)) combined.push(n);
+      });
+      setNotifications(combined);
+    } else {
+      setNotifications(list);
     }
   };
 
@@ -63,31 +83,36 @@ const NotificationBell = () => {
 
   const handleNotificationClick = async (notification) => {
     try {
-      await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/notifications/${notification.id}/read`,
-      );
+      try {
+        await axios.put(
+          `${import.meta.env.VITE_API_BASE_URL}/notifications/${notification.id}/read`,
+        );
+      } catch (e) {
+        // Fallback local
+      }
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       setIsOpen(false);
 
-      let url = notification.data.url;
-      const type = notification.data.alert_type || notification.data.type;
+      let url = notification.data?.url;
+      const type = notification.data?.alert_type || notification.data?.type || notification.type;
 
       console.log("Notification from Bell clicked:", notification);
       
       const isTecnico = user?.role_id === 2;
-      const workOrderId = notification.data.work_order_id || notification.data.service_id || notification.data.id;
-      const titleLower = notification.data.title?.toLowerCase() || '';
+      const workOrderId = notification.data?.work_order_id || notification.data?.service_id || notification.data?.id;
+      const titleLower = (notification.data?.title || notification.title || '').toLowerCase();
 
       if (type === 'technician_arrived') {
         url = (user?.role_id === 0 || user?.role_id === 1) ? (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/map') : (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico');
       } else if (type === 'work_order_finished' || type === 'new_report') {
         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
-      } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
-        if (isTecnico) {
-          url = '/trabajos-tecnico';
+      } else if (type === 'solicitud_recotizacion_tecnico' || type === 'solicitud_recotizacion' || titleLower.includes('recotiz') || type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
+        const qId = notification.data?.quote_id || notification.data?.cotizacion_id;
+        const esRecotizacion = type === 'solicitud_recotizacion' || type === 'solicitud_recotizacion_tecnico' || titleLower.includes('recotiz');
+        if (esRecotizacion) {
+          url = qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Recotizaciones` : '/vista-cotizaciones?filtro=Recotizaciones';
         } else {
-          const qId = notification.data.quote_id;
-          url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
+          url = isTecnico ? '/trabajos-tecnico' : (qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones');
         }
       } else if (type === 'new_service_requested' || type === 'new_work_order' || type === 'service_assigned' || titleLower.includes('solicitud de servicio') || titleLower.includes('servicio')) {
         if (isTecnico) {

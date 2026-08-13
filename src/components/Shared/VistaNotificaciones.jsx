@@ -122,12 +122,13 @@ const VistaNotificaciones = () => {
                         url = (user?.role_id === 0 || user?.role_id === 1) ? (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/map') : (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico');
                       } else if (type === 'work_order_finished' || type === 'new_report') {
                         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
-                      } else if (type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
-                        if (isTecnico) {
-                          url = '/trabajos-tecnico';
+                      } else if (type === 'solicitud_recotizacion_tecnico' || type === 'solicitud_recotizacion' || titleLower.includes('recotiz') || type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
+                        const qId = n.data?.quote_id || n.data?.cotizacion_id;
+                        const esRecotizacion = type === 'solicitud_recotizacion' || type === 'solicitud_recotizacion_tecnico' || titleLower.includes('recotiz');
+                        if (esRecotizacion) {
+                          url = qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Recotizaciones` : '/vista-cotizaciones?filtro=Recotizaciones';
                         } else {
-                          const qId = n.data.quote_id;
-                          url = qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones';
+                          url = isTecnico ? '/trabajos-tecnico' : (qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones');
                         }
                       } else if (type === 'new_service_requested' || type === 'new_work_order' || type === 'service_assigned' || titleLower.includes('solicitud de servicio') || titleLower.includes('servicio')) {
                         if (isTecnico) {

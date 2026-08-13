@@ -11,6 +11,7 @@ import '../../styles/Cliente/Cotizaciones.css';
 const CotizacionesPendientes = () => {
   const navigate = useNavigate();
   const [cotizacionSeleccionada, setCotizacionSeleccionada] = useState(null);
+  const [modalRecotizacionExito, setModalRecotizacionExito] = useState(null);
   const [loading, setLoading] = useState(true);
   const [mensajeNotificacion, setMensajeNotificacion] = useState(null);
 
@@ -102,11 +103,13 @@ const CotizacionesPendientes = () => {
 
         guardadasLocales.forEach(item => {
           const cad = calcularCaducidad(item.fecha, item.vencida);
+          const esRecotizando = item.estado === 'Pendiente de recotización' || item.recotizacionSolicitada;
           mapa.set(String(item.id), {
             ...item,
             vencida: cad.vencida,
             diasRestantes: cad.diasRestantes,
-            estado: cad.vencida ? 'Caducada (> 15 días)' : (item.estado || 'Pendiente de aprobación')
+            estado: esRecotizando ? 'Pendiente de recotización' : (cad.vencida ? 'Caducada (> 15 días)' : (item.estado || 'Pendiente de aprobación')),
+            recotizacionSolicitada: esRecotizando
           });
         });
 
@@ -208,12 +211,34 @@ const CotizacionesPendientes = () => {
       // ignore
     }
 
-    // 3. Confirmación al Cliente
-    alert(`🛒 ¡Solicitud de recotización enviada al Administrador para ${cot.folio || cot.titulo}!\n\n` +
-          `• La cotización previa permanece guardada en la base de datos sin borrarse.\n` +
-          `• El Administrador recibirá la notificación con todos los contenidos precargados en automático para modificar únicamente los precios.`);
-    
-    mostrarNotificacion(`Solicitud enviada para ${cot.folio}. El administrador actualizará los precios con el contenido precargado.`);
+    // 3. Actualizar estado de la cotización localmente
+    setCotizaciones(prev => prev.map(c => {
+      if (String(c.id) === String(cot.id) || String(c.folio) === String(cot.folio)) {
+        return {
+          ...c,
+          estado: 'Pendiente de recotización',
+          recotizacionSolicitada: true
+        };
+      }
+      return c;
+    }));
+
+    const guardadas = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
+    const actualizadas = guardadas.map(item => {
+      if (String(item.id) === String(cot.id) || String(item.folio) === String(cot.folio)) {
+        return {
+          ...item,
+          estado: 'Pendiente de recotización',
+          recotizacionSolicitada: true
+        };
+      }
+      return item;
+    });
+    localStorage.setItem('carrito_cotizaciones', JSON.stringify(actualizadas));
+
+    // 4. Mostrar Modal de Aviso / Confirmación
+    setModalRecotizacionExito(cot);
+    mostrarNotificacion(`Solicitud enviada para ${cot.folio || cot.titulo}. Estado cambiado a "Pendiente de recotización".`);
   };
 
   // Filtrado de seleccionadas (solo permite vigentes)
@@ -300,89 +325,119 @@ const CotizacionesPendientes = () => {
               </div>
             ) : (
               cotizaciones.map((cot) => {
-                const isSelected = !cot.vencida && selectedIds.includes(cot.id);
+                const esPendienteRecotizacion = cot.estado === 'Pendiente de recotización' || cot.recotizacionSolicitada;
+                const isSelected = !cot.vencida && !esPendienteRecotizacion && selectedIds.includes(cot.id);
                 return (
                   <div 
                     key={cot.id} 
-                    className={`quote-card-item cart-card-row ${isSelected ? 'selected-row' : ''} ${cot.vencida ? 'expired-card-row' : ''}`}
+                    className={`quote-card-item cart-card-row ${isSelected ? 'selected-row' : ''} ${cot.vencida && !esPendienteRecotizacion ? 'expired-card-row' : ''} ${esPendienteRecotizacion ? 'pending-requote-card-row' : ''}`}
                     onClick={() => handleToggleSelect(cot)}
                   >
-                    {/* Sección Superior: Checkbox, Datos del servicio e Importe */}
-                    <div className="cart-card-top-body">
-                      {/* Checkbox / Indicador de Caducidad */}
-                      <div 
-                        className={`cart-checkbox-wrapper ${cot.vencida ? 'disabled-checkbox' : ''}`} 
-                        onClick={(e) => handleToggleSelect(cot, e)}
-                        title={cot.vencida ? 'Cotización caducada. Solicita recotizar' : 'Marcar para sumar al total'}
-                      >
-                        {cot.vencida ? (
-                          <div className="expired-lock-box">
-                            <Lock size={18} className="lock-icon" />
-                          </div>
-                        ) : isSelected ? (
-                          <CheckSquare size={22} className="checkbox-icon checked" />
-                        ) : (
-                          <Square size={22} className="checkbox-icon" />
-                        )}
+                    {/* Cabecera de la Tarjeta */}
+                    <div className="cart-card-header">
+                      <div className="cart-card-title-group">
+                        <div 
+                          className={`cart-checkbox-wrapper ${cot.vencida || esPendienteRecotizacion ? 'disabled-checkbox' : ''}`} 
+                          onClick={(e) => handleToggleSelect(cot, e)}
+                          title={esPendienteRecotizacion ? 'Recotización en proceso' : cot.vencida ? 'Cotización caducada. Solicita recotizar' : 'Marcar para sumar al total'}
+                        >
+                          {esPendienteRecotizacion ? (
+                            <div className="pending-requote-lock-box" title="Recotización pendiente">
+                              <RefreshCw size={18} className="lock-icon spin-slow" color="#d97706" />
+                            </div>
+                          ) : cot.vencida ? (
+                            <div className="expired-lock-box">
+                              <Lock size={18} className="lock-icon" />
+                            </div>
+                          ) : isSelected ? (
+                            <CheckSquare size={22} className="checkbox-icon checked" />
+                          ) : (
+                            <Square size={22} className="checkbox-icon" />
+                          )}
+                        </div>
+
+                        <div className="cart-card-title-info">
+                          <h4>{cot.titulo}</h4>
+                          {esPendienteRecotizacion ? (
+                            <span className="quote-status-label status-pending-requote">
+                              <Clock size={13} style={{ marginRight: '4px' }} /> Pendiente de recotización
+                            </span>
+                          ) : cot.vencida ? (
+                            <span className="quote-status-label status-expired">
+                              Caducada (&gt; 15 días)
+                            </span>
+                          ) : (
+                            <span className="quote-status-label status-valid">
+                              Vence en {cot.diasRestantes} días
+                            </span>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Información Principal del Servicio */}
-                      <div className="card-content-left">
-                        <div className={`quote-card-icon cart-icon ${cot.vencida ? 'expired-icon-box' : ''}`}>
-                          {cot.vencida ? <CalendarX size={20} color="#dc2626" /> : <Clock size={20} />}
+                      <button 
+                        className="btn-remove-icon"
+                        title="Quitar del carrito"
+                        onClick={(e) => handleEliminarDelCarrito(cot, e)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+
+                    {/* Cuerpo de la Tarjeta */}
+                    <div className="cart-card-body">
+                      <div className="cart-card-body-left">
+                        <div className={`quote-card-icon cart-icon ${esPendienteRecotizacion ? 'pending-icon-box' : cot.vencida ? 'expired-icon-box' : ''}`}>
+                          {esPendienteRecotizacion ? <RefreshCw size={20} color="#d97706" /> : cot.vencida ? <CalendarX size={20} color="#dc2626" /> : <Clock size={20} />}
                         </div>
-                        <div className="quote-card-info">
-                          <div className="quote-card-topline">
-                            <h4>{cot.titulo}</h4>
-                            {cot.vencida ? (
-                              <span className="quote-status-label status-expired">
-                                Caducada (&gt; 15 días)
-                              </span>
-                            ) : (
-                              <span className="quote-status-label status-valid">
-                                Vence en {cot.diasRestantes} días
-                              </span>
-                            )}
-                          </div>
+                        <div className="quote-card-details">
                           <p className="quote-description">{cot.descripcion}</p>
                           
-                          {/* Aviso de Caducidad si aplica */}
-                          {cot.vencida && (
+                          {/* Avisos de Estado */}
+                          {esPendienteRecotizacion ? (
+                            <div className="expired-alert-banner pending-requote-banner">
+                              <RefreshCw size={15} className="alert-icon" />
+                              <span>Solicitud de recotización enviada. En espera de actualización de costos por el administrador.</span>
+                            </div>
+                          ) : cot.vencida ? (
                             <div className="expired-alert-banner">
-                              <AlertTriangle size={15} />
+                              <AlertTriangle size={15} className="alert-icon" />
                               <span>Cotización vencida. Debes recotizar para poder sumarla a tu cuenta.</span>
                             </div>
-                          )}
+                          ) : null}
 
                           <div className="quote-meta-row">
                             <span className="quote-meta-pill">Folio: <strong>{cot.folio}</strong></span>
                             <span className="quote-meta-pill">Registro: {cot.fecha}</span>
                             <span className="quote-meta-pill validity-pill">
-                              Vigencia: {cot.vencida ? 'Expirada' : `${cot.diasRestantes}/15 días restantes`}
+                              Vigencia: {esPendienteRecotizacion ? 'En Recotización' : cot.vencida ? 'Expirada' : `${cot.diasRestantes}/15 días restantes`}
                             </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Importe Total en la esquina superior derecha */}
-                      <div className={`quote-total-box ${cot.vencida ? 'expired-total-box' : ''}`}>
-                        <span>{cot.vencida ? 'Sujeto a recotización' : 'Importe total'}</span>
-                        <strong className={cot.vencida ? 'strike-price' : ''}>
+                      {/* Importe Total */}
+                      <div className={`quote-total-box ${esPendienteRecotizacion ? 'pending-total-box' : cot.vencida ? 'expired-total-box' : ''}`}>
+                        <span className="total-box-label">{esPendienteRecotizacion ? 'Monto en actualización' : cot.vencida ? 'Sujeto a recotización' : 'Importe total'}</span>
+                        <strong className={`total-box-amount ${cot.vencida && !esPendienteRecotizacion ? 'strike-price' : ''}`}>
                           {formatCurrency(cot.total)}
                         </strong>
                       </div>
                     </div>
 
-                    {/* Barra de Acciones Centrada en la parte inferior de la tarjeta */}
-                    <div className="cart-card-centered-actions">
-                      {cot.vencida && (
+                    {/* Acciones de la Tarjeta en el Pie */}
+                    <div className="cart-card-actions-row">
+                      {esPendienteRecotizacion ? (
+                        <button className="btn-requote-sent-disabled" disabled title="La solicitud ya fue enviada al administrador">
+                          <CheckCircle2 size={14} /> Solicitud de recotización enviada
+                        </button>
+                      ) : cot.vencida ? (
                         <button 
                           className="btn-requote-action"
                           onClick={(e) => handleSolicitarRecotizacion(cot, e)}
                         >
-                          <RefreshCw size={14} /> Recotizar
+                          <RefreshCw size={14} /> Solicitar Recotización
                         </button>
-                      )}
+                      ) : null}
                       <button 
                         className="btn-preview" 
                         onClick={(e) => {
@@ -393,7 +448,7 @@ const CotizacionesPendientes = () => {
                         <Eye size={14} /> Ver detalle
                       </button>
                       <button 
-                        className="btn-remove-cart"
+                        className="btn-remove-cart-text"
                         title="Quitar del carrito"
                         onClick={(e) => handleEliminarDelCarrito(cot, e)}
                       >
@@ -558,6 +613,44 @@ const CotizacionesPendientes = () => {
                     </button>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación de Recotización Enviada */}
+      {modalRecotizacionExito && (
+        <div className="modal-overlay" onClick={() => setModalRecotizacionExito(null)}>
+          <div className="modal-content-wrapper modal-requote-success" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-requote-body">
+              <div className="requote-success-icon-badge">
+                <RefreshCw size={36} color="#f26624" />
+              </div>
+              <h3>¡Solicitud de Recotización Enviada!</h3>
+              <p className="requote-success-msg">
+                Se ha enviado la solicitud de recotización para <strong>{modalRecotizacionExito.titulo}</strong> ({modalRecotizacionExito.folio || `#${modalRecotizacionExito.id}`}) al Administrador.
+              </p>
+              
+              <div className="requote-status-box">
+                <div className="status-box-row">
+                  <span>Nuevo Estado de la Cotización:</span>
+                  <span className="quote-status-label status-pending-requote">
+                    <Clock size={13} style={{ marginRight: '4px' }} /> Pendiente de recotización
+                  </span>
+                </div>
+                <p className="status-box-note">
+                  El Administrador ha recibido la notificación con el contenido precargado para actualizar los precios. En cuanto los precios sean actualizados, la cotización pasará nuevamente a estar vigente para autorizar tu pago.
+                </p>
+              </div>
+
+              <div className="requote-modal-actions">
+                <button 
+                  className="btn-accept-final btn-requote-confirm-ok" 
+                  onClick={() => setModalRecotizacionExito(null)}
+                >
+                  Entendido
+                </button>
               </div>
             </div>
           </div>
