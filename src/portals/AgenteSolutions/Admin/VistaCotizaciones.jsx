@@ -1627,18 +1627,46 @@ const VistaCotizaciones = () => {
                         <RefreshCw size={18} /> El cliente solicitó recotizar este servicio por caducidad.
                       </div>
 
-                      {(cotizacionSeleccionada.created_by_role === 'Técnico' || cotizacionSeleccionada.tecnico) ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                      {(() => {
+                        const nombreTecnico = cotizacionSeleccionada.tecnico;
+                        const esDelTecnico = (cotizacionSeleccionada.created_by_role === 'Técnico' || cotizacionSeleccionada.tecnico_id || cotizacionSeleccionada.user_role === 'Técnico') && 
+                          nombreTecnico && 
+                          nombreTecnico !== 'Sin Técnico' && 
+                          nombreTecnico !== 'N/A' && 
+                          nombreTecnico !== 'Técnico' && 
+                          nombreTecnico !== 'Admin' && 
+                          nombreTecnico !== 'Root';
+
+                        if (esDelTecnico) {
+                          return (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                              <button 
+                                className="btn-modal-print" 
+                                style={{ background: '#0284c7', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
+                                onClick={() => handleSolicitarRecotizacionATecnico(cotizacionSeleccionada)}
+                              >
+                                📩 REENVIAR A TÉCNICO ({nombreTecnico}) PARA CREAR V2
+                              </button>
+                              <button 
+                                className="btn-modal-print" 
+                                style={{ background: '#f26624', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
+                                onClick={() => {
+                                  const target = cotizacionSeleccionada;
+                                  setCotizacionSeleccionada(null);
+                                  setCotizacionParaAsignar({ ...target, isRecotizacionV2: true });
+                                  setShowCreateModal(true);
+                                }}
+                              >
+                                ✏️ RECOTIZAR DIRECTAMENTE COMO ADMIN / ROOT (CREAR V2)
+                              </button>
+                            </div>
+                          );
+                        }
+
+                        return (
                           <button 
                             className="btn-modal-print" 
-                            style={{ background: '#0284c7', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
-                            onClick={() => handleSolicitarRecotizacionATecnico(cotizacionSeleccionada)}
-                          >
-                            📩 REENVIAR A TÉCNICO ({cotizacionSeleccionada.tecnico || 'RESPONSABLE'}) PARA CREAR V2
-                          </button>
-                          <button 
-                            className="btn-modal-print" 
-                            style={{ background: '#f26624', color: 'white', border: 'none', padding: '12px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
+                            style={{ background: '#f26624', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
                             onClick={() => {
                               const target = cotizacionSeleccionada;
                               setCotizacionSeleccionada(null);
@@ -1646,23 +1674,10 @@ const VistaCotizaciones = () => {
                               setShowCreateModal(true);
                             }}
                           >
-                            ✏️ RECOTIZAR DIRECTAMENTE COMO ADMIN (CREAR V2)
+                            ✏️ RECOTIZAR Y CREAR VERSIÓN 2 (V2)
                           </button>
-                        </div>
-                      ) : (
-                        <button 
-                          className="btn-modal-print" 
-                          style={{ background: '#f26624', color: 'white', border: 'none', padding: '14px', borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', minHeight: '48px', height: 'auto', width: '100%' }}
-                          onClick={() => {
-                            const target = cotizacionSeleccionada;
-                            setCotizacionSeleccionada(null);
-                            setCotizacionParaAsignar({ ...target, isRecotizacionV2: true });
-                            setShowCreateModal(true);
-                          }}
-                        >
-                          ✏️ RECOTIZAR AHORA (CREAR VERSIÓN V2)
-                        </button>
-                      )}
+                        );
+                      })()}
                     </div>
                   )}
 
