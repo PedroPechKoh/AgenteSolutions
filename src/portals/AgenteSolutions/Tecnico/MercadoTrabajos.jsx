@@ -59,11 +59,13 @@ const MercadoTrabajos = () => {
         
         const jobs = res.data.data.map(order => {
             let myQuote = null;
+            let myQuotesHistory = [];
             if (authUser && order.network_quotes) {
                 const userQuotes = order.network_quotes.filter(q => q.technician_id === authUser.id);
                 if (userQuotes.length > 0) {
                     userQuotes.sort((a, b) => b.id - a.id);
                     myQuote = userQuotes[0];
+                    myQuotesHistory = userQuotes;
                 }
             }
             return {
@@ -79,7 +81,8 @@ const MercadoTrabajos = () => {
                 foto: order.evidence_path || order.evidence_path_2 || order.property?.facade_photo_path || null,
                 fecha: new Date(order.created_at).toLocaleDateString(),
                 cotizaciones: order.network_quotes_count || 0,
-                myQuote: myQuote
+                myQuote: myQuote,
+                myQuotesHistory: myQuotesHistory
             };
         });
         setNetworkJobs(jobs);
@@ -255,12 +258,49 @@ const MercadoTrabajos = () => {
               </div>
               
               <div className="mercado-premium-form">
-                {selectedJob.myQuote && selectedJob.myQuote.status === 'rejected' && (
-                  <div style={{ background: '#f8d7da', color: '#721c24', padding: '10px', borderRadius: '8px', marginBottom: '15px', border: '1px solid #f5c6cb', fontSize: '14px' }}>
-                    <strong>❌ Tu cotización fue rechazada.</strong> Por favor, revisa las condiciones y envía una nueva propuesta si lo deseas.
+                {selectedJob.myQuotesHistory && selectedJob.myQuotesHistory.length > 0 && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <h4 style={{ marginBottom: '10px', fontSize: '15px', color: '#1a2b4c', borderBottom: '1px solid #e2e8f0', paddingBottom: '5px' }}>Historial de tus Cotizaciones</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '5px' }}>
+                      {selectedJob.myQuotesHistory.map(q => (
+                        <div key={q.id} style={{ 
+                          padding: '10px', 
+                          borderRadius: '8px', 
+                          border: q.status === 'rejected' ? '1px solid #fed7d7' : '1px solid #e2e8f0',
+                          background: q.status === 'rejected' ? '#fff5f5' : '#f8fafc',
+                          fontSize: '13px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                            <strong style={{ fontSize: '14px', color: '#2d3748' }}>${parseFloat(q.price).toFixed(2)}</strong>
+                            <span style={{ 
+                              color: q.status === 'rejected' ? '#e53e3e' : '#3182ce',
+                              fontWeight: '600',
+                              fontSize: '11px',
+                              textTransform: 'uppercase',
+                              padding: '2px 6px',
+                              background: q.status === 'rejected' ? '#fed7d7' : '#ebf8ff',
+                              borderRadius: '4px'
+                            }}>
+                              {q.status === 'rejected' ? 'Rechazada' : 'Pendiente'}
+                            </span>
+                          </div>
+                          <div style={{ color: '#4a5568', fontStyle: 'italic', marginBottom: '4px' }}>
+                            "{q.message}"
+                          </div>
+                          <div style={{ color: '#a0aec0', fontSize: '11px', textAlign: 'right' }}>
+                            {new Date(q.created_at).toLocaleString()}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
-                <h4>{selectedJob.myQuote ? 'Actualizar Tu Oferta' : 'Tu Oferta'}</h4>
+                {selectedJob.myQuote && selectedJob.myQuote.status === 'rejected' && (
+                  <div style={{ background: '#f8d7da', color: '#721c24', padding: '10px', borderRadius: '8px', marginBottom: '15px', border: '1px solid #f5c6cb', fontSize: '14px' }}>
+                    <strong>❌ Tu última cotización fue rechazada.</strong> Por favor, revisa las condiciones y envía una nueva propuesta si lo deseas.
+                  </div>
+                )}
+                <h4>{selectedJob.myQuote ? 'Enviar Nueva Oferta' : 'Tu Oferta'}</h4>
                 <div className="mercado-form-group">
                   <label>Propuesta Económica ($)</label>
                   <div className="mercado-input-wrapper">
