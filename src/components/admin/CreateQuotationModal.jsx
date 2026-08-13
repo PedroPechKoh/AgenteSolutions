@@ -304,8 +304,8 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
           cliente_telefono: prefillData.cliente_telefono || prefillData.telefono,
           propiedad_nombre: prefillData.propiedad_nombre || servicioSeleccionado?.propiedad_nombre,
           propiedad_direccion: prefillData.propiedad_direccion || servicioSeleccionado?.direccion,
-          status: 'Pendiente',
-          estado: 'Pendiente',
+          status: 'Por Pagar',
+          estado: 'Por Pagar',
           total: total.toFixed(2),
           concept: conceptDataObj,
           observations: observaciones,
@@ -324,6 +324,20 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
         }
         localStorage.setItem('carrito_cotizaciones', JSON.stringify([v2Quote, ...cotizLocales]));
 
+        // Notificar al cliente que su recotización está lista en "Por Pagar"
+        const notifsCliente = JSON.parse(localStorage.getItem('notificaciones_cliente') || '[]');
+        notifsCliente.unshift({
+          id: Date.now(),
+          type: 'recotizacion_lista',
+          title: '✅ ¡Tu recotización está lista!',
+          message: `Hemos actualizado los precios de tu cotización ${v2Quote.folio}. Ya está lista en tu sección de Por Pagar.`,
+          created_at: new Date().toISOString(),
+          read_at: null,
+          cliente_user_id: prefillData.cliente_user_id,
+          data: { quote_id: v2Quote.id, url: '/vista-cotizaciones?filtro=Por Pagar' }
+        });
+        localStorage.setItem('notificaciones_cliente', JSON.stringify(notifsCliente));
+
         if (roleId === 2) {
           const notifsAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
           notifsAdmin.unshift({
@@ -338,7 +352,7 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
           localStorage.setItem('notificaciones_admin', JSON.stringify(notifsAdmin));
         }
 
-        alert(`¡Versión V${nextVer} (${v2Quote.folio}) creada con éxito y enviada para autorización! La versión V1 permanece intacta en el historial.`);
+        alert(`¡Versión V${nextVer} (${v2Quote.folio}) creada con éxito y enviada al cliente! La recotización aparecerá en su lista de POR PAGAR.`);
         onSuccess();
       }
     } catch (error) {

@@ -106,10 +106,11 @@ const VistaNotificaciones = () => {
 
                     // Si es cliente, redirigimos a sus propias rutas para evitar que entre a vistas de Admin
                     if (isCliente) {
-                      if (type?.includes('quote') || type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated') {
-                        url = '/Cotizaciones';
+                      if (type === 'recotizacion_lista' || type?.includes('quote') || type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated') {
+                        const qId = n.data?.quote_id || n.data?.cotizacion_id;
+                        url = qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Por Pagar` : '/vista-cotizaciones?filtro=Por Pagar';
                       } else if (type?.includes('service') || type?.includes('work_order') || type === 'new_work_order' || type === 'work_order_scheduled' || type === 'work_order_cancelled_client' || type === 'visit_rescheduled') {
-                        const propId = n.data.property_id;
+                        const propId = n.data?.property_id;
                         url = propId ? `/propiedad/${propId}/tablero` : '/propiedades';
                       } else {
                         url = '/propiedades';

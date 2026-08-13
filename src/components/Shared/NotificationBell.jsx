@@ -60,6 +60,14 @@ const NotificationBell = () => {
         if (!combined.some(item => item.id === n.id)) combined.push(n);
       });
       setNotifications(combined);
+    } else if (user?.role_id === 3) {
+      const localCliente = JSON.parse(localStorage.getItem('notificaciones_cliente') || '[]');
+      const notifFiltradas = localCliente.filter(n => !n.cliente_user_id || n.cliente_user_id == user.id);
+      const combined = [...list];
+      notifFiltradas.forEach(n => {
+        if (!combined.some(item => item.id === n.id)) combined.push(n);
+      });
+      setNotifications(combined);
     } else {
       setNotifications(list);
     }
@@ -99,6 +107,7 @@ const NotificationBell = () => {
       console.log("Notification from Bell clicked:", notification);
       
       const isTecnico = user?.role_id === 2;
+      const isCliente = user?.role_id === 3;
       const workOrderId = notification.data?.work_order_id || notification.data?.service_id || notification.data?.id;
       const titleLower = (notification.data?.title || notification.title || '').toLowerCase();
 
@@ -106,11 +115,14 @@ const NotificationBell = () => {
         url = (user?.role_id === 0 || user?.role_id === 1) ? (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/map') : (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico');
       } else if (type === 'work_order_finished' || type === 'new_report') {
         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';
+      } else if (type === 'recotizacion_lista' || titleLower.includes('recotización está lista')) {
+        const qId = notification.data?.quote_id || notification.data?.cotizacion_id;
+        url = qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Por Pagar` : '/vista-cotizaciones?filtro=Por Pagar';
       } else if (type === 'solicitud_recotizacion_tecnico' || type === 'solicitud_recotizacion' || titleLower.includes('recotiz') || type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated' || type?.includes('quote')) {
         const qId = notification.data?.quote_id || notification.data?.cotizacion_id;
         const esRecotizacion = type === 'solicitud_recotizacion' || type === 'solicitud_recotizacion_tecnico' || titleLower.includes('recotiz');
         if (esRecotizacion) {
-          url = qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Recotizaciones` : '/vista-cotizaciones?filtro=Recotizaciones';
+          url = isCliente ? `/vista-cotizaciones?quoteId=${qId}&filtro=Por Pagar` : (qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Recotizaciones` : '/vista-cotizaciones?filtro=Recotizaciones');
         } else {
           url = isTecnico ? '/trabajos-tecnico' : (qId ? `/vista-cotizaciones?quoteId=${qId}` : '/vista-cotizaciones');
         }
