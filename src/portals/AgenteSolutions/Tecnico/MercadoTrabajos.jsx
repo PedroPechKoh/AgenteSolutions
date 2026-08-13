@@ -8,34 +8,25 @@ import { useAuth } from '../../../context/AuthContext';
 
 const mapContainerStyle = {
   width: '100%',
-  height: 'calc(100vh - 150px)',
-  borderRadius: '12px',
-  boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+  height: '100%',
 };
 
-const defaultCenter = { lat: 21.0181, lng: -89.6242 }; // Mérida, Yucatán
+const defaultCenter = { lat: 21.0181, lng: -89.6242 };
+
+const darkMapStyles = [
+  { elementType: 'geometry', stylers: [{ color: '#1d2c4d' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#8ec3b9' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a3646' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0e1626' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#304a7d' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#255763' }] },
+  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+];
 
 const mockJobs = [
-  { 
-    id: 1, 
-    titulo: "Instalación de Ventilador de Techo", 
-    lat: 21.0250, 
-    lng: -89.6300, 
-    presupuesto: "$500", 
-    cliente: "María Gómez",
-    descripcion: "Necesito instalar un ventilador nuevo en la sala. Ya tengo el equipo.",
-    fecha: "Hoy, 14:00"
-  },
-  { 
-    id: 2, 
-    titulo: "Mantenimiento Minisplit 12000 BTU", 
-    lat: 21.0100, 
-    lng: -89.6200, 
-    presupuesto: "A convenir", 
-    cliente: "Roberto Carlos",
-    descripcion: "El aire acondicionado tira agua y no enfría bien.",
-    fecha: "Mañana, 09:00"
-  }
+  { id: 1, titulo: "Instalación de Ventilador de Techo", lat: 21.0250, lng: -89.6300, presupuesto: "$500", cliente: "María Gómez", descripcion: "Necesito instalar un ventilador nuevo en la sala.", fecha: "Hoy", lugar: "Casa 1", calle: "C. 30 x 7", cotizaciones: 0, myQuote: null, myQuotesHistory: [] },
+  { id: 2, titulo: "Mantenimiento Minisplit 12000 BTU", lat: 21.0100, lng: -89.6200, presupuesto: "A convenir", cliente: "Roberto Carlos", descripcion: "El aire acondicionado tira agua y no enfría bien.", fecha: "Mañana", lugar: "Casa 2", calle: "C. 20 x 15", cotizaciones: 0, myQuote: null, myQuotesHistory: [] },
 ];
 
 const MercadoTrabajos = () => {
@@ -49,53 +40,51 @@ const MercadoTrabajos = () => {
   const [networkJobs, setNetworkJobs] = useState([]);
   const [quotePrice, setQuotePrice] = useState('');
   const [quoteMessage, setQuoteMessage] = useState('');
-
   const { user: authUser } = useAuth();
-  
+
   const fetchJobs = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/mercado-trabajos`);
       if (res.data.success) {
-        
         const jobs = res.data.data.map(order => {
-            let myQuote = null;
-            let myQuotesHistory = [];
-            if (authUser && order.network_quotes) {
-                const userQuotes = order.network_quotes.filter(q => q.technician_id === authUser.id);
-                if (userQuotes.length > 0) {
-                    userQuotes.sort((a, b) => b.id - a.id);
-                    myQuote = userQuotes[0];
-                    myQuotesHistory = userQuotes;
-                }
+          let myQuote = null;
+          let myQuotesHistory = [];
+          if (authUser && order.network_quotes) {
+            const userQuotes = order.network_quotes.filter(q => q.technician_id === authUser.id);
+            if (userQuotes.length > 0) {
+              userQuotes.sort((a, b) => b.id - a.id);
+              myQuote = userQuotes[0];
+              myQuotesHistory = userQuotes;
             }
-            return {
-                id: order.id,
-                titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
-                lat: order.property?.latitud ? parseFloat(order.property.latitud) : (21.0181 + (Math.random() - 0.5) * 0.05),
-                lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
-                presupuesto: "A convenir",
-                cliente: order.owner_name || 'Cliente Autónomo',
-                lugar: order.property?.property_name || 'Lugar no especificado',
-                calle: order.property?.address || 'Dirección no especificada',
-                descripcion: order.description,
-                foto: order.evidence_path || order.evidence_path_2 || order.property?.facade_photo_path || null,
-                fecha: new Date(order.created_at).toLocaleDateString(),
-                cotizaciones: order.network_quotes_count || 0,
-                myQuote: myQuote,
-                myQuotesHistory: myQuotesHistory
-            };
+          }
+          return {
+            id: order.id,
+            titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
+            lat: order.property?.latitud ? parseFloat(order.property.latitud) : (21.0181 + (Math.random() - 0.5) * 0.05),
+            lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
+            presupuesto: "A convenir",
+            cliente: order.owner_name || 'Cliente Autónomo',
+            lugar: order.property?.property_name || 'Lugar no especificado',
+            calle: order.property?.address || 'Dirección no especificada',
+            descripcion: order.description,
+            foto: order.evidence_path || order.evidence_path_2 || order.property?.facade_photo_path || null,
+            fecha: new Date(order.created_at).toLocaleDateString('es-MX'),
+            cotizaciones: order.network_quotes_count || 0,
+            myQuote,
+            myQuotesHistory,
+          };
         });
         setNetworkJobs(jobs);
       }
     } catch (e) {
-      console.error("Error fetching jobs from API, falling back to mock", e);
+      console.error("Error fetching jobs", e);
       if (networkJobs.length === 0) setNetworkJobs(mockJobs);
     }
   };
 
   useEffect(() => {
     fetchJobs();
-    const interval = setInterval(fetchJobs, 5000); // Polling cada 5s
+    const interval = setInterval(fetchJobs, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -105,21 +94,18 @@ const MercadoTrabajos = () => {
       alert("Por favor ingresa una propuesta económica.");
       return;
     }
-
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/mercado-trabajos/${selectedJob.id}/cotizar`, {
-        price: quotePrice,
-        message: quoteMessage
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('agente_token')}` }
-      });
-
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/mercado-trabajos/${selectedJob.id}/cotizar`,
+        { price: quotePrice, message: quoteMessage },
+        { headers: { Authorization: `Bearer ${localStorage.getItem('agente_token')}` } }
+      );
       if (res.data.success) {
         alert("✅ " + res.data.message);
         setShowQuoteModal(false);
         setQuotePrice('');
         setQuoteMessage('');
-        fetchJobs(); // Actualizar el mapa
+        fetchJobs();
       }
     } catch (e) {
       console.error(e);
@@ -127,78 +113,112 @@ const MercadoTrabajos = () => {
     }
   };
 
+  const getStatusLabel = (status) => {
+    if (status === 'rejected') return 'Rechazada';
+    if (status === 'accepted') return 'Aceptada';
+    return 'Pendiente';
+  };
+
   return (
     <div className="mercado-container">
       <Header title="Mercado de Trabajos" />
-      
+
       <div className="mercado-content">
-        {/* Lado del Mapa */}
+        {/* ─── Map ─── */}
         <div className="mercado-map-section">
           {isLoaded ? (
-            <GoogleMap
-              mapContainerStyle={mapContainerStyle}
-              center={defaultCenter}
-              zoom={13}
-            >
-              {networkJobs.map(job => (
-                <Marker
-                  key={job.id}
-                  position={{ lat: job.lat, lng: job.lng }}
-                  onClick={() => setSelectedJob(job)}
-                  icon={{
-                    url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                  }}
-                  animation={job.id > 1000 ? window.google.maps.Animation.DROP : null}
-                />
-              ))}
+            <>
+              <div className="mercado-map-overlay-badge">
+                <span className="mercado-map-live-dot" />
+                {networkJobs.length} trabajos disponibles
+              </div>
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={defaultCenter}
+                zoom={13}
+                options={{ styles: darkMapStyles, disableDefaultUI: false }}
+              >
+                {networkJobs.map(job => (
+                  <Marker
+                    key={job.id}
+                    position={{ lat: job.lat, lng: job.lng }}
+                    onClick={() => setSelectedJob(job)}
+                    icon={{
+                      url: job.myQuote
+                        ? (job.myQuote.status === 'rejected'
+                          ? 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                          : 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png')
+                        : 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                    }}
+                  />
+                ))}
 
-              {selectedJob && (
-                <InfoWindow
-                  position={{ lat: selectedJob.lat, lng: selectedJob.lng }}
-                  onCloseClick={() => setSelectedJob(null)}
-                >
-                  <div className="mercado-info-window">
-                    <h4>{selectedJob.titulo}</h4>
-                    <p><MapPin size={12}/> A 2.5 km de ti</p>
-                    <p className="mercado-info-price">{selectedJob.presupuesto}</p>
-                    <button 
-                      className="mercado-btn-details"
-                      onClick={() => {
-                        setQuotePrice(selectedJob.myQuote ? selectedJob.myQuote.price : '');
-                        setQuoteMessage(selectedJob.myQuote ? selectedJob.myQuote.message : '');
-                        setShowQuoteModal(true);
-                      }}
-                    >
-                      {selectedJob.myQuote ? (selectedJob.myQuote.status === 'rejected' ? 'Revisar Rechazo' : 'Ver tu Cotización') : 'Ver y Cotizar'}
-                    </button>
-                  </div>
-                </InfoWindow>
-              )}
-            </GoogleMap>
+                {selectedJob && (
+                  <InfoWindow
+                    position={{ lat: selectedJob.lat, lng: selectedJob.lng }}
+                    onCloseClick={() => setSelectedJob(null)}
+                  >
+                    <div className="mercado-info-window">
+                      <h4>{selectedJob.titulo}</h4>
+                      <p><MapPin size={11} /> {selectedJob.lugar}</p>
+                      <p className="mercado-info-price">{selectedJob.presupuesto}</p>
+                      <button
+                        className="mercado-btn-details"
+                        onClick={() => {
+                          setQuotePrice(selectedJob.myQuote ? selectedJob.myQuote.price : '');
+                          setQuoteMessage(selectedJob.myQuote ? selectedJob.myQuote.message : '');
+                          setShowQuoteModal(true);
+                        }}
+                      >
+                        {selectedJob.myQuote
+                          ? (selectedJob.myQuote.status === 'rejected' ? '⚠ Revisar Rechazo' : '📋 Ver mi Cotización')
+                          : '💼 Cotizar este trabajo'}
+                      </button>
+                    </div>
+                  </InfoWindow>
+                )}
+              </GoogleMap>
+            </>
           ) : (
             <div className="mercado-loading-map">Cargando Mapa...</div>
           )}
         </div>
 
-        {/* Panel lateral o listado (Opcional, en este caso priorizamos el mapa) */}
+        {/* ─── Sidebar ─── */}
         <div className="mercado-sidebar">
-          <h3>Trabajos Recientes</h3>
-          <p className="mercado-subtitle">Haz clic en un marcador del mapa o selecciona de la lista para cotizar.</p>
-          
+          <div className="mercado-sidebar-header">
+            <p className="mercado-sidebar-title">🔴 En vivo</p>
+            <h2 className="mercado-sidebar-subtitle">Trabajos en la Red</h2>
+            <p className="mercado-sidebar-desc">Selecciona un trabajo del mapa o de la lista</p>
+          </div>
+
           <div className="mercado-job-list">
+            {networkJobs.length === 0 && (
+              <div style={{ color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '40px 20px', fontSize: '14px' }}>
+                No hay trabajos disponibles en este momento
+              </div>
+            )}
             {networkJobs.map(job => (
-              <div 
-                key={job.id} 
+              <div
+                key={job.id}
                 className={`mercado-job-card ${selectedJob?.id === job.id ? 'active' : ''}`}
                 onClick={() => setSelectedJob(job)}
               >
-                <h4>{job.titulo}</h4>
-                <div className="mercado-job-meta">
-                  <span><DollarSign size={14}/> {job.presupuesto}</span>
-                  <span><Clock size={14}/> {job.fecha}</span>
+                <div className="mercado-job-card-top">
+                  <h4>{job.titulo}</h4>
+                  {job.myQuote && (
+                    <span className={`mercado-job-badge ${job.myQuote.status === 'rejected' ? 'badge-rejected' : 'badge-pending'}`}>
+                      {job.myQuote.status === 'rejected' ? 'Rechazada' : 'Cotizado'}
+                    </span>
+                  )}
                 </div>
-                <div style={{ fontSize: '12px', color: '#888', marginTop: '5px' }}>
-                  {job.cotizaciones} Cotizaciones enviadas
+                <div className="mercado-job-meta">
+                  <span><MapPin size={11} /> {job.lugar}</span>
+                  <span><Clock size={11} /> {job.fecha}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '12px' }}>
+                  <span style={{ color: '#63b3ed' }}>{job.cotizaciones} ofertas</span>
+                  <span style={{ color: 'rgba(255,255,255,0.35)' }}>{job.cliente}</span>
                 </div>
               </div>
             ))}
@@ -206,134 +226,118 @@ const MercadoTrabajos = () => {
         </div>
       </div>
 
-      {/* Modal para Cotizar */}
+      {/* ─── Modal ─── */}
       {showQuoteModal && selectedJob && (
-        <div className="mercado-modal-overlay">
+        <div className="mercado-modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowQuoteModal(false)}>
           <div className="mercado-premium-modal">
             <div className="mercado-premium-header">
-              <h2>Cotizar Trabajo</h2>
+              <h2>💼 Cotizar Trabajo</h2>
               <span className="mercado-modal-close" onClick={() => setShowQuoteModal(false)}>×</span>
             </div>
-            
+
             <div className="mercado-premium-body">
+              {/* Left panel */}
               <div className="mercado-premium-details">
                 {selectedJob.foto && (
                   <div className="mercado-premium-image-wrapper">
-                    <img src={selectedJob.foto} alt="Propiedad / Evidencia" className="mercado-premium-image" />
+                    <img src={selectedJob.foto} alt="Evidencia" className="mercado-premium-image" />
                   </div>
                 )}
                 <div className="mercado-premium-text">
                   <h3>{selectedJob.titulo}</h3>
                   <div className="mercado-premium-info-grid">
                     <div className="mercado-info-item">
-                      <MapPin size={16} className="mercado-icon-blue" />
-                      <div>
-                        <strong>Lugar</strong>
-                        <span>{selectedJob.lugar}</span>
-                      </div>
+                      <MapPin size={14} className="mercado-icon-blue" />
+                      <div><strong>Lugar</strong><span>{selectedJob.lugar}</span></div>
                     </div>
                     <div className="mercado-info-item">
-                      <MapPin size={16} className="mercado-icon-blue" />
-                      <div>
-                        <strong>Calle</strong>
-                        <span>{selectedJob.calle}</span>
-                      </div>
+                      <MapPin size={14} className="mercado-icon-blue" />
+                      <div><strong>Dirección</strong><span>{selectedJob.calle}</span></div>
                     </div>
                     <div className="mercado-info-item">
-                      <User size={16} className="mercado-icon-blue" />
-                      <div>
-                        <strong>Cliente</strong>
-                        <span>{selectedJob.cliente}</span>
-                      </div>
+                      <User size={14} className="mercado-icon-blue" />
+                      <div><strong>Cliente</strong><span>{selectedJob.cliente}</span></div>
+                    </div>
+                    <div className="mercado-info-item">
+                      <Clock size={14} className="mercado-icon-blue" />
+                      <div><strong>Publicado</strong><span>{selectedJob.fecha}</span></div>
                     </div>
                     <div className="mercado-info-item full-width">
-                      <FileText size={16} className="mercado-icon-blue" />
-                      <div>
-                        <strong>Descripción</strong>
-                        <span>{selectedJob.descripcion}</span>
-                      </div>
+                      <FileText size={14} className="mercado-icon-blue" />
+                      <div><strong>Descripción</strong><span>{selectedJob.descripcion}</span></div>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
+              {/* Right panel */}
               <div className="mercado-premium-form">
+
+                {/* Quote history */}
                 {selectedJob.myQuotesHistory && selectedJob.myQuotesHistory.length > 0 && (
-                  <div style={{ marginBottom: '20px' }}>
-                    <h4 style={{ marginBottom: '10px', fontSize: '15px', color: '#1a2b4c', borderBottom: '1px solid #e2e8f0', paddingBottom: '5px' }}>Historial de tus Cotizaciones</h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto', paddingRight: '5px' }}>
+                  <div className="mq-history-section">
+                    <div className="mq-history-title">📋 Historial de mis Cotizaciones</div>
+                    <div className="mq-history-list">
                       {selectedJob.myQuotesHistory.map(q => (
-                        <div key={q.id} style={{ 
-                          padding: '10px', 
-                          borderRadius: '8px', 
-                          border: q.status === 'rejected' ? '1px solid #fed7d7' : '1px solid #e2e8f0',
-                          background: q.status === 'rejected' ? '#fff5f5' : '#f8fafc',
-                          fontSize: '13px'
-                        }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                            <strong style={{ fontSize: '14px', color: '#2d3748' }}>${parseFloat(q.price).toFixed(2)}</strong>
-                            <span style={{ 
-                              color: q.status === 'rejected' ? '#e53e3e' : '#3182ce',
-                              fontWeight: '600',
-                              fontSize: '11px',
-                              textTransform: 'uppercase',
-                              padding: '2px 6px',
-                              background: q.status === 'rejected' ? '#fed7d7' : '#ebf8ff',
-                              borderRadius: '4px'
-                            }}>
-                              {q.status === 'rejected' ? 'Rechazada' : 'Pendiente'}
+                        <div key={q.id} className={`mq-history-item ${q.status === 'rejected' ? 'is-rejected' : 'is-pending'}`}>
+                          <div className="mq-history-item-top">
+                            <span className="mq-history-price">
+                              ${parseFloat(q.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                             </span>
+                            <span className={`mq-history-status ${q.status}`}>{getStatusLabel(q.status)}</span>
                           </div>
-                          <div style={{ color: '#4a5568', fontStyle: 'italic', marginBottom: '4px' }}>
-                            "{q.message}"
-                          </div>
-                          <div style={{ color: '#a0aec0', fontSize: '11px', textAlign: 'right' }}>
-                            {new Date(q.created_at).toLocaleString()}
-                          </div>
+                          {q.message && <div className="mq-history-message">"{q.message}"</div>}
+                          <div className="mq-history-date">{new Date(q.created_at).toLocaleString('es-MX')}</div>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
+
+                {/* Rejection warning */}
                 {selectedJob.myQuote && selectedJob.myQuote.status === 'rejected' && (
-                  <div style={{ background: '#f8d7da', color: '#721c24', padding: '10px', borderRadius: '8px', marginBottom: '15px', border: '1px solid #f5c6cb', fontSize: '14px' }}>
-                    <strong>❌ Tu última cotización fue rechazada.</strong> Por favor, revisa las condiciones y envía una nueva propuesta si lo deseas.
+                  <div className="mq-rejection-warning">
+                    <span className="mq-rejection-icon">⚠️</span>
+                    <div className="mq-rejection-text">
+                      <strong>Tu última oferta fue rechazada</strong>
+                      <p>Revisa las condiciones y envía una nueva propuesta competitiva.</p>
+                    </div>
                   </div>
                 )}
-                <h4>{selectedJob.myQuote ? 'Enviar Nueva Oferta' : 'Tu Oferta'}</h4>
+
+                <div className="mq-form-divider" />
+                <h4>{selectedJob.myQuote ? '✏️ Enviar Nueva Oferta' : '💰 Tu Propuesta'}</h4>
+
                 <div className="mercado-form-group">
                   <label>Propuesta Económica ($)</label>
                   <div className="mercado-input-wrapper">
                     <DollarSign size={18} className="mercado-input-icon" />
-                    <input 
-                      type="number" 
-                      placeholder="Ej. 800" 
-                      className="mercado-premium-input" 
+                    <input
+                      type="number"
+                      placeholder="Ej. 800"
+                      className="mercado-premium-input"
                       value={quotePrice}
                       onChange={(e) => setQuotePrice(e.target.value)}
                     />
                   </div>
                 </div>
-                
+
                 <div className="mercado-form-group">
                   <label>Mensaje para el cliente</label>
-                  <textarea 
-                    placeholder="Hola, tengo experiencia en esto. Puedo ir hoy mismo..." 
+                  <textarea
+                    placeholder="Hola, tengo experiencia en esto. Puedo ir hoy mismo..."
                     className="mercado-premium-textarea"
                     value={quoteMessage}
                     onChange={(e) => setQuoteMessage(e.target.value)}
-                  ></textarea>
+                  />
                 </div>
               </div>
             </div>
-            
+
             <div className="mercado-premium-footer">
               <button className="mercado-btn-cancel" onClick={() => setShowQuoteModal(false)}>Cancelar</button>
-              <button 
-                className="mercado-premium-submit"
-                onClick={handleEnviarCotizacion}
-              >
-                <Send size={16} /> 
+              <button className="mercado-premium-submit" onClick={handleEnviarCotizacion}>
+                <Send size={16} />
                 {selectedJob.myQuote ? 'Enviar Nueva Oferta' : 'Enviar Cotización'}
               </button>
             </div>
