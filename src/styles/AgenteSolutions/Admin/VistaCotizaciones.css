@@ -855,3 +855,55 @@
         white-space: normal !important;
     }
 }
+
+/* --- BOTONES PREMIUM MODAL COTIZACIÓN --- */
+.btn-modal-action-premium {
+  font-family: inherit;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  border: none;
+  letter-spacing: 0.3px;
+}
+
+.btn-modal-action-premium:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.btn-modal-action-premium:active {
+  transform: translateY(0);
+}
+
+.btn-modal-close-premium {
+  font-family: inherit;
+  border-radius: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-modal-close-premium:hover {
+  background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35) !important;
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-slow {
+  animation: spinSlow 8s linear infinite;
+}
