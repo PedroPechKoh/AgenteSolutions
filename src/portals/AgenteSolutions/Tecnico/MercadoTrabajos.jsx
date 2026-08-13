@@ -59,7 +59,7 @@ const MercadoTrabajos = () => {
             lat: order.property?.latitud ? parseFloat(order.property.latitud) : (21.0181 + (Math.random() - 0.5) * 0.05),
             lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
             presupuesto: "A convenir",
-            cliente: order.property?.client?.first_name || 'Cliente Autónomo',
+            cliente: order.owner_name || 'Cliente Autónomo',
             lugar: order.property?.property_name || 'Lugar no especificado',
             calle: order.property?.address || 'Dirección no especificada',
             descripcion: order.description,

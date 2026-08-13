@@ -25,7 +25,9 @@ const mockSolicitudes = [
 const VistaRedAutonomo = () => {
   const { user } = useAuth();
   const [showModal, setShowModal] = useState(false);
+  const [showQuotesModal, setShowQuotesModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [selectedJobForQuotes, setSelectedJobForQuotes] = useState(null);
   const [networkJobs, setNetworkJobs] = useState([]);
 
   const fetchJobs = async () => {
@@ -42,7 +44,8 @@ const VistaRedAutonomo = () => {
             estado: order.status,
             fecha: new Date(order.created_at).toLocaleDateString(),
             cotizaciones: order.network_quotes_count || 0,
-            cliente: order.property?.client?.first_name || 'Cliente'
+            cotizaciones_list: order.network_quotes || [],
+            cliente: order.owner_name || 'Cliente'
         }));
         setNetworkJobs(jobs);
       }
@@ -107,6 +110,10 @@ const VistaRedAutonomo = () => {
                     <p><Clock size={12}/> {selectedJob.fecha}</p>
                     <button 
                       className="mercado-btn-details"
+                      onClick={() => {
+                        setSelectedJobForQuotes(selectedJob);
+                        setShowQuotesModal(true);
+                      }}
                     >
                       Ver {selectedJob.cotizaciones} Cotizaciones
                     </button>
@@ -122,6 +129,61 @@ const VistaRedAutonomo = () => {
 
       {showModal && (
         <ModalServicioAutonomo onClose={() => setShowModal(false)} />
+      )}
+
+      {/* MODAL DE COTIZACIONES RECIBIDAS */}
+      {showQuotesModal && selectedJobForQuotes && (
+        <div className="mercado-modal-overlay">
+          <div className="mercado-premium-modal" style={{ maxWidth: '600px' }}>
+            <div className="mercado-premium-header">
+              <h2>Cotizaciones Recibidas</h2>
+              <span className="mercado-modal-close" onClick={() => setShowQuotesModal(false)}>×</span>
+            </div>
+            <div className="mercado-premium-body" style={{ flexDirection: 'column', padding: '25px' }}>
+              <h3 style={{ marginTop: 0, marginBottom: '20px', color: '#1a2b4c' }}>{selectedJobForQuotes.titulo}</h3>
+              
+              {selectedJobForQuotes.cotizaciones_list.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
+                  <p>Aún no hay cotizaciones para este trabajo.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  {selectedJobForQuotes.cotizaciones_list.map((quote) => (
+                    <div key={quote.id} className="red-quote-card">
+                      <div className="red-quote-header">
+                        <div className="red-quote-tech">
+                          <div className="red-quote-avatar">
+                            {quote.technician?.first_name?.charAt(0) || 'T'}
+                          </div>
+                          <div>
+                            <h4>{quote.technician?.first_name} {quote.technician?.last_name}</h4>
+                            <span className="red-quote-role">Técnico de la Red</span>
+                          </div>
+                        </div>
+                        <div className="red-quote-price">
+                          ${parseFloat(quote.price).toFixed(2)}
+                        </div>
+                      </div>
+                      {quote.message && (
+                        <div className="red-quote-message">
+                          "{quote.message}"
+                        </div>
+                      )}
+                      <div className="red-quote-actions">
+                        <button className="red-btn-contact" onClick={() => alert("Función de chat en desarrollo.")}>
+                          Contactar
+                        </button>
+                        <button className="red-btn-accept" onClick={() => alert("Se aceptaría la cotización de " + quote.technician?.first_name)}>
+                          Aceptar Oferta
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
