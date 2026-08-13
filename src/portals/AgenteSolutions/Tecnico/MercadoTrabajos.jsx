@@ -57,7 +57,14 @@ const MercadoTrabajos = () => {
         const authUser = userStr ? JSON.parse(userStr) : null;
         
         const jobs = res.data.data.map(order => {
-            const myQuote = authUser && order.network_quotes ? order.network_quotes.find(q => q.technician_id === authUser.id) : null;
+            let myQuote = null;
+            if (authUser && order.network_quotes) {
+                const userQuotes = order.network_quotes.filter(q => q.technician_id === authUser.id);
+                if (userQuotes.length > 0) {
+                    userQuotes.sort((a, b) => b.id - a.id);
+                    myQuote = userQuotes[0];
+                }
+            }
             return {
                 id: order.id,
                 titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
