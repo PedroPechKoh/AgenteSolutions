@@ -184,15 +184,16 @@ const CotizacionesPendientes = () => {
     if (e) e.stopPropagation();
     if (!cot) return;
 
-    // 1. Notificación local para el Administrador / Root
+    // 1. Notificación local para Administrador y Root
     const notificacionesAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
+    const notificacionesRoot = JSON.parse(localStorage.getItem('notificaciones_root') || '[]');
     const nuevaNotif = {
       id: Date.now(),
       type: 'solicitud_recotizacion',
       title: `🔄 Solicitud de Recotización - ${cot.folio || `#${cot.id}`}`,
       titulo: `Solicitud de Recotización - ${cot.folio || `#${cot.id}`}`,
-      message: `El cliente solicitó recotizar el servicio "${cot.titulo || cot.concepto || ''}" (${cot.folio || cot.id}) por caducidad.`,
-      mensaje: `El cliente solicitó recotizar el servicio "${cot.titulo || cot.concepto || ''}" (${cot.folio || cot.id}) por caducidad.`,
+      message: `El cliente solicitó recotizar el servicio "${cot.titulo || cot.concepto || ''}" (${cot.folio || cot.id}) por estar vencida.`,
+      mensaje: `El cliente solicitó recotizar el servicio "${cot.titulo || cot.concepto || ''}" (${cot.folio || cot.id}) por estar vencida.`,
       cotizacionOriginal: { ...cot, isDerived: true },
       fecha: new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }),
       created_at: new Date().toISOString(),
@@ -206,16 +207,18 @@ const CotizacionesPendientes = () => {
       }
     };
     localStorage.setItem('notificaciones_admin', JSON.stringify([nuevaNotif, ...notificacionesAdmin]));
+    localStorage.setItem('notificaciones_root', JSON.stringify([nuevaNotif, ...notificacionesRoot]));
     window.dispatchEvent(new Event('notif_update'));
     window.dispatchEvent(new Event('storage'));
 
     // 2. Enviar notificaciones y petición al backend API (Laravel)
     try {
-      const token = localStorage.getItem('agente_token') || localStorage.getItem('token');
+      const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+      const token = session.token || session.access_token || localStorage.getItem('agente_token') || localStorage.getItem('token');
       const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      // Notificar al backend Laravel sobre la recotización para el usuario Root / Admin
+      // Notificar al backend Laravel sobre la recotización para Root / Admin
       axios.post(`${API_URL}/notifications/send-to-admin`, {
         title: `🔄 Solicitud de Recotización - ${cot.folio || `#${cot.id}`}`,
         message: `El cliente solicitó recotizar el servicio "${cot.titulo || cot.concepto || ''}" (${cot.folio || cot.id}) por estar vencida.`,
@@ -227,7 +230,7 @@ const CotizacionesPendientes = () => {
           cotizacion_id: cot.id,
           url: '/vista-cotizaciones?filtro=Recotizaciones'
         }
-      }, { headers }).catch(err => console.warn("Notificación a admin en API backend guardada:", err));
+      }, { headers }).catch(err => console.warn("Notificación a admin en API backend:", err));
 
       // Petición al endpoint de recotización
       axios.post(`${API_URL}/cotizaciones/${cot.id}/recotizar`, {

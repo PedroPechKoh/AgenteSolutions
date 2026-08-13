@@ -35,7 +35,8 @@ const NotificationBell = () => {
   const fetchNotifications = async () => {
     let list = [];
     try {
-      const token = localStorage.getItem("agente_token") || localStorage.getItem("token");
+      const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+      const token = session.token || session.access_token || localStorage.getItem('agente_token') || localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const { data } = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/notifications/unread`,
@@ -52,32 +53,37 @@ const NotificationBell = () => {
       console.warn("Error al cargar notificaciones del servidor, usando respaldo local:", error);
     }
 
+    let combined = [...list];
+
     if (user?.role_id === 2) {
       const localTecnico = JSON.parse(localStorage.getItem('notificaciones_tecnico') || '[]');
       const notifFiltradas = localTecnico.filter(n => !n.tecnico_user_id || n.tecnico_user_id == user.id);
-      const combined = [...list];
       notifFiltradas.forEach(n => {
-        if (!combined.some(item => item.id === n.id)) combined.push(n);
+        if (!combined.some(item => String(item.id) === String(n.id))) combined.unshift(n);
       });
-      setNotifications(combined);
     } else if (user?.role_id === 0 || user?.role_id === 1) {
       const localAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
-      const combined = [...list];
-      localAdmin.forEach(n => {
-        if (!combined.some(item => item.id === n.id)) combined.push(n);
+      const localRoot = JSON.parse(localStorage.getItem('notificaciones_root') || '[]');
+      const combinedLocals = [...localAdmin, ...localRoot];
+      combinedLocals.forEach(n => {
+        if (!combined.some(item => String(item.id) === String(n.id))) combined.unshift(n);
       });
-      setNotifications(combined);
     } else if (user?.role_id === 3) {
       const localCliente = JSON.parse(localStorage.getItem('notificaciones_cliente') || '[]');
       const notifFiltradas = localCliente.filter(n => !n.cliente_user_id || n.cliente_user_id == user.id);
-      const combined = [...list];
       notifFiltradas.forEach(n => {
-        if (!combined.some(item => item.id === n.id)) combined.push(n);
+        if (!combined.some(item => String(item.id) === String(n.id))) combined.unshift(n);
       });
-      setNotifications(combined);
-    } else {
-      setNotifications(list);
     }
+
+    // Ordenar de más reciente a más antigua
+    combined.sort((a, b) => {
+      const dateA = new Date(a.created_at || a.fecha || a.id || 0).getTime();
+      const dateB = new Date(b.created_at || b.fecha || b.id || 0).getTime();
+      return dateB - dateA;
+    });
+
+    setNotifications(combined);
   };
 
   useEffect(() => {
