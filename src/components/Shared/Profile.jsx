@@ -109,6 +109,11 @@ const Profile = () => {
       case 1: return 'Administrador';
       case 2: return 'Técnico';
       case 3: return 'Cliente';
+      case 4: return 'Negocio';
+      case 5: return 'Autónomo';
+      case 6: return 'Contratista';
+      case 7: return 'Admin Propiedades';
+      case 8: return 'Técnico de la Red';
       default: return 'Usuario';
     }
   };
@@ -128,7 +133,7 @@ const Profile = () => {
       phone_number: user?.phone_number || '',
       birth_date: user?.birth_date || ''
     });
-    if (user?.role_id === 2) {
+    if (user?.role_id === 2 || user?.role_id === 8) {
       const specs = (user?.specialties && user.specialties.length > 0)
         ? user.specialties.map(s => typeof s === 'string' ? s : s.name)
         : (selectedSpecialties.length > 0 ? selectedSpecialties : ["Electricidad"]);
@@ -152,7 +157,7 @@ const Profile = () => {
       });
 
       let updatedSpecs = user?.specialties || [];
-      if (user?.role_id === 2) {
+      if (user?.role_id === 2 || user?.role_id === 8) {
         const specRes = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/u_${user.id}/specialties`, {
           specialties: selectedSpecialties
         }, {
@@ -300,7 +305,7 @@ const Profile = () => {
                 <div className="data-grid-item"><label>Miembro desde</label><p>{formatearFecha(user?.created_at)}</p></div>
               </div>
 
-              {user?.role_id === 2 && (() => {
+              { (user?.role_id === 2 || user?.role_id === 8) && (() => {
                 const displaySpecs = (user?.specialties && user.specialties.length > 0)
                   ? user.specialties
                   : (selectedSpecialties.length > 0 ? selectedSpecialties : null);
@@ -495,7 +500,7 @@ const Profile = () => {
               <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
             </div>
 
-            {user?.role_id === 2 && (
+            {(user?.role_id === 2 || user?.role_id === 8) && (
               <div className="form-group" style={{ marginTop: '15px' }}>
                 <label style={{ color: '#ff6600', fontWeight: 'bold' }}>🛠️ Editar Mis Especialidades:</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '160px', overflowY: 'auto', padding: '10px', background: '#F0F2F5', border: '1px solid #E2E8F0', borderRadius: '10px' }}>
