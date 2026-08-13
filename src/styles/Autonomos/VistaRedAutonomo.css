@@ -296,3 +296,48 @@
 .red-btn-accept:hover {
   background: #0056b3;
 }
+
+/* Nuevos estilos para especialidades, fecha de nacimiento y rechazo */
+.red-quote-birthdate {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.red-quote-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.red-specialty-badge {
+  background: #eef2f7;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid #dce4ec;
+}
+
+.red-quote-actions {
+  display: flex;
+  justify-content: space-between; /* Modificado para separar el rechazo de las otras acciones */
+  align-items: center;
+}
+
+.red-btn-reject {
+  background: #fff;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.red-btn-reject:hover {
+  background: #fff5f5;
+}

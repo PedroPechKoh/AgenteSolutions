@@ -61,6 +61,22 @@ const VistaRedAutonomo = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const handleRejectQuote = async (quoteId) => {
+    if (!window.confirm("¿Estás seguro de que deseas rechazar esta cotización?")) return;
+    
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/network-quotes/${quoteId}/reject`);
+      if (res.data.success) {
+        alert("Cotización rechazada. El técnico ha sido notificado para mejorar su oferta.");
+        fetchJobs(); // Recargar trabajos para actualizar lista
+        setShowQuotesModal(false);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Hubo un error al rechazar la cotización.");
+    }
+  };
+
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyDgyTj0X6kgGoMV8NxQGDp4-Nx0bxJd0Hw"
@@ -158,6 +174,18 @@ const VistaRedAutonomo = () => {
                           <div>
                             <h4>{quote.technician?.first_name} {quote.technician?.last_name}</h4>
                             <span className="red-quote-role">Técnico de la Red</span>
+                            {quote.technician?.birth_date && (
+                              <div className="red-quote-birthdate">
+                                📅 Nacimiento: {new Date(quote.technician.birth_date).toLocaleDateString()}
+                              </div>
+                            )}
+                            {quote.technician?.specialties && quote.technician.specialties.length > 0 && (
+                              <div className="red-quote-specialties">
+                                {quote.technician.specialties.map(spec => (
+                                  <span key={spec.id} className="red-specialty-badge">{spec.name}</span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="red-quote-price">
@@ -170,12 +198,17 @@ const VistaRedAutonomo = () => {
                         </div>
                       )}
                       <div className="red-quote-actions">
-                        <button className="red-btn-contact" onClick={() => alert("Función de chat en desarrollo.")}>
-                          Contactar
+                        <button className="red-btn-reject" onClick={() => handleRejectQuote(quote.id)}>
+                          Rechazar Oferta
                         </button>
-                        <button className="red-btn-accept" onClick={() => alert("Se aceptaría la cotización de " + quote.technician?.first_name)}>
-                          Aceptar Oferta
-                        </button>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                          <button className="red-btn-contact" onClick={() => alert("Función de chat en desarrollo.")}>
+                            Contactar
+                          </button>
+                          <button className="red-btn-accept" onClick={() => alert("Se aceptaría la cotización de " + quote.technician?.first_name)}>
+                            Aceptar Oferta
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
