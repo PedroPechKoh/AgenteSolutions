@@ -98,24 +98,52 @@ const DetallePropiedadWrapper = () => {
 
 const AppRoutes = () => {
   useEffect(() => {
-    OneSignal.init({
-      appId: "632781ba-8ada-42ea-a894-b53f1618b204",
-      promptOptions: {
-        slidedown: {
-          prompts: [
-            {
-              type: "push",
-              autoPrompt: true,
-              text: {
-                actionMessage: "Nos gustaría enviarte notificaciones para mantenerte al día con tus servicios y cotizaciones.",
-                acceptButton: "Permitir",
-                cancelButton: "Más tarde"
-              }
-            }
-          ]
-        }
+    const handleUnhandledRejection = (event) => {
+      const reasonStr = String(event.reason?.message || event.reason || '');
+      if (reasonStr.includes('Permission blocked') || reasonStr.includes('OneSignal')) {
+        event.preventDefault();
+        console.warn('OneSignal Push Notification permission blocked or skipped:', reasonStr);
       }
-    });
+    };
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    const initOneSignal = async () => {
+      try {
+        if (typeof window !== 'undefined' && 'Notification' in window) {
+          if (Notification.permission === 'denied') {
+            console.warn("OneSignal notifications permission is blocked by browser.");
+            return;
+          }
+        }
+        await OneSignal.init({
+          appId: "632781ba-8ada-42ea-a894-b53f1618b204",
+          allowLocalhostAsSecureOrigin: true,
+          promptOptions: {
+            slidedown: {
+              prompts: [
+                {
+                  type: "push",
+                  autoPrompt: false,
+                  text: {
+                    actionMessage: "Nos gustaría enviarte notificaciones para mantenerte al día con tus servicios y cotizaciones.",
+                    acceptButton: "Permitir",
+                    cancelButton: "Más tarde"
+                  }
+                }
+              ]
+            }
+          }
+        });
+      } catch (err) {
+        console.warn("OneSignal initialization blocked/failed gracefully:", err);
+      }
+    };
+
+    initOneSignal();
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
   }, []);
   const { user, initialized } = useAuth();
 

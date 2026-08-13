@@ -49,10 +49,15 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     localStorage.setItem('agente_session', JSON.stringify(sessionData));
 
-    // 👇 2. VINCULAMOS ONESIGNAL AL INICIAR SESIÓN
-    // Verificamos que userData tenga el id antes de mandarlo
+    // 👇 2. VINCULAMOS ONESIGNAL AL INICIAR SESIÓN (Protegido contra bloqueo de permisos)
     if (userData && userData.id) {
-      OneSignal.login(String(userData.id)); 
+      try {
+        if (typeof OneSignal?.login === 'function') {
+          OneSignal.login(String(userData.id)); 
+        }
+      } catch (e) {
+        console.warn("OneSignal.login omitido/bloqueado por permisos del navegador:", e);
+      }
     }
   };
 
@@ -63,7 +68,13 @@ export const AuthProvider = ({ children }) => {
     delete axios.defaults.headers.common["Authorization"];
     
     // 👇 3. DESVINCULAMOS ONESIGNAL AL CERRAR SESIÓN
-    OneSignal.logout();
+    try {
+      if (typeof OneSignal?.logout === 'function') {
+        OneSignal.logout();
+      }
+    } catch (e) {
+      console.warn("OneSignal.logout omitido/bloqueado por permisos del navegador:", e);
+    }
   };
 
   // INTERCEPTOR PARA MANEJAR EXPIRACIÓN DE TOKEN (401)
