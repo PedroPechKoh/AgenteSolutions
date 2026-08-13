@@ -128,7 +128,7 @@ const VistaSalaEsperaTecnicos = () => {
                       <Mail size={16} color="#FF6600" style={{ flexShrink: 0 }} /> <span style={{ wordBreak: 'break-all' }}>{tech.email}</span>
                     </p>
                     <p style={{ margin: '6px 0', color: '#888', fontSize: '0.85rem' }}>
-                      <strong>Fecha registro:</strong> {new Date(tech.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      <strong>Fecha registro:</strong> {new Date(tech.created_at).toLocaleString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </p>
                     <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed #ddd' }}>
                       <strong style={{ fontSize: '0.78rem', color: '#FF6600', display: 'block', marginBottom: '4px' }}>📋 ROL SOLICITADO:</strong>

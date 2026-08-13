@@ -192,7 +192,7 @@ const CotizacionesPendientes = () => {
       titulo: `Solicitud de Recotización - ${cot.folio || `#${cot.id}`}`,
       mensaje: `El cliente solicitó recotizar el servicio "${cot.titulo}" (${cot.folio}) por caducidad de 15 días. Contenidos precargados automáticamente.`,
       cotizacionOriginal: { ...cot, isDerived: true },
-      fecha: new Date().toLocaleDateString('es-MX', { dateStyle: 'short', timeStyle: 'short' }),
+      fecha: new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }),
       leida: false
     };
     localStorage.setItem('notificaciones_admin', JSON.stringify([nuevaNotif, ...notificacionesAdmin]));

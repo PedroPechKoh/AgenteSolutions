@@ -1657,7 +1657,7 @@ const DetallePropiedad = () => {
                 const techInitial = techName !== "Por asignar" && techName !== "Técnico" ? techName.charAt(0).toUpperCase() : "T";
                 const imgUrl = rep.todas_fotos ? rep.todas_fotos[0] : (rep.image_url || rep.image_path || rep.foto || rep.photo || null);
                 const trabajoId = rep.service_id || rep.work_order_id || rep.id;
-                const fechaFormat = rep.created_at ? new Date(rep.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "---";
+                const fechaFormat = rep.created_at ? new Date(rep.created_at).toLocaleString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "---";
 
                 return (
                   <div 
