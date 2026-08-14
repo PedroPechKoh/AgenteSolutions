@@ -236,43 +236,37 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
           formData.append('parent_id', String(prefillData.id));
           formData.append('version', String((prefillData.version || 1) + 1));
           formData.append('is_new_version', 'true');
+          formData.append('status', 'Por Pagar');
+          formData.append('estado', 'Por Pagar');
+          formData.append('recotizacion_solicitada', 'false');
+        } else {
+          formData.append('status', 'Por Pagar');
+          formData.append('estado', 'Por Pagar');
         }
       } else {
         if (!archivo) return alert("Seleccione un archivo.");
         formData.append('file', archivo);
+        formData.append('status', 'Por Pagar');
+        formData.append('estado', 'Por Pagar');
       }
 
       let endpoint = `${import.meta.env.VITE_API_BASE_URL}/cotizaciones`;
       let successMsg = prefillData?.isRecotizacionV2 || prefillData?.id
-        ? `¡Versión 2 (V${(prefillData.version || 1) + 1}) creada y lista para el cliente!`
-        : "¡Cotización creada y enviada al cliente exitosamente!";
+        ? `¡Versión 2 (V${(prefillData.version || 1) + 1}) creada y enviada! El estado ha cambiado a POR PAGAR.`
+        : "¡Cotización creada y enviada al cliente exitosamente en estado POR PAGAR!";
 
       if (prefillData?.status === 'Rechazado' && !prefillData?.isDerived && !prefillData?.isRecotizacionV2) {
         endpoint = `${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${prefillData.id}/update`;
-        successMsg = "¡Cotización actualizada y reenviada al cliente!";
+        successMsg = "¡Cotización actualizada y enviada al cliente en estado POR PAGAR!";
       }
 
-      try {
-        const res = await axios.post(endpoint, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        if (res.status === 201 || res.status === 200) {
-          alert(successMsg);
-          onSuccess();
-          return;
-        }
-      } catch (apiErr) {
-        console.warn("API offline o endpoint no disponible, realizando respaldo local de versión V2:", apiErr);
-      }
-
-      // Fallback local de creación de versión V2
-      if (prefillData?.id) {
+      const procesarTransicionPorPagarLocal = (quoteCreadaDesdeApi = null) => {
         const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
         const roleId = session?.userData?.role_id;
         const roleName = roleId === 2 ? 'Técnico' : 'Admin';
         const { total } = tab === 'manual' ? calcularTotales() : { total: 0 };
-        const nextVer = (prefillData.version || 1) + 1;
-        const folioBase = prefillData.folio ? prefillData.folio.split('-V')[0] : `COT-${prefillData.id}`;
+        const nextVer = (prefillData?.version || 1) + 1;
+        const folioBase = prefillData?.folio ? prefillData.folio.split('-V')[0] : (prefillData?.id ? `COT-${prefillData.id}` : `COT-${Date.now()}`);
 
         let conceptDataObj;
         if (isUnifiedBatch && loteServicios.length > 0) {
@@ -294,56 +288,66 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
           };
         }
 
-        const v2Quote = {
-          id: Date.now(),
-          parent_id: prefillData.id,
-          version: nextVer,
-          folio: `${folioBase}-V${nextVer}`,
-          cliente: prefillData.cliente || servicioSeleccionado?.propietario || 'Cliente',
-          cliente_user_id: prefillData.cliente_user_id,
-          cliente_telefono: prefillData.cliente_telefono || prefillData.telefono,
-          propiedad_nombre: prefillData.propiedad_nombre || servicioSeleccionado?.propiedad_nombre,
-          propiedad_direccion: prefillData.propiedad_direccion || servicioSeleccionado?.direccion,
+        const nuevaCotizacion = quoteCreadaDesdeApi ? {
+          ...quoteCreadaDesdeApi,
           status: 'Por Pagar',
           estado: 'Por Pagar',
+          recotizacionSolicitada: false,
+          is_requote_requested: false
+        } : {
+          id: Date.now(),
+          parent_id: prefillData?.id || null,
+          version: nextVer,
+          folio: `${folioBase}-V${nextVer}`,
+          cliente: prefillData?.cliente || servicioSeleccionado?.propietario || 'Cliente',
+          cliente_user_id: prefillData?.cliente_user_id,
+          cliente_telefono: prefillData?.cliente_telefono || prefillData?.telefono,
+          propiedad_nombre: prefillData?.propiedad_nombre || servicioSeleccionado?.propiedad_nombre,
+          propiedad_direccion: prefillData?.propiedad_direccion || servicioSeleccionado?.direccion,
+          status: 'Por Pagar',
+          estado: 'Por Pagar',
+          recotizacionSolicitada: false,
+          is_requote_requested: false,
           total: total.toFixed(2),
           concept: conceptDataObj,
           observations: observaciones,
           internal_observations: observacionesInternas,
           created_by_role: roleName,
-          tecnico: roleId === 2 ? session?.userData?.name : prefillData.tecnico,
+          tecnico: roleId === 2 ? session?.userData?.name : (prefillData?.tecnico || null),
           created_at: new Date().toISOString()
         };
 
         const cotizLocales = JSON.parse(localStorage.getItem('carrito_cotizaciones') || '[]');
-        const indV1 = cotizLocales.findIndex(item => String(item.id) === String(prefillData.id));
-        if (indV1 !== -1) {
-          cotizLocales[indV1].estado = `Reemplazada por V${nextVer}`;
-          cotizLocales[indV1].status = `Reemplazada por V${nextVer}`;
-          cotizLocales[indV1].newer_version_id = v2Quote.id;
-          cotizLocales[indV1].recotizacionSolicitada = false;
-          cotizLocales[indV1].is_requote_requested = false;
+        if (prefillData?.id) {
+          const indV1 = cotizLocales.findIndex(item => String(item.id) === String(prefillData.id));
+          if (indV1 !== -1) {
+            cotizLocales[indV1].estado = `Reemplazada por V${nextVer}`;
+            cotizLocales[indV1].status = `Reemplazada por V${nextVer}`;
+            cotizLocales[indV1].newer_version_id = nuevaCotizacion.id;
+            cotizLocales[indV1].recotizacionSolicitada = false;
+            cotizLocales[indV1].is_requote_requested = false;
+          }
         }
-        localStorage.setItem('carrito_cotizaciones', JSON.stringify([v2Quote, ...cotizLocales]));
+        localStorage.setItem('carrito_cotizaciones', JSON.stringify([nuevaCotizacion, ...cotizLocales]));
 
-        // Notificar al cliente que su recotización está lista en "Por Pagar"
+        // Notificar al cliente que su cotización/recotización está lista en "Por Pagar"
         const notifsCliente = JSON.parse(localStorage.getItem('notificaciones_cliente') || '[]');
         notifsCliente.unshift({
           id: Date.now(),
           type: 'recotizacion_lista',
-          title: '✅ ¡Tu recotización está lista!',
-          message: `Hemos actualizado los precios de tu cotización ${v2Quote.folio}. Ya está lista en tu sección de Por Pagar.`,
+          title: '✅ ¡Tu cotización está lista por pagar!',
+          message: `Hemos procesado tu cotización ${nuevaCotizacion.folio || ''}. Ya está lista en tu sección de Por Pagar.`,
           created_at: new Date().toISOString(),
           read_at: null,
-          cliente_user_id: prefillData.cliente_user_id,
-          data: { quote_id: v2Quote.id, url: '/vista-cotizaciones?filtro=Por Pagar' }
+          cliente_user_id: prefillData?.cliente_user_id,
+          data: { quote_id: nuevaCotizacion.id, url: '/vista-cotizaciones?filtro=Por Pagar' }
         });
         localStorage.setItem('notificaciones_cliente', JSON.stringify(notifsCliente));
 
-        // Resolver la notificación de solicitud de recotización original para Admin
+        // Marcar resuelta cualquier notificación de recotización para el Admin
         let notifsAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
         notifsAdmin = notifsAdmin.map(n => {
-          if ((n.type === 'solicitud_recotizacion' || n.type === 'solicitud_recotizacion_tecnico') && String(n.data?.quote_id) === String(prefillData.id)) {
+          if ((n.type === 'solicitud_recotizacion' || n.type === 'solicitud_recotizacion_tecnico') && String(n.data?.quote_id) === String(prefillData?.id)) {
             return { ...n, resuelta: true };
           }
           return n;
@@ -354,18 +358,46 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
             id: Date.now(),
             type: 'version_v2_tecnico',
             title: '🛠️ Nueva Versión de Cotización (V2) por Técnico',
-            message: `El técnico ${session?.userData?.name || ''} ha generado la versión V2 para ${v2Quote.folio}.`,
+            message: `El técnico ${session?.userData?.name || ''} ha generado la versión V2 para ${nuevaCotizacion.folio}.`,
             created_at: new Date().toISOString(),
             read_at: null,
-            data: { quote_id: v2Quote.id }
+            data: { quote_id: nuevaCotizacion.id }
           });
         }
         localStorage.setItem('notificaciones_admin', JSON.stringify(notifsAdmin));
 
+        // Marcar resuelta cualquier notificación de recotización para el Técnico
+        let notifsTecnico = JSON.parse(localStorage.getItem('notificaciones_tecnico') || '[]');
+        notifsTecnico = notifsTecnico.map(n => {
+          if (n.type === 'solicitud_recotizacion_tecnico' && String(n.data?.quote_id) === String(prefillData?.id)) {
+            return { ...n, resuelta: true };
+          }
+          return n;
+        });
+        localStorage.setItem('notificaciones_tecnico', JSON.stringify(notifsTecnico));
+
         window.dispatchEvent(new Event('notif_update'));
         window.dispatchEvent(new Event('storage'));
+      };
 
-        alert(`¡Versión V${nextVer} (${v2Quote.folio}) creada con éxito y enviada al cliente! La recotización aparecerá en su lista de POR PAGAR.`);
+      try {
+        const res = await axios.post(endpoint, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (res.status === 201 || res.status === 200) {
+          procesarTransicionPorPagarLocal(res.data?.cotizacion || res.data);
+          alert(successMsg);
+          onSuccess();
+          return;
+        }
+      } catch (apiErr) {
+        console.warn("API offline o endpoint no disponible, realizando respaldo local de versión V2:", apiErr);
+      }
+
+      // Fallback local garantizado
+      if (prefillData?.id || servicioSeleccionado) {
+        procesarTransicionPorPagarLocal();
+        alert(successMsg);
         onSuccess();
       }
     } catch (error) {
