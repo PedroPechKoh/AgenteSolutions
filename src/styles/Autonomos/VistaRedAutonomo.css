@@ -1,211 +1,48 @@
-.red-autonomo-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+/* ========================================
+   VISTA RED AUTONOMO - WHITE & ORANGE BRAND UI
+   ======================================== */
 
-.red-content {
-  margin-top: 30px;
-}
-
-.red-header-actions {
-  display: flex;
-  justify-content: space-between;
+.red-btn-publish {
+  display: inline-flex;
   align-items: center;
-  margin-bottom: 24px;
-}
-
-.red-tabs {
-  display: flex;
-  gap: 10px;
-}
-
-.red-tab {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #ff6600 0%, #ea580c 100%);
+  color: #ffffff;
   border: none;
-  background: #f0f2f5;
-  color: #666;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.red-tab.active {
-  background: #007bff;
-  color: white;
-}
-
-.red-btn-primary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
-  background: #28a745;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.3s ease;
-}
-
-.red-btn-primary:hover {
-  background: #218838;
-}
-
-.red-solicitudes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-}
-
-.red-solicitud-card {
-  background: white;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  border: 1px solid #eaeaea;
-}
-
-.red-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 15px;
-}
-
-.red-card-header h3 {
-  margin: 0;
-  font-size: 16px;
-  color: #333;
-}
-
-.red-status {
+  cursor: pointer;
+  font-weight: 800;
   font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
 }
 
-.red-status.cotizando {
-  background: #fff3cd;
-  color: #856404;
+.red-btn-publish:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.45);
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
 }
 
-.red-status.completado {
-  background: #d4edda;
-  color: #155724;
+.red-btn-publish:active {
+  transform: translateY(0);
 }
 
-.red-card-body p {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 8px 0;
-  color: #666;
-  font-size: 14px;
-}
-
-.red-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
-}
-
-.red-cotizaciones-badge {
-  background: #e7f1ff;
-  color: #007bff;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.red-btn-secondary {
-  background: #f8f9fa;
-  border: 1px solid #ddd;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.red-btn-secondary:hover {
-  background: #e2e6ea;
-}
-
-/* Modal */
-.red-modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.red-modal {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  width: 100%;
-  max-width: 500px;
-}
-
-.red-modal h2 {
-  margin-top: 0;
-  margin-bottom: 20px;
-}
-
-.red-input, .red-textarea {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-}
-
-.red-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.red-modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.red-btn-cancel {
-  background: transparent;
-  border: 1px solid #ccc;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* Quotes List Cards */
+/* Quote Cards in Modal */
 .red-quote-card {
-  background: #fff;
-  border: 1px solid #e1e9f4;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  transition: box-shadow 0.2s;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
 }
 
 .red-quote-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #fdba74;
+  box-shadow: 0 8px 20px rgba(255, 102, 0, 0.08);
 }
 
 .red-quote-header {
@@ -222,122 +59,128 @@
 }
 
 .red-quote-avatar {
-  width: 40px;
-  height: 40px;
-  background: #007bff;
-  color: #fff;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(135deg, #ff6600, #ea580c);
+  color: #ffffff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(234, 88, 12, 0.3);
+  transition: all 0.2s ease;
 }
 
-.red-quote-tech h4 {
-  margin: 0;
-  font-size: 16px;
-  color: #222;
+.red-quote-avatar:hover {
+  transform: scale(1.08);
+  box-shadow: 0 5px 15px rgba(234, 88, 12, 0.45);
 }
 
 .red-quote-role {
-  font-size: 12px;
-  color: #888;
+  font-size: 11px;
+  color: #ea580c;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .red-quote-price {
   font-size: 20px;
-  font-weight: 700;
-  color: #28a745;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
 }
 
 .red-quote-message {
-  background: #f8fbff;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 15px;
-  border-left: 3px solid #007bff;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #475569;
+  font-style: italic;
+  margin-bottom: 14px;
+  line-height: 1.4;
 }
 
 .red-quote-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   gap: 10px;
 }
 
 .red-btn-contact {
-  background: #fff;
-  border: 1px solid #007bff;
-  color: #007bff;
+  background: #ffffff;
+  border: 1.5px solid #ff6600;
+  color: #ea580c;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s ease;
 }
 
 .red-btn-contact:hover {
-  background: #f0f7ff;
+  background: #fff7ed;
+  border-color: #ea580c;
 }
 
 .red-btn-accept {
-  background: #007bff;
+  background: linear-gradient(135deg, #16a34a, #15803d);
   border: none;
-  color: #fff;
-  padding: 8px 16px;
-  border-radius: 6px;
+  color: #ffffff;
+  padding: 9px 18px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 10px rgba(22, 163, 74, 0.3);
 }
 
 .red-btn-accept:hover {
-  background: #0056b3;
+  background: linear-gradient(135deg, #15803d, #166534);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.4);
 }
 
-/* Nuevos estilos para especialidades, fecha de nacimiento y rechazo */
-.red-quote-birthdate {
-  font-size: 12px;
-  color: #666;
-  margin-top: 4px;
+.red-btn-reject {
+  background: #ffffff;
+  border: 1.5px solid #ef4444;
+  color: #dc2626;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.red-btn-reject:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
 }
 
 .red-quote-specialties {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 8px;
+  gap: 8px;
 }
 
 .red-specialty-badge {
-  background: #eef2f7;
-  color: #333;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  border: 1px solid #dce4ec;
-}
-
-.red-quote-actions {
-  display: flex;
-  justify-content: space-between; /* Modificado para separar el rechazo de las otras acciones */
+  background: #fff7ed;
+  color: #ea580c;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1.5px solid #fed7aa;
+  display: inline-flex;
   align-items: center;
-}
-
-.red-btn-reject {
-  background: #fff;
-  border: 1px solid #dc3545;
-  color: #dc3545;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background 0.2s;
-}
-
-.red-btn-reject:hover {
-  background: #fff5f5;
+  gap: 4px;
 }
