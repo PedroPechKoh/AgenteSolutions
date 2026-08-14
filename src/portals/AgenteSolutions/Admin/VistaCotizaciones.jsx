@@ -386,7 +386,15 @@ const VistaCotizaciones = () => {
     const coincideFiltro = 
       filtro === 'Todas' ||
       (filtro === 'Por Pagar' && (
-        c.status?.toLowerCase().includes('aprobad') || c.status === 'Procesada por Admin' || c.status?.toLowerCase() === 'aceptado' || c.status?.toLowerCase() === 'aceptada' || c.status === 'Validado' || (c.cash_requested && !c.cash_confirmed) || c.status?.toLowerCase().includes('efectivo solicitado')
+        c.status?.toLowerCase().includes('por pagar') ||
+        c.estado?.toLowerCase().includes('por pagar') ||
+        c.status?.toLowerCase().includes('aprobad') || 
+        c.status === 'Procesada por Admin' || 
+        c.status?.toLowerCase() === 'aceptado' || 
+        c.status?.toLowerCase() === 'aceptada' || 
+        c.status === 'Validado' || 
+        (c.cash_requested && !c.cash_confirmed) || 
+        c.status?.toLowerCase().includes('efectivo solicitado')
       )) ||
       (filtro === 'Rechazadas' && c.status?.toLowerCase().includes('rechazad')) ||
       (filtro === 'Pagadas' && !c.status?.toLowerCase().includes('efectivo solicitado') && !(c.cash_requested && !c.cash_confirmed) && (c.status?.toLowerCase().includes('pago') || c.status?.toLowerCase().includes('pagad'))) ||
@@ -845,7 +853,7 @@ const VistaCotizaciones = () => {
               if (statusLower.includes('pagad') || statusLower.includes('pago en revisión')) {
                 return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#dcfce7', color: '#16a34a', fontSize: '0.65rem', fontWeight: 'bold' }}>PAGADA</span>;
               }
-              if (statusLower.includes('aprobad') || statusLower === 'procesada por admin' || statusLower.includes('aceptad') || statusLower.includes('validado')) {
+              if (statusLower.includes('por pagar') || statusLower.includes('aprobad') || statusLower === 'procesada por admin' || statusLower.includes('aceptad') || statusLower.includes('validado')) {
                 return <span style={{ padding: '2px 6px', borderRadius: '4px', background: '#fef3c7', color: '#d97706', fontSize: '0.65rem', fontWeight: 'bold' }}>POR PAGAR</span>;
               }
               if (isCotizacionEnCarrito(c)) {

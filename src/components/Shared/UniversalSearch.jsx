@@ -30,7 +30,8 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
         if (filtroActual === 'Todas') {
           coincideFiltro = true;
         } else if (filtroActual === 'Por Pagar') {
-          coincideFiltro = estadoActual.includes('aprobad') || 
+          coincideFiltro = estadoActual.includes('por pagar') ||
+                           estadoActual.includes('aprobad') || 
                            estadoActual === 'procesada por admin' || 
                            estadoActual.includes('aceptad') || 
                            estadoActual.includes('validado') ||
