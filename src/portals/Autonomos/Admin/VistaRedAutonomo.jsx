@@ -67,7 +67,10 @@ const VistaRedAutonomo = () => {
     if (!window.confirm("¿Estás seguro de que deseas rechazar esta cotización?")) return;
     
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/network-quotes/${quoteId}/reject`);
+      const token = localStorage.getItem('agente_token');
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/network-quotes/${quoteId}/reject`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.data.success) {
         alert("Cotización rechazada. El técnico ha sido notificado para mejorar su oferta.");
         fetchJobs();
@@ -86,7 +89,10 @@ const VistaRedAutonomo = () => {
     }
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/network-quotes/${quote.id}/accept`);
+      const token = localStorage.getItem('agente_token');
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/network-quotes/${quote.id}/accept`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.data.success) {
         alert("🎉 " + res.data.message);
         setShowQuotesModal(false);
