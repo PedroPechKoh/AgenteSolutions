@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import Header from '../../../components/Shared/Header';
-import { MapPin, DollarSign, Clock, Send, User, FileText } from 'lucide-react';
+import { MapPin, DollarSign, Clock, Send, User, FileText, Maximize2, Image as ImageIcon, X } from 'lucide-react';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
 import { useAuth } from '../../../context/AuthContext';
 
@@ -12,13 +12,11 @@ const mapContainerStyle = {
 };
 
 const defaultCenter = { lat: 21.0181, lng: -89.6242 };
-
 const darkMapStyles = [];
 
-
 const mockJobs = [
-  { id: 1, titulo: "Instalación de Ventilador de Techo", lat: 21.0250, lng: -89.6300, presupuesto: "$500", cliente: "María Gómez", descripcion: "Necesito instalar un ventilador nuevo en la sala.", fecha: "Hoy", lugar: "Casa 1", calle: "C. 30 x 7", cotizaciones: 0, myQuote: null, myQuotesHistory: [] },
-  { id: 2, titulo: "Mantenimiento Minisplit 12000 BTU", lat: 21.0100, lng: -89.6200, presupuesto: "A convenir", cliente: "Roberto Carlos", descripcion: "El aire acondicionado tira agua y no enfría bien.", fecha: "Mañana", lugar: "Casa 2", calle: "C. 20 x 15", cotizaciones: 0, myQuote: null, myQuotesHistory: [] },
+  { id: 1, titulo: "Instalación de Ventilador de Techo", lat: 21.0250, lng: -89.6300, presupuesto: "$500", cliente: "María Gómez", descripcion: "Necesito instalar un ventilador nuevo en la sala.", fecha: "Hoy", lugar: "Casa 1", calle: "C. 30 x 7", cotizaciones: 0, myQuote: null, myQuotesHistory: [], fotos: [] },
+  { id: 2, titulo: "Mantenimiento Minisplit 12000 BTU", lat: 21.0100, lng: -89.6200, presupuesto: "A convenir", cliente: "Roberto Carlos", descripcion: "El aire acondicionado tira agua y no enfría bien.", fecha: "Mañana", lugar: "Casa 2", calle: "C. 20 x 15", cotizaciones: 0, myQuote: null, myQuotesHistory: [], fotos: [] },
 ];
 
 const MercadoTrabajos = () => {
@@ -32,6 +30,8 @@ const MercadoTrabajos = () => {
   const [networkJobs, setNetworkJobs] = useState([]);
   const [quotePrice, setQuotePrice] = useState('');
   const [quoteMessage, setQuoteMessage] = useState('');
+  const [activePhoto, setActivePhoto] = useState(null);
+  const [isPhotoZoomed, setIsPhotoZoomed] = useState(false);
   const { user: authUser } = useAuth();
 
   const fetchJobs = async () => {
@@ -49,6 +49,12 @@ const MercadoTrabajos = () => {
               myQuotesHistory = userQuotes;
             }
           }
+          const fotos = [
+            order.evidence_path,
+            order.evidence_path_2,
+            order.property?.facade_photo_path
+          ].filter(Boolean);
+
           return {
             id: order.id,
             titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
@@ -59,7 +65,8 @@ const MercadoTrabajos = () => {
             lugar: order.property?.property_name || 'Lugar no especificado',
             calle: order.property?.address || 'Dirección no especificada',
             descripcion: order.description,
-            foto: order.evidence_path || order.evidence_path_2 || order.property?.facade_photo_path || null,
+            foto: fotos[0] || null,
+            fotos: fotos,
             fecha: new Date(order.created_at).toLocaleDateString('es-MX'),
             cotizaciones: order.network_quotes_count || 0,
             myQuote,
@@ -103,6 +110,14 @@ const MercadoTrabajos = () => {
       console.error(e);
       alert("Hubo un error al enviar tu cotización. Intenta de nuevo.");
     }
+  };
+
+  const openQuoteModalForJob = (job) => {
+    setSelectedJob(job);
+    setQuotePrice(job.myQuote ? job.myQuote.price : '');
+    setQuoteMessage(job.myQuote ? job.myQuote.message : '');
+    setActivePhoto(job.fotos?.[0] || job.foto || null);
+    setShowQuoteModal(true);
   };
 
   const getStatusLabel = (status) => {
@@ -156,11 +171,7 @@ const MercadoTrabajos = () => {
                       <p className="mercado-info-price">{selectedJob.presupuesto}</p>
                       <button
                         className="mercado-btn-details"
-                        onClick={() => {
-                          setQuotePrice(selectedJob.myQuote ? selectedJob.myQuote.price : '');
-                          setQuoteMessage(selectedJob.myQuote ? selectedJob.myQuote.message : '');
-                          setShowQuoteModal(true);
-                        }}
+                        onClick={() => openQuoteModalForJob(selectedJob)}
                       >
                         {selectedJob.myQuote
                           ? (selectedJob.myQuote.status === 'rejected' ? '⚠ Revisar Rechazo' : '📋 Ver mi Cotización')
@@ -186,7 +197,7 @@ const MercadoTrabajos = () => {
 
           <div className="mercado-job-list">
             {networkJobs.length === 0 && (
-              <div style={{ color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '40px 20px', fontSize: '14px' }}>
+              <div style={{ color: '#64748b', textAlign: 'center', padding: '40px 20px', fontSize: '14px' }}>
                 No hay trabajos disponibles en este momento
               </div>
             )}
@@ -194,7 +205,7 @@ const MercadoTrabajos = () => {
               <div
                 key={job.id}
                 className={`mercado-job-card ${selectedJob?.id === job.id ? 'active' : ''}`}
-                onClick={() => setSelectedJob(job)}
+                onClick={() => openQuoteModalForJob(job)}
               >
                 <div className="mercado-job-card-top">
                   <h4>{job.titulo}</h4>
@@ -218,7 +229,7 @@ const MercadoTrabajos = () => {
         </div>
       </div>
 
-      {/* ─── Modal ─── */}
+      {/* ─── Modal para Cotizar ─── */}
       {showQuoteModal && selectedJob && (
         <div className="mercado-modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowQuoteModal(false)}>
           <div className="mercado-premium-modal">
@@ -228,13 +239,42 @@ const MercadoTrabajos = () => {
             </div>
 
             <div className="mercado-premium-body">
-              {/* Left panel */}
+              {/* Left panel: Info & Photo Gallery */}
               <div className="mercado-premium-details">
-                {selectedJob.foto && (
-                  <div className="mercado-premium-image-wrapper">
-                    <img src={selectedJob.foto} alt="Evidencia" className="mercado-premium-image" />
+                {activePhoto ? (
+                  <div className="mercado-photo-gallery">
+                    <div
+                      className="mercado-premium-image-wrapper"
+                      onClick={() => setIsPhotoZoomed(true)}
+                      title="Clic para ampliar imagen"
+                    >
+                      <img src={activePhoto} alt="Evidencia" className="mercado-premium-image" />
+                      <div className="mercado-image-zoom-badge">
+                        <Maximize2 size={12} /> Clic para ampliar foto
+                      </div>
+                    </div>
+
+                    {selectedJob.fotos && selectedJob.fotos.length > 1 && (
+                      <div className="mercado-thumbnails-row">
+                        {selectedJob.fotos.map((f, idx) => (
+                          <div
+                            key={idx}
+                            className={`mercado-thumb-item ${activePhoto === f ? 'active' : ''}`}
+                            onClick={() => setActivePhoto(f)}
+                          >
+                            <img src={f} alt={`Evidencia ${idx + 1}`} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="mercado-no-photo-placeholder">
+                    <ImageIcon size={36} color="#94a3b8" />
+                    <span>Sin fotografías de evidencia</span>
                   </div>
                 )}
+
                 <div className="mercado-premium-text">
                   <h3>{selectedJob.titulo}</h3>
                   <div className="mercado-premium-info-grid">
@@ -262,9 +302,8 @@ const MercadoTrabajos = () => {
                 </div>
               </div>
 
-              {/* Right panel */}
+              {/* Right panel: Quote Form */}
               <div className="mercado-premium-form">
-
                 {/* Quote history */}
                 {selectedJob.myQuotesHistory && selectedJob.myQuotesHistory.length > 0 && (
                   <div className="mq-history-section">
@@ -333,6 +372,18 @@ const MercadoTrabajos = () => {
                 {selectedJob.myQuote ? 'Enviar Nueva Oferta' : 'Enviar Cotización'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Lightbox Fullscreen Zoom Modal ─── */}
+      {isPhotoZoomed && activePhoto && (
+        <div className="mercado-lightbox-overlay" onClick={() => setIsPhotoZoomed(false)}>
+          <div className="mercado-lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <button className="mercado-lightbox-close" onClick={() => setIsPhotoZoomed(false)} title="Cerrar imagen">
+              <X size={26} />
+            </button>
+            <img src={activePhoto} alt="Evidencia en tamaño completo" className="mercado-lightbox-img" />
           </div>
         </div>
       )}
