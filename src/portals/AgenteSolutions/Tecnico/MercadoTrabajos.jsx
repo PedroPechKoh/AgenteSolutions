@@ -208,9 +208,9 @@ const MercadoTrabajos = () => {
                   <span><MapPin size={11} /> {job.lugar}</span>
                   <span><Clock size={11} /> {job.fecha}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '12px' }}>
-                  <span style={{ color: '#63b3ed' }}>{job.cotizaciones} ofertas</span>
-                  <span style={{ color: 'rgba(255,255,255,0.35)' }}>{job.cliente}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #f1f5f9', fontSize: '12px' }}>
+                  <span style={{ color: '#ea580c', fontWeight: '700' }}>{job.cotizaciones} ofertas enviadas</span>
+                  <span style={{ color: '#64748b', fontWeight: '500' }}>{job.cliente}</span>
                 </div>
               </div>
             ))}
