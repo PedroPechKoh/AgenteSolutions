@@ -79,6 +79,25 @@ const VistaRedAutonomo = () => {
     }
   };
 
+  const handleAcceptQuote = async (quote) => {
+    const techName = quote.technician ? `${quote.technician.first_name} ${quote.technician.last_name}` : 'este técnico';
+    if (!window.confirm(`¿Confirmas que deseas ACEPTAR la cotización de $${parseFloat(quote.price).toFixed(2)} de ${techName}? El trabajo le será asignado de inmediato.`)) {
+      return;
+    }
+
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/network-quotes/${quote.id}/accept`);
+      if (res.data.success) {
+        alert("🎉 " + res.data.message);
+        setShowQuotesModal(false);
+        fetchJobs();
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Hubo un error al aceptar la cotización. Intenta de nuevo.");
+    }
+  };
+
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyDgyTj0X6kgGoMV8NxQGDp4-Nx0bxJd0Hw"
@@ -299,7 +318,7 @@ const VistaRedAutonomo = () => {
                               <button className="red-btn-contact" onClick={() => alert("Función de chat en desarrollo.")}>
                                 Contactar
                               </button>
-                              <button className="red-btn-accept" onClick={() => alert("Se aceptaría la cotización de " + quote.technician?.first_name)}>
+                              <button className="red-btn-accept" onClick={() => handleAcceptQuote(quote)}>
                                 Aceptar Oferta
                               </button>
                             </div>
