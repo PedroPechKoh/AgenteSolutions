@@ -129,7 +129,7 @@ const VistaCotizaciones = () => {
         if (session.userData.role_id === 3) {
           setEsCliente(true);
         }
-        if (session.userData.role_id === 2) {
+        if (session.userData.role_id === 2 || session.userData.role_id === 8) {
           setEsTecnico(true);
         }
       }
@@ -213,9 +213,13 @@ const VistaCotizaciones = () => {
       const userId = session?.userData?.id;
       const roleId = session?.userData?.role_id;
 
+      const token = localStorage.getItem('agente_token');
+
       let data = [];
       try {
-        const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
+        const respuesta = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
         if (Array.isArray(respuesta.data)) {
           data = respuesta.data;
         } else if (respuesta.data && Array.isArray(respuesta.data.quotes || respuesta.data.data)) {
@@ -268,11 +272,15 @@ const VistaCotizaciones = () => {
 
       let listaCombinada = Array.from(mapa.values());
 
-      // FILTRO PARA TÉCNICOS: Solo ver sus propuestas al Admin y solicitudes de recotización
-      if (roleId === 2) {
+      // FILTRO PARA TÉCNICOS: Solo ver sus propuestas al Admin, cotizaciones de la Red y solicitudes de recotización
+      if (roleId === 2 || roleId === 8) {
         listaCombinada = listaCombinada.filter(c => 
-          (c.tecnico_user_id == userId || c.tecnico_id == userId || c.user_id == userId || c.tecnico === session?.userData?.name || !c.tecnico_user_id) 
-          && (c.created_by_role === 'Técnico' || c.status?.toLowerCase().includes('recotiza') || c.recotizacionSolicitada)
+          c.is_network_quote ||
+          c.created_by_role === 'Técnico de la Red' ||
+          (
+            (c.tecnico_user_id == userId || c.tecnico_id == userId || c.user_id == userId || c.tecnico === session?.userData?.name || !c.tecnico_user_id) 
+            && (c.created_by_role === 'Técnico' || c.status?.toLowerCase().includes('recotiza') || c.recotizacionSolicitada)
+          )
         );
       }
 
@@ -685,6 +693,11 @@ const VistaCotizaciones = () => {
           <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
             <button 
               onClick={() => {
+                const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+                if (session?.userData?.role_id === 8) {
+                  navigate('/VistaTecnico');
+                  return;
+                }
                 if (esTecnico) {
                   navigate('/trabajos-tecnico');
                   return;
@@ -703,10 +716,23 @@ const VistaCotizaciones = () => {
             </button>
 
             {!esCliente && (
-              <button className="btn-new-cotiz-v2" onClick={() => setShowCreateModal(true)}>
-                <Plus size={18} />
-                <span>NUEVA COTIZACIÓN</span>
-              </button>
+              (() => {
+                const session = JSON.parse(localStorage.getItem('agente_session') || '{}');
+                if (session?.userData?.role_id === 8) {
+                  return (
+                    <button className="btn-new-cotiz-v2" onClick={() => navigate('/mercado-trabajos')}>
+                      <Plus size={18} />
+                      <span>EXPLORAR RED DE TRABAJOS</span>
+                    </button>
+                  );
+                }
+                return (
+                  <button className="btn-new-cotiz-v2" onClick={() => setShowCreateModal(true)}>
+                    <Plus size={18} />
+                    <span>NUEVA COTIZACIÓN</span>
+                  </button>
+                );
+              })()
             )}
           </div>
 
@@ -1125,24 +1151,42 @@ const VistaCotizaciones = () => {
                 {cotizacionSeleccionada.status === 'Aprobado' && !esCliente && (
                     <div style={{ marginTop: '20px', padding: '15px', background: '#f0fdf4', borderRadius: '12px', border: '1px solid #16a34a', textAlign: 'center' }}>
                       <p style={{ margin: '0 0 10px 0', color: '#16a34a', fontWeight: 'bold' }}>✅ ESTA COTIZACIÓN HA SIDO APROBADA</p>
-                      <button 
-                        onClick={() => navigate(`/tablero-servicios?jobId=${cotizacionSeleccionada.work_order_id || cotizacionSeleccionada.service_id}`)}
-                        style={{ background: '#16a34a', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto' }}
-                      >
-                        <Layout size={18} /> IR AL TABLERO DE TRABAJO
-                      </button>
+                      {esTecnico ? (
+                        <button 
+                          onClick={() => navigate('/trabajos-tecnico')}
+                          style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto', boxShadow: '0 4px 12px rgba(22, 163, 74, 0.3)' }}
+                        >
+                          <Layout size={18} /> IR A MIS TRABAJOS ASIGNADOS
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => navigate(`/tablero-servicios?jobId=${cotizacionSeleccionada.work_order_id || cotizacionSeleccionada.service_id}`)}
+                          style={{ background: '#16a34a', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto' }}
+                        >
+                          <Layout size={18} /> IR AL TABLERO DE TRABAJO
+                        </button>
+                      )}
                     </div>
                   )}
 
                 {cotizacionSeleccionada.status === 'Rechazado' && !esCliente && (
                     <div style={{ marginTop: '20px', padding: '15px', background: '#fef2f2', borderRadius: '12px', border: '1px solid #ef4444', textAlign: 'center' }}>
                       <p style={{ margin: '0 0 10px 0', color: '#ef4444', fontWeight: 'bold' }}>❌ ESTA COTIZACIÓN HA SIDO RECHAZADA / CANCELADA</p>
-                      <button 
-                        onClick={() => navigate(`/tablero-servicios?jobId=${cotizacionSeleccionada.work_order_id || cotizacionSeleccionada.service_id}`)}
-                        style={{ background: '#ef4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto' }}
-                      >
-                        <Layout size={18} /> IR AL TABLERO PARA CANCELAR TRABAJO
-                      </button>
+                      {cotizacionSeleccionada.is_network_quote ? (
+                        <button 
+                          onClick={() => navigate('/mercado-trabajos')}
+                          style={{ background: 'linear-gradient(135deg, #ea580c, #c2410c)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '10px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.3)' }}
+                        >
+                          🌍 IR AL MERCADO PARA ENVIAR NUEVA OFERTA
+                        </button>
+                      ) : (
+                        <button 
+                          onClick={() => navigate(`/tablero-servicios?jobId=${cotizacionSeleccionada.work_order_id || cotizacionSeleccionada.service_id}`)}
+                          style={{ background: '#ef4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto' }}
+                        >
+                          <Layout size={18} /> IR AL TABLERO PARA CANCELAR TRABAJO
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -1907,7 +1951,7 @@ const VistaCotizaciones = () => {
                     </div>
                   )}
 
-                  {esTecnico && (
+                  {esTecnico && !cotizacionSeleccionada.is_network_quote && (
                     <button 
                       className="btn-modal-action-premium" 
                       style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: 'white', width: '100%', minHeight: '40px', fontWeight: '800', marginBottom: '6px', fontSize: '0.88rem', boxShadow: '0 3px 10px rgba(59, 130, 246, 0.3)' }} 
