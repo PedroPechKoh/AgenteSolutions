@@ -304,6 +304,17 @@ const VistaCotizaciones = () => {
         cotizLocales[ind].estado = 'Pendiente recotización por técnico';
         cotizLocales[ind].status = 'Pendiente recotización por técnico';
         cotizLocales[ind].recotizacionSolicitada = true;
+        cotizLocales[ind].tecnico = tecnicoNombre;
+        cotizLocales[ind].tecnico_id = cot.tecnico_id || cot.tecnico_user_id;
+      } else {
+        cotizLocales.unshift({
+          ...cot,
+          estado: 'Pendiente recotización por técnico',
+          status: 'Pendiente recotización por técnico',
+          recotizacionSolicitada: true,
+          tecnico: tecnicoNombre,
+          tecnico_id: cot.tecnico_id || cot.tecnico_user_id
+        });
       }
       localStorage.setItem('carrito_cotizaciones', JSON.stringify(cotizLocales));
 
@@ -316,6 +327,7 @@ const VistaCotizaciones = () => {
         created_at: new Date().toISOString(),
         read_at: null,
         tecnico_user_id: cot.tecnico_user_id || cot.tecnico_id,
+        tecnico: tecnicoNombre,
         data: { quote_id: cot.id }
       });
       localStorage.setItem('notificaciones_tecnico', JSON.stringify(notifsTecnico));
@@ -323,7 +335,10 @@ const VistaCotizaciones = () => {
       window.dispatchEvent(new Event('storage'));
 
       try {
-        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cot.id}/solicitar-recotizacion-tecnico`);
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cot.id}/solicitar-recotizacion-tecnico`, {
+          tecnico: tecnicoNombre,
+          tecnico_id: cot.tecnico_id || cot.tecnico_user_id
+        });
       } catch (e) {
         console.warn("API de notificaciones a técnico offline, usado respaldo local:", e);
       }
@@ -1607,14 +1622,44 @@ const VistaCotizaciones = () => {
                       </div>
 
                       {(() => {
-                        const nombreTecnico = cotizacionSeleccionada.tecnico;
-                        const esDelTecnico = (cotizacionSeleccionada.created_by_role === 'Técnico' || cotizacionSeleccionada.tecnico_id || cotizacionSeleccionada.user_role === 'Técnico') && 
+                        // 1. Buscar cotización padre o antecesora en el listado de cotizaciones
+                        const cotPadre = cotizacionSeleccionada.parent_id 
+                          ? cotizaciones.find(c => String(c.id) === String(cotizacionSeleccionada.parent_id) || (cotizacionSeleccionada.folio && c.folio === cotizacionSeleccionada.folio.split('-V')[0])) 
+                          : (cotizacionSeleccionada.folio ? cotizaciones.find(c => String(c.id) !== String(cotizacionSeleccionada.id) && c.folio === cotizacionSeleccionada.folio.split('-V')[0]) : null);
+
+                        // 2. Extraer el técnico original o asignado (de la cotización actual, del padre o de campos técnicos)
+                        const nombreTecnico = cotizacionSeleccionada.tecnico || 
+                                              cotizacionSeleccionada.tecnico_nombre || 
+                                              cotPadre?.tecnico || 
+                                              cotPadre?.tecnico_nombre ||
+                                              cotizacionSeleccionada.technician_name;
+
+                        const tecnicoId = cotizacionSeleccionada.tecnico_id || 
+                                          cotizacionSeleccionada.tecnico_user_id || 
+                                          cotPadre?.tecnico_id || 
+                                          cotPadre?.tecnico_user_id ||
+                                          cotPadre?.created_by_user_id;
+
+                        // Comprobar si fue hecha primero por un técnico (incluso si luego fue modificada por Admin o Root)
+                        const esDelTecnico = Boolean(
                           nombreTecnico && 
                           nombreTecnico !== 'Sin Técnico' && 
                           nombreTecnico !== 'N/A' && 
                           nombreTecnico !== 'Técnico' && 
                           nombreTecnico !== 'Admin' && 
-                          nombreTecnico !== 'Root';
+                          nombreTecnico !== 'Root' &&
+                          nombreTecnico !== 'Administrador' &&
+                          nombreTecnico !== 'Administrativo'
+                        ) || Boolean(
+                          cotizacionSeleccionada.created_by_role === 'Técnico' || 
+                          cotPadre?.created_by_role === 'Técnico' ||
+                          cotizacionSeleccionada.user_role === 'Técnico' ||
+                          cotPadre?.user_role === 'Técnico'
+                        );
+
+                        const displayNombreTecnico = (nombreTecnico && nombreTecnico !== 'Sin Técnico' && nombreTecnico !== 'N/A' && nombreTecnico !== 'Admin' && nombreTecnico !== 'Root' && nombreTecnico !== 'Administrador' && nombreTecnico !== 'Administrativo') 
+                          ? nombreTecnico 
+                          : 'TÉCNICO';
 
                         if (esDelTecnico) {
                           return (
@@ -1627,11 +1672,17 @@ const VistaCotizaciones = () => {
                                   padding: '10px 14px', 
                                   minHeight: '40px', 
                                   fontSize: '0.85rem',
+                                  fontWeight: '800',
                                   boxShadow: '0 3px 10px rgba(2, 132, 199, 0.3)'
                                 }}
-                                onClick={() => handleSolicitarRecotizacionATecnico(cotizacionSeleccionada)}
+                                onClick={() => handleSolicitarRecotizacionATecnico({
+                                  ...cotizacionSeleccionada,
+                                  tecnico: displayNombreTecnico,
+                                  tecnico_id: tecnicoId,
+                                  tecnico_user_id: tecnicoId
+                                })}
                               >
-                                📩 REENVIAR A TÉCNICO ({nombreTecnico})
+                                📩 REENVIAR A TÉCNICO ({displayNombreTecnico})
                               </button>
                               <button 
                                 className="btn-modal-action-premium" 
