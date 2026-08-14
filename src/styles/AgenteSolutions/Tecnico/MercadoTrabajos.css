@@ -109,6 +109,14 @@
   border-radius: 0 4px 4px 0;
 }
 
+.mercado-mobile-drag-handle {
+  display: none;
+}
+
+.mercado-mobile-toggle-btn {
+  display: none;
+}
+
 .mercado-sidebar-title {
   font-size: 11px;
   font-weight: 800;
@@ -932,42 +940,149 @@
 }
 
 /* ========================================
-   RESPONSIVE
+   RESPONSIVE (UBER-STYLE MOBILE EXPERIENCE)
    ======================================== */
 @media (max-width: 900px) {
   .mercado-content {
-    flex-direction: column;
-    height: auto;
-    padding: 10px;
-    gap: 15px;
+    position: relative;
+    height: calc(100vh - 75px);
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    display: block;
   }
 
-  .mercado-sidebar {
-    width: 100%;
-    min-width: unset;
-    max-height: 500px;
-    border-radius: 20px;
-  }
-
+  /* Full Screen Background Map */
   .mercado-map-section {
-    height: 400px;
-    border-radius: 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    z-index: 1;
+  }
+
+  .mercado-map-overlay-badge {
+    top: 14px;
+    left: 14px;
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  /* Floating Toggle Button */
+  .mercado-mobile-toggle-btn {
+    display: flex;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 25;
+    background: linear-gradient(135deg, #ff6600, #ea580c);
+    color: #ffffff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 30px;
+    font-weight: 800;
+    font-size: 12px;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 15px rgba(234, 88, 12, 0.4);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .mercado-mobile-toggle-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Floating Bottom Drawer / Sheet (Tipo Uber) */
+  .mercado-sidebar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100% !important;
+    min-width: unset;
+    max-height: 80vh;
+    z-index: 20;
+    border-radius: 26px 26px 0 0;
+    border: 2.5px solid #ff6600;
+    border-bottom: none;
+    background: #ffffff;
+    box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.2);
+    transform: translateY(calc(100% - 75px));
+    transition: transform 0.35s cubic-bezier(0.32, 1.25, 0.6, 1);
+  }
+
+  .mercado-sidebar.mobile-open {
+    transform: translateY(0);
+  }
+
+  .mercado-sidebar-header {
+    padding: 12px 20px 14px;
+    cursor: pointer;
+  }
+
+  .mercado-sidebar-header::before {
+    display: none;
+  }
+
+  .mercado-mobile-drag-handle {
+    display: block;
+    width: 42px;
+    height: 5px;
+    background: #cbd5e1;
+    border-radius: 10px;
+    margin: 0 auto 10px;
+    cursor: pointer;
+  }
+
+  .mercado-sidebar-subtitle {
+    font-size: 17px;
+  }
+
+  .mercado-job-list {
+    max-height: calc(80vh - 90px);
+    padding: 12px 16px 24px;
+    background: #fffaf5;
+  }
+
+  /* Modals on Mobile: Bottom-Sheet Drawer Style */
+  .mercado-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .mercado-premium-modal {
+    border-radius: 26px 26px 0 0;
+    max-height: 88vh;
+    width: 100%;
+    border-bottom: none;
+    margin: 0;
   }
 
   .mercado-premium-body {
     flex-direction: column;
+    max-height: calc(88vh - 130px);
   }
 
   .mercado-premium-details {
     border-right: none;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1.5px solid #f1f5f9;
+    padding: 18px;
+    max-height: none;
+  }
+
+  .mercado-premium-form {
+    padding: 18px;
+    max-height: none;
   }
 
   .mercado-premium-info-grid {
     grid-template-columns: 1fr;
-  }
-
-  .mercado-premium-modal {
-    max-height: 98vh;
   }
 }

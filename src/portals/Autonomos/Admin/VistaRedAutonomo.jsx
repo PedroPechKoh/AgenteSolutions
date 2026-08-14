@@ -6,7 +6,7 @@ import axios from 'axios';
 import ModalServicioAutonomo from './ModalServicioAutonomo';
 import '../../../styles/Autonomos/VistaRedAutonomo.css';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
-import { Plus, MapPin, DollarSign, Clock, CheckCircle, User, Mail, Phone, Calendar, Award } from 'lucide-react';
+import { Plus, MapPin, DollarSign, Clock, CheckCircle, User, Mail, Phone, Calendar, Award, List, Map as MapIcon } from 'lucide-react';
 
 const mapContainerStyle = {
   width: '100%',
@@ -29,6 +29,7 @@ const VistaRedAutonomo = () => {
   const [selectedTechnicianProfile, setSelectedTechnicianProfile] = useState(null);
   const [showTechModal, setShowTechModal] = useState(false);
   const [networkJobs, setNetworkJobs] = useState([]);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const fetchJobs = async () => {
     try {
@@ -93,6 +94,18 @@ const VistaRedAutonomo = () => {
       <Header title="Red de Autónomos / Mis Publicaciones" />
       
       <div className="mercado-content">
+        {/* Floating Mobile Toggle Button (Tipo Uber) */}
+        <button 
+          className="mercado-mobile-toggle-btn"
+          onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
+        >
+          {mobileDrawerOpen ? (
+            <><MapIcon size={16} /> Ver Mapa</>
+          ) : (
+            <><List size={16} /> Ver Lista ({networkJobs.length})</>
+          )}
+        </button>
+
         {/* ─── Map Section ─── */}
         <div className="mercado-map-section">
           {isLoaded ? (
@@ -146,9 +159,14 @@ const VistaRedAutonomo = () => {
           )}
         </div>
 
-        {/* ─── Sidebar Section ─── */}
-        <div className="mercado-sidebar">
+        {/* ─── Sidebar / Bottom Drawer (Tipo Uber) ─── */}
+        <div className={`mercado-sidebar ${mobileDrawerOpen ? 'mobile-open' : ''}`}>
           <div className="mercado-sidebar-header">
+            {/* Grab handle for mobile touch / tap */}
+            <div 
+              className="mercado-mobile-drag-handle" 
+              onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)} 
+            />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <p className="mercado-sidebar-title">🔴 En vivo</p>
               <button 

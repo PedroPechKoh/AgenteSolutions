@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import Header from '../../../components/Shared/Header';
-import { MapPin, DollarSign, Clock, Send, User, FileText, Maximize2, Image as ImageIcon, X } from 'lucide-react';
+import { MapPin, DollarSign, Clock, Send, User, FileText, Maximize2, Image as ImageIcon, X, List, Map as MapIcon } from 'lucide-react';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
 import { useAuth } from '../../../context/AuthContext';
 
@@ -32,6 +32,7 @@ const MercadoTrabajos = () => {
   const [quoteMessage, setQuoteMessage] = useState('');
   const [activePhoto, setActivePhoto] = useState(null);
   const [isPhotoZoomed, setIsPhotoZoomed] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const { user: authUser } = useAuth();
 
   const fetchJobs = async () => {
@@ -131,6 +132,18 @@ const MercadoTrabajos = () => {
       <Header title="Mercado de Trabajos" />
 
       <div className="mercado-content">
+        {/* Floating Mobile Toggle Button (Tipo Uber) */}
+        <button 
+          className="mercado-mobile-toggle-btn"
+          onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
+        >
+          {mobileDrawerOpen ? (
+            <><MapIcon size={16} /> Ver Mapa</>
+          ) : (
+            <><List size={16} /> Ver Lista ({networkJobs.length})</>
+          )}
+        </button>
+
         {/* ─── Map ─── */}
         <div className="mercado-map-section">
           {isLoaded ? (
@@ -149,7 +162,10 @@ const MercadoTrabajos = () => {
                   <Marker
                     key={job.id}
                     position={{ lat: job.lat, lng: job.lng }}
-                    onClick={() => setSelectedJob(job)}
+                    onClick={() => {
+                      setSelectedJob(job);
+                      // In mobile, tapping a marker can also open the modal or info window
+                    }}
                     icon={{
                       url: job.myQuote
                         ? (job.myQuote.status === 'rejected'
@@ -187,9 +203,14 @@ const MercadoTrabajos = () => {
           )}
         </div>
 
-        {/* ─── Sidebar ─── */}
-        <div className="mercado-sidebar">
+        {/* ─── Sidebar / Bottom Drawer (Tipo Uber) ─── */}
+        <div className={`mercado-sidebar ${mobileDrawerOpen ? 'mobile-open' : ''}`}>
           <div className="mercado-sidebar-header">
+            {/* Grab handle for mobile gesture / tap */}
+            <div 
+              className="mercado-mobile-drag-handle" 
+              onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)} 
+            />
             <p className="mercado-sidebar-title">🔴 En vivo</p>
             <h2 className="mercado-sidebar-subtitle">Trabajos en la Red</h2>
             <p className="mercado-sidebar-desc">Selecciona un trabajo del mapa o de la lista</p>
