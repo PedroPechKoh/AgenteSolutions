@@ -232,7 +232,7 @@ const VistaCotizaciones = () => {
       data.forEach(item => mapa.set(String(item.id), item));
 
       notifsAdmin.forEach(notif => {
-        if (notif.type === 'solicitud_recotizacion' && notif.cotizacionOriginal) {
+        if (notif.type === 'solicitud_recotizacion' && notif.cotizacionOriginal && !notif.resuelta) {
           const orig = notif.cotizacionOriginal;
           const idKey = String(orig.id);
           const prev = mapa.get(idKey) || {};
@@ -1938,6 +1938,9 @@ const VistaCotizaciones = () => {
           }}
           onSuccess={() => {
             setShowCreateModal(false);
+            if (cotizacionParaAsignar) {
+              setFiltro('Por Pagar');
+            }
             setCotizacionParaAsignar(null);
             cargarCotizaciones();
           }}

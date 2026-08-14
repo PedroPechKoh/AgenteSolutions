@@ -321,6 +321,8 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
           cotizLocales[indV1].estado = `Reemplazada por V${nextVer}`;
           cotizLocales[indV1].status = `Reemplazada por V${nextVer}`;
           cotizLocales[indV1].newer_version_id = v2Quote.id;
+          cotizLocales[indV1].recotizacionSolicitada = false;
+          cotizLocales[indV1].is_requote_requested = false;
         }
         localStorage.setItem('carrito_cotizaciones', JSON.stringify([v2Quote, ...cotizLocales]));
 
@@ -338,8 +340,16 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
         });
         localStorage.setItem('notificaciones_cliente', JSON.stringify(notifsCliente));
 
+        // Resolver la notificación de solicitud de recotización original para Admin
+        let notifsAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
+        notifsAdmin = notifsAdmin.map(n => {
+          if ((n.type === 'solicitud_recotizacion' || n.type === 'solicitud_recotizacion_tecnico') && String(n.data?.quote_id) === String(prefillData.id)) {
+            return { ...n, resuelta: true };
+          }
+          return n;
+        });
+
         if (roleId === 2) {
-          const notifsAdmin = JSON.parse(localStorage.getItem('notificaciones_admin') || '[]');
           notifsAdmin.unshift({
             id: Date.now(),
             type: 'version_v2_tecnico',
@@ -349,8 +359,8 @@ const CreateQuotationModal = ({ onClose, onSuccess, prefillData }) => {
             read_at: null,
             data: { quote_id: v2Quote.id }
           });
-          localStorage.setItem('notificaciones_admin', JSON.stringify(notifsAdmin));
         }
+        localStorage.setItem('notificaciones_admin', JSON.stringify(notifsAdmin));
 
         window.dispatchEvent(new Event('notif_update'));
         window.dispatchEvent(new Event('storage'));
