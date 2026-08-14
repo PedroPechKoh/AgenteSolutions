@@ -378,8 +378,7 @@ const VistaCotizaciones = () => {
       (filtro === 'Recotizaciones' && (
         c.status?.toLowerCase().includes('recotiza') ||
         c.estado?.toLowerCase().includes('recotiza') ||
-        c.recotizacionSolicitada === true ||
-        c.is_requote_requested === true
+        c.recotizacionSolicitada === true
       ));
 
     const coincideBusqueda = (c.cliente?.toLowerCase() || "").includes(busqueda?.toLowerCase() || "") || 
