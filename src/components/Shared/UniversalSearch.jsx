@@ -41,6 +41,9 @@ const UniversalSearch = ({ data, setFilteredData, placeholder, filtroActual, typ
                            !estadoActual.includes('anticipo'); // Excluir "anticipo pagado" del grupo Pagadas
         } else if (filtroActual === 'Rechazadas') {
           coincideFiltro = estadoActual.includes('rechazad'); // Captura rechazado y rechazada
+        } else if (filtroActual === 'Recotizaciones') {
+          coincideFiltro = estadoActual.includes('recotiza') || 
+                           item.recotizacionSolicitada === true;
         }
       } else if (type === 'TECNICO_TABLERO') {
         coincideFiltro = true; // El tablero ya está filtrado por técnico, la búsqueda es global sobre eso
