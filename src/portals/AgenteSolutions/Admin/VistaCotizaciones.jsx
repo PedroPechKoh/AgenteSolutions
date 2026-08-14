@@ -1546,11 +1546,11 @@ const VistaCotizaciones = () => {
                   })()}
 
             </div>
-            <div className="modal-footer-btns" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
+            <div className="modal-footer-btns" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
                   
                   {/* SECCIÓN ESPECIAL ADMIN: ACCIONES DE GENERACIÓN / DERIVACIÓN */}
                   {!esCliente && !esTecnico && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', width: '100%', marginBottom: '4px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '8px', width: '100%', marginBottom: '2px' }}>
                       {cotizacionSeleccionada.created_by_role === 'Técnico' && (
                         <button 
                           className="btn-modal-action-premium" 
@@ -1558,10 +1558,10 @@ const VistaCotizaciones = () => {
                             background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', 
                             color: 'white', 
                             width: '100%', 
-                            minHeight: '48px', 
-                            padding: '12px 18px', 
+                            minHeight: '42px', 
+                            padding: '10px 16px', 
                             boxShadow: '0 4px 14px rgba(234, 88, 12, 0.3)',
-                            fontSize: '0.92rem'
+                            fontSize: '0.88rem'
                           }} 
                           onClick={() => {
                             setCotizacionParaAsignar(cotizacionSeleccionada);
@@ -1583,72 +1583,27 @@ const VistaCotizaciones = () => {
                                 background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', 
                                 color: 'white', 
                                 width: '100%', 
-                                minHeight: '48px', 
-                                padding: '12px 18px', 
+                                minHeight: '42px', 
+                                padding: '10px 16px', 
                                 boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)',
-                                fontSize: '0.92rem'
+                                fontSize: '0.88rem'
                               }} 
                               onClick={() => setCotizacionSeleccionada(cotHija)}
                             >
                               👁️ VER COTIZACIÓN NUEVA O ACTUALIZADA
                             </button>
                           );
-                        } else {
-                          return (
-                            <button 
-                              className="btn-modal-action-premium" 
-                              style={{ 
-                                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', 
-                                color: 'white', 
-                                width: '100%', 
-                                minHeight: '48px', 
-                                padding: '12px 18px', 
-                                boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
-                                fontSize: '0.92rem'
-                              }} 
-                              onClick={() => {
-                                setCotizacionParaAsignar({ ...cotizacionSeleccionada, isDerived: true });
-                                setCotizacionSeleccionada(null);
-                                setShowCreateModal(true);
-                              }}
-                            >
-                              ➕ GENERAR COTIZACIÓN DERIVADA
-                            </button>
-                          );
                         }
+                        return null;
                       })()}
                     </div>
                   )}
 
-                  {/* ROW: Acciones de Documento (VER PDF) */}
-                  <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginBottom: '4px' }}>
-                    {cotizacionSeleccionada.type !== 'archivo' && (
-                      <button 
-                        className="btn-modal-action-premium" 
-                        style={{ 
-                          background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', 
-                          color: 'white', 
-                          width: '100%', 
-                          minHeight: '48px', 
-                          padding: '12px 20px', 
-                          fontWeight: '800', 
-                          fontSize: '0.95rem',
-                          letterSpacing: '0.5px',
-                          boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)'
-                        }} 
-                        onClick={handleImprimirPDF}
-                      >
-                        <FileText size={20} />
-                        VER PDF
-                      </button>
-                    )}
-                  </div>
-
                   {/* Seccion de Recotización / Opciones de Versión V2 */}
                   {!esCliente && (cotizacionSeleccionada.status?.toLowerCase().includes('recotiza') || cotizacionSeleccionada.estado?.toLowerCase().includes('recotiza') || cotizacionSeleccionada.recotizacionSolicitada) && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', marginBottom: '10px', background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', padding: '16px', borderRadius: '14px', border: '1.5px solid #fed7aa', boxShadow: '0 4px 12px rgba(249, 115, 22, 0.08)' }}>
-                      <div style={{ color: '#c2410c', fontSize: '0.92rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <RefreshCw size={18} className="spin-slow" /> El cliente solicitó recotizar este servicio por caducidad.
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginBottom: '6px', background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', padding: '12px 14px', borderRadius: '10px', border: '1.5px solid #fed7aa', boxShadow: '0 3px 10px rgba(249, 115, 22, 0.08)' }}>
+                      <div style={{ color: '#c2410c', fontSize: '0.86rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <RefreshCw size={16} className="spin-slow" /> El cliente solicitó recotizar este servicio por caducidad.
                       </div>
 
                       {(() => {
@@ -1663,33 +1618,31 @@ const VistaCotizaciones = () => {
 
                         if (esDelTecnico) {
                           return (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '8px', width: '100%' }}>
                               <button 
                                 className="btn-modal-action-premium" 
                                 style={{ 
                                   background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', 
                                   color: 'white', 
-                                  padding: '12px 18px', 
-                                  minHeight: '48px', 
-                                  width: '100%',
-                                  fontSize: '0.92rem',
-                                  boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)'
+                                  padding: '10px 14px', 
+                                  minHeight: '40px', 
+                                  fontSize: '0.85rem',
+                                  boxShadow: '0 3px 10px rgba(2, 132, 199, 0.3)'
                                 }}
                                 onClick={() => handleSolicitarRecotizacionATecnico(cotizacionSeleccionada)}
                               >
-                                📩 REENVIAR A TÉCNICO ({nombreTecnico}) PARA CREAR V2
+                                📩 REENVIAR A TÉCNICO ({nombreTecnico})
                               </button>
                               <button 
                                 className="btn-modal-action-premium" 
                                 style={{ 
                                   background: 'linear-gradient(135deg, #f97316 0%, #dc2626 100%)', 
                                   color: 'white', 
-                                  padding: '12px 18px', 
-                                  minHeight: '48px', 
-                                  width: '100%',
-                                  fontSize: '0.92rem',
+                                  padding: '10px 14px', 
+                                  minHeight: '40px', 
+                                  fontSize: '0.85rem',
                                   fontWeight: '800',
-                                  boxShadow: '0 4px 14px rgba(234, 88, 12, 0.4)'
+                                  boxShadow: '0 3px 10px rgba(234, 88, 12, 0.35)'
                                 }}
                                 onClick={() => {
                                   const target = cotizacionSeleccionada;
@@ -1698,7 +1651,7 @@ const VistaCotizaciones = () => {
                                   setShowCreateModal(true);
                                 }}
                               >
-                                ✏️ RECOTIZAR DIRECTAMENTE COMO ADMIN / ROOT (CREAR V2)
+                                ✏️ RECOTIZAR DIRECTO (CREAR V2)
                               </button>
                             </div>
                           );
@@ -1710,12 +1663,12 @@ const VistaCotizaciones = () => {
                             style={{ 
                               background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)', 
                               color: 'white', 
-                              padding: '14px 18px', 
-                              minHeight: '48px', 
-                              width: '100%',
-                              fontSize: '0.95rem',
-                              fontWeight: '800',
-                              boxShadow: '0 4px 14px rgba(234, 88, 12, 0.4)'
+                              padding: '10px 16px', 
+                              minHeight: '42px', 
+                              width: '100%', 
+                              fontSize: '0.9rem', 
+                              fontWeight: '800', 
+                              boxShadow: '0 3px 10px rgba(234, 88, 12, 0.35)' 
                             }}
                             onClick={() => {
                               const target = cotizacionSeleccionada;
@@ -1733,18 +1686,18 @@ const VistaCotizaciones = () => {
 
                   {/* Si el usuario es Técnico y la cotización requiere recotización */}
                   {esTecnico && (cotizacionSeleccionada.status?.toLowerCase().includes('recotiza') || cotizacionSeleccionada.recotizacionSolicitada) && (
-                    <div style={{ width: '100%', marginBottom: '10px' }}>
+                    <div style={{ width: '100%', marginBottom: '8px' }}>
                       <button 
                         className="btn-modal-action-premium" 
                         style={{ 
                           background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)', 
                           color: 'white', 
-                          padding: '14px 18px', 
-                          minHeight: '48px', 
-                          width: '100%',
-                          fontSize: '0.95rem',
-                          fontWeight: '800',
-                          boxShadow: '0 4px 14px rgba(234, 88, 12, 0.4)'
+                          padding: '10px 16px', 
+                          minHeight: '42px', 
+                          width: '100%', 
+                          fontSize: '0.9rem', 
+                          fontWeight: '800', 
+                          boxShadow: '0 3px 10px rgba(234, 88, 12, 0.35)' 
                         }}
                         onClick={() => {
                           const target = cotizacionSeleccionada;
@@ -1753,18 +1706,18 @@ const VistaCotizaciones = () => {
                           setShowCreateModal(true);
                         }}
                       >
-                        <RefreshCw size={18} /> ✏️ RECOTIZAR Y CREAR VERSIÓN 2 (V2)
+                        <RefreshCw size={16} /> ✏️ RECOTIZAR Y CREAR VERSIÓN 2 (V2)
                       </button>
                     </div>
                   )}
 
                   {/* ROW: Validación de Pago (Solo Admin) */}
                   {!esCliente && !esTecnico && cotizacionSeleccionada.status === 'Pago en Revisión' && (
-                    <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', marginBottom: '10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%', marginBottom: '8px' }}>
                       {cotizacionSeleccionada.payment_receipt_path && (
                         <button 
                           className="btn-modal-action-premium" 
-                          style={{ background: '#334155', color: 'white', flex: 1, minHeight: '48px', fontSize: '0.9rem' }} 
+                          style={{ background: '#334155', color: 'white', minHeight: '40px', fontSize: '0.86rem' }} 
                           onClick={() => verPantallaCompleta(cotizacionSeleccionada.payment_receipt_path)}
                         >
                           👁️ VER COMPROBANTE
@@ -1772,7 +1725,7 @@ const VistaCotizaciones = () => {
                       )}
                       <button 
                         className="btn-modal-action-premium" 
-                        style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', flex: 1, minHeight: '48px', fontSize: '0.92rem', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)' }} 
+                        style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', minHeight: '40px', fontSize: '0.88rem', fontWeight: '800', boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)' }} 
                         onClick={handleValidarPago}
                         disabled={procesando}
                       >
@@ -1785,10 +1738,10 @@ const VistaCotizaciones = () => {
                   {esCliente && (cotizacionSeleccionada.status === 'Aprobado' || cotizacionSeleccionada.status === 'Aceptada') && (
                     <button 
                       className="btn-modal-action-premium" 
-                      style={{ background: 'linear-gradient(135deg, #0284c7 0%, #009ee3 100%)', color: 'white', width: '100%', padding: '15px', fontSize: '1.05rem', fontWeight: '800', marginBottom: '10px', minHeight: '52px', boxShadow: '0 4px 14px rgba(0, 158, 227, 0.35)' }} 
+                      style={{ background: 'linear-gradient(135deg, #0284c7 0%, #009ee3 100%)', color: 'white', width: '100%', padding: '12px', fontSize: '1rem', fontWeight: '800', marginBottom: '8px', minHeight: '46px', boxShadow: '0 4px 14px rgba(0, 158, 227, 0.35)' }} 
                       onClick={() => setShowPagoModal(true)}
                     >
-                      PAGAR CON <img src={mpLogo} alt="MercadoPago" style={{ height: '24px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                      PAGAR CON <img src={mpLogo} alt="MercadoPago" style={{ height: '22px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                     </button>
                   )}
 
@@ -1803,23 +1756,23 @@ const VistaCotizaciones = () => {
                           background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
                           color: 'white', 
                           width: '100%', 
-                          minHeight: '48px', 
-                          padding: '12px 16px', 
+                          minHeight: '42px', 
+                          padding: '10px 16px', 
                           fontWeight: '800', 
-                          boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-                          fontSize: '0.95rem',
-                          marginBottom: '10px'
+                          boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)',
+                          fontSize: '0.9rem',
+                          marginBottom: '8px'
                         }} 
                         onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
                       >
-                        <ShoppingCart size={20} /> YA EN EL CARRITO
+                        <ShoppingCart size={18} /> YA EN EL CARRITO
                       </button>
                     ) : (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', width: '100%', marginBottom: '8px' }}>
                         {cotizacionSeleccionada.status !== 'Rechazado' && (
                           <button 
                             className="btn-modal-action-premium" 
-                            style={{ background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)', color: 'white', width: '100%', minHeight: '48px', padding: '10px 16px', fontWeight: '700', boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)' }} 
+                            style={{ background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)', color: 'white', width: '100%', minHeight: '40px', padding: '8px 12px', fontWeight: '700', fontSize: '0.85rem', boxShadow: '0 3px 10px rgba(220, 38, 38, 0.25)' }} 
                             onClick={() => setRechazando(true)}
                           >
                             ✕ RECHAZAR
@@ -1832,20 +1785,21 @@ const VistaCotizaciones = () => {
                             background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)', 
                             color: 'white', 
                             width: '100%', 
-                            minHeight: '48px', 
-                            padding: '10px 16px', 
+                            minHeight: '40px', 
+                            padding: '8px 12px', 
                             fontWeight: '800', 
-                            boxShadow: '0 4px 14px rgba(234, 88, 12, 0.35)' 
+                            fontSize: '0.85rem',
+                            boxShadow: '0 3px 10px rgba(234, 88, 12, 0.3)' 
                           }} 
                           onClick={(e) => handleMandarAlCarrito(cotizacionSeleccionada, e)}
                         >
-                          <ShoppingCart size={18} /> MANDAR AL CARRITO
+                          <ShoppingCart size={16} /> AL CARRITO
                         </button>
                         
                         {(cotizacionSeleccionada.status !== 'Rechazado' || esCliente) && (
                           <button 
                             className="btn-modal-action-premium" 
-                            style={{ background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)', color: 'white', width: '100%', minHeight: '48px', padding: '10px 16px', fontWeight: '800', boxShadow: '0 4px 14px rgba(22, 163, 74, 0.35)' }} 
+                            style={{ background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)', color: 'white', width: '100%', minHeight: '40px', padding: '8px 12px', fontWeight: '800', fontSize: '0.85rem', boxShadow: '0 3px 10px rgba(22, 163, 74, 0.3)' }} 
                             onClick={() => {
                               if (cotizacionSeleccionada.status === 'Rechazado') {
                                 if (window.confirm('¿Deseas aceptar esta cotización que habías rechazado?')) {
@@ -1857,7 +1811,7 @@ const VistaCotizaciones = () => {
                             }}
                             disabled={procesando}
                           >
-                            ✓ ACEPTAR COTIZACIÓN
+                            ✓ ACEPTAR
                           </button>
                         )}
                       </div>
@@ -1865,10 +1819,10 @@ const VistaCotizaciones = () => {
                   )}
 
                   {(esCliente || (!esCliente && !esTecnico && cotizacionSeleccionada.created_by_role === 'Técnico')) && rechazando && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', width: '100%', marginBottom: '10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', width: '100%', marginBottom: '8px' }}>
                       <button 
                         className="btn-modal-action-premium" 
-                        style={{ background: '#64748b', color: 'white', width: '100%', minHeight: '48px', fontWeight: '700' }} 
+                        style={{ background: '#64748b', color: 'white', width: '100%', minHeight: '40px', fontWeight: '700', fontSize: '0.85rem' }} 
                         onClick={() => { setRechazando(false); setMotivoRechazo(''); }}
                       >
                         CANCELAR
@@ -1879,9 +1833,10 @@ const VistaCotizaciones = () => {
                           background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)', 
                           color: 'white', 
                           width: '100%', 
-                          minHeight: '48px',
+                          minHeight: '40px',
                           fontWeight: '800',
-                          boxShadow: '0 4px 14px rgba(220, 38, 38, 0.35)',
+                          fontSize: '0.85rem',
+                          boxShadow: '0 3px 10px rgba(220, 38, 38, 0.3)',
                           opacity: (procesando || !motivoRechazo.trim()) ? 0.5 : 1,
                           cursor: (procesando || !motivoRechazo.trim()) ? 'not-allowed' : 'pointer'
                         }} 
@@ -1896,7 +1851,7 @@ const VistaCotizaciones = () => {
                   {esTecnico && (
                     <button 
                       className="btn-modal-action-premium" 
-                      style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: 'white', width: '100%', minHeight: '48px', fontWeight: '800', marginBottom: '8px', boxShadow: '0 4px 14px rgba(59, 130, 246, 0.35)' }} 
+                      style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)', color: 'white', width: '100%', minHeight: '40px', fontWeight: '800', marginBottom: '6px', fontSize: '0.88rem', boxShadow: '0 3px 10px rgba(59, 130, 246, 0.3)' }} 
                       onClick={() => {
                         setCotizacionParaEditarTecnico(cotizacionSeleccionada);
                         setCotizacionSeleccionada(null);
@@ -1906,7 +1861,42 @@ const VistaCotizaciones = () => {
                     </button>
                   )}
 
-                  <button className="btn-modal-close-premium" style={{ width: '100%', minHeight: '48px', marginTop: '4px', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: '#f8fafc', border: '1px solid #334155' }} onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>CERRAR</button>
+                  {/* Fila de Acciones Finales: VER PDF + CERRAR */}
+                  <div style={{ display: 'grid', gridTemplateColumns: cotizacionSeleccionada.type !== 'archivo' ? '1fr 1fr' : '1fr', gap: '8px', width: '100%', marginTop: '2px' }}>
+                    {cotizacionSeleccionada.type !== 'archivo' && (
+                      <button 
+                        className="btn-modal-action-premium" 
+                        style={{ 
+                          background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', 
+                          color: 'white', 
+                          minHeight: '42px', 
+                          padding: '8px 14px', 
+                          fontWeight: '800', 
+                          fontSize: '0.9rem',
+                          boxShadow: '0 3px 10px rgba(234, 88, 12, 0.3)'
+                        }} 
+                        onClick={handleImprimirPDF}
+                      >
+                        <FileText size={18} />
+                        VER PDF
+                      </button>
+                    )}
+                    <button 
+                      className="btn-modal-close-premium" 
+                      style={{ 
+                        minHeight: '42px', 
+                        padding: '8px 14px', 
+                        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
+                        color: '#f8fafc', 
+                        border: '1px solid #334155',
+                        fontSize: '0.9rem',
+                        fontWeight: '700'
+                      }} 
+                      onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}
+                    >
+                      CERRAR
+                    </button>
+                  </div>
             </div>
           </div>
         </div>
