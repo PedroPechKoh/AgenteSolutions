@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker, Circle, InfoWindow } from '@react-google-maps/api';
 import Header from '../../../components/Shared/Header';
 import { MapPin, DollarSign, Clock, Send, User, FileText, Maximize2, Image as ImageIcon, X, List, Map as MapIcon } from 'lucide-react';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
@@ -15,8 +15,8 @@ const defaultCenter = { lat: 21.0181, lng: -89.6242 };
 const darkMapStyles = [];
 
 const mockJobs = [
-  { id: 1, titulo: "Instalación de Ventilador de Techo", lat: 21.0250, lng: -89.6300, presupuesto: "$500", cliente: "María Gómez", descripcion: "Necesito instalar un ventilador nuevo en la sala.", fecha: "Hoy", lugar: "Casa 1", calle: "C. 30 x 7", cotizaciones: 0, myQuote: null, myQuotesHistory: [], fotos: [] },
-  { id: 2, titulo: "Mantenimiento Minisplit 12000 BTU", lat: 21.0100, lng: -89.6200, presupuesto: "A convenir", cliente: "Roberto Carlos", descripcion: "El aire acondicionado tira agua y no enfría bien.", fecha: "Mañana", lugar: "Casa 2", calle: "C. 20 x 15", cotizaciones: 0, myQuote: null, myQuotesHistory: [], fotos: [] },
+  { id: 1, titulo: "Instalación de Ventilador de Techo", lat: 21.0250, lng: -89.6300, presupuesto: "$500", cliente: "María Gómez", descripcion: "Necesito instalar un ventilador nuevo en la sala.", fecha: "Hoy", lugar: "Casa 1", zona: "Col. Itzimná, Mérida", cotizaciones: 0, myQuote: null, myQuotesHistory: [], fotos: [] },
+  { id: 2, titulo: "Mantenimiento Minisplit 12000 BTU", lat: 21.0100, lng: -89.6200, presupuesto: "A convenir", cliente: "Roberto Carlos", descripcion: "El aire acondicionado tira agua y no enfría bien.", fecha: "Mañana", lugar: "Casa 2", zona: "Col. San Ramón Norte, Mérida", cotizaciones: 0, myQuote: null, myQuotesHistory: [], fotos: [] },
 ];
 
 const MercadoTrabajos = () => {
@@ -56,15 +56,20 @@ const MercadoTrabajos = () => {
             order.property?.facade_photo_path
           ].filter(Boolean);
 
+          const rawLat = order.lat ? parseFloat(order.lat) : (order.area_lat ? parseFloat(order.area_lat) : (21.0181 + Math.sin(order.id * 17) * 0.025));
+          const rawLng = order.lng ? parseFloat(order.lng) : (order.area_lng ? parseFloat(order.area_lng) : (-89.6242 + Math.cos(order.id * 17) * 0.025));
+          const zonaTexto = order.zona || order.zona_colonia || order.property?.property_name || 'Zona Metropolitana';
+
           return {
             id: order.id,
             titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
-            lat: order.property?.latitud ? parseFloat(order.property.latitud) : (21.0181 + (Math.random() - 0.5) * 0.05),
-            lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
+            lat: rawLat,
+            lng: rawLng,
             presupuesto: "A convenir",
             cliente: order.owner_name || 'Cliente Autónomo',
             lugar: order.property?.property_name || 'Lugar no especificado',
-            calle: order.property?.address || 'Dirección no especificada',
+            zona: zonaTexto,
+            calle: order.property?.address || 'Dirección protegida',
             descripcion: order.description,
             foto: fotos[0] || null,
             fotos: fotos,
@@ -159,21 +164,34 @@ const MercadoTrabajos = () => {
                 options={{ styles: darkMapStyles, disableDefaultUI: false }}
               >
                 {networkJobs.map(job => (
-                  <Marker
-                    key={job.id}
-                    position={{ lat: job.lat, lng: job.lng }}
-                    onClick={() => {
-                      setSelectedJob(job);
-                      // In mobile, tapping a marker can also open the modal or info window
-                    }}
-                    icon={{
-                      url: job.myQuote
-                        ? (job.myQuote.status === 'rejected'
-                          ? 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                          : 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png')
-                        : 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                    }}
-                  />
+                  <React.Fragment key={job.id}>
+                    {/* Círculo de área / colonia de cobertura */}
+                    <Circle
+                      center={{ lat: job.lat, lng: job.lng }}
+                      radius={550}
+                      options={{
+                        fillColor: '#ff6600',
+                        fillOpacity: 0.16,
+                        strokeColor: '#ea580c',
+                        strokeOpacity: 0.7,
+                        strokeWeight: 1.5,
+                        clickable: true
+                      }}
+                      onClick={() => setSelectedJob(job)}
+                    />
+                    <Marker
+                      position={{ lat: job.lat, lng: job.lng }}
+                      onClick={() => setSelectedJob(job)}
+                      title={`Zona: ${job.zona}`}
+                      icon={{
+                        url: job.myQuote
+                          ? (job.myQuote.status === 'rejected'
+                            ? 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                            : 'https://maps.google.com/mapfiles/ms/icons/green-dot.png')
+                          : 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png'
+                      }}
+                    />
+                  </React.Fragment>
                 ))}
 
                 {selectedJob && (
@@ -183,8 +201,12 @@ const MercadoTrabajos = () => {
                   >
                     <div className="mercado-info-window">
                       <h4>{selectedJob.titulo}</h4>
-                      <p><MapPin size={11} /> {selectedJob.lugar}</p>
-                      <p className="mercado-info-price">{selectedJob.presupuesto}</p>
+                      <p style={{ color: '#ea580c', fontWeight: '700', margin: '4px 0' }}>
+                        <MapPin size={12} /> Zona: {selectedJob.zona}
+                      </p>
+                      <div style={{ fontSize: '11px', color: '#64748b', background: '#fff7ed', padding: '5px 8px', borderRadius: '6px', border: '1px solid #fed7aa', margin: '6px 0', lineHeight: 1.3 }}>
+                        🔒 <strong>Área aproximada</strong><br/>Dirección exacta visible al ser asignado
+                      </div>
                       <button
                         className="mercado-btn-details"
                         onClick={() => openQuoteModalForJob(selectedJob)}
@@ -237,7 +259,7 @@ const MercadoTrabajos = () => {
                   )}
                 </div>
                 <div className="mercado-job-meta">
-                  <span><MapPin size={11} /> {job.lugar}</span>
+                  <span style={{ color: '#ea580c', fontWeight: '700' }}><MapPin size={12} /> {job.zona}</span>
                   <span><Clock size={11} /> {job.fecha}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #f1f5f9', fontSize: '12px' }}>
@@ -299,13 +321,15 @@ const MercadoTrabajos = () => {
                 <div className="mercado-premium-text">
                   <h3>{selectedJob.titulo}</h3>
                   <div className="mercado-premium-info-grid">
-                    <div className="mercado-info-item">
-                      <MapPin size={14} className="mercado-icon-blue" />
-                      <div><strong>Lugar</strong><span>{selectedJob.lugar}</span></div>
-                    </div>
-                    <div className="mercado-info-item">
-                      <MapPin size={14} className="mercado-icon-blue" />
-                      <div><strong>Dirección</strong><span>{selectedJob.calle}</span></div>
+                    <div className="mercado-info-item full-width" style={{ background: '#fff7ed', border: '1.5px solid #fed7aa' }}>
+                      <MapPin size={18} color="#ea580c" style={{ marginTop: '2px', flexShrink: 0 }} />
+                      <div>
+                        <strong style={{ color: '#ea580c' }}>Zona / Área de Cobertura</strong>
+                        <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>{selectedJob.zona}</span>
+                        <div style={{ fontSize: '11px', color: '#9a3412', marginTop: '3px' }}>
+                          🔒 La dirección exacta de la casa se te revelará en tu panel de TRABAJOS al ser aceptada tu cotización.
+                        </div>
+                      </div>
                     </div>
                     <div className="mercado-info-item">
                       <User size={14} className="mercado-icon-blue" />
@@ -317,7 +341,7 @@ const MercadoTrabajos = () => {
                     </div>
                     <div className="mercado-info-item full-width">
                       <FileText size={14} className="mercado-icon-blue" />
-                      <div><strong>Descripción</strong><span>{selectedJob.descripcion}</span></div>
+                      <div><strong>Descripción del Problema</strong><span>{selectedJob.descripcion}</span></div>
                     </div>
                   </div>
                 </div>

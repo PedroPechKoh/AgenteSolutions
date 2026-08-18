@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker, Circle, InfoWindow } from '@react-google-maps/api';
 import Header from '../../../components/Shared/Header';
 import { useAuth } from '../../../context/AuthContext';
 import axios from 'axios';
@@ -16,8 +16,8 @@ const mapContainerStyle = {
 const defaultCenter = { lat: 21.0181, lng: -89.6242 }; // Mérida, Yucatán
 
 const mockSolicitudes = [
-  { id: 1, titulo: "Mantenimiento de 5 Minisplits", lat: 21.0250, lng: -89.6300, presupuesto: "$2,000", estado: "Cotizando", cotizaciones: 3, fecha: "2026-08-11", lugar: "Casa 1", calle: "C. 30 x 7", cotizaciones_list: [] },
-  { id: 2, titulo: "Reparación de Fuga de Agua", lat: 21.0100, lng: -89.6200, presupuesto: "A convenir", estado: "Completado", cotizaciones: 1, fecha: "2026-08-09", lugar: "Casa 2", calle: "C. 20 x 15", cotizaciones_list: [] }
+  { id: 1, titulo: "Mantenimiento de 5 Minisplits", lat: 21.0250, lng: -89.6300, presupuesto: "$2,000", estado: "Cotizando", cotizaciones: 3, fecha: "2026-08-11", lugar: "Casa 1", zona: "Col. Itzimná, Mérida", calle: "C. 30 x 7", cotizaciones_list: [] },
+  { id: 2, titulo: "Reparación de Fuga de Agua", lat: 21.0100, lng: -89.6200, presupuesto: "A convenir", estado: "Completado", cotizaciones: 1, fecha: "2026-08-09", lugar: "Casa 2", zona: "Col. San Lorenzo, Umán", calle: "C. 20 x 15", cotizaciones_list: [] }
 ];
 
 const VistaRedAutonomo = () => {
@@ -35,20 +35,27 @@ const VistaRedAutonomo = () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/mercado-trabajos`);
       if (res.data.success) {
-        const jobs = res.data.data.map(order => ({
-          id: order.id,
-          titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
-          lat: order.property?.latitud ? parseFloat(order.property.latitud) : (21.0181 + (Math.random() - 0.5) * 0.05),
-          lng: order.property?.longitud ? parseFloat(order.property.longitud) : (-89.6242 + (Math.random() - 0.5) * 0.05),
-          presupuesto: "A convenir",
-          estado: order.status || 'Por Hacer',
-          fecha: new Date(order.created_at).toLocaleDateString('es-MX'),
-          lugar: order.property?.property_name || 'Lugar no especificado',
-          calle: order.property?.address || 'Dirección no especificada',
-          cotizaciones: order.network_quotes_count || 0,
-          cotizaciones_list: order.network_quotes || [],
-          cliente: order.owner_name || 'Cliente'
-        }));
+        const jobs = res.data.data.map(order => {
+          const rawLat = order.lat ? parseFloat(order.lat) : (order.area_lat ? parseFloat(order.area_lat) : (21.0181 + Math.sin(order.id * 17) * 0.025));
+          const rawLng = order.lng ? parseFloat(order.lng) : (order.area_lng ? parseFloat(order.area_lng) : (-89.6242 + Math.cos(order.id * 17) * 0.025));
+          const zonaTexto = order.zona || order.zona_colonia || order.property?.property_name || 'Zona Metropolitana';
+
+          return {
+            id: order.id,
+            titulo: order.type + (order.equipment ? ` - ${order.equipment}` : ''),
+            lat: rawLat,
+            lng: rawLng,
+            presupuesto: "A convenir",
+            estado: order.status || 'Por Hacer',
+            fecha: new Date(order.created_at).toLocaleDateString('es-MX'),
+            lugar: order.property?.property_name || 'Lugar no especificado',
+            zona: zonaTexto,
+            calle: order.property?.address || 'Dirección no especificada',
+            cotizaciones: order.network_quotes_count || 0,
+            cotizaciones_list: order.network_quotes || [],
+            cliente: order.owner_name || 'Cliente'
+          };
+        });
         setNetworkJobs(jobs);
       }
     } catch (e) {
@@ -146,16 +153,31 @@ const VistaRedAutonomo = () => {
                 options={{ disableDefaultUI: false }}
               >
                 {networkJobs.map(job => (
-                  <Marker
-                    key={job.id}
-                    position={{ lat: job.lat, lng: job.lng }}
-                    onClick={() => setSelectedJob(job)}
-                    icon={{
-                      url: job.cotizaciones > 0 
-                        ? 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-                        : 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png'
-                    }}
-                  />
+                  <React.Fragment key={job.id}>
+                    <Circle
+                      center={{ lat: job.lat, lng: job.lng }}
+                      radius={550}
+                      options={{
+                        fillColor: job.cotizaciones > 0 ? '#16a34a' : '#ff6600',
+                        fillOpacity: 0.16,
+                        strokeColor: job.cotizaciones > 0 ? '#15803d' : '#ea580c',
+                        strokeOpacity: 0.7,
+                        strokeWeight: 1.5,
+                        clickable: true
+                      }}
+                      onClick={() => setSelectedJob(job)}
+                    />
+                    <Marker
+                      position={{ lat: job.lat, lng: job.lng }}
+                      onClick={() => setSelectedJob(job)}
+                      title={`Zona: ${job.zona}`}
+                      icon={{
+                        url: job.cotizaciones > 0 
+                          ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                          : 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png'
+                      }}
+                    />
+                  </React.Fragment>
                 ))}
 
                 {selectedJob && (
@@ -166,7 +188,7 @@ const VistaRedAutonomo = () => {
                     <div className="mercado-info-window">
                       <h4>{selectedJob.titulo}</h4>
                       <p style={{ margin: '4px 0', fontWeight: 'bold', color: '#ff6600' }}>{selectedJob.estado}</p>
-                      <p><MapPin size={11} /> {selectedJob.lugar}</p>
+                      <p style={{ color: '#ea580c', fontWeight: '700' }}><MapPin size={11} /> {selectedJob.zona}</p>
                       <p><Clock size={11} /> {selectedJob.fecha}</p>
                       <button 
                         className="mercado-btn-details"
@@ -224,7 +246,7 @@ const VistaRedAutonomo = () => {
                   </span>
                 </div>
                 <div className="mercado-job-meta">
-                  <span><MapPin size={11} /> {job.lugar}</span>
+                  <span style={{ color: '#ea580c', fontWeight: '700' }}><MapPin size={11} /> {job.zona}</span>
                   <span><Clock size={11} /> {job.fecha}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #f1f5f9', fontSize: '12px' }}>
