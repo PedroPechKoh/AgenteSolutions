@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GoogleMap, useJsApiLoader, Marker, Circle, InfoWindow } from '@react-google-maps/api';
 import Header from '../../../components/Shared/Header';
-import { MapPin, DollarSign, Clock, Send, User, FileText, Maximize2, Image as ImageIcon, X, List, Map as MapIcon } from 'lucide-react';
+import ChatModal from '../../../components/Shared/ChatModal';
+import { MapPin, DollarSign, Clock, Send, User, FileText, Maximize2, Image as ImageIcon, X, List, Map as MapIcon, MessageCircle } from 'lucide-react';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
 import { useAuth } from '../../../context/AuthContext';
 
@@ -27,6 +28,7 @@ const MercadoTrabajos = () => {
 
   const [selectedJob, setSelectedJob] = useState(null);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [activeChatQuote, setActiveChatQuote] = useState(null);
   const [networkJobs, setNetworkJobs] = useState([]);
   const [quotePrice, setQuotePrice] = useState('');
   const [quoteMessage, setQuoteMessage] = useState('');
@@ -349,6 +351,36 @@ const MercadoTrabajos = () => {
 
               {/* Right panel: Quote Form */}
               <div className="mercado-premium-form">
+                {/* Botón de Chat Directo con el Cliente */}
+                {selectedJob.myQuote && (
+                  <div style={{ marginBottom: '16px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveChatQuote({ ...selectedJob.myQuote, jobTitle: selectedJob.titulo, cliente: selectedJob.cliente })}
+                      style={{
+                        width: '100%',
+                        padding: '12px 18px',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '12px',
+                        fontWeight: '800',
+                        fontSize: '14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)',
+                        transition: 'transform 0.2s'
+                      }}
+                    >
+                      <MessageCircle size={18} />
+                      <span>💬 Chat con el Cliente ({selectedJob.cliente})</span>
+                    </button>
+                  </div>
+                )}
+
                 {/* Quote history */}
                 {selectedJob.myQuotesHistory && selectedJob.myQuotesHistory.length > 0 && (
                   <div className="mq-history-section">
@@ -431,6 +463,19 @@ const MercadoTrabajos = () => {
             <img src={activePhoto} alt="Evidencia en tamaño completo" className="mercado-lightbox-img" />
           </div>
         </div>
+      )}
+
+      {/* ─── MODAL DE CHAT EN VIVO CON EL CLIENTE ─── */}
+      {activeChatQuote && (
+        <ChatModal
+          quoteId={activeChatQuote.id}
+          isNetworkQuote={true}
+          jobTitle={activeChatQuote.jobTitle || 'Trabajo en la Red'}
+          otherPartyName={activeChatQuote.cliente || selectedJob?.cliente || 'Cliente'}
+          otherPartyRole="Cliente / Autónomo"
+          initialMessages={activeChatQuote.chat_history || []}
+          onClose={() => setActiveChatQuote(null)}
+        />
       )}
     </div>
   );

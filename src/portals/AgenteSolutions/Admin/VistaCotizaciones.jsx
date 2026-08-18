@@ -478,9 +478,12 @@ const VistaCotizaciones = () => {
     if (!mensajeChat.trim()) return;
     setEnviandoMensaje(true);
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/chat`, {
-        message: mensajeChat
-      });
+      const token = localStorage.getItem('agente_token');
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/cotizaciones/${cotizacionSeleccionada.id}/chat`,
+        { message: mensajeChat },
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
       // Actualizamos el chat history localmente
       setCotizacionSeleccionada(prev => ({
         ...prev,
@@ -488,6 +491,7 @@ const VistaCotizaciones = () => {
       }));
       setMensajeChat('');
     } catch (e) {
+      console.error(e);
       alert('Error al enviar el mensaje');
     } finally {
       setEnviandoMensaje(false);

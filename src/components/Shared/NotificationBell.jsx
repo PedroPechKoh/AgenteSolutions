@@ -133,7 +133,15 @@ const NotificationBell = () => {
       const workOrderId = notification.data?.work_order_id || notification.data?.service_id || notification.data?.id || notification.work_order_id || notification.service_id || notification.id;
       const titleLower = (notification.data?.title || notification.title || notification.titulo || '').toLowerCase();
 
-      if (type === 'technician_arrived') {
+      if (type === 'new_quote_message' || titleLower.includes('nuevo mensaje') || titleLower.includes('mensaje en la red')) {
+        if (user?.role_id === 8 || user?.role_id === 2) {
+          url = notification.data?.network_quote_id ? `/mercado-trabajos` : `/vista-cotizaciones`;
+        } else if (user?.role_id === 4) {
+          url = '/red-trabajos';
+        } else {
+          url = notification.data?.url || '/vista-cotizaciones';
+        }
+      } else if (type === 'technician_arrived') {
         url = (user?.role_id === 0 || user?.role_id === 1) ? (workOrderId ? `/tablero-servicios?jobId=${workOrderId}` : '/map') : (workOrderId ? `/trabajo-propiedad/work_order-${workOrderId}` : '/trabajos-tecnico');
       } else if (type === 'work_order_finished' || type === 'new_report') {
         url = isTecnico ? '/trabajos-tecnico' : '/reportes-globales';

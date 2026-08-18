@@ -4,9 +4,10 @@ import Header from '../../../components/Shared/Header';
 import { useAuth } from '../../../context/AuthContext';
 import axios from 'axios';
 import ModalServicioAutonomo from './ModalServicioAutonomo';
+import ChatModal from '../../../components/Shared/ChatModal';
 import '../../../styles/Autonomos/VistaRedAutonomo.css';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
-import { Plus, MapPin, DollarSign, Clock, CheckCircle, User, Mail, Phone, Calendar, Award, List, Map as MapIcon } from 'lucide-react';
+import { Plus, MapPin, DollarSign, Clock, CheckCircle, User, Mail, Phone, Calendar, Award, List, Map as MapIcon, MessageCircle } from 'lucide-react';
 
 const mapContainerStyle = {
   width: '100%',
@@ -28,6 +29,7 @@ const VistaRedAutonomo = () => {
   const [selectedJobForQuotes, setSelectedJobForQuotes] = useState(null);
   const [selectedTechnicianProfile, setSelectedTechnicianProfile] = useState(null);
   const [showTechModal, setShowTechModal] = useState(false);
+  const [activeChatQuote, setActiveChatQuote] = useState(null);
   const [networkJobs, setNetworkJobs] = useState([]);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
@@ -343,8 +345,12 @@ const VistaRedAutonomo = () => {
                               Rechazar Oferta
                             </button>
                             <div style={{ display: 'flex', gap: '10px' }}>
-                              <button className="red-btn-contact" onClick={() => alert("Función de chat en desarrollo.")}>
-                                Contactar
+                              <button 
+                                className="red-btn-contact" 
+                                style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+                                onClick={() => setActiveChatQuote({ ...quote, jobTitle: selectedJobForQuotes?.titulo })}
+                              >
+                                <MessageCircle size={14} /> Chat
                               </button>
                               <button className="red-btn-accept" onClick={() => handleAcceptQuote(quote)}>
                                 Aceptar Oferta
@@ -429,6 +435,23 @@ const VistaRedAutonomo = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ─── MODAL DE CHAT EN VIVO CON EL TÉCNICO ─── */}
+      {activeChatQuote && (
+        <ChatModal
+          quoteId={activeChatQuote.id}
+          isNetworkQuote={true}
+          jobTitle={activeChatQuote.jobTitle || 'Trabajo en la Red'}
+          otherPartyName={
+            activeChatQuote.technician?.first_name 
+              ? `${activeChatQuote.technician.first_name} ${activeChatQuote.technician.last_name || ''}`
+              : (activeChatQuote.technician?.name || 'Técnico de la Red')
+          }
+          otherPartyRole="Técnico de la Red"
+          initialMessages={activeChatQuote.chat_history || []}
+          onClose={() => setActiveChatQuote(null)}
+        />
       )}
     </div>
   );

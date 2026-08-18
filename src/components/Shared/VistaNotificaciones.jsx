@@ -124,8 +124,15 @@ const VistaNotificaciones = () => {
                     const isTecnico = user?.role_id === 2;
                     const isCliente = user?.role_id === 3;
 
-                    // Si es cliente, redirigimos a sus propias rutas para evitar que entre a vistas de Admin
-                    if (isCliente) {
+                    if (type === 'new_quote_message' || titleLower.includes('nuevo mensaje') || titleLower.includes('mensaje en la red')) {
+                      if (user?.role_id === 8 || user?.role_id === 2) {
+                        url = n.data?.network_quote_id ? `/mercado-trabajos` : `/vista-cotizaciones`;
+                      } else if (user?.role_id === 4) {
+                        url = '/red-trabajos';
+                      } else {
+                        url = n.data?.url || '/vista-cotizaciones';
+                      }
+                    } else if (isCliente) {
                       if (type === 'recotizacion_lista' || type?.includes('quote') || type === 'new_quote' || type === 'quote_approved' || type === 'quote_rejected' || type === 'payment_received' || type === 'payment_validated') {
                         const qId = n.data?.quote_id || n.data?.cotizacion_id || n.quote_id;
                         url = qId ? `/vista-cotizaciones?quoteId=${qId}&filtro=Por Pagar` : '/vista-cotizaciones?filtro=Por Pagar';
