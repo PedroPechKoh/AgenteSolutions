@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import "../../../styles/AgenteSolutions/Admin/VistaCotizaciones.css";
+import "../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css";
 import Header from "../../../components/Shared/Header";
 import AssignWorkModal from "../../../components/Modals/AssignWorkModal";
 import { 
@@ -9,7 +10,8 @@ import {
   ArrowUpDown, FileText, Upload, 
   MoreVertical, Eye, CheckCircle, 
   XCircle, Clock, ChevronDown, ChevronLeft,
-  User, Wrench, Truck, Layout, Home, Phone, MapPin, ShoppingCart, RefreshCw
+  User, Wrench, Truck, Layout, Home, Phone, MapPin, ShoppingCart, RefreshCw,
+  MessageCircle, Maximize2, Image as ImageIcon, Send
 } from 'lucide-react';
 import CreateQuotationModal from "../../../components/Modals/CreateQuotationModal";
 import ModalCrearCotizacion from "../../../components/Shared/ModalCrearCotizacion";
@@ -1023,16 +1025,241 @@ const VistaCotizaciones = () => {
       </main>
 
       {cotizacionSeleccionada && (
-        <div className="modal-fixed-overlay" onClick={() => setCotizacionSeleccionada(null)}>
-          
-          <div className="modal-box-card" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
-            
-            <div className="modal-header-dark" style={{ flexShrink: 0 }}>
-                <span>DETALLE DE COTIZACIÓN {cotizacionSeleccionada.folio}</span>
-                <button className="modal-close-icon" onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>&times;</button>
+        <div className="mercado-modal-overlay" onClick={() => setCotizacionSeleccionada(null)}>
+          {cotizacionSeleccionada.is_network_quote || String(cotizacionSeleccionada.folio || '').startsWith('RED-') ? (
+            /* ─── MODAL PREMIUM 2-COLUMNAS PARA COTIZACIONES DE LA RED (RED-XXX) ─── */
+            <div className="mercado-premium-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '920px' }}>
+              <div className="mercado-premium-header">
+                <h2>💼 Detalle de Cotización {cotizacionSeleccionada.folio}</h2>
+                <span className="mercado-modal-close" onClick={() => setCotizacionSeleccionada(null)}>×</span>
+              </div>
+
+              <div className="mercado-premium-body">
+                {/* Panel Izquierdo: Galería y Datos del Trabajo */}
+                <div className="mercado-premium-details">
+                  {cotizacionSeleccionada.foto_fachada || cotizacionSeleccionada.evidence_photo_path ? (
+                    <div className="mercado-photo-gallery">
+                      <div
+                        className="mercado-premium-image-wrapper"
+                        onClick={() => verPantallaCompleta(cotizacionSeleccionada.foto_fachada || cotizacionSeleccionada.evidence_photo_path)}
+                        title="Clic para ampliar foto"
+                      >
+                        <img 
+                          src={cotizacionSeleccionada.foto_fachada || cotizacionSeleccionada.evidence_photo_path} 
+                          alt="Evidencia" 
+                          className="mercado-premium-image" 
+                        />
+                        <div className="mercado-image-zoom-badge">
+                          <Maximize2 size={12} /> Clic para ampliar foto
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mercado-no-photo-placeholder">
+                      <ImageIcon size={36} color="#94a3b8" />
+                      <span>Sin fotografías de evidencia</span>
+                    </div>
+                  )}
+
+                  <div className="mercado-premium-text">
+                    <h3>Problema - {cotizacionSeleccionada.propiedad_nombre || 'Trabajo de la Red'}</h3>
+                    <div className="mercado-premium-info-grid">
+                      <div className="mercado-info-item full-width" style={{ background: '#fff7ed', border: '1.5px solid #fed7aa' }}>
+                        <MapPin size={18} color="#ea580c" style={{ marginTop: '2px', flexShrink: 0 }} />
+                        <div>
+                          <strong style={{ color: '#ea580c' }}>Zona / Ubicación</strong>
+                          <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>
+                            {cotizacionSeleccionada.propiedad_direccion || cotizacionSeleccionada.propiedad_nombre || 'Mérida, Yucatán'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mercado-info-item">
+                        <User size={14} className="mercado-icon-blue" />
+                        <div>
+                          <strong>Cliente / Solicitante</strong>
+                          <span>{cotizacionSeleccionada.cliente}</span>
+                          {cotizacionSeleccionada.cliente_telefono && (
+                            <span style={{ fontSize: '11px', color: '#ea580c' }}>📞 {cotizacionSeleccionada.cliente_telefono}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mercado-info-item">
+                        <Wrench size={14} className="mercado-icon-blue" />
+                        <div>
+                          <strong>Técnico Oferente</strong>
+                          <span style={{ fontWeight: '700', color: '#0f172a' }}>{cotizacionSeleccionada.tecnico || 'Técnico de la Red'}</span>
+                        </div>
+                      </div>
+
+                      <div className="mercado-info-item">
+                        <Clock size={14} className="mercado-icon-blue" />
+                        <div>
+                          <strong>Fecha</strong>
+                          <span>{cotizacionSeleccionada.fecha}</span>
+                        </div>
+                      </div>
+
+                      <div className="mercado-info-item">
+                        <span style={{ fontSize: '14px' }}>🏷️</span>
+                        <div>
+                          <strong>Estado</strong>
+                          <span style={{ 
+                            fontWeight: '800', 
+                            color: cotizacionSeleccionada.status === 'Pagado' || cotizacionSeleccionada.status === 'Aprobado' ? '#16a34a' : (cotizacionSeleccionada.status === 'Rechazado' ? '#dc2626' : '#ea580c') 
+                          }}>
+                            {cotizacionSeleccionada.status || 'Por Pagar'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mercado-info-item full-width">
+                        <FileText size={14} className="mercado-icon-blue" />
+                        <div>
+                          <strong>Descripción / Mensaje</strong>
+                          <span>{cotizacionSeleccionada.observations || 'Sin observaciones'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Panel Derecho: Propuesta Económica y Chat en Vivo */}
+                <div className="mercado-premium-form" style={{ background: '#ffffff', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {/* Tarjeta de Monto */}
+                  <div style={{ background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', border: '1.5px solid #fed7aa', borderRadius: '16px', padding: '18px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '800', color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      💰 Propuesta Económica
+                    </div>
+                    <div style={{ fontSize: '26px', fontWeight: '900', color: '#0f172a', margin: '4px 0' }}>
+                      ${parseFloat(cotizacionSeleccionada.total || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b' }}>
+                      Origen: <span style={{ fontWeight: '700', color: '#ea580c' }}>🌍 Red de Trabajos</span>
+                    </div>
+                  </div>
+
+                  {/* Acciones de Estado */}
+                  {cotizacionSeleccionada.status === 'Aprobado' && (
+                    <div style={{ padding: '12px 16px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', textAlign: 'center' }}>
+                      <p style={{ margin: '0 0 8px 0', color: '#16a34a', fontWeight: '800', fontSize: '13px' }}>✅ COTIZACIÓN ACEPTADA</p>
+                      {esTecnico && (
+                        <button 
+                          type="button"
+                          onClick={() => navigate('/trabajos-tecnico')}
+                          style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', margin: '0 auto', fontSize: '13px' }}
+                        >
+                          <Layout size={15} /> Ir a Mis Trabajos Asignados
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {cotizacionSeleccionada.status === 'Rechazado' && (
+                    <div style={{ padding: '12px 16px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '12px', textAlign: 'center' }}>
+                      <p style={{ margin: '0 0 8px 0', color: '#dc2626', fontWeight: '800', fontSize: '13px' }}>❌ COTIZACIÓN RECHAZADA</p>
+                      {esTecnico && (
+                        <button 
+                          type="button"
+                          onClick={() => navigate('/mercado-trabajos')}
+                          style={{ background: 'linear-gradient(135deg, #ea580c, #c2410c)', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', margin: '0 auto', fontSize: '13px' }}
+                        >
+                          🌍 Ir al Mercado de Trabajos
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Sección de Chat en Vivo */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', padding: '14px', minHeight: '260px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+                      <MessageCircle size={15} color="#ea580c" />
+                      <span>Conversación en Vivo</span>
+                    </div>
+
+                    <div style={{ flex: 1, maxHeight: '220px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px', marginBottom: '10px' }}>
+                      {cotizacionSeleccionada.chat_history && cotizacionSeleccionada.chat_history.length > 0 ? (
+                        cotizacionSeleccionada.chat_history.map((msg, index) => {
+                          const esMio = msg.sender_id === usuarioId;
+                          return (
+                            <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: esMio ? 'flex-end' : 'flex-start', width: '100%' }}>
+                              <span style={{ fontSize: '10px', color: '#64748b', fontWeight: '700', marginBottom: '2px' }}>
+                                {msg.sender_name} ({msg.sender_role})
+                              </span>
+                              <div style={{
+                                background: esMio ? 'linear-gradient(135deg, #ff6600, #ea580c)' : '#ffffff',
+                                color: esMio ? '#ffffff' : '#0f172a',
+                                padding: '8px 14px',
+                                borderRadius: '14px',
+                                maxWidth: '85%',
+                                fontSize: '13px',
+                                border: esMio ? 'none' : '1px solid #e2e8f0',
+                                borderBottomRightRadius: esMio ? '3px' : '14px',
+                                borderBottomLeftRadius: !esMio ? '3px' : '14px',
+                                boxShadow: '0 2px 5px rgba(0,0,0,0.04)'
+                              }}>
+                                {msg.message}
+                              </div>
+                              <span style={{ fontSize: '9px', color: '#94a3b8', marginTop: '2px' }}>
+                                {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px', margin: 'auto' }}>
+                          💬 No hay mensajes en esta cotización.<br/>Escribe para consultar dudas o coordinar.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Input de Mensaje */}
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="Escribe un mensaje..." 
+                        style={{ flex: 1, padding: '10px 16px', borderRadius: '20px', border: '1.5px solid #cbd5e1', outline: 'none', fontSize: '13px', background: '#ffffff', color: '#0f172a' }}
+                        value={mensajeChat}
+                        onChange={e => setMensajeChat(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') enviarMensajeChat(); }}
+                        disabled={enviandoMensaje}
+                      />
+                      <button 
+                        type="button"
+                        style={{ background: 'linear-gradient(135deg, #ff6600 0%, #ea580c 100%)', color: 'white', border: 'none', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: enviandoMensaje || !mensajeChat.trim() ? 0.5 : 1, boxShadow: '0 3px 8px rgba(234, 88, 12, 0.3)', flexShrink: 0 }}
+                        onClick={enviarMensajeChat}
+                        disabled={enviandoMensaje || !mensajeChat.trim()}
+                        title="Enviar mensaje"
+                      >
+                        <Send size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mercado-premium-footer">
+                <button className="mercado-btn-cancel" onClick={() => setCotizacionSeleccionada(null)}>Cerrar</button>
+                <button 
+                  type="button"
+                  style={{ background: 'linear-gradient(135deg, #ff6600 0%, #ea580c 100%)', color: '#ffffff', border: 'none', padding: '10px 22px', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}
+                  onClick={handleImprimirPDF}
+                >
+                  <FileText size={15} /> Ver PDF
+                </button>
+              </div>
             </div>
-            
-            <div className="modal-body-content" style={{ overflowY: 'auto', flexGrow: 1 }}>
+          ) : (
+            /* ─── MODAL ESTÁNDAR ─── */
+            <div className="modal-box-card" style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+              
+              <div className="modal-header-dark" style={{ flexShrink: 0 }}>
+                  <span>DETALLE DE COTIZACIÓN {cotizacionSeleccionada.folio}</span>
+                  <button className="modal-close-icon" onClick={() => { setCotizacionSeleccionada(null); setRechazando(false); setMotivoRechazo(''); }}>&times;</button>
+              </div>
+              
+              <div className="modal-body-content" style={{ overflowY: 'auto', flexGrow: 1 }}>
                 
                 {cotizacionSeleccionada.created_by_role === 'Técnico' && !esCliente && (
                   <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', borderLeft: '4px solid #f26624', marginBottom: '15px' }}>
@@ -2006,6 +2233,7 @@ const VistaCotizaciones = () => {
                   </div>
             </div>
           </div>
+          )}
         </div>
       )}
 
