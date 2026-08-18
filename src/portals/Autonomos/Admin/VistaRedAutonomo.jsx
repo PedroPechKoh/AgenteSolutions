@@ -7,7 +7,7 @@ import ModalServicioAutonomo from './ModalServicioAutonomo';
 import ChatModal from '../../../components/Shared/ChatModal';
 import '../../../styles/Autonomos/VistaRedAutonomo.css';
 import '../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css';
-import { Plus, MapPin, DollarSign, Clock, CheckCircle, User, Mail, Phone, Calendar, Award, List, Map as MapIcon, MessageCircle, FileText, Maximize2, Image as ImageIcon, X } from 'lucide-react';
+import { Plus, MapPin, DollarSign, Clock, CheckCircle, User, Mail, Phone, Calendar, Award, List, Map as MapIcon, MessageCircle, Maximize2, Image as ImageIcon, FileText, X } from 'lucide-react';
 
 const mapContainerStyle = {
   width: '100%',
@@ -17,8 +17,8 @@ const mapContainerStyle = {
 const defaultCenter = { lat: 21.0181, lng: -89.6242 }; // Mérida, Yucatán
 
 const mockSolicitudes = [
-  { id: 1, titulo: "Mantenimiento de 5 Minisplits", lat: 21.0250, lng: -89.6300, presupuesto: "$2,000", estado: "Cotizando", cotizaciones: 3, fecha: "2026-08-11", lugar: "Casa 1", zona: "Col. Itzimná, Mérida", calle: "C. 30 x 7", cotizaciones_list: [] },
-  { id: 2, titulo: "Reparación de Fuga de Agua", lat: 21.0100, lng: -89.6200, presupuesto: "A convenir", estado: "Completado", cotizaciones: 1, fecha: "2026-08-09", lugar: "Casa 2", zona: "Col. San Lorenzo, Umán", calle: "C. 20 x 15", cotizaciones_list: [] }
+  { id: 1, titulo: "Mantenimiento de 5 Minisplits", lat: 21.0250, lng: -89.6300, presupuesto: "$2,000", estado: "Cotizando", cotizaciones: 3, fecha: "2026-08-11", lugar: "Casa 1", zona: "Col. Itzimná, Mérida", calle: "C. 30 x 7", cotizaciones_list: [], fotos: [] },
+  { id: 2, titulo: "Reparación de Fuga de Agua", lat: 21.0100, lng: -89.6200, presupuesto: "A convenir", estado: "Completado", cotizaciones: 1, fecha: "2026-08-09", lugar: "Casa 2", zona: "Col. San Lorenzo, Umán", calle: "C. 20 x 15", cotizaciones_list: [], fotos: [] }
 ];
 
 const VistaRedAutonomo = () => {
@@ -30,9 +30,9 @@ const VistaRedAutonomo = () => {
   const [selectedTechnicianProfile, setSelectedTechnicianProfile] = useState(null);
   const [showTechModal, setShowTechModal] = useState(false);
   const [activeChatQuote, setActiveChatQuote] = useState(null);
-  const [networkJobs, setNetworkJobs] = useState([]);
   const [activePhoto, setActivePhoto] = useState(null);
   const [isPhotoZoomed, setIsPhotoZoomed] = useState(false);
+  const [networkJobs, setNetworkJobs] = useState([]);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const fetchJobs = async () => {
@@ -131,6 +131,7 @@ const VistaRedAutonomo = () => {
 
   const openQuotesModal = (job) => {
     setSelectedJobForQuotes(job);
+    setActivePhoto(job.fotos?.[0] || job.foto || null);
     setShowQuotesModal(true);
   };
 
@@ -287,15 +288,15 @@ const VistaRedAutonomo = () => {
         />
       )}
 
-      {/* ─── MODAL DE COTIZACIONES RECIBIDAS ─── */}
+      {/* ─── MODAL DE DETALLE DE PUBLICACIÓN Y COTIZACIONES RECIBIDAS (DISEÑO PREMIUM UNIFICADO) ─── */}
       {showQuotesModal && selectedJobForQuotes && (
         <div className="mercado-modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowQuotesModal(false)}>
           <div className="mercado-premium-modal">
             <div className="mercado-premium-header">
-              <h2>📋 Cotizaciones Recibidas</h2>
+              <h2>📋 Detalle de Publicación y Cotizaciones</h2>
               <span className="mercado-modal-close" onClick={() => setShowQuotesModal(false)}>×</span>
             </div>
-            
+
             <div className="mercado-premium-body">
               {/* Left panel: Info & Photo Gallery */}
               <div className="mercado-premium-details">
@@ -334,45 +335,56 @@ const VistaRedAutonomo = () => {
                 )}
 
                 <div className="mercado-premium-text">
-                  <h3>{selectedJobForQuotes.titulo}</h3>
+                  <h3>Problema - {selectedJobForQuotes.titulo}</h3>
                   <div className="mercado-premium-info-grid">
                     <div className="mercado-info-item full-width" style={{ background: '#fff7ed', border: '1.5px solid #fed7aa' }}>
                       <MapPin size={18} color="#ea580c" style={{ marginTop: '2px', flexShrink: 0 }} />
                       <div>
-                        <strong style={{ color: '#ea580c' }}>Lugar del Servicio</strong>
-                        <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>{selectedJobForQuotes.lugar} - {selectedJobForQuotes.zona}</span>
-                        <div style={{ fontSize: '11px', color: '#9a3412', marginTop: '3px' }}>
-                          📍 La dirección exacta ({selectedJobForQuotes.calle}) será revelada al técnico sólo cuando aceptes su cotización.
+                        <strong style={{ color: '#ea580c' }}>Zona / Área de Cobertura</strong>
+                        <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>{selectedJobForQuotes.zona}</span>
+                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px' }}>
+                          📍 Dirección: {selectedJobForQuotes.calle}
                         </div>
                       </div>
                     </div>
                     <div className="mercado-info-item">
+                      <User size={14} className="mercado-icon-blue" />
+                      <div><strong>Publicado por</strong><span>{selectedJobForQuotes.cliente}</span></div>
+                    </div>
+                    <div className="mercado-info-item">
                       <Clock size={14} className="mercado-icon-blue" />
-                      <div><strong>Publicado</strong><span>{selectedJobForQuotes.fecha}</span></div>
+                      <div><strong>Fecha</strong><span>{selectedJobForQuotes.fecha}</span></div>
                     </div>
                     <div className="mercado-info-item full-width">
                       <FileText size={14} className="mercado-icon-blue" />
-                      <div><strong>Descripción del Problema</strong><span>{selectedJobForQuotes.descripcion}</span></div>
+                      <div><strong>Descripción del Problema</strong><span>{selectedJobForQuotes.descripcion || 'Sin descripción adicional'}</span></div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Right panel: Quotes List */}
-              <div className="mercado-premium-form">
-                <div style={{ marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
-                  <h4 style={{ margin: 0, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    Ofertas de los Técnicos ({selectedJobForQuotes.cotizaciones_list.length})
+              {/* Right panel: Quotes list */}
+              <div className="mercado-premium-form" style={{ background: '#ffffff', overflowY: 'auto' }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    📋 Cotizaciones de Técnicos
+                    <span style={{ fontSize: '12px', background: '#ff6600', color: '#ffffff', padding: '2px 8px', borderRadius: '12px' }}>
+                      {selectedJobForQuotes.cotizaciones_list?.length || 0}
+                    </span>
                   </h4>
+                  <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+                    Revisa las propuestas de los técnicos. Puedes chatear con ellos o aceptar la mejor oferta.
+                  </p>
                 </div>
 
-                {selectedJobForQuotes.cotizaciones_list.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: '#64748b', padding: '40px 20px', background: '#ffffff', borderRadius: '16px', border: '2px dashed #cbd5e1' }}>
-                    <p style={{ margin: 0, fontWeight: '600', fontSize: '15px' }}>Aún no has recibido cotizaciones para este trabajo.</p>
-                    <span style={{ fontSize: '13px', color: '#94a3b8' }}>Los técnicos de la red te notificarán en cuanto coticen.</span>
+                {(!selectedJobForQuotes.cotizaciones_list || selectedJobForQuotes.cotizaciones_list.length === 0) ? (
+                  <div style={{ textAlign: 'center', color: '#64748b', padding: '40px 20px', background: '#fffaf5', borderRadius: '16px', border: '2px dashed #fed7aa', margin: '20px 0' }}>
+                    <div style={{ fontSize: '36px', marginBottom: '10px' }}>⏳</div>
+                    <p style={{ margin: '0 0 6px 0', fontWeight: '700', fontSize: '15px', color: '#0f172a' }}>Aún no hay cotizaciones</p>
+                    <span style={{ fontSize: '13px', color: '#94a3b8' }}>Los técnicos de la red te notificarán en cuanto envíen su propuesta.</span>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', overflowY: 'auto', paddingRight: '4px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                     {selectedJobForQuotes.cotizaciones_list.map((quote) => (
                       <div key={quote.id} className="red-quote-card">
                         <div className="red-quote-header">
@@ -388,13 +400,19 @@ const VistaRedAutonomo = () => {
                               {quote.technician?.first_name?.charAt(0) || 'T'}
                             </div>
                             <div>
-                              <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>
+                              <h4 
+                                style={{ margin: 0, fontSize: '14px', fontWeight: '800', color: '#0f172a', cursor: 'pointer' }}
+                                onClick={() => {
+                                  setSelectedTechnicianProfile(quote.technician);
+                                  setShowTechModal(true);
+                                }}
+                              >
                                 {quote.technician?.first_name} {quote.technician?.last_name}
                               </h4>
                               <span className="red-quote-role">Técnico Verificado</span>
                             </div>
                           </div>
-                          <div className="red-quote-price">
+                          <div className="red-quote-price" style={{ color: '#ea580c' }}>
                             ${parseFloat(quote.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}
                           </div>
                         </div>
@@ -405,26 +423,46 @@ const VistaRedAutonomo = () => {
                           </div>
                         )}
 
+                        <div style={{ fontSize: '11px', color: '#94a3b8', marginBottom: '12px' }}>
+                          📅 Recibida: {new Date(quote.created_at).toLocaleString('es-MX')}
+                        </div>
+
                         <div className="red-quote-actions">
                           {quote.status === 'rejected' ? (
-                            <div style={{ color: '#dc2626', fontWeight: '800', fontSize: '13px', padding: '8px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              ❌ Propuesta Rechazada
+                            <div style={{ color: '#dc2626', fontWeight: '800', fontSize: '13px', padding: '6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              ❌ Oferta Rechazada
                             </div>
                           ) : (
                             <>
-                              <button className="red-btn-reject" onClick={() => handleRejectQuote(quote.id)}>
-                                Rechazar Oferta
+                              <button 
+                                className="red-btn-reject" 
+                                onClick={() => handleRejectQuote(quote.id)}
+                              >
+                                Rechazar
                               </button>
-                              <div style={{ display: 'flex', gap: '10px' }}>
+                              <div style={{ display: 'flex', gap: '8px' }}>
                                 <button 
+                                  type="button"
                                   className="red-btn-contact" 
-                                  style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+                                  style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: '6px',
+                                    background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    boxShadow: '0 3px 8px rgba(37, 99, 235, 0.25)'
+                                  }}
                                   onClick={() => setActiveChatQuote({ ...quote, jobTitle: selectedJobForQuotes?.titulo })}
                                 >
-                                  <MessageCircle size={14} /> Chat
+                                  <MessageCircle size={15} /> Chat
                                 </button>
-                                <button className="red-btn-accept" onClick={() => handleAcceptQuote(quote)}>
-                                  Aceptar Oferta
+                                <button 
+                                  type="button"
+                                  className="red-btn-accept" 
+                                  onClick={() => handleAcceptQuote(quote)}
+                                >
+                                  ✓ Aceptar Oferta
                                 </button>
                               </div>
                             </>
@@ -435,6 +473,10 @@ const VistaRedAutonomo = () => {
                   </div>
                 )}
               </div>
+            </div>
+
+            <div className="mercado-premium-footer">
+              <button className="mercado-btn-cancel" onClick={() => setShowQuotesModal(false)}>Cerrar</button>
             </div>
           </div>
         </div>
@@ -466,17 +508,19 @@ const VistaRedAutonomo = () => {
                   {selectedTechnicianProfile.first_name?.charAt(0) || 'T'}
                 </div>
                 <div>
-                  <h3 style={{ margin: '0 0 4px 0', color: '#0f172a', fontSize: '18px', fontWeight: '800' }}>
+                  <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
                     {selectedTechnicianProfile.first_name} {selectedTechnicianProfile.last_name}
                   </h3>
-                  <span style={{ color: '#ea580c', fontWeight: '700', fontSize: '13px' }}>Técnico de la Red Agente</span>
+                  <span className="red-quote-role" style={{ background: '#fff7ed', padding: '4px 10px', borderRadius: '20px', border: '1px solid #fed7aa' }}>
+                    Técnico Verificado
+                  </span>
                 </div>
               </div>
 
-              <div style={{ background: '#fff7ed', padding: '16px', borderRadius: '14px', border: '1.5px solid #fed7aa', marginBottom: '20px' }}>
+              <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '14px', marginBottom: '20px', border: '1px solid #e2e8f0' }}>
                 <div style={{ marginBottom: '10px', fontSize: '13px', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Mail size={15} color="#ea580c" />
-                  <strong>Email:</strong> {selectedTechnicianProfile.email || 'No disponible'}
+                  <strong>Correo:</strong> {selectedTechnicianProfile.email || 'No disponible'}
                 </div>
                 <div style={{ marginBottom: '10px', fontSize: '13px', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Phone size={15} color="#ea580c" />
@@ -509,6 +553,18 @@ const VistaRedAutonomo = () => {
         </div>
       )}
 
+      {/* ─── Lightbox Fullscreen Zoom Modal ─── */}
+      {isPhotoZoomed && activePhoto && (
+        <div className="mercado-lightbox-overlay" onClick={() => setIsPhotoZoomed(false)}>
+          <div className="mercado-lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <button className="mercado-lightbox-close" onClick={() => setIsPhotoZoomed(false)} title="Cerrar imagen">
+              <X size={26} />
+            </button>
+            <img src={activePhoto} alt="Evidencia en tamaño completo" className="mercado-lightbox-img" />
+          </div>
+        </div>
+      )}
+
       {/* ─── MODAL DE CHAT EN VIVO CON EL TÉCNICO ─── */}
       {activeChatQuote && (
         <ChatModal
@@ -524,18 +580,6 @@ const VistaRedAutonomo = () => {
           initialMessages={activeChatQuote.chat_history || []}
           onClose={() => setActiveChatQuote(null)}
         />
-      )}
-
-      {/* ─── Lightbox Fullscreen Zoom Modal ─── */}
-      {isPhotoZoomed && activePhoto && (
-        <div className="mercado-lightbox-overlay" onClick={() => setIsPhotoZoomed(false)}>
-          <div className="mercado-lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <button className="mercado-lightbox-close" onClick={() => setIsPhotoZoomed(false)} title="Cerrar imagen">
-              <X size={26} />
-            </button>
-            <img src={activePhoto} alt="Evidencia en tamaño completo" className="mercado-lightbox-img" />
-          </div>
-        </div>
       )}
     </div>
   );
