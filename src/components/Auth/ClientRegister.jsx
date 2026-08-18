@@ -58,88 +58,108 @@ const ClientRegister = () => {
 
   const plans = [
     {
-      key: 'client',
-      label: 'CLIENTE',
-      sub: 'Contrata servicios',
-      note: 'Solicitud gratis + seguimiento completo de órdenes y propiedades',
-      features: ['Solicita servicios', 'Sigue órdenes', 'Recibe cotizaciones', 'Historial por propiedad'],
-      details: [
-        'Solicita técnicos ',
-        'Aprueba cotizaciones en la app',
-        'Sigue tu orden en tiempo real',
-        'Historial por propiedad',
-        'Registro 100% gratuito'
-      ],
+      key: 'admin',
+      roleId: 1,
+      number: '1',
+      category: 'AGENTE SOLUTIONS',
+      label: 'ADMINISTRADOR',
+      sub: 'Agente Solutions',
       cta: 'Registrarme',
-      color: '#F26522'
+      color: '#EA580C',
+      icon: '👑',
+      badgeBg: '#FFF7ED',
+      badgeColor: '#EA580C'
     },
     {
       key: 'technician',
+      roleId: 2,
+      number: '2',
+      category: 'AGENTE SOLUTIONS',
       label: 'TÉCNICO',
-      sub: 'Presto servicios',
-      note: '1 año gratis de prueba + perfil profesional visible',
-      features: ['Recibe órdenes', 'Agenda tu trabajo', 'Genera reportes'],
-      details: [
-        '12 meses gratis de prueba',
-        'red de 1000clientes de agentes solutions',
-        'Gestiona órdenes y agenda',
-        'genera tus propias cotizaciones',
-        'genera tu propio perfil de especialidad'
-      ],
-      cta: 'Suscribirme',
-      color: '#6B7280'
+      sub: 'Agente Solutions',
+      cta: 'Registrarme',
+      color: '#2563EB',
+      icon: '🛠️',
+      badgeBg: '#EFF6FF',
+      badgeColor: '#2563EB'
     },
     {
-      key: 'owner_personal',
-      label: 'AUTÓNOMO',
-      sub: '3 Propiedades',
-      note: '6 meses gratis y control total de tu portafolio',
-      features: ['Registra propiedades', 'Dashboard administrativo', 'Soporte dedicado'],
-      details: [
-        '6 meses gratis de prueba',
-        'Registra hasta 3 propiedades',
-        'ingresa a tus tecnicos a tu sistema',
-        'Dashboard de administración',
-        'Pago $299 MXN/mes después'
-      ],
-      cta: 'Suscribirme',
-      color: '#1F6FEB'
-    },
-    {
-      key: 'owner_business',
-      label: 'AUTÓNOMO EMPRESARIAL',
-      sub: '30 Clientes',
-      note: 'Gestión empresarial con 6 meses gratis y usuarios ilimitados',
-      features: ['Gestiona clientes', 'Reportes avanzados', 'Usuarios ilimitados'],
-      details: [
-        '6 meses gratis de prueba',
-        'Administra hasta 30 clientes',
-        'Usuarios y técnicos sin límite',
-        'Reportes y cotizaciones en línea',
-        'Pago $899 MXN/mes después'
-      ],
-      cta: 'Suscribirme',
-      color: '#0F766E'
+      key: 'client',
+      roleId: 3,
+      number: '3',
+      category: 'AGENTE SOLUTIONS',
+      label: 'CLIENTE',
+      sub: 'Agente Solutions',
+      cta: 'Registrarme',
+      color: '#059669',
+      icon: '👤',
+      badgeBg: '#ECFDF5',
+      badgeColor: '#059669'
     },
     {
       key: 'contratista',
+      roleId: 4,
+      number: '4',
+      category: 'AGENTE SOLUTIONS',
       label: 'CONTRATISTA',
-      sub: '',
-      note: '',
-      features: [],
-      details: [],
-      cta: 'Suscribirme',
-      color: '#B45309'
+      sub: 'Agente Solutions',
+      cta: 'Registrarme',
+      color: '#D97706',
+      icon: '🏗️',
+      badgeBg: '#FFFBEB',
+      badgeColor: '#D97706'
+    },
+    {
+      key: 'owner_personal',
+      roleId: 5,
+      number: '5',
+      category: 'AUTÓNOMO',
+      label: 'AUTÓNOMO PERSONAL',
+      sub: 'Gestión Personal',
+      cta: 'Registrarme',
+      color: '#0284C7',
+      icon: '🏢',
+      badgeBg: '#F0F9FF',
+      badgeColor: '#0284C7'
+    },
+    {
+      key: 'owner_business',
+      roleId: 6,
+      number: '6',
+      category: 'AUTÓNOMO',
+      label: 'AUTÓNOMO EMPRESARIAL',
+      sub: 'Gestión Empresarial',
+      cta: 'Registrarme',
+      color: '#4F46E5',
+      icon: '💼',
+      badgeBg: '#EEF2FF',
+      badgeColor: '#4F46E5'
     },
     {
       key: 'admin_propiedades',
+      roleId: 7,
+      number: '7',
+      category: 'PROPIEDADES',
       label: 'ADMIN. PROPIEDADES',
-      sub: '',
-      note: '',
-      features: [],
-      details: [],
+      sub: 'Administrador de Inmuebles',
       cta: 'Registrarme',
-      color: '#6D28D9'
+      color: '#7C3AED',
+      icon: '🔑',
+      badgeBg: '#F5F3FF',
+      badgeColor: '#7C3AED'
+    },
+    {
+      key: 'tecnico_red',
+      roleId: 8,
+      number: '8',
+      category: 'RED DE TÉCNICOS',
+      label: 'TÉCNICO DE LA RED',
+      sub: 'Técnico Independiente',
+      cta: 'Registrarme',
+      color: '#DB2777',
+      icon: '🌍',
+      badgeBg: '#FDF2F8',
+      badgeColor: '#DB2777'
     }
   ];
 
@@ -160,34 +180,25 @@ const ClientRegister = () => {
     setCaptchaToken(value);
   };
 
-  const handleTenantSelect = (e) => {
-    const id = e.target.value;
-    setSelectedTenantId(id);
-    if (id) {
-      const found = tenants.find((t) => t.id.toString() === id.toString());
-      if (found) {
-        setCompanyCode(found.code);
-        localStorage.setItem("agente_tenant_selected", JSON.stringify(found));
-      }
-    } else {
-      setCompanyCode("");
-      localStorage.removeItem("agente_tenant_selected");
-    }
-  };
-
   const handleRegister = async (e) => {
     e.preventDefault();
     setMessage("");
 
     if (password !== confirmPassword) { setMessage("Error: Las contraseñas no coinciden."); return; }
     if (!isCaptchaValid) { setMessage("Error: Por favor verifica que no eres un robot."); return; }
-    if ((accountType === "owner" || accountType === "owner_business") && !companyName.trim() && !firstName.trim()) {
-      setMessage("Error: Por favor ingresa el nombre de tu negocio/empresa."); return;
-    }
 
     setIsLoading(true);
 
-    const roleMap = { client: 3, technician: 8, owner: 5, owner_personal: 5, owner_business: 4, contratista: 6, admin_propiedades: 7 };
+    const roleMap = { 
+      admin: 1, 
+      technician: 2, 
+      client: 3, 
+      contratista: 4, 
+      owner_personal: 5, 
+      owner_business: 6, 
+      admin_propiedades: 7, 
+      tecnico_red: 8 
+    };
     const roleId = roleMap[accountType] ?? 3;
 
     try {
@@ -201,7 +212,7 @@ const ClientRegister = () => {
         role_id: roleId,
         company_code: (!isAutonomoAccount && roleId !== 7) ? companyCode.trim() || null : null,
         company_name: isAutonomoAccount ? (companyName.trim() || `${firstName.trim()} ${lastName.trim()}`) : null,
-        specialties: roleId === 8 ? selectedSpecialties : [],
+        specialties: (roleId === 2 || roleId === 8) ? selectedSpecialties : [],
         captcha_token: captchaToken
       });
 
@@ -293,7 +304,7 @@ const ClientRegister = () => {
       </button>
 
       <div style={{ maxWidth: '1440px', width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
-        {/* LOGO SUPERIOR LIMPIO (Sin overlaps ni scale absoluto) */}
+        {/* LOGO SUPERIOR */}
         <div style={{ marginBottom: '20px', textAlign: 'center' }}>
           <img
             src={backgroundSettings.appLogo || Logo4}
@@ -332,56 +343,130 @@ const ClientRegister = () => {
             className="register-card"
             style={{
               width: '100%',
-              maxWidth: '100%', // Usamos el 100% del espacio que le dimos en el paso 1
-              minHeight: 'auto', // Cambiado a auto para que no sobre espacio negro abajo
-              padding: '45px 40px',
+              maxWidth: '100%',
+              minHeight: 'auto',
+              padding: '40px 30px',
               borderRadius: '26px',
               backgroundColor: 'rgba(10, 10, 10, 0.95)',
               border: '1px solid rgba(242, 101, 34, 0.25)',
               boxShadow: '0 32px 90px rgba(0, 0, 0, 0.55)',
               display: 'flex',
-              flexDirection: 'column', // ¡DEBE SER COLUMN!
-              alignItems: 'center', // Centra el contenido
-              gap: '40px', // Espacio entre el título, las tarjetas y el pie
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '30px',
               boxSizing: 'border-box',
               margin: '0 auto'
-            }}    >
+            }}
+          >
             <h2
-              style={{ color: 'white', fontStyle: 'italic', fontSize: '1.8rem', letterSpacing: '1.5px', margin: '0 0 10px 0', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', textAlign: 'center', fontWeight: '900' }}
+              style={{ color: 'white', fontStyle: 'italic', fontSize: '1.8rem', letterSpacing: '1.5px', margin: '0', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)', textAlign: 'center', fontWeight: '900' }}
             >
-              CREAR CUENTA <i className="fas fa-chess-queen-alt"></i>
+              SELECCIONA TU TIPO DE CUENTA <i className="fas fa-chess-queen-alt"></i>
             </h2>
 
-            {/* ─── Selector de tipo de cuenta (tarjetas) ─── */}
+            {/* ─── Grilla de Tarjetas (8 Roles) ─── */}
             <style>{`
-              .plan-grid { display: flex; 
-  flex-direction: row; /* Esto pone las tarjetas de izquierda a derecha */
-  flex-wrap: wrap; /* Permite que bajen a la siguiente línea solo si la pantalla es muy pequeña */
-  gap: 22px; 
-  width: 100%; 
-  justify-content: center; 
-  align-items: flex-start; 
-  padding-bottom: 6px; }
-              .plan-card { flex:0 0 320px; width:320px; min-height:500px; background:#f6f6f6; border-radius:24px; padding:24px; color:#111; border:1px solid rgba(0,0,0,0.12); box-shadow:0 22px 55px rgba(0,0,0,0.2); cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; transition: transform .36s cubic-bezier(.2,.9,.2,1), opacity .25s; perspective: 1200px; position: relative; background-image: linear-gradient(180deg, #ffffff 0%, #f4f4f4 100%); }
-              .plan-card:not(.active){ transform: scale(.96) translateY(4px); opacity: .95 }
-              .plan-card.active{ transform: translateY(-14px) scale(1.02); z-index:20; }
-              .plan-card .card-inner{ transition: transform 0.6s cubic-bezier(.2,.9,.2,1); transform-style: preserve-3d; position: relative; }
-              .plan-card.flip .card-inner{ transform: rotateY(180deg); }
-              .card-front, .card-back{ position: relative; width:100%; min-height:420px; }
-              .card-back{ overflow-y:auto; }
-              .plan-title{ font-weight:900; font-size:1.15rem; color:#111 }
-              .plan-sub{ font-size:.88rem; color:#444; margin-top:6px }
-              .plan-features{ margin-top:16px; padding-left:18px; font-size:.92rem; color:#333; max-height:140px; overflow:hidden }
-              .plan-features li{ margin-bottom:10px }
-              .plan-cta{ margin-top:18px; width:100%; padding:14px 16px; border-radius:36px; border:none; background:#f26522; color:#111; font-weight:900; cursor:pointer; box-shadow:0 12px 22px rgba(242,101,34,0.22); }
-              .card-back { background: #fff; border-radius: 20px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04); }
-              .card-back h3 { margin: 0 0 14px 0; color: #111; }
-              .card-back p { color: #444; }
-              @media(max-width:1200px){ .plan-card { width:280px; flex:0 0 280px; min-height:470px; } }
-              @media(max-width:960px){ .plan-card { width:250px; flex:0 0 250px; min-height:460px; } }
-              @media(max-width:780px){ .plan-grid { justify-content:center; gap:18px; } .plan-card { width:100%; flex:1 0 auto; min-height:420px; } }
-              @media(max-width:640px){ .plan-card { padding:20px; min-height:380px; } }
+              .plan-grid { 
+                display: grid; 
+                grid-template-columns: repeat(4, 1fr);
+                gap: 20px; 
+                width: 100%; 
+                max-width: 1340px;
+                justify-content: center; 
+                align-items: stretch; 
+                padding-bottom: 6px; 
+              }
+              .plan-card { 
+                width: 100%; 
+                min-height: 330px; 
+                background: #ffffff; 
+                border-radius: 24px; 
+                padding: 24px 20px; 
+                color: #111; 
+                border: 1.5px solid rgba(255, 255, 255, 0.1); 
+                box-shadow: 0 16px 40px rgba(0,0,0,0.25); 
+                cursor: pointer; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-between; 
+                transition: transform .3s cubic-bezier(.2,.9,.2,1), box-shadow .3s; 
+                perspective: 1200px; 
+                position: relative; 
+                background-image: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); 
+                box-sizing: border-box;
+              }
+              .plan-card:hover { 
+                transform: translateY(-8px) scale(1.02); 
+                box-shadow: 0 24px 50px rgba(242, 101, 34, 0.25); 
+              }
+              .plan-card.active { 
+                transform: translateY(-10px) scale(1.03); 
+                z-index: 20; 
+                box-shadow: 0 28px 60px rgba(242, 101, 34, 0.35); 
+              }
+              .plan-card .card-inner { 
+                transition: transform 0.6s cubic-bezier(.2,.9,.2,1); 
+                transform-style: preserve-3d; 
+                position: relative; 
+                height: 100%; 
+                display: flex; 
+                flex-direction: column; 
+              }
+              .plan-card.flip .card-inner { 
+                transform: rotateY(180deg); 
+              }
+              .card-front, .card-back { 
+                position: relative; 
+                width: 100%; 
+                min-height: 280px; 
+                display: flex; 
+                flex-direction: column; 
+                justify-content: space-between; 
+              }
+              .card-back { 
+                background: #ffffff; 
+                border-radius: 20px; 
+                overflow-y: auto; 
+                justify-content: flex-start; 
+              }
+              .plan-title { 
+                font-weight: 900; 
+                font-size: 1.15rem; 
+                color: #0f172a; 
+                line-height: 1.25; 
+              }
+              .plan-sub { 
+                font-size: .84rem; 
+                color: #64748b; 
+                margin-top: 4px; 
+                font-weight: 600; 
+              }
+              .plan-cta { 
+                margin-top: 16px; 
+                width: 100%; 
+                padding: 13px 16px; 
+                border-radius: 36px; 
+                border: none; 
+                background: linear-gradient(135deg, #ff6600 0%, #ea580c 100%); 
+                color: #ffffff; 
+                font-weight: 900; 
+                cursor: pointer; 
+                box-shadow: 0 8px 20px rgba(242,101,34,0.3); 
+                transition: transform .2s ease; 
+                font-size: 0.95rem; 
+              }
+              .plan-cta:hover { 
+                transform: scale(1.03); 
+              }
+              @media(max-width:1150px){ 
+                .plan-grid { grid-template-columns: repeat(2, 1fr); max-width: 700px; } 
+              }
+              @media(max-width:640px){ 
+                .plan-grid { grid-template-columns: 1fr; max-width: 360px; } 
+                .plan-card { padding: 20px 16px; min-height: 300px; } 
+              }
             `}</style>
+
             <div ref={gridRef} className={`plan-grid ${selectedPlan ? 'focused' : ''}`}>
               {plans.map(p => {
                 const isActive = selectedPlan === p.key;
@@ -391,49 +476,134 @@ const ClientRegister = () => {
                     key={p.key}
                     ref={el => cardRefs.current[p.key] = el}
                     className={`plan-card ${isActive ? 'active' : ''} ${isFlipped ? 'flip' : ''}`}
-                    style={{ borderTop: `4px solid ${p.color}`, color: '#111' }}
+                    style={{ borderTop: `4px solid ${p.color}` }}
                   >
-                    <div className="card-inner" style={{ transition: 'transform 0.6s', transformStyle: 'preserve-3d', position: 'relative' }}>
-                      <div className="card-front" style={{ backfaceVisibility: 'hidden' }} onClick={() => { setAccountType(p.key); setSelectedPlan(p.key); centerCard(cardRefs.current[p.key]); }}>
-                        <div>
-                          <div className="plan-title">{p.label}</div>
-                          <div className="plan-sub">{p.sub}</div>
-                          <ul className="plan-features">{p.features.map((f, i) => (<li key={i}>{f}</li>))}</ul>
+                    <div className="card-inner">
+                      {/* FRONT OF THE CARD (Clean Box) */}
+                      <div 
+                        className="card-front" 
+                        style={{ backfaceVisibility: 'hidden' }} 
+                        onClick={() => { 
+                          setAccountType(p.key); 
+                          setSelectedPlan(p.key); 
+                          setFlipped(p.key); 
+                        }}
+                      >
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', width: '100%' }}>
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '4px 10px',
+                            borderRadius: '20px',
+                            background: p.badgeBg,
+                            color: p.badgeColor,
+                            fontSize: '10px',
+                            fontWeight: '900',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.8px',
+                            marginBottom: '14px',
+                            border: `1px solid ${p.color}33`
+                          }}>
+                            ROL #{p.number} • {p.category}
+                          </div>
+
+                          <div style={{
+                            width: '60px',
+                            height: '60px',
+                            borderRadius: '18px',
+                            background: `linear-gradient(135deg, ${p.badgeBg} 0%, #ffffff 100%)`,
+                            border: `1.5px solid ${p.color}44`,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '26px',
+                            marginBottom: '12px',
+                            boxShadow: `0 6px 14px ${p.color}15`
+                          }}>
+                            {p.icon}
+                          </div>
+
+                          <div className="plan-title" style={{ minHeight: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            {p.label}
+                          </div>
+                          
+                          <div className="plan-sub">
+                            {p.sub}
+                          </div>
                         </div>
-                        <div style={{ width: '100%' }}>
-                          <button type="button" className="plan-cta" onClick={(ev) => { ev.stopPropagation(); setAccountType(p.key); setSelectedPlan(p.key); centerCard(cardRefs.current[p.key]); setFlipped(p.key); }}>{p.cta}</button>
+
+                        <div style={{ width: '100%', marginTop: '16px' }}>
+                          <button 
+                            type="button" 
+                            className="plan-cta" 
+                            onClick={(ev) => { 
+                              ev.stopPropagation(); 
+                              setAccountType(p.key); 
+                              setSelectedPlan(p.key); 
+                              setFlipped(p.key); 
+                            }}
+                          >
+                            {p.cta}
+                          </button>
                         </div>
                       </div>
 
-                      <div className="card-back" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', padding: '16px', boxSizing: 'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden' }}>
-                        <div style={{ color: '#111', fontWeight: 800, marginBottom: 10, fontSize: '1rem' }}>{p.label} — ¿Qué incluye?</div>
-                        <ul style={{ color: '#333', fontSize: '0.92rem', lineHeight: 1.7, marginBottom: 10, paddingLeft: '16px' }}>
-                          {p.details.map((f, i) => (<li key={i} style={{ marginBottom: '8px' }}>• {f}</li>))}
-                        </ul>
-                        <div style={{ color: '#444', fontSize: '0.88rem', marginBottom: 14 }}>{p.note}</div>
-                        <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: '100%', overflowY: 'auto' }}>
-                          <input required value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={lastName} onChange={e => setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={email} onChange={e => setEmail(e.target.value)} placeholder="CORREO" type="email" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={phone} onChange={e => setPhone(e.target.value)} placeholder="TELÉFONO" type="tel" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={password} onChange={e => setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          <input required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="CONFIRMAR CONTRASEÑA" type="password" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          {(p.key === 'client' || p.key === 'technician' || p.key === 'admin_propiedades') && (
-                            <input value={companyCode} onChange={e => setCompanyCode(e.target.value)} placeholder="Código de empresa (Opcional)" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
-                          )}
+                      {/* BACK OF THE CARD (Registration Form) */}
+                      <div className="card-back" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', padding: '16px 14px', boxSizing: 'border-box', transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', paddingBottom: '6px', borderBottom: '1px solid #f1f5f9' }}>
+                          <div>
+                            <span style={{ fontSize: '9px', fontWeight: '800', color: p.color, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                              ROL #{p.number} • {p.category}
+                            </span>
+                            <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: '900', color: '#0f172a' }}>{p.label}</h3>
+                          </div>
+                          <span style={{ fontSize: '20px' }}>{p.icon}</span>
+                        </div>
+
+                        <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto', paddingRight: '2px' }}>
+                          <input required value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="NOMBRE(S)" style={{ padding: '8px 10px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#111', fontSize: '11px', outline: 'none' }} />
+                          <input required value={lastName} onChange={e => setLastName(e.target.value)} placeholder="APELLIDOS" style={{ padding: '8px 10px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#111', fontSize: '11px', outline: 'none' }} />
+                          <input required value={email} onChange={e => setEmail(e.target.value)} placeholder="CORREO" type="email" style={{ padding: '8px 10px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#111', fontSize: '11px', outline: 'none' }} />
+                          <input required value={phone} onChange={e => setPhone(e.target.value)} placeholder="TELÉFONO" type="tel" style={{ padding: '8px 10px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#111', fontSize: '11px', outline: 'none' }} />
+                          <input required value={password} onChange={e => setPassword(e.target.value)} placeholder="CONTRASEÑA" type="password" style={{ padding: '8px 10px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#111', fontSize: '11px', outline: 'none' }} />
+                          <input required value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="CONFIRMAR CONTRASEÑA" type="password" style={{ padding: '8px 10px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#111', fontSize: '11px', outline: 'none' }} />
+                          
                           {(p.key === 'owner_business' || p.key === 'contratista') && (
-                            <input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding: '10px 12px', borderRadius: 20, border: 'none', background: '#f3f3f3', color: '#111' }} />
+                            <input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Nombre de tu empresa / negocio" type="text" style={{ padding: '8px 10px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#111', fontSize: '11px', outline: 'none' }} />
                           )}
-                          <div style={{ display: 'flex', justifyContent: 'center', margin: '5px 0' }}>
+                          
+                          {(p.key === 'client' || p.key === 'technician' || p.key === 'admin' || p.key === 'admin_propiedades') && (
+                            <input value={companyCode} onChange={e => setCompanyCode(e.target.value)} placeholder="Código de empresa (Opcional)" type="text" style={{ padding: '8px 10px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#111', fontSize: '11px', outline: 'none' }} />
+                          )}
+
+                          {(p.key === 'technician' || p.key === 'tecnico_red') && (
+                            <select 
+                              value={selectedSpecialties[0] || 'Electricidad'}
+                              onChange={e => setSelectedSpecialties([e.target.value])}
+                              style={{ padding: '8px 10px', borderRadius: '10px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#111', fontSize: '11px', outline: 'none' }}
+                            >
+                              {ESPECIALIDADES_CATALOGO.map(spec => (
+                                <option key={spec.id} value={spec.name}>{spec.icon} {spec.name}</option>
+                              ))}
+                            </select>
+                          )}
+
+                          <div style={{ display: 'flex', justifyContent: 'center', margin: '3px 0' }}>
                             <ReCAPTCHA
                               sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LfHnl4tAAAAAIosLgj18bnFZ4aqpQ0jBXpnJs_Q"}
                               onChange={handleCaptchaChange}
                               size="compact"
                             />
                           </div>
-                          <div style={{ display: 'flex', gap: 8 }}>
-                            <button type="submit" disabled={isLoading} style={{ flex: 1, padding: '10px 14px', borderRadius: 20, background: '#f26522', color: '#fff', fontWeight: 800 }}>{isLoading ? '...' : 'Registrar'}</button>
-                            <button type="button" onClick={(ev) => { ev.stopPropagation(); setFlipped(null); }} style={{ padding: '10px 14px', borderRadius: 20, background: '#333', color: '#fff' }}>Cancelar</button>
+
+                          <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
+                            <button type="submit" disabled={isLoading} style={{ flex: 1, padding: '9px 12px', borderRadius: '12px', background: 'linear-gradient(135deg, #ff6600, #ea580c)', color: '#fff', fontWeight: 800, border: 'none', cursor: 'pointer', fontSize: '12px' }}>
+                              {isLoading ? '...' : 'Registrar'}
+                            </button>
+                            <button type="button" onClick={(ev) => { ev.stopPropagation(); setFlipped(null); }} style={{ padding: '9px 12px', borderRadius: '12px', background: '#e2e8f0', color: '#334155', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '12px' }}>
+                              Cancelar
+                            </button>
                           </div>
                         </form>
                       </div>
