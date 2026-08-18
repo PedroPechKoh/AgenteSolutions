@@ -5,13 +5,15 @@ import axios from 'axios';
 import Header from "../../../components/Shared/Header";
 import Swal from 'sweetalert2';
 import ModalCrearCotizacion from "../../../components/Shared/ModalCrearCotizacion";
+import ChatModal from "../../../components/Shared/ChatModal";
 import "../../../styles/AgenteSolutions/Tecnico/TrabajoPropiedad.css";
+import "../../../styles/AgenteSolutions/Tecnico/MercadoTrabajos.css";
 import { 
   MapPin, Phone, User, Wrench, Clock, 
   ChevronLeft, Navigation, CheckCircle2, AlertCircle,
   FileText, ArrowRight, Package, Lock, Camera, Layout,
   X, Maximize2, ChevronRight, AlertTriangle, Zap,
-  Plus, Trash2, Upload, Calculator, Calendar
+  Plus, Trash2, Upload, Calculator, Calendar, MessageCircle, Image as ImageIcon
 } from 'lucide-react';
 import { useAuth } from "../../../context/AuthContext";
 
@@ -26,6 +28,10 @@ const TrabajoPropiedad = () => {
   const [materialesConfirmados, setMaterialesConfirmados] = useState(false);
   const [itemsCheck, setItemsCheck] = useState({ materiales: [], equipo: [], herramientas: [] });
   const [hasReports, setHasReports] = useState(false);
+  const [activeChatQuote, setActiveChatQuote] = useState(null);
+
+  const isTecnicoRed = user?.role_id === 8 || Boolean(data?.is_from_network) || Boolean(data?.is_network_service) || Boolean(data?.network_quotes && data?.network_quotes.length > 0);
+  const puedeIniciarReporte = isTecnicoRed || materialesConfirmados;
 
   // --- ESTADOS PARA CONSULTA DE LEVANTAMIENTO ---
   const [modalSurveyVisible, setModalSurveyVisible] = useState(false);
@@ -695,34 +701,41 @@ const TrabajoPropiedad = () => {
 
                 <button className="tp-btn-consult variant-quote" onClick={handleAbrirCotizacion}>
                   <Calculator size={18} />
-                  <span>{cotizacionExistente ? 'CONSULTAR COTIZACIÓN' : 'COTIZAR TRABAJO'}</span>
+                  <span>{(isTecnicoRed || cotizacionExistente || (data?.network_quotes && data.network_quotes.length > 0)) ? 'VER COTIZACIÓN' : 'COTIZAR TRABAJO'}</span>
                 </button>
 
                 <div className="tp-divider-mini"></div>
 
-                <button 
-                  className={`tp-btn-checklist-trigger ${materialesConfirmados ? 'confirmed' : 'pending'}`}
-                  onClick={() => setShowModalMateriales(true)}
-                >
-                  <Package size={20} />
-                  <span>{materialesConfirmados ? "MATERIALES LISTOS" : "CONFIRMAR MATERIALES"}</span>
-                </button>
+                {!isTecnicoRed && (
+                  <button 
+                    className={`tp-btn-checklist-trigger ${materialesConfirmados ? 'confirmed' : 'pending'}`}
+                    onClick={() => setShowModalMateriales(true)}
+                  >
+                    <Package size={20} />
+                    <span>{materialesConfirmados ? "MATERIALES LISTOS" : "CONFIRMAR MATERIALES"}</span>
+                  </button>
+                )}
 
                 <button 
-                  className={`tp-btn-primary ${!materialesConfirmados ? 'locked' : ''}`} 
+                  className={`tp-btn-primary ${!puedeIniciarReporte ? 'locked' : ''}`} 
                   onClick={() => {
-                    if (materialesConfirmados) {
+                    if (puedeIniciarReporte) {
                       navigate(hasReports ? `/galeria-reportes/${id}` : `/nuevo-reporte`, { state: { trabajoId: id, servicio: data } });
                     }
                   }}
-                  disabled={!materialesConfirmados}
+                  disabled={!puedeIniciarReporte}
                   style={hasReports ? { background: '#3b82f6', borderColor: '#3b82f6' } : {}}
                 >
-                  
-                  {!materialesConfirmados && <Lock size={18} />}
+                  {!puedeIniciarReporte && <Lock size={18} />}
                   <span>{hasReports ? 'CONTINUAR REPORTE' : 'INICIAR REPORTE'}</span>
                   <ArrowRight size={18} />
                 </button>
+
+                {!isTecnicoRed && !materialesConfirmados && (
+                  <p className="tp-lock-msg" style={{ marginTop: '4px', textAlign: 'center', fontSize: '0.8rem', color: '#ea580c' }}>
+                    Debe confirmar materiales para iniciar
+                  </p>
+                )}
 
                 {data.estado !== 'Listo' && data.estado !== 'Finalizado' && (
                   <div style={{ display: 'flex', flexDirection: 'column', width: '100%', marginTop: '10px' }}>
@@ -1243,6 +1256,198 @@ const TrabajoPropiedad = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ─── MODAL PARA VER COTIZACIÓN / PROPUESTAS EN EL MAPA ─── */}
+      {showModalCotizacion && (
+        <div className="mercado-modal-overlay" onClick={() => setShowModalCotizacion(false)}>
+          <div className="mercado-premium-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '850px' }}>
+            <div className="mercado-premium-header">
+              <h2>💼 Cotización del Trabajo #{data?.id}</h2>
+              <span className="mercado-modal-close" onClick={() => setShowModalCotizacion(false)}>×</span>
+            </div>
+
+            <div className="mercado-premium-body">
+              {/* Left Panel: Info & Photos */}
+              <div className="mercado-premium-details">
+                {data?.foto_fachada || (data?.evidencias && data.evidencias[0]) ? (
+                  <div className="mercado-photo-gallery">
+                    <div 
+                      className="mercado-premium-image-wrapper" 
+                      onClick={() => setImagenExpandida(data.foto_fachada || data.evidencias[0])}
+                      title="Clic para ampliar"
+                    >
+                      <img src={data.foto_fachada || data.evidencias[0]} alt="Evidencia" className="mercado-premium-image" />
+                      <div className="mercado-image-zoom-badge">
+                        <Maximize2 size={12} /> Clic para ampliar foto
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mercado-no-photo-placeholder">
+                    <ImageIcon size={36} color="#94a3b8" />
+                    <span>Sin fotografías de evidencia</span>
+                  </div>
+                )}
+
+                <div className="mercado-premium-text">
+                  <h3>{data?.titulo || 'Trabajo Asignado'}</h3>
+                  <div className="mercado-premium-info-grid">
+                    <div className="mercado-info-item full-width" style={{ background: '#fff7ed', border: '1.5px solid #fed7aa' }}>
+                      <MapPin size={18} color="#ea580c" style={{ marginTop: '2px', flexShrink: 0 }} />
+                      <div>
+                        <strong style={{ color: '#ea580c' }}>Ubicación / Propiedad</strong>
+                        <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>{data?.propiedad_nombre}</span>
+                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>{data?.direccion}</div>
+                      </div>
+                    </div>
+
+                    <div className="mercado-info-item">
+                      <User size={14} className="mercado-icon-blue" />
+                      <div><strong>Cliente</strong><span>{data?.propietario}</span></div>
+                    </div>
+
+                    <div className="mercado-info-item">
+                      <Phone size={14} className="mercado-icon-blue" />
+                      <div><strong>Teléfono</strong><span>{data?.telefono_cliente || 'No disponible'}</span></div>
+                    </div>
+
+                    <div className="mercado-info-item full-width">
+                      <FileText size={14} className="mercado-icon-blue" />
+                      <div><strong>Descripción del Problema</strong><span>{data?.descripcion || 'Sin descripción'}</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Panel: Proposals list & Live Chat */}
+              <div className="mercado-premium-form" style={{ background: '#ffffff', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)', border: '1.5px solid #fed7aa', borderRadius: '16px', padding: '16px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: '800', color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    📋 Historial de Propuestas en el Mapa
+                  </div>
+                  <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                    Ofertas y cotizaciones enviadas para este trabajo:
+                  </p>
+                </div>
+
+                {/* List of Quotes */}
+                {data?.network_quotes && data.network_quotes.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {data.network_quotes.map((q) => {
+                      const isMine = String(q.technician_id) === String(user?.id);
+                      return (
+                        <div 
+                          key={q.id} 
+                          style={{
+                            background: q.status === 'accepted' ? '#f0fdf4' : (q.status === 'rejected' ? '#fef2f2' : '#ffffff'),
+                            border: q.status === 'accepted' ? '1.5px solid #86efac' : (q.status === 'rejected' ? '1.5px solid #fca5a5' : '1.5px solid #e2e8f0'),
+                            borderRadius: '14px',
+                            padding: '14px 16px',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '18px', fontWeight: '900', color: q.status === 'accepted' ? '#15803d' : '#0f172a' }}>
+                              ${parseFloat(q.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+                            </span>
+                            <span style={{
+                              fontSize: '10px',
+                              fontWeight: '800',
+                              textTransform: 'uppercase',
+                              padding: '3px 8px',
+                              borderRadius: '10px',
+                              background: q.status === 'accepted' ? '#dcfce7' : (q.status === 'rejected' ? '#fee2e2' : '#fff7ed'),
+                              color: q.status === 'accepted' ? '#15803d' : (q.status === 'rejected' ? '#b91c1c' : '#ea580c'),
+                              border: q.status === 'accepted' ? '1px solid #86efac' : (q.status === 'rejected' ? '1px solid #fca5a5' : '1px solid #fed7aa')
+                            }}>
+                              {q.status === 'accepted' ? '✓ ACEPTADA' : (q.status === 'rejected' ? '✕ RECHAZADA' : '⏳ PENDIENTE')}
+                            </span>
+                          </div>
+
+                          {q.message && (
+                            <div style={{ fontSize: '12px', color: '#475569', fontStyle: 'italic', marginBottom: '8px', background: '#ffffff', padding: '8px 10px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                              "{q.message}"
+                            </div>
+                          )}
+
+                          <div style={{ fontSize: '10px', color: '#94a3b8', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>📅 {new Date(q.created_at).toLocaleString('es-MX')}</span>
+                            {isMine && <span style={{ fontWeight: '700', color: '#ea580c' }}>Tu Propuesta</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : cotizacionExistente ? (
+                  <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '14px', padding: '16px' }}>
+                    <div style={{ fontSize: '18px', fontWeight: '900', color: '#0f172a', marginBottom: '6px' }}>
+                      ${parseFloat(cotizacionExistente.total || 0).toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+                    </div>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+                      Folio: {cotizacionExistente.folio} | Estado: {cotizacionExistente.status}
+                    </p>
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '30px 15px', background: '#f8fafc', borderRadius: '14px', border: '1.5px dashed #cbd5e1' }}>
+                    <p style={{ margin: 0, fontSize: '13px', color: '#64748b', fontWeight: '600' }}>Sin cotizaciones registradas</p>
+                  </div>
+                )}
+
+                {/* Botón de Chat Directo con el Cliente */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const myQuote = data?.network_quotes?.find(q => String(q.technician_id) === String(user?.id)) || data?.network_quotes?.[0] || { id: data?.id };
+                    setActiveChatQuote({
+                      id: myQuote.id,
+                      jobTitle: data?.titulo,
+                      cliente: data?.propietario,
+                      chat_history: myQuote.chat_history || []
+                    });
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 18px',
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontWeight: '800',
+                    fontSize: '13px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)',
+                    marginTop: 'auto'
+                  }}
+                >
+                  <MessageCircle size={16} />
+                  <span>💬 Chat con el Cliente ({data?.propietario})</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="mercado-premium-footer">
+              <button className="mercado-btn-cancel" onClick={() => setShowModalCotizacion(false)}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── MODAL DE CHAT EN VIVO CON EL CLIENTE ─── */}
+      {activeChatQuote && (
+        <ChatModal
+          quoteId={activeChatQuote.id}
+          isNetworkQuote={true}
+          jobTitle={activeChatQuote.jobTitle || data?.titulo || 'Trabajo en la Red'}
+          otherPartyName={activeChatQuote.cliente || data?.propietario || 'Cliente'}
+          otherPartyRole="Cliente / Autónomo"
+          initialMessages={activeChatQuote.chat_history || []}
+          onClose={() => setActiveChatQuote(null)}
+        />
       )}
     </div>
   );

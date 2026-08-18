@@ -32,6 +32,7 @@ const TrabajosTecnico = () => {
   const [servicios, setServicios] = useState([]);
   const [checklistDinamico, setChecklistDinamico] = useState(null);
   const navigate = useNavigate();
+  const isTecnicoRed = user?.role_id === 8;
 
   useEffect(() => {
     // Cargar estado de material desde localStorage (específico por usuario y FECHA)
@@ -53,7 +54,7 @@ const TrabajosTecnico = () => {
 
   // GPS Tracking Loop: envía la ubicación GPS cada 30 segundos si el usuario es técnico o contratista
   useEffect(() => {
-    if (!user || (user.role_id !== 2 && user.role_id !== 5 && user.role_id !== 0)) return;
+    if (!user || (user.role_id !== 2 && user.role_id !== 5 && user.role_id !== 0 && user.role_id !== 8)) return;
 
     const sendLocation = () => {
       if (navigator.geolocation) {
@@ -374,11 +375,11 @@ const TrabajosTecnico = () => {
         type="button"
         className={`tt-task-card ${item.priority === 'Urgente' ? 'is-sos' : ''}`}
         onClick={() => {
-          if (materialRecibido) {
+          if (isTecnicoRed || materialRecibido) {
             navigate(`/trabajo-propiedad/${item.composite_id || item.id}`);
           }
         }}
-        disabled={!materialRecibido}
+        disabled={!isTecnicoRed && !materialRecibido}
       >
         <div className="tt-col tt-col-folio">
           <span className="tt-folio-badge">#{item.id}</span>
@@ -502,24 +503,26 @@ const TrabajosTecnico = () => {
           />
         </div>
         
-        <button 
-            className={`btn-open-checklist ${materialRecibido ? 'recibido' : 'pendiente'}`}
-            onClick={() => {
-              if (materialRecibido) {
-                const updated = { ...itemsCheck };
-                Object.keys(updated).forEach(k => {
-                  if (Array.isArray(updated[k])) {
-                    updated[k] = updated[k].map(() => true);
-                  }
-                });
-                setItemsCheck(updated);
-              }
-              setMostrarModalChecklist(true);
-            }}
-          >
-          {materialRecibido ? <CheckCircle2 size={20} /> : <Package size={20} />}
-          <span>{materialRecibido ? "MATERIAL LISTO" : "LISTA DE RUTA"}</span>
-        </button>
+        {!isTecnicoRed && (
+          <button 
+              className={`btn-open-checklist ${materialRecibido ? 'recibido' : 'pendiente'}`}
+              onClick={() => {
+                if (materialRecibido) {
+                  const updated = { ...itemsCheck };
+                  Object.keys(updated).forEach(k => {
+                    if (Array.isArray(updated[k])) {
+                      updated[k] = updated[k].map(() => true);
+                    }
+                  });
+                  setItemsCheck(updated);
+                }
+                setMostrarModalChecklist(true);
+              }}
+            >
+            {materialRecibido ? <CheckCircle2 size={20} /> : <Package size={20} />}
+            <span>{materialRecibido ? "MATERIAL LISTO" : "LISTA DE RUTA"}</span>
+          </button>
+        )}
       </div>
 
       <div className="tt-mobile-tabs">
