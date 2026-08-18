@@ -83,19 +83,11 @@ const ClientRegister = () => {
     },
     {
       key: 'owner_business',
-      roleId: 6,
+      roleId: 4,
       label: 'AUTÓNOMO EMPRESARIAL',
       sub: '30 Clientes',
       cta: 'Suscribirme',
       color: '#0F766E'
-    },
-    {
-      key: 'contratista',
-      roleId: 4,
-      label: 'CONTRATISTA',
-      sub: 'Agente Solutions',
-      cta: 'Suscribirme',
-      color: '#B45309'
     },
     {
       key: 'admin_propiedades',
@@ -144,16 +136,15 @@ const ClientRegister = () => {
     const roleMap = { 
       technician: 2, 
       client: 3, 
-      contratista: 4, 
+      owner_business: 4, 
       owner_personal: 5, 
-      owner_business: 6, 
       admin_propiedades: 7, 
       tecnico_red: 8 
     };
     const roleId = roleMap[accountType] ?? 3;
 
     try {
-      const isAutonomoAccount = (roleId === 5 || roleId === 4 || roleId === 6 || roleId === 8);
+      const isAutonomoAccount = (roleId === 5 || roleId === 4 || roleId === 8);
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/registro-usuario`, {
         first_name: firstName.trim(),
         last_name: lastName.trim(),
@@ -323,6 +314,8 @@ const ClientRegister = () => {
                 flex-wrap: wrap; 
                 gap: 22px; 
                 width: 100%; 
+                max-width: 1060px;
+                margin: 0 auto;
                 justify-content: center; 
                 align-items: stretch; 
                 padding-bottom: 6px; 
