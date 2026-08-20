@@ -114,6 +114,17 @@ const VistaServiciosAdmin = () => {
         scheduledAt: item.scheduled_at,
         arrival_status: item.arrival_status,
         arrived_at: item.arrived_at,
+        publish_network: item.publish_network,
+        is_from_network: item.is_from_network,
+        is_network_service: item.is_network_service,
+        isFromNetwork: Boolean(
+          item.publish_network == 1 ||
+          item.publish_network === true ||
+          item.is_from_network || 
+          item.is_network_service || 
+          item.tecnico?.role_id === 8 ||
+          (item.technicians && item.technicians.some(t => t.role_id === 8))
+        ),
         isOverdue: (item.scheduled_at && !['Listo', 'Finalizado'].includes(item.status)) 
                    ? new Date(item.scheduled_at) < new Date() 
                    : false
@@ -937,78 +948,118 @@ const VistaServiciosAdmin = () => {
                       )}
                     </div>
 
-                    <div className="ts-schedule-block" style={{ marginTop: '15px' }}>
+                    {/* PROGRAMAR VISITA Y BOTONES INFERIORES */}
+                    {(() => {
+                      const isNetworkJob = Boolean(
+                        activeTask.isFromNetwork || 
+                        activeTask.publish_network == 1 ||
+                        activeTask.publish_network === true ||
+                        activeTask.is_from_network || 
+                        activeTask.is_network_service || 
+                        activeTask.tecnicoRole === 8 ||
+                        (tecnicos.find(t => t.id === activeTask.tecnicoId)?.role_id === 8) ||
+                        (tecnicosEquipo && tecnicosEquipo.some(tid => tecnicos.find(t => t.id === tid)?.role_id === 8))
+                      );
 
-                      {/* PROGRAMAR VISITA Y BOTONES INFERIORES */}
-                      <div className="info-item" style={{ 
-                        gridColumn: 'span 2', 
-                        background: '#fff9f0', 
-                        padding: '15px', 
-                        borderRadius: '12px', 
-                        border: '1px dashed #F26522',
-                        marginTop: '10px'
-                      }}>
-                        <Calendar size={20} color="#F26522" />
-                        <div style={{ flex: 1 }}>
-                          <label style={{ color: '#F26522', fontWeight: '900', fontSize: '0.75rem' }}>
-                            PROGRAMAR VISITA (NOTIFICA AL CLIENTE)
-                          </label>
-                          <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center' }}>
-                            <div className="input-with-icon" style={{ flex: 1.1, position: 'relative' }}>
-                              <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
-                              <input 
-                                type="date" 
-                                defaultValue={activeTask.scheduledAt ? new Date(activeTask.scheduledAt).toISOString().split('T')[0] : ''}
-                                id="input-date-visit"
-                                onClick={(e) => !e.target.disabled && e.target.showPicker()}
-                                disabled={activeTask.scheduledAt && !editandoCita}
-                                style={{ 
-                                  width: '100%', padding: '12px 10px 12px 30px', 
-                                  border: '1px solid #ccc', borderRadius: '10px', 
-                                  outline: 'none', background: (activeTask.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
-                                  color: '#333', fontWeight: '600', display: 'block', cursor: (activeTask.scheduledAt && !editandoCita) ? 'default' : 'pointer'
-                                }}
-                              />
-                            </div>
-                            <div className="input-with-icon" style={{ flex: 0.9, position: 'relative' }}>
-                              <Clock size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
-                              <input 
-                                type="time" 
-                                id="input-time-visit"
-                                defaultValue={activeTask.scheduledAt ? new Date(activeTask.scheduledAt).toISOString().split('T')[1].substring(0,5) : ''}
-                                onClick={(e) => !e.target.disabled && e.target.showPicker()}
-                                disabled={activeTask.scheduledAt && !editandoCita}
-                                style={{ 
-                                  width: '100%', padding: '12px 10px 12px 30px', 
-                                  border: '1px solid #ccc', borderRadius: '10px', 
-                                  outline: 'none', background: (activeTask.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
-                                  color: '#333', fontWeight: '600', display: 'block', cursor: (activeTask.scheduledAt && !editandoCita) ? 'default' : 'pointer'
-                                }}
-                              />
+                      if (isNetworkJob) {
+                        return (
+                          <div style={{
+                            background: '#fff7ed',
+                            border: '1.5px solid #ea580c',
+                            borderRadius: '12px',
+                            padding: '14px 16px',
+                            marginTop: '15px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            boxShadow: '0 2px 8px rgba(234, 88, 12, 0.08)'
+                          }}>
+                            <span style={{ fontSize: '24px' }}>⚡</span>
+                            <div>
+                              <strong style={{ color: '#c2410c', fontSize: '0.88rem', display: 'block' }}>
+                                SERVICIO SOLICITADO EN LA RED DE TÉCNICOS
+                              </strong>
+                              <span style={{ color: '#9a3412', fontSize: '0.78rem', lineHeight: '1.4', display: 'block', marginTop: '2px' }}>
+                                Este trabajo es de atención inmediata al momento (On-demand). No requiere programar ni reprogramar fecha de visita.
+                              </span>
                             </div>
                           </div>
-                          
-                          {activeTask.scheduledAt && !editandoCita ? (
-                            <button 
-                              className="modal-action-btn"
-                              onClick={() => setEditandoCita(true)}
-                              style={{ background: '#333', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '10px', cursor: 'pointer' }}
-                            >
-                              <Calendar size={16} /> REPROGRAMAR VISITA
-                            </button>
-                          ) : (
-                            <button 
-                              className="modal-action-btn"
-                              onClick={() => handleSaveSchedule(document.getElementById('input-date-visit').value, document.getElementById('input-time-visit').value, activeTask.dbId)}
-                              disabled={procesandoAccion}
-                              style={{ background: '#F26522', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '10px', cursor: 'pointer' }}
-                            >
-                              {procesandoAccion ? 'GUARDANDO...' : 'GUARDAR Y NOTIFICAR'}
-                            </button>
-                          )}
+                        );
+                      }
+
+                      return (
+                        <div className="ts-schedule-block" style={{ marginTop: '15px' }}>
+                          <div className="info-item" style={{ 
+                            gridColumn: 'span 2', 
+                            background: '#fff9f0', 
+                            padding: '15px', 
+                            borderRadius: '12px', 
+                            border: '1px dashed #F26522',
+                            marginTop: '10px'
+                          }}>
+                            <Calendar size={20} color="#F26522" />
+                            <div style={{ flex: 1 }}>
+                              <label style={{ color: '#F26522', fontWeight: '900', fontSize: '0.75rem' }}>
+                                PROGRAMAR VISITA (NOTIFICA AL CLIENTE)
+                              </label>
+                              <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center' }}>
+                                <div className="input-with-icon" style={{ flex: 1.1, position: 'relative' }}>
+                                  <Calendar size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
+                                  <input 
+                                    type="date" 
+                                    defaultValue={activeTask.scheduledAt ? new Date(activeTask.scheduledAt).toISOString().split('T')[0] : ''}
+                                    id="input-date-visit"
+                                    onClick={(e) => !e.target.disabled && e.target.showPicker()}
+                                    disabled={activeTask.scheduledAt && !editandoCita}
+                                    style={{ 
+                                      width: '100%', padding: '12px 10px 12px 30px', 
+                                      border: '1px solid #ccc', borderRadius: '10px', 
+                                      outline: 'none', background: (activeTask.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
+                                      color: '#333', fontWeight: '600', display: 'block', cursor: (activeTask.scheduledAt && !editandoCita) ? 'default' : 'pointer'
+                                    }}
+                                  />
+                                </div>
+                                <div className="input-with-icon" style={{ flex: 0.9, position: 'relative' }}>
+                                  <Clock size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#F26522', pointerEvents: 'none', zIndex: 1 }} />
+                                  <input 
+                                    type="time" 
+                                    id="input-time-visit"
+                                    defaultValue={activeTask.scheduledAt ? new Date(activeTask.scheduledAt).toISOString().split('T')[1].substring(0,5) : ''}
+                                    onClick={(e) => !e.target.disabled && e.target.showPicker()}
+                                    disabled={activeTask.scheduledAt && !editandoCita}
+                                    style={{ 
+                                      width: '100%', padding: '12px 10px 12px 30px', 
+                                      border: '1px solid #ccc', borderRadius: '10px', 
+                                      outline: 'none', background: (activeTask.scheduledAt && !editandoCita) ? '#f0f0f0' : 'white', fontSize: '0.85rem',
+                                      color: '#333', fontWeight: '600', display: 'block', cursor: (activeTask.scheduledAt && !editandoCita) ? 'default' : 'pointer'
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              
+                              {activeTask.scheduledAt && !editandoCita ? (
+                                <button 
+                                  className="modal-action-btn"
+                                  onClick={() => setEditandoCita(true)}
+                                  style={{ background: '#333', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '10px', cursor: 'pointer' }}
+                                >
+                                  <Calendar size={16} /> REPROGRAMAR VISITA
+                                </button>
+                              ) : (
+                                <button 
+                                  className="modal-action-btn"
+                                  onClick={() => handleSaveSchedule(document.getElementById('input-date-visit').value, document.getElementById('input-time-visit').value, activeTask.dbId)}
+                                  disabled={procesandoAccion}
+                                  style={{ background: '#F26522', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', width: '100%', fontWeight: 'bold', marginTop: '10px', cursor: 'pointer' }}
+                                >
+                                  {procesandoAccion ? 'GUARDANDO...' : 'GUARDAR Y NOTIFICAR'}
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
+                      );
+                    })()}
 
                     <div className="checklist-container" style={{ marginTop: '20px', background: 'white', border: '1px solid #eee', borderRadius: '12px', padding: '15px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
