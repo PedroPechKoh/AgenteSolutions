@@ -27,6 +27,9 @@ const TrabajoPropiedad = () => {
   const [showModalMateriales, setShowModalMateriales] = useState(false);
   const [materialesConfirmados, setMaterialesConfirmados] = useState(false);
   const [itemsCheck, setItemsCheck] = useState({ materiales: [], equipo: [], herramientas: [] });
+  const [hasReports, setHasReports] = useState(false);
+  const [activeChatQuote, setActiveChatQuote] = useState(null);
+
   const storedUser = (() => {
     try {
       return JSON.parse(localStorage.getItem('user') || '{}');
