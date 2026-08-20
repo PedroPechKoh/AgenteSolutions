@@ -27,10 +27,15 @@ const TrabajoPropiedad = () => {
   const [showModalMateriales, setShowModalMateriales] = useState(false);
   const [materialesConfirmados, setMaterialesConfirmados] = useState(false);
   const [itemsCheck, setItemsCheck] = useState({ materiales: [], equipo: [], herramientas: [] });
-  const [hasReports, setHasReports] = useState(false);
-  const [activeChatQuote, setActiveChatQuote] = useState(null);
-
-  const isTecnicoRed = user?.role_id === 8 || Boolean(data?.is_from_network) || Boolean(data?.is_network_service) || Boolean(data?.network_quotes && data?.network_quotes.length > 0);
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || '{}');
+    } catch {
+      return {};
+    }
+  })();
+  const effectiveRole = Number(user?.role_id ?? storedUser?.role_id ?? 0);
+  const isTecnicoRed = effectiveRole === 8 || user?.role_id === 8 || user?.role_id === '8' || storedUser?.role_id === 8 || Boolean(data?.is_from_network) || Boolean(data?.is_network_service) || Boolean(data?.network_quotes && data?.network_quotes.length > 0);
   const puedeIniciarReporte = isTecnicoRed || materialesConfirmados;
 
   // --- ESTADOS PARA CONSULTA DE LEVANTAMIENTO ---

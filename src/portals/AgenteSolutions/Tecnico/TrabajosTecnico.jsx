@@ -32,13 +32,25 @@ const TrabajosTecnico = () => {
   const [servicios, setServicios] = useState([]);
   const [checklistDinamico, setChecklistDinamico] = useState(null);
   const navigate = useNavigate();
-  const isTecnicoRed = user?.role_id === 8;
+
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || '{}');
+    } catch {
+      return {};
+    }
+  })();
+  const effectiveRole = Number(user?.role_id ?? storedUser?.role_id ?? 0);
+  const isTecnicoRed = effectiveRole === 8 || user?.role_id === 8 || user?.role_id === '8' || storedUser?.role_id === 8;
 
   useEffect(() => {
-    // Cargar estado de material desde localStorage (específico por usuario y FECHA)
-    if (user?.id) {
+    // Si es técnico de la red (role 8), NO requiere materiales y se desbloquea automáticamente
+    if (isTecnicoRed) {
+      setMaterialRecibido(true);
+    } else if (user?.id || storedUser?.id) {
+      const uId = user?.id || storedUser?.id;
       const hoyStr = getDayStr(new Date());
-      const statusKey = `materialRecibido_${user.id}_${hoyStr}`;
+      const statusKey = `materialRecibido_${uId}_${hoyStr}`;
       const status = localStorage.getItem(statusKey);
       
       if (status === 'true') {
@@ -46,11 +58,11 @@ const TrabajosTecnico = () => {
       } else {
         setMaterialRecibido(false);
       }
-      
-      fetchServicios();
-      fetchChecklistTemplate();
     }
-  }, [user]);
+    
+    fetchServicios();
+    fetchChecklistTemplate();
+  }, [user, isTecnicoRed]);
 
   // GPS Tracking Loop: envía la ubicación GPS cada 30 segundos si el usuario es técnico o contratista
   useEffect(() => {
@@ -552,7 +564,7 @@ const TrabajosTecnico = () => {
         </button>
       </div>
 
-      <div className={`tt-board-container-kanban ${!materialRecibido ? 'table-locked' : ''} active-${activeTab}`}>
+      <div className={`tt-board-container-kanban ${(!materialRecibido && !isTecnicoRed) ? 'table-locked' : ''} active-${activeTab}`}>
         
         {/* COLUMNA 1: ASIGNADOS (INCLUYE SOS, AYER Y HOY) */}
         <div className={`tt-kanban-col col-todo ${activeTab === 'hoy' ? 'm-active' : 'm-hidden'}`}>
@@ -630,23 +642,24 @@ const TrabajosTecnico = () => {
         </div>
 
       </div>
-        {!materialRecibido && (
+        {(!materialRecibido && !isTecnicoRed) && (
           <div className="lock-overlay-msg">Debe confirmar recepción de material para desbloquear</div>
         )}
 
-      <AnimatePresence>
-        {mostrarModalChecklist && (
-          <div className="tt-modal-overlay">
-            <motion.div 
-              className="tt-modal-content"
-              initial={{ scale: 0.9, opacity: 0 }} // Usamos motion aquí
-              animate={{ scale: 1, opacity: 1 }}   // Usamos motion aquí
-              exit={{ scale: 0.9, opacity: 0 }}    // Usamos motion aquí
-            >
-              <div className="tt-modal-header">
-                <h3>📦 CONFIRMACIÓN DE MATERIAL</h3>
-                {!materialRecibido && <span className="pills-alert">Obligatorio</span>}
-              </div>
+      {!isTecnicoRed && (
+        <AnimatePresence>
+          {mostrarModalChecklist && (
+            <div className="tt-modal-overlay">
+              <motion.div 
+                className="tt-modal-content"
+                initial={{ scale: 0.9, opacity: 0 }} // Usamos motion aquí
+                animate={{ scale: 1, opacity: 1 }}   // Usamos motion aquí
+                exit={{ scale: 0.9, opacity: 0 }}    // Usamos motion aquí
+              >
+                <div className="tt-modal-header">
+                  <h3>📦 CONFIRMACIÓN DE MATERIAL</h3>
+                  {!materialRecibido && <span className="pills-alert">Obligatorio</span>}
+                </div>
               
               <div className="tt-modal-body">
                 <p className="modal-instruction">Marque los elementos que ya tiene en su unidad:</p>
@@ -718,6 +731,7 @@ const TrabajosTecnico = () => {
           </div>
         )}
       </AnimatePresence>
+      )}
     </div>
     </>
   );
