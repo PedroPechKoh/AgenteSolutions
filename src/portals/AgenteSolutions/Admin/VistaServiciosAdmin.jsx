@@ -50,7 +50,7 @@ const VistaServiciosAdmin = () => {
   const [areaActivaSurvey, setAreaActivaSurvey] = useState(null);
 
   // --- MAPEO DE DATOS ---
-  const transformarTareas = useCallback((data) => {
+  const transformarTareas = useCallback((data, cotiList = [], techsList = []) => {
     return data.map(item => {
       let estado = 'todo';
       const hasTechnician = item.tecnico_id || (item.technicians && item.technicians.length > 0);
@@ -85,12 +85,84 @@ const VistaServiciosAdmin = () => {
         ? new Date(item.created_at).toLocaleString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })
         : 'Desconocida';
 
+      // 1. Resolver nombre del Técnico asignado (propio o de la red)
+      let nombreTecnico = '';
+      if (item.tecnico) {
+        nombreTecnico = `${item.tecnico.first_name || ''} ${item.tecnico.last_name || ''}`.trim();
+      } else if (item.technicians && item.technicians.length > 0) {
+        nombreTecnico = item.technicians.map(t => `${t.name || t.first_name || ''} ${t.last_name || ''}`.trim()).filter(Boolean).join(', ');
+      } else if (item.tecnico_id && techsList && techsList.length > 0) {
+        const techFound = techsList.find(t => t.id === item.tecnico_id);
+        if (techFound) {
+          nombreTecnico = `${techFound.first_name || ''} ${techFound.last_name || ''}`.trim();
+        }
+      }
+
+      // Si aún no tenemos técnico y tiene cotización asociada
+      if (!nombreTecnico && cotiList && cotiList.length > 0) {
+        const relatedCoti = cotiList.find(q => Number(q.work_order_id) === Number(item.id) || Number(q.service_id) === Number(item.id));
+        if (relatedCoti) {
+          if (relatedCoti.technician) {
+            nombreTecnico = `${relatedCoti.technician.first_name || ''} ${relatedCoti.technician.last_name || ''}`.trim();
+          } else if (relatedCoti.tecnico) {
+            nombreTecnico = `${relatedCoti.tecnico.first_name || ''} ${relatedCoti.tecnico.last_name || ''}`.trim();
+          } else if (relatedCoti.user && (relatedCoti.user.role_id === 2 || relatedCoti.user.role_id === 8)) {
+            nombreTecnico = `${relatedCoti.user.first_name || ''} ${relatedCoti.user.last_name || ''}`.trim();
+          }
+        }
+      }
+
+      if (!nombreTecnico && item.network_quotes && item.network_quotes.length > 0) {
+        const acceptedNetQuote = item.network_quotes.find(nq => nq.status === 'accepted') || item.network_quotes[0];
+        if (acceptedNetQuote?.technician) {
+          nombreTecnico = `${acceptedNetQuote.technician.first_name || ''} ${acceptedNetQuote.technician.last_name || ''}`.trim();
+        }
+      }
+
+      if (!nombreTecnico && item.networkQuotes && item.networkQuotes.length > 0) {
+        const acceptedNetQuote = item.networkQuotes.find(nq => nq.status === 'accepted') || item.networkQuotes[0];
+        if (acceptedNetQuote?.technician) {
+          nombreTecnico = `${acceptedNetQuote.technician.first_name || ''} ${acceptedNetQuote.technician.last_name || ''}`.trim();
+        }
+      }
+
+      if (!nombreTecnico && item.assigned_network_quote?.technician) {
+        nombreTecnico = `${item.assigned_network_quote.technician.first_name || ''} ${item.assigned_network_quote.technician.last_name || ''}`.trim();
+      }
+
+      const isFromNetwork = Boolean(
+        item.publish_network == 1 ||
+        item.publish_network === true ||
+        item.is_from_network || 
+        item.is_network_service || 
+        item.tecnico?.role_id === 8 ||
+        (item.technicians && item.technicians.some(t => t.role_id === 8)) ||
+        Boolean(item.network_quotes?.length || item.networkQuotes?.length)
+      );
+
+      const rawClient = item.property?.client?.name || item.property?.client?.propietario || '';
+      const isUnknownClient = !rawClient || rawClient.toUpperCase() === 'DESCONOCIDO' || rawClient.toUpperCase() === 'SIN CLIENTE';
+
+      // Titular que se muestra en color naranja en el encabezado de la tarjeta:
+      // En vez de "DESCONOCIDO", mostramos el nombre del Técnico asignado.
+      let titularTarjeta = '';
+      if (nombreTecnico) {
+        titularTarjeta = nombreTecnico;
+      } else if (!isUnknownClient) {
+        titularTarjeta = rawClient;
+      } else if (isFromNetwork) {
+        titularTarjeta = 'Técnico de la Red (Por Asignar)';
+      } else {
+        titularTarjeta = 'Por Asignar';
+      }
+
       return {
         dbId: item.id,
         titulo: `${item.zone} - ${item.equipment || 'General'}`,
         propiedad: item.property ? (item.property.nombre_propiedad || item.property.address) : 'Sin Propiedad',
         direccionPropiedad: item.property?.address || item.property?.direccion || 'Dirección no especificada',
-        cliente: item.property?.client?.name || item.property?.client?.propietario || 'Desconocido',
+        cliente: isUnknownClient ? (nombreTecnico || 'Sin Asignar') : rawClient,
+        titularTarjeta: titularTarjeta,
         telefonoCliente: item.property?.client?.phone || item.property?.telefono || item.telefono_cliente || 'No registrado',
         tipoPropiedad: item.property?.tipo_propiedad || item.property?.type || 'Propiedad',
         equipoAfectado: equipoAfectado,
@@ -101,9 +173,9 @@ const VistaServiciosAdmin = () => {
         fechaFin: new Date(item.updated_at).toLocaleDateString(),
         fechaSolicitud: new Date(item.created_at).toLocaleDateString(),
         fechaSolucion: ['Listo', 'Finalizado'].includes(item.status) ? new Date(item.updated_at).toLocaleDateString() : 'Pendiente',
-        tecnico: item.tecnico ? `${item.tecnico.first_name} ${item.tecnico.last_name}` : (item.technicians?.length ? item.technicians.map(t=>t.name || t.first_name).join(', ') : 'Pendiente de asignar'),
+        tecnico: nombreTecnico || 'Pendiente de asignar',
         tecnicoId: item.tecnico_id,
-        tecnicosIds: item.technicians ? item.technicians.map(t => t.id) : [],
+        tecnicosIds: item.technicians ? item.technicians.map(t => t.id) : (item.tecnico_id ? [item.tecnico_id] : []),
         propertyId: item.property_id,
         fechaInicio: new Date(item.created_at).toLocaleDateString(),
         estado: estado,
@@ -117,14 +189,7 @@ const VistaServiciosAdmin = () => {
         publish_network: item.publish_network,
         is_from_network: item.is_from_network,
         is_network_service: item.is_network_service,
-        isFromNetwork: Boolean(
-          item.publish_network == 1 ||
-          item.publish_network === true ||
-          item.is_from_network || 
-          item.is_network_service || 
-          item.tecnico?.role_id === 8 ||
-          (item.technicians && item.technicians.some(t => t.role_id === 8))
-        ),
+        isFromNetwork: isFromNetwork,
         isOverdue: (item.scheduled_at && !['Listo', 'Finalizado'].includes(item.status)) 
                    ? new Date(item.scheduled_at) < new Date() 
                    : false
@@ -132,21 +197,29 @@ const VistaServiciosAdmin = () => {
     });
   }, []);
 
-  const fetchOrders = useCallback(async () => {
+  const [rawOrders, setRawOrders] = useState([]);
+
+  const fetchOrders = useCallback(async (cotiList = cotizacionesData, techsList = tecnicos) => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/work-orders/all`);
-      setTareasData(transformarTareas(response.data));
+      const list = response.data || [];
+      setRawOrders(list);
+      setTareasData(transformarTareas(list, cotiList, techsList));
     } catch (error) {
       console.error("Error cargando todas las órdenes:", error);
     } finally {
       setLoading(false);
     }
-  }, [transformarTareas]);
+  }, [transformarTareas, cotizacionesData, tecnicos]);
 
   const fetchTecnicos = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/usuarios/tecnicos`);
-      setTecnicos(response.data);
+      const tList = response.data || [];
+      setTecnicos(tList);
+      if (rawOrders.length > 0) {
+        setTareasData(transformarTareas(rawOrders, cotizacionesData, tList));
+      }
     } catch (error) {
       console.error("Error cargando técnicos:", error);
     }
@@ -155,7 +228,11 @@ const VistaServiciosAdmin = () => {
   const fetchCotizaciones = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/cotizaciones`);
-      setCotizacionesData(response.data);
+      const cList = response.data || [];
+      setCotizacionesData(cList);
+      if (rawOrders.length > 0) {
+        setTareasData(transformarTareas(rawOrders, cList, tecnicos));
+      }
     } catch (error) {
       console.error("Error cargando cotizaciones:", error);
     }
@@ -490,7 +567,9 @@ const VistaServiciosAdmin = () => {
                   onClick={() => abrirModal(tarea)}
                 >
                   <div className="prop-badge-card" style={{ whiteSpace: 'normal', marginBottom: '5px', lineHeight: '1.4' }}>
-                    <div style={{ color: '#F26522', fontWeight: 'bold' }}>{tarea.cliente}</div>
+                    <div style={{ color: '#F26522', fontWeight: 'bold' }}>
+                      {tarea.titularTarjeta || tarea.tecnico || 'Por Asignar'}
+                    </div>
                     <div style={{ color: '#555', fontSize: '0.75rem' }}>{tarea.propiedad}</div>
                   </div>
                   <h5 className="task-title-card" style={{ whiteSpace: 'normal', lineHeight: '1.3' }}>
