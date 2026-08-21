@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plus, Clock, CheckCircle2, Circle, X, UserCircle, Calendar, 
-  ArrowLeft, Camera, Layout, FileText, Maximize2, AlertTriangle, ChevronLeft, Timer, Settings, RotateCw
+  ArrowLeft, Camera, Layout, FileText, Maximize2, AlertTriangle, ChevronLeft, Timer, Settings, RotateCw, Trash2
 } from 'lucide-react';
 import Header from '../../../components/Shared/Header';
 import ModalAsignarChecklist from '../../../components/Modals/ModalAsignarChecklist';
@@ -268,6 +268,28 @@ const VistaServiciosAdmin = () => {
   }, [cotizacionesData, tareaSeleccionada]);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isDeletingServices, setIsDeletingServices] = useState(false);
+
+  const handleResetAllServices = async () => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar todos los servicios de prueba de la base de datos para comenzar desde cero?")) {
+      return;
+    }
+    setIsDeletingServices(true);
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('agente_token');
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/work-orders/reset-all-services`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      alert("¡Servicios de prueba eliminados con éxito de la base de datos!");
+      await fetchOrders();
+      await fetchCotizaciones();
+    } catch (e) {
+      console.error(e);
+      alert("Error al limpiar los servicios: " + (e.response?.data?.message || e.message));
+    } finally {
+      setIsDeletingServices(false);
+    }
+  };
 
   const handleManualRefresh = async () => {
     setIsRefreshing(true);
@@ -679,38 +701,68 @@ const VistaServiciosAdmin = () => {
           <h2 style={{ fontStyle: 'italic', fontWeight: '900', margin: 0 }}>GESTIÓN GLOBAL DE SERVICIOS</h2>
         </div>
 
-        {/* BOTÓN ACTUALIZAR PROMINENTE CON ICONO */}
-        <button
-          onClick={handleManualRefresh}
-          disabled={isRefreshing}
-          style={{
-            background: '#F26522',
-            color: 'white',
-            border: 'none',
-            padding: '10px 24px',
-            borderRadius: '18px',
-            fontWeight: '900',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            boxShadow: '0 4px 14px rgba(242, 101, 34, 0.35)',
-            transition: 'all 0.2s ease-in-out',
-            opacity: isRefreshing ? 0.75 : 1
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <RotateCw 
-            size={20} 
-            style={{ 
-              animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
-              transition: 'transform 0.3s'
-            }} 
-          />
-          <span>{isRefreshing ? 'Actualizando...' : 'Actualizar'}</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* BOTÓN LIMPIAR SERVICIOS (BD) */}
+          <button
+            onClick={handleResetAllServices}
+            disabled={isDeletingServices}
+            style={{
+              background: '#dc2626',
+              color: 'white',
+              border: 'none',
+              padding: '10px 18px',
+              borderRadius: '18px',
+              fontWeight: '800',
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: '0 4px 14px rgba(220, 38, 38, 0.35)',
+              opacity: isDeletingServices ? 0.6 : 1,
+              transition: 'all 0.2s ease-in-out'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+            title="Borrar todos los servicios de prueba de la base de datos"
+          >
+            <Trash2 size={18} />
+            <span>{isDeletingServices ? 'Borrando...' : 'Limpiar Servicios (BD)'}</span>
+          </button>
+
+          {/* BOTÓN ACTUALIZAR PROMINENTE CON ICONO */}
+          <button
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            style={{
+              background: '#F26522',
+              color: 'white',
+              border: 'none',
+              padding: '10px 24px',
+              borderRadius: '18px',
+              fontWeight: '900',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              boxShadow: '0 4px 14px rgba(242, 101, 34, 0.35)',
+              transition: 'all 0.2s ease-in-out',
+              opacity: isRefreshing ? 0.75 : 1
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <RotateCw 
+              size={20} 
+              style={{ 
+                animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+                transition: 'transform 0.3s'
+              }} 
+            />
+            <span>{isRefreshing ? 'Actualizando...' : 'Actualizar'}</span>
+          </button>
+        </div>
       </header>
 
       {/* Buscador Universal */}
